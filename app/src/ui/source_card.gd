@@ -39,16 +39,7 @@ func set_config(source: String, config: Dictionary) -> void:
 	_kicker.text = "SCATTER SET" if source.begins_with("set:") else "QUICK MIX · %d ASSETS" % items.size()
 	_name.text = "%s · density %s" % [str(config.name), ToolTexts.format_density(float(config.density))]
 	_edit.text = "Edit set" if source.begins_with("set:") else "Save as set"
-	for child in _bar.get_children():
-		_bar.remove_child(child)
-		child.queue_free()
-	for item: Dictionary in items:
-		var segment := ColorRect.new()
-		segment.color = AssetColors.of(str(item.asset_id))
-		segment.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		segment.size_flags_stretch_ratio = float(item.weight)
-		segment.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		_bar.add_child(segment)
+	AssetColors.fill_bar(_bar, items)
 
 
 func kicker_text() -> String:

@@ -14,6 +14,7 @@ var log_filter: TerrainTests.KnownWarningFilter
 
 
 func before_each() -> void:
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(ScatterSetStore.DEFAULT_PATH))  # sets saved by a test
 	allow_logged_errors()  # the pinned Terrain3D binary logs one known deprecation warning
 	log_filter = TerrainTests.KnownWarningFilter.new()
 	OS.add_logger(log_filter)

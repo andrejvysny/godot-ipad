@@ -365,7 +365,8 @@ func test_scatter_source_card_change_and_edit_hook() -> void:
 	await _pencil_click(s, card.change_button())
 	assert_true(ui.library().is_open(), "Change opens the Library")
 	await _pencil_click(s, card.edit_button())
-	assert_eq(ui.toast().label().text, "Set editor arrives in the next build.")
+	assert_true(ui.set_editor().is_open(), "Edit set opens the set editor")
+	ui.set_editor().close()
 	var sources: Array[String] = []
 	ui.edit_set_hook = func(source: String) -> void: sources.append(source)
 	await _pencil_click(s, card.edit_button())

@@ -32,6 +32,7 @@ var _hints := GestureHints.new()
 var _toast := Toast.new()
 var _ghost_label := GhostLabel.new()
 var _library := AssetLibrary.new()
+var _set_editor := SetEditor.new()
 var _inspector := ObjectInspector.new()
 var _banner := UiKit.pill(UiKit.PANEL_BG_STRONG.blend(UiKit.DANGER_BG), 12, 10)
 var _banner_label := UiKit.bold_label("", 14, UiKit.DANGER_TEXT)
@@ -54,11 +55,11 @@ func setup(session: EditorSession) -> void:
 	_banner_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	for c: Control in [_library, _rail, _popover, _inspector, _chip, _hints, _ghost_label, _toast, _banner, _pill,
-			_history, _actions, _menu, _diagnostics, _confirm]:
+			_history, _actions, _menu, _diagnostics, _set_editor, _confirm]:
 		_root.add_child(c)
 	_setup_components(session)
 	_banner.visible = false
-	for c: Control in [_pill, _menu, _history, _actions, _rail, _popover, _chip, _library, _inspector, _diagnostics]:
+	for c: Control in [_pill, _menu, _history, _actions, _rail, _popover, _chip, _library, _inspector, _diagnostics, _set_editor]:
 		_registered.append(c)
 		session.input.ui_hits.register(c)
 	_connect_signals()
@@ -72,7 +73,8 @@ func setup(session: EditorSession) -> void:
 func _setup_components(session: EditorSession) -> void:
 	_confirm.setup(session)
 	_diagnostics.setup(session)
-	_library.setup(session, Callable())
+	_library.setup(session)
+	_set_editor.setup(session, _library)
 	_inspector.setup(session)
 	_inspector.visible = false
 	_popover.setup(session)
@@ -95,8 +97,10 @@ func _connect_signals() -> void:
 	_pill.toggled.connect(_menu.toggle_open)
 	_menu.visibility_changed.connect(func() -> void: _pill.set_open(_menu.visible))
 	_chip.tapped.connect(_popover.toggle)
-	_popover.change_requested.connect(func(_source: String) -> void: _library.set_open(true))
+	_popover.change_requested.connect(_on_change_source)
 	_popover.edit_set_requested.connect(_on_edit_set)
+	_library.edit_set_requested.connect(_on_library_edit)
+	_library.quick_mix_used.connect(func() -> void: _popover.set_open(true))
 	_library.open_changed.connect(func(_open: bool) -> void: layout())
 	_popover.opened_changed.connect(func(_open: bool) -> void: layout())
 
@@ -105,11 +109,49 @@ func _on_any_signal(_a: Variant = null) -> void:
 	refresh()
 
 
+## "Change" of the source card: the Library on the tab that holds the current source.
+func _on_change_source(source: String) -> void:
+	_library.set_open(true)
+	_library.show_tab("sets" if source.begins_with("set:") else "objects")
+
+
+## Popover "Edit set" / "Save as set": a hook (if installed) or the set editor.
 func _on_edit_set(source: String) -> void:
 	if edit_set_hook.is_valid():
 		edit_set_hook.call(source)
+	elif source.begins_with("set:") and not _session.tools.set_store().get_set(source.trim_prefix("set:")).is_empty():
+		_set_editor.open_set(_session.tools.set_store().get_set(source.trim_prefix("set:")), false)
 	else:
-		_session.post_message("Set editor arrives in the next build.")
+		_set_editor.open_set(_mix_draft(), true)
+
+
+## "" opens a blank new set, otherwise the store set with that id.
+func _on_library_edit(set_id: String) -> void:
+	var existing := _session.tools.set_store().get_set(set_id)
+	if existing.is_empty():
+		_set_editor.open_set(_blank_draft(), true)
+	else:
+		_set_editor.open_set(existing, false)
+
+
+func _blank_draft() -> Dictionary:
+	return {"id": _session.tools.set_store().new_set_id(), "name": "New set",
+			"items": [{"asset_id": "nature.cover.grass_tuft_a", "weight": 5.0}], "density": 1.0, "spacing": 0.6,
+			"slope_min": 0.0, "slope_max": 40.0, "align": true}
+
+
+## New set prefilled from the quick mix (the resolved scatter source, §6).
+func _mix_draft() -> Dictionary:
+	var config := _session.tools.scatter_config()
+	var draft := _blank_draft()
+	if not (config.items as Array).is_empty():
+		draft.items = (config.items as Array).duplicate(true)
+		draft.density = config.density
+		draft.spacing = config.spacing
+		draft.slope_min = config.slope_min
+		draft.slope_max = config.slope_max
+		draft.align = config.align
+	return draft
 
 
 # --- accessors -----------------------------------------------------------------------------
@@ -167,6 +209,10 @@ func library() -> AssetLibrary:
 	return _library
 
 
+func set_editor() -> SetEditor:
+	return _set_editor
+
+
 func banner_label() -> Label:
 	return _banner_label
 
@@ -185,7 +231,6 @@ func is_left_handed() -> bool:
 
 func set_left_handed(on: bool) -> void:
 	_left = on
-	_library.set_side_left(on)
 	_menu.sync_left_handed(on)
 	layout()
 
@@ -244,6 +289,8 @@ func layout() -> void:
 	_layout_top(vp)
 	_layout_sides(vp)
 	_layout_bottom(vp)
+	_set_editor.position = Vector2.ZERO
+	_set_editor.size = vp
 	_menu.reset_size()
 	_menu.position = Vector2(M, _pill.position.y + _pill.size.y + 4.0)
 	_layout_floaters()

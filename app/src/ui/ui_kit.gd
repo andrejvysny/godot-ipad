@@ -91,6 +91,8 @@ static func _editor_variations(theme: Theme) -> void:
 		theme.set_font_size("font_size", entry[0], entry[3])
 	_button_variation(theme, "PillButton", _box(Color.TRANSPARENT, 9, 10), _box(SURFACE_HOVER, 9, 10),
 			_box(SURFACE_HOVER, 9, 10), TEXT, TEXT, true)
+	_button_variation(theme, "AccentLink", _box(Color.TRANSPARENT, 8, 6), _box(SURFACE_HOVER, 8, 6),
+			_box(SURFACE_HOVER, 8, 6), ACCENT, ACCENT, true)
 	_button_variation(theme, "BarButton", _box(Color.TRANSPARENT, 9, 12), _box(SURFACE_HOVER, 9, 12),
 			_box(TEXT, 9, 12), TEXT, ACCENT_INK, true)
 	_button_variation(theme, "InvertButton", _box(Color.TRANSPARENT, 9, 10), _box(SURFACE_HOVER, 9, 10),

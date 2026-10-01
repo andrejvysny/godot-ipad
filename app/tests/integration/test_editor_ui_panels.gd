@@ -106,8 +106,8 @@ func test_library_toggle_shows_and_hides_the_library() -> void:
 	await _pencil_click(s, ui.action_pill().library_button())
 	await _frames(2)
 	assert_true(ui.library().visible and ui.library().is_open())
-	await _pencil_click(s, ui.library().collapse_button())
-	assert_false(ui.action_pill().library_button().button_pressed, "toggle follows the Library's own collapse")
+	ui.library().set_open(false)
+	assert_false(ui.action_pill().library_button().button_pressed, "toggle follows the Library state")
 
 
 func test_confirm_dialog_gates_open_fixture_and_blocks_world_input() -> void:
@@ -165,9 +165,9 @@ func test_registration_of_panels_and_non_blocking_overlays() -> void:
 	var s := await _start()
 	var ui := _ui(s)
 	var panels := ui.registered_panels()
-	assert_eq(panels.size(), 10)
+	assert_eq(panels.size(), 11)
 	for c: Control in [ui.world_pill(), ui.world_menu(), ui.history_tiles(), ui.action_pill(), ui.mode_rail(),
-			ui.popover(), ui.chip(), ui.library(), ui.inspector(), ui.diagnostics_overlay()]:
+			ui.popover(), ui.chip(), ui.library(), ui.inspector(), ui.diagnostics_overlay(), ui.set_editor()]:
 		assert_true(panels.has(c), "%s registered" % c)
 	for c: Control in [ui.gesture_hints(), ui.toast(), ui.ghost_label()]:
 		assert_false(panels.has(c), "%s must not be registered" % c)

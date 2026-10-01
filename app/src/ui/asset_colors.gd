@@ -13,3 +13,17 @@ static func of(asset_id: String) -> Color:
 		if asset_id.contains(key):
 			return KEYS[key]
 	return Color.from_hsv(float(asset_id.hash() % 360) / 360.0, 0.45, 0.75)
+
+
+## Fills `bar` (an HBoxContainer) with one segment per item {asset_id, weight}, sized by weight.
+static func fill_bar(bar: HBoxContainer, items: Array) -> void:
+	for child in bar.get_children():
+		bar.remove_child(child)
+		child.queue_free()
+	for item: Dictionary in items:
+		var segment := ColorRect.new()
+		segment.color = of(str(item.asset_id))
+		segment.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		segment.size_flags_stretch_ratio = float(item.weight)
+		segment.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		bar.add_child(segment)
