@@ -2,8 +2,6 @@ extends TestCase
 ## Editor v2 tool model on ToolController (docs/editor-v2.md §1, §2): modes, tools, invert,
 ## settings, armed placement, height pick, stubs, scatter source, duplicate, paths.
 
-const STUBS := ["scatter", "erase", "fill"]
-
 var h: ToolHarness
 var tool_events: Array[String] = []
 var setting_events: Array[String] = []
@@ -199,22 +197,10 @@ func test_paint_layers_and_erase() -> void:
 	assert_true(h.diagnostics.is_empty(), "no later-build messages")
 
 
-func test_stub_tools_report_and_create_no_operation() -> void:
-	for id in STUBS:
-		h.diagnostics.clear()
-		assert_empty_string(h.ctrl.set_tool(id))
-		var hash_before := CanonicalEncoder.authored_hash(h.doc)
-		h.act("tool_begin", h.at(40, 40, 1.0))
-		assert_false(h.ctrl.has_active_operation(), id)
-		assert_eq(h.ctrl.stroke_state(), "Idle", id)
-		h.act("tool_move", h.at(42, 40, 1.02))
-		h.act("tool_end", h.at(42, 40, 1.04))
-		assert_eq(h.diagnostics, ["%s arrives in a later build." % ToolController.TOOL_LABELS[id]], id)
-		assert_eq(CanonicalEncoder.authored_hash(h.doc), hash_before, id)
-	assert_eq(h.commits.size(), 0)
-	assert_eq(h.finished.size(), 0)
-	for id in ToolController.IMPLEMENTED:
-		assert_false(STUBS.has(id), id)
+func test_every_tool_is_implemented() -> void:
+	for mode_id: String in ToolController.MODES:
+		for id: String in ToolController.TOOLS_BY_MODE[mode_id]:
+			assert_true(ToolController.IMPLEMENTED.has(id), id)
 
 
 # --- Armed placement ---------------------------------------------------------------------
