@@ -145,6 +145,43 @@ class PackageTests(unittest.TestCase):
 		short = self.good["regions/r_0_0.height.f32le"][:-4]
 		self.assertInspectRejects(build_zip(self.good_entries(**{"regions/r_0_0.height.f32le": short})), "expected 262144")
 
+	def test_new_payload_names_and_limits(self) -> None:
+		self.assertEqual(len(wf.PAYLOAD_PATHS), 15)
+		self.assertEqual((wf.SCATTER_MAX_BYTES, wf.PATHS_MAX_BYTES), (512 * 1024, 640 * 1024))
+		self.assertEqual((wf.PACKAGE_MAX_TOTAL_BYTES, wf.PACKAGE_MAX_FILE_BYTES, wf.PACKAGE_MAX_ENTRIES),
+			(12 * 1024 * 1024, 20 * 1024 * 1024, 20))
+		for name in ("scatter.bin", "paths.bin", "regions/r_0_0.color.rgba8"):
+			self.assertIn(name, self.good)
+		self.assertInspectRejects(build_zip(self.good_entries(**{"scatter.bin": b"\0" * (wf.SCATTER_MAX_BYTES + 1)})),
+			"limit 524288")
+		self.assertInspectRejects(build_zip(self.good_entries(**{"paths.bin": b"\0" * (wf.PATHS_MAX_BYTES + 1)})),
+			"limit 655360")
+		short = self.good["regions/r_0_0.color.rgba8"][:-4]
+		self.assertInspectRejects(build_zip(self.good_entries(**{"regions/r_0_0.color.rgba8": short})), "expected 262144")
+
+	def test_boundary_sizes_pass_inspection(self) -> None:
+		data = build_zip(self.good_entries(**{"scatter.bin": b"\0" * wf.SCATTER_MAX_BYTES,
+			"paths.bin": b"\0" * wf.PATHS_MAX_BYTES}))
+		_, errors = wf.inspect_zip(self.write(data))
+		self.assertEqual(errors, [])
+
+	def test_entry_count_limit(self) -> None:
+		# manifest + 15 payload + regions/ is 17; 20 is allowed, 21 is not.
+		extras = [("regions/", b"")]
+		self.assertEqual(wf.inspect_zip(self.write(build_zip(extras + self.good_entries())))[1], [])
+		many = self.good_entries() + [("x%d" % i, b"") for i in range(5)]
+		path = self.write(build_zip(many))
+		self.assertTrue(any("archive has 21 entries" in e for e in wf.inspect_zip(path)[1]))
+
+	def test_old_schema_1_package_gets_explicit_diagnostic(self) -> None:
+		m = wf.parse_json_bytes(self.good["manifest.json"])
+		m["schema_version"] = 1
+		old = [(n, d) for n, d in self.good_entries() if n not in ("scatter.bin", "paths.bin") and "color" not in n]
+		old = [("manifest.json", wf.dump_json(m))] + [e for e in old if e[0] != "manifest.json"]
+		result = wf.validate_path(self.write(build_zip(old)))
+		self.assertFalse(result["valid"])
+		self.assertTrue(result["errors"][0].startswith("unknown schema_version 1"), result["errors"])
+
 	def test_zip64(self) -> None:
 		self.assertInspectRejects(add_zip64_records(build_zip(self.good_entries())), "ZIP64")
 

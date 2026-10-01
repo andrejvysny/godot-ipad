@@ -9,7 +9,7 @@ import unittest
 import zipfile
 from pathlib import Path
 
-from wp_test_support import FIXTURES, SCRIPTS  # noqa: F401
+from wp_test_support import FIXTURES, SCRIPTS, wf  # noqa: F401
 
 import dev  # noqa: E402
 
@@ -23,7 +23,7 @@ def run_consumer(path: Path) -> tuple[int, str]:
 
 
 def build_package(gen: Path, out: Path) -> None:
-	names = ["manifest.json", "objects.json"] + sorted(str(p.relative_to(gen)) for p in (gen / "regions").iterdir())
+	names = ["manifest.json"] + wf.PAYLOAD_PATHS
 	with zipfile.ZipFile(out, "w", compression=zipfile.ZIP_STORED) as zf:
 		for name in names:
 			zf.writestr(zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0)), (gen / name).read_bytes())

@@ -25,11 +25,13 @@ const REGIONS_DIR := "regions/"
 
 static func default_limits() -> Dictionary:
 	return {
-		"max_file_bytes": 16 * 1024 * 1024,
-		"max_total_uncompressed": 8 * 1024 * 1024,
-		"max_entries": 16,
+		"max_file_bytes": 20 * 1024 * 1024,
+		"max_total_uncompressed": 12 * 1024 * 1024,
+		"max_entries": 20,
 		"max_manifest_bytes": WorldCodec.MAX_MANIFEST_BYTES,
 		"max_objects_bytes": WorldCodec.MAX_OBJECTS_BYTES,
+		"max_scatter_bytes": WorldCodec.MAX_SCATTER_BYTES,
+		"max_paths_bytes": WorldCodec.MAX_PATHS_BYTES,
 	}
 
 
@@ -261,6 +263,10 @@ static func _entry_limit_error(name: String, size: int, lim: Dictionary) -> Stri
 		return "manifest.json declares %d bytes, limit %d" % [size, int(lim.max_manifest_bytes)]
 	if name == WorldCodec.OBJECTS_FILE and size > int(lim.max_objects_bytes):
 		return "objects.json declares %d bytes, limit %d" % [size, int(lim.max_objects_bytes)]
+	if name == WorldConstants.SCATTER_FILE and size > int(lim.max_scatter_bytes):
+		return "scatter.bin declares %d bytes, limit %d" % [size, int(lim.max_scatter_bytes)]
+	if name == WorldConstants.PATHS_FILE and size > int(lim.max_paths_bytes):
+		return "paths.bin declares %d bytes, limit %d" % [size, int(lim.max_paths_bytes)]
 	return ""
 
 

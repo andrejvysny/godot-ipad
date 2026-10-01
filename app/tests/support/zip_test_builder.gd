@@ -28,6 +28,8 @@ static func valid_layout() -> ZipTestBuilder:
 	var b := ZipTestBuilder.new()
 	b.add("manifest.json", "{}".to_utf8_buffer())
 	b.add("objects.json", "{}".to_utf8_buffer())
+	b.add("scatter.bin", "WPSC".to_utf8_buffer())
+	b.add("paths.bin", "WPPA".to_utf8_buffer())
 	b.add("regions/", PackedByteArray(), {"external_attr": 0x41ED << 16})
 	var region := PackedByteArray()
 	region.resize(WorldConstants.REGION_MAP_BYTES)

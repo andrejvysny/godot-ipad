@@ -55,6 +55,22 @@ class FixturePropertyTests(unittest.TestCase):
 			objects = json.loads((FIXTURES / name / "objects.json").read_text())["objects"]
 			self.assertEqual(len(objects), 100 if name == "stress_100" else 0)
 
+	def test_fixtures_are_schema_2_defaults(self) -> None:
+		for name in generate_fixtures.WORLD_IDS:
+			m = json.loads((FIXTURES / name / "manifest.json").read_text())
+			self.assertEqual(m["schema_version"], 2)
+			self.assertEqual(m["terrain"]["rules"], {"rock_enabled": True, "rock_slope_deg": 30,
+				"sand_enabled": True, "sand_height_dm": -4})
+			self.assertEqual(m["terrain"]["color_encoding"], "rgba8-tint-v1")
+			self.assertEqual([e["path"] for e in m["payload_files"]], wf.PAYLOAD_PATHS)
+			self.assertEqual((FIXTURES / name / "scatter.bin").read_bytes(), b"WPSC" + bytes([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]))
+			self.assertEqual((FIXTURES / name / "paths.bin").read_bytes(), b"WPPA" + bytes([1, 0, 0, 0, 0, 0, 0, 0]))
+			for loc in wf.REGION_LOCATIONS:
+				self.assertEqual((FIXTURES / name / wf.control_path(loc)).read_bytes(),
+					b"\x01\x00\x00\x00" * wf.REGION_SAMPLE_COUNT)
+				self.assertEqual((FIXTURES / name / wf.color_path(loc)).read_bytes(),
+					b"\xff\xff\xff\x00" * wf.REGION_SAMPLE_COUNT)
+
 	def test_stress_100_objects(self) -> None:
 		gen, errors = wf.validate_generation(FIXTURES / "stress_100")
 		self.assertEqual(errors, [])
@@ -86,7 +102,7 @@ class DeterminismTests(unittest.TestCase):
 			shutil.copytree(FIXTURES / "flat", Path(d) / "flat")
 			shutil.copytree(FIXTURES / "gentle_hills", Path(d) / "gentle_hills")
 			shutil.copytree(FIXTURES / "stress_100", Path(d) / "stress_100")
-			(Path(d) / "flat" / "objects.json").write_text('{"objects": [], "schema_version": 1}')
+			(Path(d) / "flat" / "objects.json").write_text('{"objects": [], "schema_version": 2}')
 			self.assertEqual(generate_fixtures.check(Path(d)), ["flat/objects.json"])
 			rc, _ = quiet(generate_fixtures.main, ["--check", "--out", d])
 			self.assertEqual(rc, 1)

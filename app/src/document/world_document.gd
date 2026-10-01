@@ -15,6 +15,9 @@ var source_label: String = ""
 
 var regions: Dictionary = {}  # Vector2i -> RegionBuffers
 var objects: Dictionary = {}  # String object_id -> ObjectRecord
+var rules: TerrainRules = TerrainRules.defaults()
+var scatter: ScatterLayer = ScatterLayer.new()
+var paths: Dictionary = {}  # String path_id -> PathRecord
 
 var _height_range_cache: Dictionary = {}  # Vector2i -> Vector2(min, max)
 
@@ -40,6 +43,10 @@ func duplicate_deep() -> WorldDocument:
 		d.regions[loc] = (regions[loc] as RegionBuffers).duplicate_deep()
 	for id in objects:
 		d.objects[id] = (objects[id] as ObjectRecord).clone()
+	d.rules = rules.clone()
+	d.scatter = scatter.clone()
+	for id in paths:
+		d.paths[id] = (paths[id] as PathRecord).clone()
 	return d
 
 
@@ -72,6 +79,15 @@ func get_height_at_sample(gx: int, gz: int) -> float:
 	if r == null:
 		return NAN
 	return r.heights[(gz & WorldConstants.REGION_MASK) * WorldConstants.REGION_SAMPLES + (gx & WorldConstants.REGION_MASK)]
+
+
+## Packed tint R<<24 | G<<16 | B<<8 | A, or -1 when the sample is outside the loaded regions.
+func get_color_at_sample(gx: int, gz: int) -> int:
+	var r: RegionBuffers = regions.get(Vector2i(gx >> WorldConstants.REGION_SHIFT, gz >> WorldConstants.REGION_SHIFT))
+	if r == null:
+		return -1
+	var o := ((gz & WorldConstants.REGION_MASK) * WorldConstants.REGION_SAMPLES + (gx & WorldConstants.REGION_MASK)) * 4
+	return (r.color[o] << 24) | (r.color[o + 1] << 16) | (r.color[o + 2] << 8) | r.color[o + 3]
 
 
 func get_control_at_sample(gx: int, gz: int) -> int:
@@ -173,3 +189,24 @@ func put_object(record: ObjectRecord) -> void:
 
 func remove_object(id: String) -> void:
 	objects.erase(id)
+
+
+# --- Paths -----------------------------------------------------------------------------
+
+func get_path_record(id: String) -> PathRecord:
+	return paths.get(id)
+
+
+## Stores `record` (the caller must not keep mutating it; clone first).
+func put_path(record: PathRecord) -> void:
+	paths[record.path_id] = record
+
+
+func remove_path(id: String) -> void:
+	paths.erase(id)
+
+
+func sorted_path_ids() -> PackedStringArray:
+	var ids := PackedStringArray(paths.keys())
+	ids.sort()
+	return ids

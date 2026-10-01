@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet"><style>body{margin:0;background:#16191c;font-family:'Open Sans',system-ui,sans-serif}a{color:#e8ecef}a:hover{color:#f2bf33}</style><script src="terrain-engine.js"></script></helmet>
+<div style="min-height:100vh;box-sizing:border-box;padding:20px;display:flex;justify-content:center;color:#e8ecef">
+<div style="width:{{ scaledW }}px;height:{{ scaledH }}px;flex:none">
+<div style="width:1224px;height:864px;transform:scale({{ scale }});transform-origin:0 0;background:#0b0d0f;border-radius:44px;padding:22px;box-sizing:border-box">
+<div ref="{{ frameRef }}" style="position:relative;width:1180px;height:820px;border-radius:22px;overflow:hidden;background:#5a9a40;user-select:none;-webkit-user-select:none;touch-action:none;font-size:13px">
+<div onPointerDown="{{ onTerrainDown }}" onPointerMove="{{ onHover }}" onPointerLeave="{{ onLeave }}" onWheel="{{ onWheel }}" style="position:absolute;inset:0;cursor:{{ terrainCursor }}">
+<canvas ref="{{ terrainRef }}" width="1180" height="820" style="position:absolute;inset:0;width:1180px;height:820px;pointer-events:none"></canvas>
+<svg width="1180" height="820" style="position:absolute;inset:0;pointer-events:none">
+<sc-for list="{{ paths }}" as="p" hint-placeholder-count="0"><g><path d="{{ p.d }}" fill="none" stroke="rgba(50,34,18,.35)" stroke-width="{{ p.edge }}" stroke-linecap="round" stroke-linejoin="round"></path><path d="{{ p.d }}" fill="none" stroke="#a37650" stroke-width="{{ p.w }}" stroke-linecap="round" stroke-linejoin="round"></path><path d="{{ p.d }}" fill="none" stroke="{{ p.sel }}" stroke-width="1.5" stroke-dasharray="5 5"></path></g></sc-for>
+<sc-if value="{{ live.show }}" hint-placeholder-val="{{ false }}"><path d="{{ live.d }}" fill="{{ live.fill }}" stroke="{{ live.color }}" stroke-width="{{ live.w }}" stroke-dasharray="{{ live.dash }}" stroke-linecap="round" stroke-linejoin="round"></path></sc-if>
+</svg>
+<canvas ref="{{ instRef }}" width="1180" height="820" style="position:absolute;inset:0;width:1180px;height:820px;pointer-events:none"></canvas>
+<sc-for list="{{ objects }}" as="o" hint-placeholder-count="0">
+<div data-obj="{{ o.id }}" style="position:absolute;left:{{ o.left }}px;top:{{ o.top }}px;width:{{ o.size }}px;height:{{ o.size }}px;cursor:pointer">
+<sc-if value="{{ o.selected }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;left:-14%;right:-14%;bottom:-8%;height:36%;border-radius:50%;border:2px solid #f2bf33;transform:rotate({{ o.yaw }}deg)"><div style="position:absolute;left:50%;top:-7px;width:2px;height:9px;margin-left:-1px;background:#f2bf33"></div></div></sc-if>
+<img src="{{ o.img }}" alt="" draggable="false" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none"></img>
+</div>
+</sc-for>
+<sc-for list="{{ handles }}" as="h" hint-placeholder-count="0"><div data-handle="{{ h.key }}" style="position:absolute;left:{{ h.left }}px;top:{{ h.top }}px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;cursor:move"><div style="width:10px;height:10px;border-radius:50%;background:#fff;border:2px solid #f2bf33;box-shadow:0 1px 3px rgba(0,0,0,.4);pointer-events:none"></div></div></sc-for>
+<sc-if value="{{ cursor.show }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;pointer-events:none;left:{{ cursor.left }}px;top:{{ cursor.top }}px;width:{{ cursor.d }}px;height:{{ cursor.d }}px;border-radius:50%;border:1.5px solid {{ cursor.color }};box-shadow:0 0 0 1px rgba(0,0,0,.3)"><img src="{{ cursor.img }}" alt="" style="position:absolute;inset:0;width:100%;height:100%;opacity:.4;transform:rotate({{ cursor.rot }}rad)"></img><div style="position:absolute;left:50%;top:50%;width:3px;height:3px;margin:-1.5px 0 0 -1.5px;border-radius:50%;background:#fff"></div></div></sc-if>
+</div>
+<sc-if value="{{ ghost.show }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;pointer-events:none;left:{{ ghost.x }}px;top:{{ ghost.y }}px;z-index:30">
+<div style="position:absolute;left:{{ ghost.ringL }}px;top:{{ ghost.ringT }}px;width:{{ ghost.ring }}px;height:{{ ghost.ringH }}px;border-radius:50%;border:2px dashed {{ ghost.color }};background:{{ ghost.fill }};transform:rotate({{ ghost.yaw }}deg)"><div style="position:absolute;left:50%;top:-8px;width:2px;height:10px;margin-left:-1px;background:{{ ghost.color }}"></div></div>
+<img src="{{ ghost.img }}" alt="" style="position:absolute;left:{{ ghost.imgL }}px;top:{{ ghost.imgT }}px;width:{{ ghost.size }}px;height:{{ ghost.size }}px;opacity:.85;transform:skewX({{ ghost.tilt }}deg)"></img>
+<div style="position:absolute;left:22px;top:-58px;display:flex;flex-direction:column;gap:1px;white-space:nowrap;padding:5px 9px;border-radius:8px;background:rgba(14,17,20,.92);font-size:11px;line-height:1.35"><span style="font-weight:700;color:{{ ghost.color }}">{{ ghost.label }}</span><span style="color:#aab3bb">{{ ghost.sub }}</span></div>
+</div></sc-if>
+<div data-ui="1" style="position:absolute;top:10px;left:10px;padding:3px;border-radius:12px;background:rgba(18,22,26,.86);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.08)">
+<div onClick="{{ toggleMenu }}" style="height:38px;display:flex;align-items:center;gap:7px;padding:0 10px;border-radius:9px;cursor:pointer;font-size:13px;font-weight:700" style-hover="background:rgba(255,255,255,.07)"><div style="width:7px;height:7px;border-radius:50%;background:{{ saveDot }}"></div>{{ worldName }}<span style="font-size:9px;color:#8a949d">▼</span></div>
+</div>
+<sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}"><div data-ui="1" style="position:absolute;top:56px;left:10px;width:240px;z-index:40;padding:6px;border-radius:12px;background:rgba(18,22,26,.96);border:1px solid rgba(255,255,255,.08);box-shadow:0 12px 30px rgba(0,0,0,.35);display:flex;flex-direction:column;gap:2px">
+<div style="padding:6px 10px 2px;font-size:10px;color:#8a949d">{{ saveText }}</div>
+<sc-for list="{{ menuItems }}" as="m" hint-placeholder-count="3"><div onClick="{{ m.run }}" style="height:40px;display:flex;align-items:center;padding:0 10px;border-radius:8px;font-size:13px;cursor:pointer" style-hover="background:rgba(255,255,255,.07)">{{ m.label }}</div></sc-for>
+</div></sc-if>
+<div data-ui="1" style="position:absolute;top:10px;left:50%;transform:translateX(-50%);display:flex;gap:2px;padding:3px;border-radius:12px;background:rgba(18,22,26,.86);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.08)">
+<div onClick="{{ undo }}" title="{{ undoTitle }}" style="width:52px;height:38px;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;opacity:{{ undoOp }}" style-hover="background:rgba(255,255,255,.07)"><span style="font-size:16px;line-height:1">↶</span><span style="font-size:9px;font-weight:600;color:#aab3bb">Undo</span></div>
+<div onClick="{{ redo }}" title="{{ redoTitle }}" style="width:52px;height:38px;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;opacity:{{ redoOp }}" style-hover="background:rgba(255,255,255,.07)"><span style="font-size:16px;line-height:1">↷</span><span style="font-size:9px;font-weight:600;color:#aab3bb">Redo</span></div>
+</div>
+<div data-ui="1" style="position:absolute;top:10px;right:10px;display:flex;gap:2px;padding:3px;border-radius:12px;background:rgba(18,22,26,.86);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.08)">
+<div onClick="{{ exportWorld }}" style="height:38px;display:flex;align-items:center;padding:0 12px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer" style-hover="background:rgba(255,255,255,.07)">Export</div>
+<div onClick="{{ toggleLib }}" style="height:38px;display:flex;align-items:center;padding:0 12px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;background:{{ libBtnBg }};color:{{ libBtnFg }}">Library</div>
+</div>
+<div data-ui="1" style="position:absolute;top:62px;left:10px;display:flex;flex-direction:column;gap:2px;padding:4px;border-radius:14px;background:rgba(18,22,26,.86);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.08)">
+<sc-for list="{{ modes }}" as="m" hint-placeholder-count="3"><div onClick="{{ m.pick }}" style="width:52px;height:52px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;background:{{ m.bg }};box-shadow:inset 0 0 0 1.5px {{ m.ring }}"><img src="app/addons/terrain_3d/icons/{{ m.icon }}" alt="" draggable="false" style="width:20px;height:20px;pointer-events:none"></img><span style="font-size:9.5px;font-weight:700;color:{{ m.fg }}">{{ m.label }}</span></div></sc-for>
+</div>
+<sc-if value="{{ pop.show }}" hint-placeholder-val="{{ false }}">
+<div data-ui="1" style="position:absolute;top:62px;left:76px;width:272px;max-height:700px;overflow:auto;z-index:25;padding:10px;box-sizing:border-box;border-radius:14px;background:rgba(18,22,26,.95);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.08);box-shadow:0 12px 30px rgba(0,0,0,.35);display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:10px;font-weight:700;letter-spacing:.08em;color:#8a949d">{{ pop.title }}</span><span style="font-size:10px;color:#6f7880">closes when you draw</span></div>
+<div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px"><sc-for list="{{ pop.tools }}" as="t" hint-placeholder-count="4"><div onClick="{{ t.pick }}" style="height:50px;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;background:{{ t.bg }};box-shadow:inset 0 0 0 1.5px {{ t.ring }}"><img src="app/addons/terrain_3d/icons/{{ t.icon }}" alt="" draggable="false" style="width:18px;height:18px;pointer-events:none"></img><span style="font-size:9.5px;font-weight:700;color:{{ t.fg }}">{{ t.label }}</span></div></sc-for></div>
+<sc-if value="{{ pop.swatches.show }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;gap:5px"><span style="font-size:10px;font-weight:600;color:#8a949d">{{ pop.swatches.title }}</span><div style="display:flex;gap:5px"><sc-for list="{{ pop.swatches.items }}" as="s" hint-placeholder-count="4"><div onClick="{{ s.pick }}" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer"><div style="width:100%;height:30px;border-radius:7px;background:{{ s.color }};box-shadow:0 0 0 2px {{ s.ring }}"></div><span style="font-size:9.5px;font-weight:600;color:{{ s.fg }}">{{ s.name }}</span></div></sc-for></div></div></sc-if>
+<sc-if value="{{ pop.height.show }}" hint-placeholder-val="{{ false }}"><div style="display:flex;gap:5px"><div style="flex:1;height:34px;border-radius:8px;background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:space-between;padding:0 10px"><span style="font-size:11px;color:#aab3bb;font-weight:600">Target height</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px">{{ pop.height.text }}</span></div><div onClick="{{ pop.height.pick }}" style="height:34px;display:flex;align-items:center;padding:0 10px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;background:{{ pop.height.bg }};color:{{ pop.height.fg }}">Pick</div></div></sc-if>
+<sc-if value="{{ pop.source.show }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;gap:6px;padding:8px;border-radius:10px;background:rgba(255,255,255,.05)">
+<span style="font-size:10px;font-weight:600;color:#8a949d">{{ pop.source.kicker }}</span>
+<div style="font-size:13px;font-weight:700">{{ pop.source.name }}</div>
+<div style="display:flex;height:5px;border-radius:3px;overflow:hidden;gap:1px"><sc-for list="{{ pop.source.bar }}" as="b" hint-placeholder-count="3"><div style="width:{{ b.pct }}%;background:{{ b.color }}"></div></sc-for></div>
+<div style="display:flex;gap:5px"><div onClick="{{ pop.source.change }}" style="flex:1;height:30px;border-radius:7px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;cursor:pointer">Change</div><div onClick="{{ pop.source.edit }}" style="flex:1;height:30px;border-radius:7px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;cursor:pointer">{{ pop.source.editLabel }}</div></div>
+</div></sc-if>
+<sc-for list="{{ pop.scrubs }}" as="s" hint-placeholder-count="2"><div onPointerDown="{{ s.down }}" style="position:relative;height:34px;border-radius:8px;background:rgba(255,255,255,.05);overflow:hidden;cursor:ew-resize"><div style="position:absolute;left:0;top:0;bottom:0;width:{{ s.pct }}%;background:rgba(242,191,51,.2);border-right:2px solid #f2bf33"></div><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;padding:0 10px;pointer-events:none"><span style="font-size:11px;color:#aab3bb;font-weight:600">{{ s.label }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px">{{ s.text }}</span></div></div></sc-for>
+<sc-if value="{{ pop.brush.show }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;gap:6px">
+<span style="font-size:10px;font-weight:600;color:#8a949d">Brush alpha · shared by all tools</span>
+<div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px"><sc-for list="{{ pop.brush.shapes }}" as="b" hint-placeholder-count="6"><div onClick="{{ b.pick }}" title="{{ b.name }}" style="aspect-ratio:1/1;border-radius:7px;background:#0c0e10;box-shadow:inset 0 0 0 1.5px {{ b.ring }};cursor:pointer;display:flex;align-items:center;justify-content:center"><img src="{{ b.img }}" alt="" style="width:80%;height:80%;pointer-events:none"></img></div></sc-for></div>
+<div style="display:flex;gap:2px;padding:2px;border-radius:8px;background:rgba(255,255,255,.05)"><sc-for list="{{ pop.brush.modes }}" as="m" hint-placeholder-count="3"><div onClick="{{ m.pick }}" style="flex:1;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;cursor:pointer;background:{{ m.bg }};color:{{ m.fg }}">{{ m.label }}</div></sc-for></div>
+<span style="font-size:10px;line-height:1.4;color:#8a949d">{{ pop.brush.hint }}</span>
+</div></sc-if>
+<sc-for list="{{ pop.toggles }}" as="t" hint-placeholder-count="0"><div onClick="{{ t.flip }}" style="height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;border-radius:8px;background:rgba(255,255,255,.05);cursor:pointer"><span style="font-size:11px;font-weight:600;color:#c9d0d6">{{ t.label }}</span><div style="width:28px;height:16px;border-radius:8px;background:{{ t.track }};position:relative"><div style="position:absolute;top:2px;left:{{ t.knob }}px;width:12px;height:12px;border-radius:50%;background:#fff"></div></div></div></sc-for>
+<sc-for list="{{ pop.actions }}" as="a" hint-placeholder-count="0"><div onClick="{{ a.run }}" style="height:34px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:rgba(255,255,255,.07);font-size:11px;font-weight:700;cursor:pointer;color:{{ a.color }}">{{ a.label }}</div></sc-for>
+<sc-if value="{{ pop.rules.show }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;gap:6px;padding-top:8px;border-top:1px solid rgba(255,255,255,.07)">
+<div style="display:flex;align-items:center;gap:6px"><img src="app/addons/terrain_3d/icons/autoshader.svg" alt="" style="width:14px;height:14px"></img><span style="font-size:11px;font-weight:700">Auto-paint rules</span><span style="font-size:10px;color:#8a949d">live, under manual paint</span></div>
+<sc-for list="{{ pop.rules.items }}" as="r" hint-placeholder-count="2"><div style="display:flex;gap:5px;align-items:center">
+<div onClick="{{ r.flip }}" style="width:28px;height:16px;flex:none;border-radius:8px;background:{{ r.track }};position:relative;cursor:pointer"><div style="position:absolute;top:2px;left:{{ r.knob }}px;width:12px;height:12px;border-radius:50%;background:#fff"></div></div>
+<div style="width:12px;height:12px;flex:none;border-radius:3px;background:{{ r.color }}"></div>
+<div onPointerDown="{{ r.down }}" style="flex:1;position:relative;height:32px;border-radius:7px;background:rgba(255,255,255,.05);overflow:hidden;cursor:ew-resize"><div style="position:absolute;left:0;top:0;bottom:0;width:{{ r.pct }}%;background:rgba(242,191,51,.16);border-right:2px solid #f2bf33"></div><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;padding:0 8px;pointer-events:none;font-size:11px"><span style="color:#c9d0d6">{{ r.label }}</span><span style="font-family:'JetBrains Mono',monospace">{{ r.text }}</span></div></div>
+</div></sc-for>
+<div onClick="{{ pop.rules.flipHl }}" style="height:32px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;border-radius:7px;background:rgba(255,255,255,.05);cursor:pointer"><span style="font-size:11px;font-weight:600;color:#c9d0d6">Highlight rule areas</span><div style="width:28px;height:16px;border-radius:8px;background:{{ pop.rules.hlTrack }};position:relative"><div style="position:absolute;top:2px;left:{{ pop.rules.hlKnob }}px;width:12px;height:12px;border-radius:50%;background:#fff"></div></div></div>
+</div></sc-if>
+<span style="font-size:10px;line-height:1.45;color:#8a949d">{{ pop.hint }}</span>
+</div>
+</sc-if>
+<div data-ui="1" style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:2px;padding:3px;border-radius:12px;background:rgba(18,22,26,.88);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.08);white-space:nowrap">
+<div onClick="{{ openPop }}" style="height:36px;display:flex;align-items:center;gap:8px;padding:0 10px;border-radius:9px;cursor:pointer" style-hover="background:rgba(255,255,255,.07)"><img src="app/addons/terrain_3d/icons/{{ chip.icon }}" alt="" style="width:16px;height:16px"></img><span style="font-size:12px;font-weight:700;color:{{ chip.color }}">{{ chip.label }}</span><span style="font-size:11px;color:#aab3bb">{{ chip.sub }}</span></div>
+<sc-if value="{{ chip.canInvert }}" hint-placeholder-val="{{ false }}"><div onClick="{{ invert }}" title="Pencil double-tap (D key in this preview)" style="height:36px;display:flex;align-items:center;padding:0 10px;border-radius:9px;cursor:pointer;font-size:11px;font-weight:700;background:{{ chip.invBg }};color:{{ chip.invFg }}">⇄ {{ chip.invLabel }}</div></sc-if>
+</div>
+<sc-if value="{{ showHints }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;bottom:14px;left:12px;display:flex;flex-direction:column;gap:2px;font-size:10px;line-height:1.35;color:rgba(255,255,255,.88);text-shadow:0 1px 2px rgba(0,0,0,.7);pointer-events:none"><span>1 finger orbit · 2 fingers pan / zoom</span><span>Pencil edits · double-tap inverts (D)</span><span>[ ] brush size</span></div></sc-if>
+<sc-if value="{{ lib.open }}" hint-placeholder-val="{{ true }}">
+<div data-ui="1" style="position:absolute;top:62px;bottom:10px;right:10px;width:240px;box-sizing:border-box;display:flex;flex-direction:column;gap:8px;padding:8px;border-radius:14px;background:rgba(18,22,26,.9);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.08)">
+<div style="display:flex;gap:2px;padding:2px;border-radius:9px;background:rgba(255,255,255,.05)"><sc-for list="{{ lib.tabs }}" as="t" hint-placeholder-count="2"><div onClick="{{ t.pick }}" style="flex:1;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;cursor:pointer;background:{{ t.bg }};color:{{ t.fg }}">{{ t.label }}</div></sc-for></div>
+<sc-if value="{{ lib.isObjects }}" hint-placeholder-val="{{ true }}">
+<div style="flex:1;overflow:auto;display:grid;grid-template-columns:{{ lib.cols }};gap:6px;align-content:start">
+<sc-for list="{{ lib.assets }}" as="a" hint-placeholder-count="4"><div onPointerDown="{{ a.down }}" style="position:relative;border-radius:10px;padding:6px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1.5px {{ a.ring }};cursor:grab;display:flex;flex-direction:column;gap:2px;touch-action:none">
+<div style="aspect-ratio:1/1;border-radius:7px;background:radial-gradient(circle at 50% 70%, rgba(255,255,255,.09), rgba(255,255,255,.02) 70%);display:flex;align-items:center;justify-content:center"><img src="{{ a.img }}" alt="" draggable="false" style="width:76%;height:76%;pointer-events:none"></img></div>
+<div style="font-size:11px;font-weight:700">{{ a.name }}</div><div style="font-size:9.5px;color:#8a949d">{{ a.meta }}</div>
+<div onPointerDown="{{ a.check }}" style="position:absolute;top:2px;right:2px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer"><div style="width:16px;height:16px;border-radius:50%;border:1.5px solid {{ a.checkBorder }};background:{{ a.checkBg }};color:#15191d;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">{{ a.checkMark }}</div></div>
+</div></sc-for>
+</div>
+<sc-if value="{{ lib.multi.show }}" hint-placeholder-val="{{ false }}"><div style="display:flex;gap:4px"><div onClick="{{ lib.multi.use }}" style="flex:1;height:36px;border-radius:8px;background:#f2bf33;color:#15191d;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;cursor:pointer">{{ lib.multi.label }}</div><div onClick="{{ lib.multi.clear }}" style="width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;cursor:pointer">×</div></div></sc-if>
+<div style="font-size:10px;line-height:1.4;color:#8a949d">Drag one item onto the terrain to place it. Tick several to scatter them as a quick mix.</div>
+</sc-if>
+<sc-if value="{{ lib.isSets }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;overflow:auto;display:flex;flex-direction:column;gap:6px">
+<sc-for list="{{ lib.sets }}" as="s" hint-placeholder-count="3"><div onClick="{{ s.pick }}" style="border-radius:10px;padding:8px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1.5px {{ s.ring }};cursor:pointer;display:flex;flex-direction:column;gap:6px">
+<div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:12px;font-weight:700">{{ s.name }}</span><span onClick="{{ s.edit }}" style="font-size:10px;font-weight:700;color:#f2bf33;padding:4px 0 4px 10px">Edit</span></div>
+<div style="display:flex;gap:4px"><sc-for list="{{ s.thumbs }}" as="t" hint-placeholder-count="3"><div style="width:30px;height:30px;border-radius:6px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center"><img src="{{ t.img }}" alt="" style="width:24px;height:24px"></img></div></sc-for></div>
+<div style="display:flex;height:5px;border-radius:3px;overflow:hidden;gap:1px"><sc-for list="{{ s.bar }}" as="b" hint-placeholder-count="3"><div style="width:{{ b.pct }}%;background:{{ b.color }}"></div></sc-for></div>
+<div style="font-size:9.5px;color:#8a949d">{{ s.meta }}</div>
+</div></sc-for>
+<div onClick="{{ lib.newSet }}" style="height:36px;flex:none;border-radius:8px;border:1.5px dashed rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#c9d0d6;cursor:pointer">+ New set</div>
+</div>
+<div style="font-size:10px;line-height:1.4;color:#8a949d">Tap a set to scatter with it.</div>
+</sc-if>
+</div>
+</sc-if>
+<sc-if value="{{ insp.show }}" hint-placeholder-val="{{ false }}"><div data-ui="1" style="position:absolute;left:{{ insp.left }}px;top:{{ insp.top }}px;z-index:20;padding:6px;border-radius:12px;background:rgba(18,22,26,.94);border:1px solid rgba(255,255,255,.08);box-shadow:0 8px 24px rgba(0,0,0,.3);display:flex;flex-direction:column;gap:4px">
+<div style="display:flex;justify-content:space-between;padding:2px 4px;font-size:11px"><span style="font-weight:700">{{ insp.name }}</span><span style="color:#8a949d;font-family:'JetBrains Mono',monospace;font-size:10px">{{ insp.id }}</span></div>
+<sc-for list="{{ insp.rows }}" as="r" hint-placeholder-count="2"><div style="display:flex;gap:3px"><div onClick="{{ r.minus }}" style="width:40px;height:40px;border-radius:8px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer">−</div><div style="width:92px;height:40px;border-radius:8px;background:rgba(255,255,255,.04);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.2"><span style="font-size:9.5px;color:#8a949d;font-weight:600">{{ r.label }}</span><span style="font-size:12px;font-family:'JetBrains Mono',monospace">{{ r.text }}</span></div><div onClick="{{ r.plus }}" style="width:40px;height:40px;border-radius:8px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer">+</div></div></sc-for>
+<div style="display:flex;gap:3px"><div onClick="{{ insp.dup }}" style="flex:1;height:36px;border-radius:8px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;cursor:pointer">Duplicate</div><div onClick="{{ insp.del }}" style="flex:1;height:36px;border-radius:8px;background:rgba(255,110,90,.14);color:#ff9a88;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;cursor:pointer">Delete</div></div>
+</div></sc-if>
+<sc-if value="{{ toast.show }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;bottom:58px;left:50%;transform:translateX(-50%);padding:8px 14px;border-radius:10px;background:rgba(14,17,20,.94);font-size:12px;font-weight:600;color:{{ toast.color }};pointer-events:none;white-space:nowrap;z-index:45">{{ toast.text }}</div></sc-if>
+<sc-if value="{{ ed.show }}" hint-placeholder-val="{{ false }}">
+<div data-ui="1" style="position:absolute;inset:0;z-index:60;background:rgba(12,14,16,.97);display:flex;flex-direction:column">
+<div style="height:58px;flex:none;display:flex;align-items:center;gap:10px;padding:0 14px;border-bottom:1px solid rgba(255,255,255,.07)">
+<div onClick="{{ ed.cancel }}" style="height:38px;display:flex;align-items:center;padding:0 12px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;color:#c9d0d6" style-hover="background:rgba(255,255,255,.07)">Cancel</div>
+<div style="flex:1;display:flex;justify-content:center"><input value="{{ ed.name }}" onChange="{{ ed.rename }}" style="width:260px;height:36px;border-radius:9px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#e8ecef;font:700 15px 'Open Sans',sans-serif;text-align:center;outline:none"></input></div>
+<div onClick="{{ ed.del }}" style="height:38px;display:flex;align-items:center;padding:0 12px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;color:#ff9a88">Delete set</div>
+<div onClick="{{ ed.save }}" style="height:38px;display:flex;align-items:center;padding:0 16px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;background:#f2bf33;color:#15191d">Save set</div>
+</div>
+<div style="flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 420px;gap:20px;padding:18px 20px">
+<div style="display:flex;flex-direction:column;gap:14px;min-height:0;overflow:auto">
+<div style="font-size:10px;font-weight:700;letter-spacing:.08em;color:#8a949d">ASSETS IN SET · WEIGHT = SHARE OF PLACEMENTS</div>
+<div style="display:flex;flex-direction:column;gap:5px">
+<sc-for list="{{ ed.items }}" as="it" hint-placeholder-count="3"><div style="display:flex;align-items:center;gap:8px;padding:5px;border-radius:10px;background:rgba(255,255,255,.04)">
+<div style="width:40px;height:40px;border-radius:8px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center"><img src="{{ it.img }}" alt="" style="width:32px;height:32px"></img></div>
+<div style="width:104px;font-size:12px;font-weight:700">{{ it.name }}</div>
+<div style="width:10px;height:10px;border-radius:3px;background:{{ it.color }}"></div>
+<div onPointerDown="{{ it.down }}" style="flex:1;position:relative;height:36px;border-radius:8px;background:rgba(255,255,255,.05);overflow:hidden;cursor:ew-resize"><div style="position:absolute;left:0;top:0;bottom:0;width:{{ it.pct }}%;background:rgba(242,191,51,.2);border-right:2px solid #f2bf33"></div><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;padding:0 10px;pointer-events:none;font-size:11px"><span style="color:#aab3bb;font-weight:600">Weight</span><span style="font-family:'JetBrains Mono',monospace">{{ it.text }}</span></div></div>
+<div onClick="{{ it.remove }}" style="width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#8a949d;font-size:16px" style-hover="background:rgba(255,255,255,.07)">×</div>
+</div></sc-for>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:5px"><sc-for list="{{ ed.add }}" as="a" hint-placeholder-count="4"><div onClick="{{ a.add }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 10px 0 4px;border-radius:17px;background:rgba(255,255,255,.06);font-size:11px;font-weight:600;cursor:pointer;opacity:{{ a.op }}"><img src="{{ a.img }}" alt="" style="width:26px;height:26px"></img>+ {{ a.name }}</div></sc-for></div>
+<div style="font-size:10px;font-weight:700;letter-spacing:.08em;color:#8a949d;margin-top:6px">DISTRIBUTION &amp; FILTERS</div>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px">
+<sc-for list="{{ ed.params }}" as="p" hint-placeholder-count="4"><div onPointerDown="{{ p.down }}" style="position:relative;height:38px;border-radius:8px;background:rgba(255,255,255,.05);overflow:hidden;cursor:ew-resize"><div style="position:absolute;left:0;top:0;bottom:0;width:{{ p.pct }}%;background:rgba(242,191,51,.2);border-right:2px solid #f2bf33"></div><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;padding:0 10px;pointer-events:none;font-size:11px"><span style="color:#aab3bb;font-weight:600">{{ p.label }}</span><span style="font-family:'JetBrains Mono',monospace">{{ p.text }}</span></div></div></sc-for>
+<div onClick="{{ ed.alignFlip }}" style="height:38px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;border-radius:8px;background:rgba(255,255,255,.05);cursor:pointer"><span style="font-size:11px;font-weight:600;color:#c9d0d6">Align to terrain normal</span><div style="width:28px;height:16px;border-radius:8px;background:{{ ed.alignTrack }};position:relative"><div style="position:absolute;top:2px;left:{{ ed.alignKnob }}px;width:12px;height:12px;border-radius:50%;background:#fff"></div></div></div>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:10px;font-weight:700;letter-spacing:.08em;color:#8a949d">PREVIEW · 50 × 35 M FLAT PATCH</span><span onClick="{{ ed.reroll }}" style="font-size:11px;font-weight:700;color:#f2bf33;cursor:pointer">Re-roll</span></div>
+<img src="{{ ed.preview }}" alt="" style="width:420px;height:294px;border-radius:12px;background:#5b9a40"></img>
+<div style="font-size:11px;color:#8a949d">{{ ed.count }}</div>
+</div>
+</div>
+</div>
+</sc-if>
+</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showGestureHints&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;libraryColumns&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;2&quot;,&quot;3&quot;],&quot;default&quot;:&quot;2&quot;,&quot;tsType&quot;:&quot;'2'|'3'&quot;},&quot;pressureDefault&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+const MODES = [{ id: 'sculpt', label: 'Sculpt', icon: 'height_add.svg' }, { id: 'paint', label: 'Paint', icon: 'texture_paint.svg' }, { id: 'place', label: 'Place', icon: 'multimesh.svg' }];
+const TOOLS = {
+  sculpt: [{ id: 'raise', label: 'Raise', icon: 'height_add.svg', inv: 'Lower' }, { id: 'flatten', label: 'Flatten', icon: 'height_flat.svg' }, { id: 'noise', label: 'Noise', icon: 'height_mul.svg', inv: 'Smooth' }],
+  paint: [{ id: 'paint', label: 'Paint', icon: 'texture_paint.svg', inv: 'Erase' }, { id: 'spray', label: 'Spray', icon: 'texture_spray.svg', inv: 'Erase' }, { id: 'tint', label: 'Tint', icon: 'color_paint.svg', inv: 'Remove' }, { id: 'pick', label: 'Pick', icon: 'picker_checked.svg' }],
+  place: [{ id: 'single', label: 'Select', icon: 'picker_checked.svg' }, { id: 'scatter', label: 'Scatter', icon: 'multimesh.svg', inv: 'Erase' }, { id: 'erase', label: 'Erase', icon: 'holes.svg' }, { id: 'fill', label: 'Fill', icon: 'layers.svg', inv: 'Clear' }, { id: 'path', label: 'Path', icon: 'navigation.svg' }],
+};
+const HINTS = {
+  raise: 'Draw to raise. Double-tap the Pencil to lower.', flatten: 'Pulls terrain toward the target height. Pick samples it from the terrain.', noise: 'Roughens the surface. Inverted, it smooths.',
+  paint: 'Replaces the layer under the brush. Inverted, it erases manual paint and reveals the rule layer.', spray: 'Builds up a soft, broken blend.', tint: 'Colour variation on top of the textures.', pick: 'Tap the terrain to pick its texture layer.',
+  single: 'Drag from the Library to place one item. Tap an object to select it, drag to move.', scatter: 'Paints instances from the active set, within its slope range.', erase: 'Removes scattered instances under the brush.', fill: 'Draw a closed loop to fill it. Inverted, it clears the loop.', path: 'Draw freehand. On lift it becomes a spline; drag its points to edit.',
+};
+const BMODE_HINT = { circle: 'Alpha centred on the Pencil tip.', stamp: 'Alpha rotates to follow the stroke direction.', pattern: 'Alpha tiles in world space; the stroke reveals it.' };
+const ACOL = { lodge: '#c08a5a', spruce: '#3d8a4a', boulder: '#9a958c', grass: '#8fc050', fern: '#2f6b26', flowers: '#e9c84a', pebbles: '#c7c2b8' };
+const rid = () => Math.random().toString(16).slice(2, 10);
+const cl = (v, a, b) => Math.max(a, Math.min(b, v));
+const tg = on => ({ track: on ? '#f2bf33' : 'rgba(255,255,255,.2)', knob: on ? 14 : 2 });
+const DEFAULT_SETS = [
+  { id: 'forest', name: 'Spruce forest', items: [{ asset: 'spruce', w: 6 }, { asset: 'fern', w: 3 }, { asset: 'boulder', w: 1 }], density: 0.6, spacing: 1.4, slopeMin: 0, slopeMax: 35, align: false },
+  { id: 'meadow', name: 'Meadow', items: [{ asset: 'grass', w: 7 }, { asset: 'flowers', w: 2 }, { asset: 'pebbles', w: 1 }], density: 3, spacing: 0.35, slopeMin: 0, slopeMax: 25, align: true },
+  { id: 'scree', name: 'Rocky scree', items: [{ asset: 'pebbles', w: 5 }, { asset: 'boulder', w: 2 }], density: 1.4, spacing: 0.5, slopeMin: 12, slopeMax: 70, align: true },
+];
+
+class Component extends DCLogic {
+  state = {
+    vw: window.innerWidth, mode: 'paint', tools: { sculpt: 'raise', paint: 'paint', place: 'scatter' },
+    st: { sculpt: { size: 7, str: 0.5 }, paint: { size: 5, str: 0.6 }, place: { size: 7, str: 0.7 } },
+    pathW: 2.4, shape: 'soft', bmode: 'circle', pressure: this.props.pressureDefault ?? true, inv: false,
+    layer: 1, tint: 0, flatT: null, picking: false, avoid: true, snap: true, hl: false,
+    source: { type: 'set', id: 'forest' }, multi: [], armed: '', sets: DEFAULT_SETS,
+    objects: [{ id: 'a81c03d2', a: 'lodge', x: 620, y: 482, yaw: 0, scale: 1 }, { id: '032eef50', a: 'boulder', x: 690, y: 500, yaw: 30, scale: 1.4 }],
+    paths: [{ id: 'p1', pts: [{ x: 470, y: 600 }, { x: 560, y: 540 }, { x: 650, y: 520 }, { x: 740, y: 548 }, { x: 830, y: 600 }], w: 2.2 }],
+    selObj: '', selPath: '', pop: true, lib: true, libTab: 'objects', menu: false,
+    cursor: null, ghost: null, live: null, ed: null, edPrev: null, toast: null, rev: 12, saving: false, world: 'Gentle Hills', ready: false,
+  };
+  frameRef = React.createRef(); terrainRef = React.createRef(); instRef = React.createRef();
+  hist = []; fut = []; op = null; imgs = {}; thumbs = {}; shapeCache = {}; lastAngle = 0;
+
+  componentDidMount() {
+    this.dead = false;
+    this.mv = e => this.onMove(e); this.up = e => this.onUp(e);
+    this.key = e => this.onKey(e); this.rs = () => this.setState({ vw: window.innerWidth });
+    window.addEventListener('pointermove', this.mv); window.addEventListener('pointerup', this.up); window.addEventListener('pointercancel', this.up);
+    window.addEventListener('keydown', this.key); window.addEventListener('resize', this.rs);
+    const boot = () => {
+      if (!window.TE || !this.terrainRef.current) return setTimeout(boot, 30);
+      const first = !this.booted;
+      if (first) { this.booted = true; this.TE = window.TE; this.S = this.TE.create(); this.seed(); }
+      if (first) this.TE.ASSETS.forEach(a => {
+        if (a.kind !== 'img') return;
+        const im = new Image(); im.onload = () => { this.dI = true; this.mkThumbs(); }; im.src = 'app/assets/thumbnails/' + a.thumb; this.imgs[a.id] = im;
+      });
+      this.mkThumbs(); this.dT = this.dI = true;
+      const tok = this.loopTok = (this.loopTok || 0) + 1;
+      const loop = () => {
+        if (this.dead || tok !== this.loopTok) return;
+        if (this.dT && this.terrainRef.current) { this.dT = false; this.TE.render(this.S, this.terrainRef.current.getContext('2d'), { highlight: this.state.hl || this.hlTemp }); }
+        if (this.dI && this.instRef.current) { this.dI = false; this.TE.drawInst(this.S, this.instRef.current.getContext('2d'), this.imgs); }
+        setTimeout(loop, 16);
+      };
+      loop(); this.setState({ ready: true });
+    };
+    boot();
+  }
+  componentWillUnmount() {
+    this.dead = true;
+    window.removeEventListener('pointermove', this.mv); window.removeEventListener('pointerup', this.up); window.removeEventListener('pointercancel', this.up);
+    window.removeEventListener('keydown', this.key); window.removeEventListener('resize', this.rs);
+  }
+  mkThumbs() {
+    this.TE.ASSETS.forEach(a => { this.thumbs[a.id] = a.kind === 'img' ? 'app/assets/thumbnails/' + a.thumb : this.TE.thumb(a, this.imgs, 96); });
+    this.forceUpdate();
+  }
+  shapeImg(shape, mode) { const k = shape + mode; return this.shapeCache[k] || (this.shapeCache[k] = this.TE.shapeThumb(shape, mode, 56)); }
+  seed() {
+    const TE = this.TE, S = this.S, b = { shape: 'cloud', mode: 'circle' };
+    for (let i = 0; i < 7; i++) TE.dab(S, 'paint', 590 + i * 14, 478 + (i % 2) * 10, 44, 1, b, { layer: 1 });
+    const bl = this.state.objects.map(o => ({ x: o.x, y: o.y, fr: TE.asset(o.a).fr * o.scale }));
+    TE.fillPoly(S, [{ x: 760, y: 110 }, { x: 1000, y: 120 }, { x: 1030, y: 330 }, { x: 860, y: 360 }, { x: 760, y: 260 }], DEFAULT_SETS[0], bl);
+    TE.fillPoly(S, [{ x: 170, y: 560 }, { x: 420, y: 540 }, { x: 470, y: 720 }, { x: 220, y: 770 }], DEFAULT_SETS[1], bl);
+  }
+  onKey(e) {
+    if (e.target && e.target.tagName === 'INPUT') return;
+    const k = e.key.toLowerCase(), s = this.state;
+    if (k === 'd') this.setState({ inv: !s.inv });
+    else if (k === '[' || k === ']') { const m = s.mode, v = cl(s.st[m].size + (k === ']' ? 1 : -1), 1, 20); this.setSt(m, 'size', v); }
+    else if ((k === 'q' || k === 'e') && s.ghost) this.setState({ ghost: { ...s.ghost, yaw: s.ghost.yaw + (k === 'e' ? 15 : -15) } });
+    else if (k === 'escape') this.setState({ pop: false, menu: false, armed: '' });
+  }
+  setSt(m, key, v) { this.setState(s => ({ st: { ...s.st, [m]: { ...s.st[m], [key]: v } } })); }
+  local(e) { const r = this.frameRef.current.getBoundingClientRect(), k = r.width / 1180; return { x: (e.clientX - r.left) / k, y: (e.clientY - r.top) / k, k }; }
+  overUI(e) { const el = document.elementFromPoint(e.clientX, e.clientY), f = this.frameRef.current; return !el || !f || !f.contains(el) || !!el.closest('[data-ui]'); }
+  pr(e) { return this.state.pressure && e.pointerType === 'pen' && e.pressure > 0 ? cl(0.15 + e.pressure * 1.1, 0.15, 1) : 1; }
+  toast(text, err) { clearTimeout(this.tT); this.setState({ toast: { text, color: err ? '#ff9a88' : '#e8ecef' } }); this.tT = setTimeout(() => this.setState({ toast: null }), 2200); }
+  snap(kinds, label) {
+    this.hist.push({ e: this.TE.snap(this.S, kinds), o: JSON.parse(JSON.stringify({ objects: this.state.objects, paths: this.state.paths })), label });
+    if (this.hist.length > 40) this.hist.shift(); this.fut = [];
+  }
+  commit(label) {
+    const h = this.hist[this.hist.length - 1]; if (h && label) h.label = label;
+    this.setState(s => ({ rev: s.rev + 1, saving: true })); clearTimeout(this.sT); this.sT = setTimeout(() => this.setState({ saving: false }), 700);
+  }
+  restore(from, to, word) {
+    const h = from.pop(); if (!h) return this.toast('Nothing to ' + word.toLowerCase());
+    to.push({ e: this.TE.snap(this.S, this.TE.kindsOf(h.e)), o: JSON.parse(JSON.stringify({ objects: this.state.objects, paths: this.state.paths })), label: h.label });
+    this.TE.restore(this.S, h.e); this.dT = this.dI = true;
+    this.setState(s => ({ objects: h.o.objects, paths: h.o.paths, selObj: '', rev: s.rev + 1 }));
+    this.toast(word + ' ' + h.label);
+  }
+  cfg() {
+    const s = this.state;
+    if (s.source.type === 'mix') return { name: 'Quick mix', items: s.multi.map(a => ({ asset: a, w: 1 })), density: 1.2, spacing: 0.8, slopeMin: 0, slopeMax: 45, align: true };
+    return s.sets.find(x => x.id === s.source.id) || s.sets[0];
+  }
+  cfgOK() { const c = this.cfg(); if (c && c.items.length) return true; this.toast('The scatter source is empty. Pick a set or tick assets.', true); return false; }
+  blockers() { return this.state.avoid ? this.state.objects.map(o => ({ x: o.x, y: o.y, fr: this.TE.asset(o.a).fr * o.scale })) : []; }
+  toolLabel() {
+    const s = this.state, t = s.tools[s.mode], inv = s.inv, L = this.TE.LAYERS[s.layer].name;
+    return ({ raise: inv ? 'Lower terrain' : 'Raise terrain', flatten: 'Flatten terrain', noise: inv ? 'Smooth terrain' : 'Roughen terrain',
+      paint: inv ? 'Erase paint' : 'Paint ' + L, spray: inv ? 'Erase spray' : 'Spray ' + L, tint: inv ? 'Remove tint' : 'Tint ' + this.TE.TINTS[s.tint].name,
+      scatter: inv ? 'Erase scatter' : 'Scatter ' + this.cfg().name, erase: 'Erase scatter' })[t] || t;
+  }
+  isBrush() { const s = this.state, t = s.tools[s.mode]; return s.mode === 'sculpt' || (s.mode === 'paint' && t !== 'pick') || (s.mode === 'place' && (t === 'scatter' || t === 'erase')); }
+  doDab(p, pr, o) {
+    const s = this.state, TE = this.TE, set = s.st[s.mode], R = set.size * TE.PX, str = set.str * pr, b = { shape: s.shape, mode: s.bmode, angle: o.angle }, t = s.tools[s.mode], inv = s.inv;
+    if (s.mode === 'sculpt') { TE.dab(this.S, t === 'raise' ? (inv ? 'lower' : 'raise') : t === 'flatten' ? 'flatten' : (inv ? 'smooth' : 'noise'), p.x, p.y, R, str, b, { target: o.target }); this.dT = true; }
+    else if (s.mode === 'paint') { TE.dab(this.S, t === 'paint' ? (inv ? 'erasePaint' : 'paint') : t === 'spray' ? (inv ? 'eraseSpray' : 'spray') : (inv ? 'untint' : 'tint'), p.x, p.y, R, str, b, { layer: s.layer, tint: s.tint }); this.dT = true; }
+    else { o.n += (t === 'erase' || inv) ? TE.eraseDab(this.S, p.x, p.y, R, str, b) : TE.scatterDab(this.S, p.x, p.y, R, str, b, this.cfg(), this.blockers()); this.dI = true; }
+  }
+  strokeTo(p, pr) {
+    const o = this.op, s = this.state, R = s.st[s.mode].size * this.TE.PX, step = Math.max(3, R * (s.mode === 'place' ? 0.5 : 0.22));
+    const dx = p.x - o.last.x, dy = p.y - o.last.y, d = Math.hypot(dx, dy); if (d < step) return;
+    o.angle = Math.atan2(dy, dx); this.lastAngle = o.angle;
+    const n = Math.floor(d / step);
+    for (let i = 1; i <= n; i++) this.doDab({ x: o.last.x + dx * i / n, y: o.last.y + dy * i / n }, pr, o);
+    o.last = { x: o.last.x + dx * n / n, y: o.last.y + dy * n / n };
+  }
+  ghostAt(a, p, valid, yaw) {
+    const TE = this.TE, A = TE.asset(a), slope = TE.slopeAt(this.S, p.x, p.y);
+    let conflict = '';
+    for (const o of this.state.objects) { const B = TE.asset(o.a); if (Math.hypot(o.x - p.x, o.y - p.y) < (A.fr + B.fr * o.scale) * TE.PX * 0.8) { conflict = B.name; break; } }
+    if (!conflict && !A.proxy) for (const o of this.S.inst) { const B = TE.asset(o.a); if (!B.proxy && Math.hypot(o.x - p.x, o.y - p.y) < (A.fr + B.fr) * TE.PX * 0.7) { conflict = B.name; break; } }
+    this.setState({ ghost: { a, x: p.x, y: p.y, valid, yaw, slope, conflict }, cursor: null });
+  }
+  placeObj(a, p, yaw) {
+    const A = this.TE.asset(a); this.snap({}, 'Place ' + A.name);
+    const o = { id: rid(), a, x: Math.round(p.x), y: Math.round(p.y), yaw: yaw || 0, scale: 1 };
+    this.setState(s => ({ objects: [...s.objects, o], selObj: o.id, ghost: null, mode: 'place', tools: { ...s.tools, place: 'single' }, inv: false }));
+    this.commit('Place ' + A.name);
+  }
+  onTerrainDown(e) {
+    if (!this.TE || (e.button !== undefined && e.button > 0)) return;
+    if (e.pointerType === 'touch') {
+      const o = this.op;
+      if (o && o.type === 'drag' && !o.twist) { const p = this.local(e); o.twist = { id: e.pointerId, a0: Math.atan2(p.y - o.p.y, p.x - o.p.x), y0: this.state.ghost ? this.state.ghost.yaw : 0 }; }
+      return;
+    }
+    if (this.op) return;
+    const TE = this.TE, S = this.S, p = this.local(e), s = this.state, t = s.tools[s.mode], pid = e.pointerId;
+    this.setState({ menu: false, pop: false });
+    if (s.armed) { this.op = { type: 'drag', a: s.armed, pid, p, moved: true }; this.ghostAt(s.armed, p, true, 0); this.setState({ armed: '' }); return; }
+    if (s.picking) { const h = TE.heightAt(S, p.x, p.y); this.setState({ flatT: h, picking: false, pop: true }); this.toast('Target height ' + h.toFixed(1) + ' m'); return; }
+    if (s.mode === 'paint' && t === 'pick') { const r = TE.pick(S, p.x, p.y); this.setState({ layer: r.layer, tools: { ...s.tools, paint: 'paint' }, pop: true }); this.toast('Picked ' + TE.LAYERS[r.layer].name); return; }
+    if (s.mode === 'place' && t === 'single') {
+      const el = e.target.closest && e.target.closest('[data-obj]');
+      if (el) { const id = el.getAttribute('data-obj'), o = s.objects.find(q => q.id === id); this.op = { type: 'move', pid, id, dx: p.x - o.x, dy: p.y - o.y, sx: p.x, sy: p.y, moved: false }; this.setState({ selObj: id }); }
+      else this.setState({ selObj: '' });
+      return;
+    }
+    if (s.mode === 'place' && t === 'fill') { if (!s.inv && !this.cfgOK()) return; this.op = { type: 'lasso', pid, pts: [p] }; return; }
+    if (s.mode === 'place' && t === 'path') {
+      const h = e.target.closest && e.target.closest('[data-handle]');
+      if (h) { const [path, i] = h.getAttribute('data-handle').split(':'); this.snap({}, 'Edit path'); this.op = { type: 'handle', pid, path, i: +i }; return; }
+      this.op = { type: 'path', pid, pts: [p] }; return;
+    }
+    if (s.mode === 'place' && t === 'scatter' && !s.inv && !this.cfgOK()) return;
+    const label = this.toolLabel();
+    this.snap(s.mode === 'sculpt' ? { H: 1 } : s.mode === 'paint' ? { L: 1 } : { inst: 1 }, label);
+    const o = this.op = { type: 'stroke', pid, last: p, label, n: 0, angle: this.lastAngle, target: s.flatT ?? TE.heightAt(S, p.x, p.y) };
+    this.doDab(p, this.pr(e), o); this.setState({ cursor: { x: p.x, y: p.y } });
+  }
+  onHover(e) { if (this.op || !this.TE) return; if (this.isBrush() || this.state.tools.place === 'path' && this.state.mode === 'place') { const p = this.local(e); this.setState({ cursor: { x: p.x, y: p.y } }); } }
+  onLeave() { if (!this.op) this.setState({ cursor: null }); }
+  onWheel(e) { const g = this.state.ghost; if (g) this.setState({ ghost: { ...g, yaw: g.yaw + (e.deltaY > 0 ? 15 : -15) } }); }
+  onMove(e) {
+    const o = this.op; if (!o) return;
+    if (o.pid !== undefined && e.pointerId !== o.pid) {
+      if (o.twist && e.pointerId === o.twist.id && this.state.ghost) { const p = this.local(e), a = Math.atan2(p.y - o.p.y, p.x - o.p.x); this.setState({ ghost: { ...this.state.ghost, yaw: Math.round((o.twist.y0 + (a - o.twist.a0) * 57.3) / 5) * 5 } }); }
+      return;
+    }
+    const p = this.local(e);
+    if (o.type === 'stroke') {
+      if (this.overUI(e)) { o.paused = true; this.setState({ cursor: null }); return; }
+      if (o.paused) { o.paused = false; o.last = p; }
+      this.strokeTo(p, this.pr(e)); this.setState({ cursor: { x: p.x, y: p.y } });
+    } else if (o.type === 'move') {
+      if (!o.moved && Math.hypot(p.x - o.sx, p.y - o.sy) < 6) return;
+      if (!o.moved) { o.moved = true; this.snap({}, 'Move'); }
+      let x = p.x - o.dx, y = p.y - o.dy; if (this.state.snap) { x = Math.round(x / 4) * 4; y = Math.round(y / 4) * 4; }
+      this.setState(s => ({ objects: s.objects.map(q => q.id === o.id ? { ...q, x, y } : q) }));
+    } else if (o.type === 'drag') {
+      if (!o.moved) { if (Math.hypot(e.clientX - o.cx, e.clientY - o.cy) < 6) return; o.moved = true; }
+      o.p = p; this.ghostAt(o.a, p, !this.overUI(e), this.state.ghost ? this.state.ghost.yaw : 0);
+    } else if (o.type === 'lasso' || o.type === 'path') {
+      const l = o.pts[o.pts.length - 1]; if (Math.hypot(p.x - l.x, p.y - l.y) > 4) { o.pts.push(p); this.setState({ live: { type: o.type, pts: o.pts.slice() } }); }
+      if (o.type === 'path') this.setState({ cursor: { x: p.x, y: p.y } });
+    } else if (o.type === 'handle') {
+      this.setState(s => ({ paths: s.paths.map(q => q.id === o.path ? { ...q, pts: q.pts.map((pt, i) => i === o.i ? { x: Math.round(p.x), y: Math.round(p.y) } : pt) } : q) }));
+    } else if (o.type === 'scrub') {
+      const v = cl(o.v0 + (e.clientX - o.cx) / p.k / o.w * (o.max - o.min), o.min, o.max); o.set(Math.round(v / o.step) * o.step);
+    }
+  }
+  onUp(e) {
+    const o = this.op; if (!o) return;
+    if (o.pid !== undefined && e.pointerId !== o.pid) { if (o.twist && e.pointerId === o.twist.id) o.twist = null; return; }
+    this.op = null;
+    const TE = this.TE, p = this.local(e), s = this.state;
+    if (o.type === 'stroke') this.commit(o.label + (s.mode === 'place' && o.n ? ' (' + o.n + ')' : ''));
+    else if (o.type === 'move') { if (o.moved) this.commit('Move ' + TE.asset(s.objects.find(q => q.id === o.id).a).name); }
+    else if (o.type === 'drag') {
+      if (!o.moved) { this.setState({ armed: o.a }); this.toast('Tap the terrain to place ' + TE.asset(o.a).name); }
+      else if (this.overUI(e)) { this.setState({ ghost: null }); this.toast('Released over a panel. Nothing placed.'); }
+      else this.placeObj(o.a, p, s.ghost ? s.ghost.yaw : 0);
+    } else if (o.type === 'lasso') {
+      this.setState({ live: null });
+      if (o.pts.length < 3) return;
+      const lab = s.inv ? 'Clear area' : 'Fill ' + this.cfg().name;
+      this.snap({ inst: 1 }, lab); const n = TE.fillPoly(this.S, o.pts, this.cfg(), this.blockers(), s.inv); this.dI = true; this.commit(lab + ' (' + n + ')');
+    } else if (o.type === 'path') {
+      this.setState({ live: null });
+      const pts = TE.resample(o.pts, 34); if (pts.length < 2) return;
+      this.snap({ H: 1 }, 'Draw path');
+      const R = s.pathW * TE.PX * 1.1;
+      for (let i = 0; i < o.pts.length; i += 2) { const q = o.pts[i]; TE.dab(this.S, 'flatten', q.x, q.y, R, 0.9, { shape: 'soft', mode: 'circle' }, { target: TE.heightAt(this.S, q.x, q.y) }); }
+      this.dT = true; const id = rid();
+      this.setState(st => ({ paths: [...st.paths, { id, pts, w: st.pathW }], selPath: id })); this.commit('Draw path');
+    } else if (o.type === 'handle') this.commit('Edit path');
+    else if (o.type === 'scrub' && o.end) o.end();
+  }
+  scrub(get, set, min, max, step, w, start, end) {
+    return e => { e.stopPropagation(); e.preventDefault(); if (start) start(); this.op = { type: 'scrub', pid: e.pointerId, cx: e.clientX, v0: get(), min, max, step, w, set, end }; };
+  }
+  openEditor(set) { this.setState({ ed: JSON.parse(JSON.stringify(set)), lib: true }, () => this.edPreview()); }
+  edPreview() {
+    const ed = this.state.ed; if (!ed) return;
+    clearTimeout(this.pT); this.pT = setTimeout(() => { if (!this.state.ed) return; const c = this.state.ed; this.setState({ edPrev: c.items.length ? this.TE.previewSet(c, this.imgs, 420, 294) : { url: '', count: 0 } }); }, 60);
+  }
+  edSet(fn) { this.setState(s => ({ ed: fn({ ...s.ed, items: s.ed.items.map(i => ({ ...i })) }) }), () => this.edPreview()); }
+  newWorld(name) {
+    this.S = this.TE.create(); this.hist = []; this.fut = [];
+    if (name === 'Flat') { this.S.H.fill(0); this.setState({ objects: [], paths: [] }); }
+    else { this.seed(); }
+    this.dT = this.dI = true; this.setState({ world: name, menu: false, selObj: '', selPath: '' }); this.toast('Saved current world · opened ' + name);
+  }
+  renderVals() {
+    const s = this.state, P = this.props, scale = Math.min(1, (s.vw - 40) / 1224);
+    const base = { scale, scaledW: 1224 * scale, scaledH: 864 * scale, frameRef: this.frameRef, terrainRef: this.terrainRef, instRef: this.instRef };
+    const TE = this.TE; if (!TE) return { ...base, pop: { show: false }, lib: { open: false }, ed: { show: false }, ghost: { show: false }, cursor: { show: false }, insp: { show: false }, toast: { show: false }, live: { show: false }, modes: [], objects: [], paths: [], handles: [], menuItems: [], chip: {} };
+    const PX = TE.PX, m = s.mode, t = s.tools[m], tool = TOOLS[m].find(x => x.id === t), brush = this.isBrush(), inv = s.inv && !!tool.inv;
+    const rgb = c => 'rgb(' + c.join(',') + ')';
+    const cfg = this.cfg(), wsum = cfg.items.reduce((a, i) => a + i.w, 0) || 1;
+    const bar = c => c.items.map(i => ({ pct: i.w / (c.items.reduce((a, j) => a + j.w, 0) || 1) * 100, color: ACOL[i.asset] }));
+    const pick = (cur, v) => ({ bg: cur === v ? '#f2bf33' : 'transparent', fg: cur === v ? '#15191d' : '#c9d0d6' });
+    const scrubs = [];
+    if (brush) {
+      scrubs.push({ label: 'Size', text: s.st[m].size.toFixed(1) + ' m', pct: (s.st[m].size - 1) / 19 * 100, down: this.scrub(() => this.state.st[m].size, v => this.setSt(m, 'size', v), 1, 20, 0.5, 252) });
+      scrubs.push({ label: m === 'place' ? 'Flow' : 'Strength', text: Math.round(s.st[m].str * 100) + '%', pct: (s.st[m].str - 0.05) / 0.95 * 100, down: this.scrub(() => this.state.st[m].str, v => this.setSt(m, 'str', v), 0.05, 1, 0.05, 252) });
+    }
+    if (m === 'place' && t === 'path') scrubs.push({ label: 'Width', text: s.pathW.toFixed(1) + ' m', pct: (s.pathW - 1) / 5 * 100, down: this.scrub(() => this.state.pathW, v => this.setState({ pathW: v }), 1, 6, 0.2, 252) });
+    const toggles = [];
+    if (brush && t !== 'erase') toggles.push({ label: m === 'place' ? 'Pressure → flow' : 'Pressure → strength', ...tg(s.pressure), flip: () => this.setState({ pressure: !s.pressure }) });
+    if (m === 'place' && (t === 'scatter' || t === 'fill')) toggles.push({ label: 'Keep clear of placed objects', ...tg(s.avoid), flip: () => this.setState({ avoid: !s.avoid }) });
+    if (m === 'place' && t === 'single') toggles.push({ label: 'Snap move to 0.5 m', ...tg(s.snap), flip: () => this.setState({ snap: !s.snap }) });
+    const actions = [];
+    if (m === 'place' && t === 'path' && s.paths.some(q => q.id === s.selPath)) actions.push({ label: 'Delete selected path', color: '#ff9a88', run: () => { this.snap({}, 'Delete path'); this.setState(st => ({ paths: st.paths.filter(q => q.id !== st.selPath), selPath: '' })); this.commit('Delete path'); } });
+    const sw = m === 'paint' && t !== 'tint'
+      ? { show: true, title: 'Texture layer', items: TE.LAYERS.map((L, i) => ({ name: L.name, color: rgb(L.rgb), ring: s.layer === i ? '#f2bf33' : 'transparent', fg: s.layer === i ? '#fff' : '#8a949d', pick: () => this.setState({ layer: i }) })) }
+      : m === 'paint' ? { show: true, title: 'Tint colour', items: TE.TINTS.map((L, i) => ({ name: L.name, color: rgb(L.rgb), ring: s.tint === i ? '#f2bf33' : 'transparent', fg: s.tint === i ? '#fff' : '#8a949d', pick: () => this.setState({ tint: i }) })) }
+      : { show: false };
+    const R = this.S.rules;
+    const rule = (key, label, text, pct, color, min, max, step, get, set) => ({ label, text, pct, color, ...tg(R[key].on),
+      flip: () => { this.snap({ rules: 1 }, 'Toggle rule'); R[key].on = !R[key].on; this.dT = true; this.commit(); this.forceUpdate(); },
+      down: this.scrub(get, v => { set(v); this.dT = true; this.forceUpdate(); }, min, max, step, 180, () => { this.snap({ rules: 1 }, 'Edit auto-paint rule'); this.hlTemp = true; }, () => { this.hlTemp = false; this.dT = true; this.commit(); }) });
+    const pop = {
+      show: s.pop, title: m.toUpperCase() + ' TOOLS', hint: HINTS[t], scrubs, toggles, actions, swatches: sw,
+      tools: TOOLS[m].map(x => ({ ...x, bg: x.id === t ? 'rgba(242,191,51,.16)' : 'transparent', ring: x.id === t ? '#f2bf33' : 'transparent', fg: x.id === t ? '#f2bf33' : '#c9d0d6', pick: () => this.setState({ tools: { ...s.tools, [m]: x.id }, inv: false, picking: false }) })),
+      height: m === 'sculpt' && t === 'flatten' ? { show: true, text: s.flatT == null ? 'stroke start' : s.flatT.toFixed(1) + ' m', ...pick(s.picking, true), pick: () => { this.setState({ picking: true, pop: false }); this.toast('Tap the terrain to sample its height'); } } : { show: false },
+      source: m === 'place' && (t === 'scatter' || t === 'fill') ? { show: true, kicker: s.source.type === 'set' ? 'SCATTER SET' : 'QUICK MIX · ' + s.multi.length + ' ASSETS', name: cfg.name + ' · density ' + cfg.density, bar: bar(cfg),
+        editLabel: s.source.type === 'set' ? 'Edit set' : 'Save as set',
+        change: () => this.setState({ lib: true, libTab: s.source.type === 'set' ? 'sets' : 'objects' }),
+        edit: () => this.openEditor(s.source.type === 'set' ? cfg : { ...cfg, id: rid(), name: 'New set' }) } : { show: false },
+      brush: brush ? { show: true, hint: BMODE_HINT[s.bmode],
+        shapes: TE.SHAPE_LIST.map(([id, name]) => ({ name, img: this.shapeImg(id, 'circle'), ring: s.shape === id ? '#f2bf33' : 'rgba(255,255,255,.08)', pick: () => this.setState({ shape: id }) })),
+        modes: [['circle', 'Circle'], ['stamp', 'Stamp'], ['pattern', 'Pattern']].map(([id, label]) => ({ label, ...pick(s.bmode, id), pick: () => this.setState({ bmode: id }) })) } : { show: false },
+      rules: m === 'paint' ? { show: true, ...{ hlTrack: tg(s.hl).track, hlKnob: tg(s.hl).knob }, flipHl: () => { this.setState({ hl: !s.hl }); this.dT = true; },
+        items: [rule('rock', 'Rock above', R.rock.slope + '°', (R.rock.slope - 10) / 50 * 100, rgb(TE.LAYERS[2].rgb), 10, 60, 1, () => this.S.rules.rock.slope, v => { this.S.rules.rock.slope = v; }),
+          rule('sand', 'Sand below', R.sand.h.toFixed(1) + ' m', (R.sand.h + 3) / 6 * 100, rgb(TE.LAYERS[3].rgb), -3, 3, 0.1, () => this.S.rules.sand.h, v => { this.S.rules.sand.h = v; })] } : { show: false },
+    };
+    const sub = brush ? (m === 'place' && t === 'scatter' && !inv ? cfg.name + ' · ' : '') + s.st[m].size.toFixed(1) + ' m · ' + Math.round(s.st[m].str * 100) + '%'
+      : t === 'path' ? 'width ' + s.pathW.toFixed(1) + ' m' : t === 'fill' ? (inv ? 'clear loop' : cfg.name) : t === 'pick' ? 'tap terrain' : 'drag from Library';
+    const chip = { icon: tool.icon, label: inv ? tool.inv : (m === 'paint' && t !== 'tint' && t !== 'pick' ? tool.label + ' ' + TE.LAYERS[s.layer].name : tool.label), color: inv ? '#ff9a88' : '#f2bf33', sub,
+      canInvert: !!tool.inv, invLabel: tool.inv, invBg: s.inv ? 'rgba(255,110,90,.2)' : 'transparent', invFg: s.inv ? '#ff9a88' : '#aab3bb' };
+    let cursor = { show: false };
+    if (s.cursor && (brush || (m === 'place' && t === 'path'))) {
+      const d = brush ? s.st[m].size * PX * 2 : s.pathW * PX;
+      cursor = { show: true, d, left: s.cursor.x - d / 2, top: s.cursor.y - d / 2, color: inv || t === 'erase' ? '#ff9a88' : '#fff', img: brush ? this.shapeImg(s.shape, s.bmode === 'pattern' ? 'pattern' : 'circle') : '', rot: s.bmode === 'stamp' ? this.lastAngle : 0 };
+    }
+    let ghost = { show: false };
+    if (s.ghost) {
+      const A = TE.asset(s.ghost.a), g = s.ghost, size = A.px, ring = A.fr * PX * 2 + 10;
+      const color = !g.valid ? '#ff9a88' : g.conflict ? '#ff6b52' : '#f2bf33';
+      ghost = { show: true, x: g.x, y: g.y, img: this.thumbs[A.id], size, imgL: -size / 2, imgT: -size * 0.85, ring, ringH: ring * 0.5, ringL: -ring / 2, ringT: -ring * 0.25, yaw: g.yaw, tilt: cl(g.slope * 0.4, 0, 18),
+        color, fill: !g.valid ? 'rgba(255,110,90,.1)' : g.conflict ? 'rgba(255,80,60,.18)' : 'rgba(242,191,51,.12)',
+        label: !g.valid ? 'Over a panel · lift to cancel' : g.conflict ? 'Too close to ' + g.conflict : 'Lift to place ' + A.name,
+        sub: 'Slope ' + Math.round(g.slope) + '° · aligned to normal · yaw ' + g.yaw + '° · twist with 2nd finger' };
+    }
+    const sel = s.objects.find(o => o.id === s.selObj);
+    let insp = { show: false };
+    if (sel && m === 'place' && t === 'single') {
+      const A = TE.asset(sel.a), maxL = 1180 - (s.lib ? 260 : 10) - 196; let lx = sel.x + 36; if (lx > maxL) lx = sel.x - 36 - 186;
+      const ed = (label, fn) => { this.snap({}, label + ' ' + A.name); this.setState(st => ({ objects: st.objects.map(o => o.id === sel.id ? fn({ ...o }) : o) })); this.commit(label + ' ' + A.name); };
+      insp = { show: true, name: A.name, id: sel.id, left: cl(lx, 76, maxL), top: cl(sel.y - 110, 62, 820 - 200),
+        rows: [{ label: 'Yaw', text: sel.yaw + '°', minus: () => ed('Rotate', o => ({ ...o, yaw: o.yaw - 15 })), plus: () => ed('Rotate', o => ({ ...o, yaw: o.yaw + 15 })) },
+          { label: 'Scale', text: sel.scale.toFixed(1) + '×', minus: () => ed('Scale', o => ({ ...o, scale: cl(+(o.scale - 0.1).toFixed(1), A.scale[0], A.scale[1]) })), plus: () => ed('Scale', o => ({ ...o, scale: cl(+(o.scale + 0.1).toFixed(1), A.scale[0], A.scale[1]) })) }],
+        dup: () => { this.snap({}, 'Duplicate ' + A.name); const n = { ...sel, id: rid(), x: sel.x + 24, y: sel.y + 12 }; this.setState(st => ({ objects: [...st.objects, n], selObj: n.id })); this.commit('Duplicate ' + A.name); },
+        del: () => { this.snap({}, 'Delete ' + A.name); this.setState(st => ({ objects: st.objects.filter(o => o.id !== sel.id), selObj: '' })); this.commit('Delete ' + A.name); } };
+    }
+    let live = { show: false };
+    if (s.live) { const pts = s.live.pts, d = 'M' + pts.map(q => q.x.toFixed(0) + ' ' + q.y.toFixed(0)).join(' L');
+      live = s.live.type === 'lasso' ? { show: true, d: d + ' Z', fill: s.inv ? 'rgba(255,110,90,.15)' : 'rgba(242,191,51,.15)', color: s.inv ? '#ff9a88' : '#f2bf33', w: 2, dash: '6 4' }
+        : { show: true, d, fill: 'none', color: 'rgba(163,118,80,.85)', w: s.pathW * PX, dash: '' }; }
+    const showHandles = m === 'place' && t === 'path';
+    const edS = s.ed;
+    const ed = edS ? { show: true, name: edS.name, preview: s.edPrev ? s.edPrev.url : '', count: s.edPrev ? s.edPrev.count + ' instances in preview' : '',
+      rename: e => { const v = e.target.value; this.setState(st => ({ ed: { ...st.ed, name: v } })); },
+      items: edS.items.map((it, i) => ({ img: this.thumbs[it.asset], name: TE.asset(it.asset).name, color: ACOL[it.asset], pct: it.w / 10 * 100, text: it.w.toFixed(1),
+        down: this.scrub(() => this.state.ed.items[i].w, v => this.edSet(x => { x.items[i].w = Math.max(0.5, v); return x; }), 0, 10, 0.5, 300),
+        remove: () => this.edSet(x => { x.items.splice(i, 1); return x; }) })),
+      add: TE.ASSETS.map(A => { const has = edS.items.some(i => i.asset === A.id); return { img: this.thumbs[A.id], name: A.name, op: has ? 0.35 : 1, add: () => !has && this.edSet(x => { x.items.push({ asset: A.id, w: 3 }); return x; }) }; }),
+      params: [['density', 'Density', 0.1, 5, 0.1, v => v.toFixed(1)], ['spacing', 'Min spacing', 0.2, 4, 0.1, v => v.toFixed(1) + ' m'], ['slopeMin', 'Slope from', 0, 90, 1, v => v + '°'], ['slopeMax', 'Slope to', 0, 90, 1, v => v + '°']].map(([k, label, mn, mx, stp, f]) => ({ label, text: f(edS[k]), pct: (edS[k] - mn) / (mx - mn) * 100,
+        down: this.scrub(() => this.state.ed[k], v => this.edSet(x => { x[k] = +v.toFixed(2); if (k === 'slopeMin') x.slopeMax = Math.max(x.slopeMax, x[k]); if (k === 'slopeMax') x.slopeMin = Math.min(x.slopeMin, x[k]); return x; }), mn, mx, stp, 300) })),
+      alignTrack: tg(edS.align).track, alignKnob: tg(edS.align).knob, alignFlip: () => this.edSet(x => { x.align = !x.align; return x; }),
+      reroll: () => this.edPreview(), cancel: () => this.setState({ ed: null }),
+      save: () => { if (!edS.items.length) return this.toast('Add at least one asset', true); this.setState(st => ({ sets: st.sets.some(x => x.id === edS.id) ? st.sets.map(x => x.id === edS.id ? edS : x) : [...st.sets, edS], ed: null, source: { type: 'set', id: edS.id }, libTab: 'sets', mode: 'place', tools: { ...st.tools, place: st.tools.place === 'fill' ? 'fill' : 'scatter' } })); this.toast('Saved set ' + edS.name); },
+      del: () => this.setState(st => { const sets = st.sets.filter(x => x.id !== edS.id); return { sets, ed: null, source: st.source.id === edS.id ? { type: 'set', id: sets[0] ? sets[0].id : '' } : st.source }; }) } : { show: false };
+    const undoTop = this.hist[this.hist.length - 1], redoTop = this.fut[this.fut.length - 1];
+    return {
+      ...base,
+      onTerrainDown: e => this.onTerrainDown(e), onHover: e => this.onHover(e), onLeave: () => this.onLeave(), onWheel: e => this.onWheel(e),
+      terrainCursor: brush ? 'none' : 'crosshair',
+      paths: s.paths.map(q => ({ d: TE.splineD(q.pts), w: q.w * PX, edge: q.w * PX + 3, sel: showHandles && q.id === s.selPath ? 'rgba(255,255,255,.8)' : 'transparent' })),
+      handles: showHandles ? (s.paths.find(q => q.id === s.selPath) || { pts: [] }).pts.map((q, i) => ({ key: s.selPath + ':' + i, left: q.x - 13, top: q.y - 13 })) : [],
+      objects: s.objects.map(o => { const A = TE.asset(o.a), size = A.px * o.scale; return { id: o.id, img: this.thumbs[o.a], size, left: o.x - size / 2, top: o.y - size * 0.85, yaw: o.yaw, selected: o.id === s.selObj && m === 'place' && t === 'single' }; }),
+      live, cursor, ghost, insp, pop, chip, ed,
+      openPop: () => this.setState({ pop: !s.pop }), invert: () => this.setState({ inv: !s.inv }),
+      modes: MODES.map(x => ({ ...x, bg: x.id === m ? 'rgba(242,191,51,.16)' : 'transparent', ring: x.id === m ? '#f2bf33' : 'transparent', fg: x.id === m ? '#f2bf33' : '#c9d0d6', pick: () => x.id === m ? this.setState({ pop: !s.pop }) : this.setState({ mode: x.id, pop: true, inv: false, picking: false }) })),
+      showHints: P.showGestureHints ?? true,
+      lib: { open: s.lib, isObjects: s.libTab === 'objects', isSets: s.libTab === 'sets', cols: (P.libraryColumns ?? '2') === '3' ? 'repeat(3,minmax(0,1fr))' : 'repeat(2,minmax(0,1fr))',
+        tabs: [['objects', 'Objects'], ['sets', 'Scatter sets']].map(([id, label]) => ({ label, bg: s.libTab === id ? '#e8ecef' : 'transparent', fg: s.libTab === id ? '#15191d' : '#c9d0d6', pick: () => this.setState({ libTab: id }) })),
+        assets: TE.ASSETS.map(A => { const on = s.multi.includes(A.id); return { name: A.name, meta: A.cat, img: this.thumbs[A.id], ring: s.armed === A.id ? '#f2bf33' : 'transparent',
+          checkBorder: on ? '#f2bf33' : 'rgba(255,255,255,.35)', checkBg: on ? '#f2bf33' : 'rgba(0,0,0,.25)', checkMark: on ? '✓' : '',
+          check: e => { e.stopPropagation(); e.preventDefault(); this.setState(st => ({ multi: on ? st.multi.filter(x => x !== A.id) : [...st.multi, A.id] })); },
+          down: e => { if (e.button > 0) return; e.preventDefault(); this.op = { type: 'drag', a: A.id, pid: e.pointerId, cx: e.clientX, cy: e.clientY, moved: false }; } }; }),
+        multi: { show: s.multi.length > 0, label: 'Scatter ' + s.multi.length + ' as quick mix', clear: () => this.setState({ multi: [] }),
+          use: () => this.setState({ source: { type: 'mix' }, mode: 'place', tools: { ...s.tools, place: 'scatter' }, pop: true, inv: false }) },
+        sets: s.sets.map(x => ({ name: x.name, ring: s.source.type === 'set' && s.source.id === x.id ? '#f2bf33' : 'transparent', bar: bar(x), thumbs: x.items.map(i => ({ img: this.thumbs[i.asset] })),
+          meta: 'density ' + x.density + ' · spacing ' + x.spacing + ' m · slope ' + x.slopeMin + '–' + x.slopeMax + '°',
+          pick: () => this.setState({ source: { type: 'set', id: x.id }, mode: 'place', tools: { ...s.tools, place: s.tools.place === 'fill' ? 'fill' : 'scatter' }, inv: false }),
+          edit: e => { e.stopPropagation(); this.openEditor(x); } })),
+        newSet: () => this.openEditor({ id: rid(), name: 'New set', items: [{ asset: 'grass', w: 5 }], density: 1, spacing: 0.6, slopeMin: 0, slopeMax: 40, align: true }) },
+      toggleLib: () => this.setState({ lib: !s.lib }), libBtnBg: s.lib ? '#e8ecef' : 'transparent', libBtnFg: s.lib ? '#15191d' : '#e8ecef',
+      undo: () => this.restore(this.hist, this.fut, 'Undid'), redo: () => this.restore(this.fut, this.hist, 'Redid'),
+      undoTitle: undoTop ? 'Undo ' + undoTop.label : 'Nothing to undo', redoTitle: redoTop ? 'Redo ' + redoTop.label : 'Nothing to redo',
+      undoOp: undoTop ? 1 : 0.4, redoOp: redoTop ? 1 : 0.4,
+      worldName: s.world, menuOpen: s.menu, toggleMenu: () => this.setState({ menu: !s.menu }),
+      saveDot: s.saving ? '#f2bf33' : '#6fd08c', saveText: (s.saving ? 'Saving revision ' : 'Saved · revision ') + s.rev,
+      menuItems: [{ label: 'Open template: Flat', run: () => this.newWorld('Flat') }, { label: 'Open template: Gentle Hills', run: () => this.newWorld('Gentle Hills') },
+        { label: 'Save checkpoint now', run: () => { this.setState({ menu: false }); this.commit(); } }, { label: 'Reset camera', run: () => { this.setState({ menu: false }); this.toast('Camera reset'); } }],
+      exportWorld: () => this.toast('Exported revision ' + s.rev + ' for Godot'),
+      toast: s.toast ? { show: true, ...s.toast } : { show: false },
+    };
+  }
+}
+</script>
+</body>
+</html>

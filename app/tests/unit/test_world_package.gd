@@ -7,6 +7,8 @@ var _dir := ""
 
 func before_each() -> void:
 	_catalog = AssetCatalog.load_from()[0]
+	# The shipped catalog has no scatter-capable asset yet; make spruce one for these tests.
+	_catalog.get_asset("nature.tree.spruce_a").scatter_mesh = "res://assets/test_scatter_mesh.tres"
 	_dir = "user://wp_storage_tests/%s_%s" % [current_test.replace("::", "_"), StorageFs.random_hex(4)]
 	DirAccess.make_dir_recursive_absolute(_dir)
 
@@ -24,6 +26,15 @@ func _doc() -> WorldDocument:
 	for i in 20:
 		doc.get_region(WorldConstants.REGION_LOCATIONS[i % 4]).heights[i * 997] = -0.0 if i == 0 else i * 0.013
 		doc.get_region(WorldConstants.REGION_LOCATIONS[i % 4]).control[i * 131] = ControlCodec.encode_paint(0x7C, i * 12)
+	doc.get_region(Vector2i(0, -1)).color[40] = 99
+	doc.rules.rock_slope_deg = 41
+	for i in 4:
+		doc.scatter.add("nature.tree.spruce_a", 1, i * 3.1 - 5.0, 0.7 * i, 0.3 * i, 0.6 + 0.1 * i, i % 2)
+	var path := PathRecord.new()
+	path.path_id = ObjectRecord.new_uuid_v4()
+	path.width_m = 3.3
+	path.points = PackedVector2Array([Vector2(-4.4, 1.1), Vector2(6.6, 9.9)])
+	doc.put_path(path)
 	for i in 5:
 		var r := ObjectRecord.new()
 		r.object_id = ObjectRecord.new_uuid_v4()
@@ -87,6 +98,11 @@ func test_export_import_round_trip() -> void:
 	for loc in WorldConstants.REGION_LOCATIONS:
 		assert_eq(back.get_region(loc).height_bytes(), doc.get_region(loc).height_bytes(), "heights %s" % loc)
 		assert_eq(back.get_region(loc).control_bytes(), doc.get_region(loc).control_bytes(), "control %s" % loc)
+		assert_eq(back.get_region(loc).color_bytes(), doc.get_region(loc).color_bytes(), "color %s" % loc)
+	assert_true(back.scatter.equals(doc.scatter) and back.scatter.count() == 4, "scatter")
+	assert_true(back.rules.equals(doc.rules), "rules")
+	for id in doc.sorted_path_ids():
+		assert_true(back.get_path_record(id).equals(doc.get_path_record(id)), "path")
 	assert_eq(_import_tmp_count(), before, "temporary import directory removed")
 
 

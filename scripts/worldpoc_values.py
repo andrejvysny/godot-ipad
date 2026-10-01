@@ -31,6 +31,7 @@ from worldpoc_constants import (
 	MATERIAL_GRASS,
 	MATERIAL_DIRT,
 	MATERIAL_SLOTS,
+	DEFAULT_CONTROL,
 	GROUNDINGS,
 	ORIGINS,
 	QUAT_TOLERANCE,
@@ -90,7 +91,8 @@ def control_is_supported(value: int) -> bool:
 	return ((v >> BASE_SHIFT) & ID_MASK) < len(MATERIAL_SLOTS) and ((v >> OVERLAY_SHIFT) & ID_MASK) < len(MATERIAL_SLOTS)
 
 
-GRASS_VALUE = control_encode_paint(0, 0)  # 0x00400000: base 0, overlay 1, blend 0
+# New worlds and fixtures: rule layer only (auto bit set, base 0, overlay 0, blend 0).
+GRASS_VALUE = DEFAULT_CONTROL
 
 
 # --- Hash helpers ----------------------------------------------------------------------
@@ -109,6 +111,9 @@ def sha256_file(path: Path) -> str:
 class _Stream:
 	def __init__(self) -> None:
 		self.parts: list[bytes] = []
+
+	def u8(self, v: int) -> None:
+		self.parts.append(struct.pack("<B", v))
 
 	def u32(self, v: int) -> None:
 		self.parts.append(struct.pack("<I", v))
@@ -131,10 +136,12 @@ class _Stream:
 		return hashlib.sha256(b"".join(self.parts)).hexdigest()
 
 
-def authored_hash(catalog: dict[str, Any], region_digests: dict[tuple[int, int], tuple[bytes, bytes]],
-		records: list[dict[str, Any]]) -> str:
-	"""world-format §5. `region_digests[loc] = (sha256(height).digest(), sha256(control).digest())`;
-	`records` hold exact float64 values (from f64le bits)."""
+def authored_hash(catalog: dict[str, Any], rules: dict[str, Any],
+		region_digests: dict[tuple[int, int], tuple[bytes, bytes, bytes]], scatter_bytes: bytes,
+		paths_bytes: bytes, records: list[dict[str, Any]]) -> str:
+	"""world-format §7. `region_digests[loc] = (sha256(height), sha256(control), sha256(color))` as raw
+	32-byte digests; `rules` holds the four manifest rule values; `records` hold exact float64 values
+	(from f64le bits)."""
 	s = _Stream()
 	s.raw(AUTHORED_MAGIC)
 	s.u32(SCHEMA_VERSION)
@@ -143,13 +150,19 @@ def authored_hash(catalog: dict[str, Any], region_digests: dict[tuple[int, int],
 	s.str_(catalog["sha256"])
 	s.f64(SAMPLE_SPACING)
 	s.u32(REGION_SAMPLES)
+	s.u8(1 if rules["rock_enabled"] else 0)
+	s.i32(int(rules["rock_slope_deg"]))
+	s.u8(1 if rules["sand_enabled"] else 0)
+	s.i32(int(rules["sand_height_dm"]))
 	locs = sorted(region_digests, key=lambda l: (l[1], l[0]))
 	s.u32(len(locs))
 	for loc in locs:
 		s.i32(loc[0])
 		s.i32(loc[1])
-		s.raw(region_digests[loc][0])
-		s.raw(region_digests[loc][1])
+		for digest in region_digests[loc]:
+			s.raw(digest)
+	s.raw(hashlib.sha256(scatter_bytes).digest())
+	s.raw(hashlib.sha256(paths_bytes).digest())
 	ordered = sorted(records, key=lambda r: r["object_id"].encode("utf-8"))
 	s.u32(len(ordered))
 	for r in ordered:
@@ -232,7 +245,7 @@ def is_json_int(v: Any) -> bool:
 	return f == math.floor(f)
 
 
-# --- Catalog (world-format §6) ---------------------------------------------------------
+# --- Catalog (world-format §8) ---------------------------------------------------------
 def _res_to_path(app_dir: Path, res: str) -> Path:
 	if not res.startswith("res://"):
 		raise FormatError("catalog path '%s' is not a res:// path" % res)

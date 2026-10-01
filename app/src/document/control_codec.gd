@@ -91,7 +91,12 @@ static func grass_value() -> int:
 	return encode_paint(0, 0)
 
 
-## Validation used by loaders: texture ids must reference the two material slots.
+## Control value of new worlds: auto bit set (rule layer), everything else zero.
+static func default_value() -> int:
+	return WorldConstants.DEFAULT_CONTROL
+
+
+## Validation used by loaders: texture ids must reference the four material slots.
 static func is_supported(value: int) -> bool:
 	return get_base(value) < WorldConstants.MATERIAL_SLOTS.size() \
 		and get_overlay(value) < WorldConstants.MATERIAL_SLOTS.size()

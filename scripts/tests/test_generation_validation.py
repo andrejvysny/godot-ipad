@@ -78,7 +78,7 @@ class TerrainRejectionTests(GenerationTestCase):
 	def test_unsupported_control_ids(self) -> None:
 		path = self.gen / wf.control_path(REGION)
 		data = bytearray(path.read_bytes())
-		data[40:44] = struct.pack("<I", 2 << 27)
+		data[40:44] = struct.pack("<I", 4 << 27)
 		path.write_bytes(bytes(data))
 		self.reseal()
 		self.assertRejected("unsupported material ids")
@@ -111,11 +111,97 @@ class TerrainRejectionTests(GenerationTestCase):
 		self.write_manifest(m)
 		self.assertRejected("terrain.region_locations")
 
+	def test_missing_color_file_and_wrong_length(self) -> None:
+		path = self.gen / wf.color_path(REGION)
+		path.write_bytes(path.read_bytes()[:-4])
+		self.reseal()
+		self.assertRejected("has 262140 bytes")
+		path.unlink()
+		self.assertRejected("missing file 'regions/r_0_0.color.rgba8'")
+
+	def test_any_color_bytes_are_valid(self) -> None:
+		path = self.gen / wf.color_path(REGION)
+		path.write_bytes(bytes(range(256)) * (wf.REGION_MAP_BYTES // 256))
+		self.reseal()
+		self.assertEqual(self.errors(), [])
+
+	def test_rock_and_sand_ids_are_valid_ids_above_three_are_not(self) -> None:
+		path = self.gen / wf.control_path(REGION)
+		path.write_bytes(struct.pack("<I", (2 << 27) | (3 << 22) | 1) * wf.REGION_SAMPLE_COUNT)
+		self.reseal()
+		self.assertEqual(self.errors(), [])
+		path.write_bytes(struct.pack("<I", (4 << 22) | 1) * wf.REGION_SAMPLE_COUNT)
+		self.reseal()
+		self.assertRejected("unsupported material ids")
+
 	def test_material_slots(self) -> None:
 		m = self.manifest()
 		m["terrain"]["material_slots"] = {"0": "dirt", "1": "grass"}
 		self.write_manifest(m)
 		self.assertRejected("terrain.material_slots")
+
+
+class RulesTests(GenerationTestCase):
+	def _rules(self, **changes: object) -> None:
+		m = self.manifest()
+		m["terrain"]["rules"].update(changes)
+		self.write_manifest(m)
+
+	def test_defaults_valid_and_extremes_valid(self) -> None:
+		self.assertEqual(self.manifest()["terrain"]["rules"], wf.DEFAULT_RULES)
+		for slope, sand in ((10, -30), (60, 30)):
+			self._rules(rock_slope_deg=slope, sand_height_dm=sand)
+			self.reseal()
+			self.assertEqual(self.errors(), [])
+
+	def test_integral_float_accepted(self) -> None:
+		self._rules(rock_slope_deg=30.0, sand_height_dm=-4.0)
+		self.reseal()
+		self.assertEqual(self.errors(), [])
+
+	def test_range_errors(self) -> None:
+		for key, bad in (("rock_slope_deg", 9), ("rock_slope_deg", 61), ("sand_height_dm", -31), ("sand_height_dm", 31)):
+			self._rules(**{key: bad})
+			self.assertRejected("terrain.rules.%s is %d, expected" % (key, bad))
+			self._rules(**{key: wf.DEFAULT_RULES[key]})
+
+	def test_type_errors(self) -> None:
+		for key, bad in (("rock_enabled", 1), ("rock_enabled", "true"), ("sand_enabled", 0), ("sand_enabled", None),
+				("rock_slope_deg", True), ("rock_slope_deg", 30.5), ("rock_slope_deg", "30"), ("sand_height_dm", False)):
+			self._rules(**{key: bad})
+			errors = self.assertRejected("terrain.rules.%s" % key)
+			self.assertEqual(len(errors), 1, errors)
+			self._rules(**{key: wf.DEFAULT_RULES[key]})
+
+	def test_missing_unknown_and_non_object(self) -> None:
+		m = self.manifest()
+		del m["terrain"]["rules"]["sand_enabled"]
+		self.write_manifest(m)
+		self.assertRejected("terrain.rules.sand_enabled is missing")
+		m["terrain"]["rules"] = dict(wf.DEFAULT_RULES, snow_enabled=True)
+		self.write_manifest(m)
+		self.assertRejected("terrain.rules has unknown field 'snow_enabled'")
+		m["terrain"]["rules"] = [1, 2]
+		self.write_manifest(m)
+		self.assertRejected("terrain.rules is [1, 2], expected an object")
+		del m["terrain"]["rules"]
+		self.write_manifest(m)
+		self.assertRejected("terrain.rules is None")
+
+	def test_rules_change_the_authored_hash(self) -> None:
+		before = self.manifest()["authored_content_hash"]
+		self._rules(rock_slope_deg=31)
+		self.reseal()
+		self.assertEqual(self.errors(), [])
+		self.assertNotEqual(self.manifest()["authored_content_hash"], before)
+
+	def test_color_encoding_and_control_schema_are_exact(self) -> None:
+		m = self.manifest()
+		m["terrain"]["color_encoding"] = "rgba8"
+		m["terrain"]["control_schema"] = "terrain3d-1.0.2-control-v1"
+		self.write_manifest(m)
+		errors = self.assertRejected("terrain.color_encoding")
+		self.assertTrue(any("terrain.control_schema" in e for e in errors))
 
 
 class ManifestRejectionTests(GenerationTestCase):
@@ -166,9 +252,22 @@ class ManifestRejectionTests(GenerationTestCase):
 
 	def test_unknown_schema(self) -> None:
 		m = self.manifest()
-		m["schema_version"] = 2
+		m["schema_version"] = 3
 		self.write_manifest(m)
-		self.assertRejected("unknown schema_version 2")
+		self.assertRejected("unknown schema_version 3")
+
+	def test_schema_1_world_gets_explicit_diagnostic(self) -> None:
+		m = self.manifest()
+		m["schema_version"] = 1
+		self.write_manifest(m)
+		errors = self.assertRejected("unknown schema_version 1 (supported: 2")
+		self.assertEqual(len(errors), 1)
+		# A real schema-1 directory (no paths/scatter/color files) reports the schema first.
+		for name in ("paths.bin", "scatter.bin"):
+			(self.gen / name).unlink()
+		errors = self.assertRejected("unknown schema_version 1")
+		self.assertTrue(errors[0].startswith("unknown schema_version 1"), errors)
+		self.assertTrue(any("missing file 'scatter.bin'" in e for e in errors), errors)
 
 	def test_integral_float_accepted_fractional_rejected(self) -> None:
 		m = self.manifest()

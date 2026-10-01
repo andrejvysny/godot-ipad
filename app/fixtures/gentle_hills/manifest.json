@@ -1,5 +1,5 @@
 {
-	"authored_content_hash": "6a34a9fbd86e99f6387386f699f101e898a599938e054ef5e267f4033064823f",
+	"authored_content_hash": "6c38b11259c44ec7c0df2380a141d5f4c679bd65ac419761386e3c4b8749ec9a",
 	"catalog": {
 		"id": "poc_nature",
 		"sha256": "a4cfbc629fa7ef9c1d2585cf3881011e385b175993e8d2508b28e5317056e78d",
@@ -16,12 +16,22 @@
 		{
 			"bytes": 41,
 			"path": "objects.json",
-			"sha256": "056f6f30e64aa0dd84905b5ae1b4341405e93b8f03517f9057c518adde127819"
+			"sha256": "daca347f76fb2dfd6e215491fecda67e73ee276447e62c54f280f5084d28d9a4"
+		},
+		{
+			"bytes": 12,
+			"path": "paths.bin",
+			"sha256": "f94b6382b8c2c7b4e6f0ce84ad29fc7233d4ab1ffbb1fe2880288f8ee02ec264"
+		},
+		{
+			"bytes": 262144,
+			"path": "regions/r_-1_-1.color.rgba8",
+			"sha256": "deebf57fad866b38cb6a56e3a0d1d25cbed5daef5f68e46028ebef7371c89b29"
 		},
 		{
 			"bytes": 262144,
 			"path": "regions/r_-1_-1.control.u32le",
-			"sha256": "8bedca7e224352ed408470971a341750531002d69390281ed5b11f9028739a45"
+			"sha256": "8c4045fe3994fef04a1027f14fbe51103c1191ebb523d23d908ee25ed416b1c0"
 		},
 		{
 			"bytes": 262144,
@@ -30,8 +40,13 @@
 		},
 		{
 			"bytes": 262144,
+			"path": "regions/r_-1_0.color.rgba8",
+			"sha256": "deebf57fad866b38cb6a56e3a0d1d25cbed5daef5f68e46028ebef7371c89b29"
+		},
+		{
+			"bytes": 262144,
 			"path": "regions/r_-1_0.control.u32le",
-			"sha256": "8bedca7e224352ed408470971a341750531002d69390281ed5b11f9028739a45"
+			"sha256": "8c4045fe3994fef04a1027f14fbe51103c1191ebb523d23d908ee25ed416b1c0"
 		},
 		{
 			"bytes": 262144,
@@ -40,8 +55,13 @@
 		},
 		{
 			"bytes": 262144,
+			"path": "regions/r_0_-1.color.rgba8",
+			"sha256": "deebf57fad866b38cb6a56e3a0d1d25cbed5daef5f68e46028ebef7371c89b29"
+		},
+		{
+			"bytes": 262144,
 			"path": "regions/r_0_-1.control.u32le",
-			"sha256": "8bedca7e224352ed408470971a341750531002d69390281ed5b11f9028739a45"
+			"sha256": "8c4045fe3994fef04a1027f14fbe51103c1191ebb523d23d908ee25ed416b1c0"
 		},
 		{
 			"bytes": 262144,
@@ -50,23 +70,36 @@
 		},
 		{
 			"bytes": 262144,
+			"path": "regions/r_0_0.color.rgba8",
+			"sha256": "deebf57fad866b38cb6a56e3a0d1d25cbed5daef5f68e46028ebef7371c89b29"
+		},
+		{
+			"bytes": 262144,
 			"path": "regions/r_0_0.control.u32le",
-			"sha256": "8bedca7e224352ed408470971a341750531002d69390281ed5b11f9028739a45"
+			"sha256": "8c4045fe3994fef04a1027f14fbe51103c1191ebb523d23d908ee25ed416b1c0"
 		},
 		{
 			"bytes": 262144,
 			"path": "regions/r_0_0.height.f32le",
 			"sha256": "c7ba34e8609555353fe6a40e6c334fc4c0ef70da9e57c32fbca69f215712807d"
+		},
+		{
+			"bytes": 16,
+			"path": "scatter.bin",
+			"sha256": "fe9e3e954707957a98cc616d4c3073ad7f6c8b8e920bf92e871d8047345418a9"
 		}
 	],
-	"schema_version": 1,
+	"schema_version": 2,
 	"terrain": {
+		"color_encoding": "rgba8-tint-v1",
 		"control_encoding": "uint32-little-endian",
-		"control_schema": "terrain3d-1.0.2-control-v1",
+		"control_schema": "terrain3d-1.0.2-control-v2",
 		"height_encoding": "float32-little-endian",
 		"material_slots": {
 			"0": "grass",
-			"1": "dirt"
+			"1": "dirt",
+			"2": "rock",
+			"3": "sand"
 		},
 		"region_locations": [
 			[
@@ -87,6 +120,12 @@
 			]
 		],
 		"region_samples": 256,
+		"rules": {
+			"rock_enabled": true,
+			"rock_slope_deg": 30,
+			"sand_enabled": true,
+			"sand_height_dm": -4
+		},
 		"sample_spacing_m": 0.5
 	},
 	"world_id": "0e111150-0000-4000-8000-000000000002"

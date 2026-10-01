@@ -24,13 +24,15 @@ func _region() -> PackedByteArray:
 func test_valid_layout_passes() -> void:
 	var r := _inspect(ZipTestBuilder.valid_layout())
 	assert_true(r.ok, str(r.error))
-	assert_eq(r.entries.size(), 11)
+	assert_eq(r.entries.size(), 17)
 	var names: Array = []
 	for e in r.entries:
 		names.append(e.name)
 	assert_true(names.has("regions/"), "dir entry tolerated")
 	assert_eq(r.entries[0].method, 0)
-	assert_eq(r.entries[3].uncompressed, WorldConstants.REGION_MAP_BYTES)
+	for e in r.entries:
+		if WorldCodec.is_region_path(e.name) and not e.is_dir:
+			assert_eq(e.uncompressed, WorldConstants.REGION_MAP_BYTES, e.name)
 
 
 func test_rejects_unsafe_names() -> void:
@@ -50,7 +52,10 @@ func test_rejects_duplicates_unknown_and_missing() -> void:
 	_expect(ZipTestBuilder.valid_layout().add("regions/r_1_1.height.f32le", _region()), "unknown archive entry")
 	_expect(ZipTestBuilder.valid_layout().add("scripts/"), "unexpected archive directory")
 	var missing := ZipTestBuilder.new().add("manifest.json", "{}".to_utf8_buffer()).add("objects.json", "{}".to_utf8_buffer())
-	_expect(missing, "missing 'regions/")
+	_expect(missing, "missing 'paths.bin'")
+	var no_scatter := ZipTestBuilder.valid_layout()
+	no_scatter._entries = no_scatter._entries.filter(func(e: Dictionary) -> bool: return e.name != "scatter.bin")
+	_expect(no_scatter, "missing 'scatter.bin'")
 
 
 func test_rejects_symlink() -> void:
@@ -63,7 +68,12 @@ func test_rejects_oversize_declared() -> void:
 	_expect(_layout_with(REGION, {"declared_uncompressed": 262145, "method": 8}), "exactly 262144")
 	_expect(_layout_with("manifest.json", {"declared_uncompressed": 64 * 1024 + 1, "method": 8}), "manifest.json declares")
 	_expect(_layout_with("objects.json", {"declared_uncompressed": 4 * 1024 * 1024 + 1, "method": 8}), "objects.json declares")
+	_expect(_layout_with("scatter.bin", {"declared_uncompressed": 512 * 1024 + 1, "method": 8}), "scatter.bin declares")
+	_expect(_layout_with("paths.bin", {"declared_uncompressed": 640 * 1024 + 1, "method": 8}), "paths.bin declares")
 	var limits := ZipInspector.default_limits()
+	assert_eq(limits.max_total_uncompressed, 12 * 1024 * 1024, "total limit")
+	assert_eq(limits.max_file_bytes, 20 * 1024 * 1024, "archive limit")
+	assert_eq(limits.max_entries, 20, "entry limit")
 	limits.max_total_uncompressed = 1024
 	var r := ZipInspector.inspect_bytes(ZipTestBuilder.valid_layout().build(), limits)
 	assert_error_contains(r.error, "expands to", "total limit")
@@ -132,7 +142,7 @@ func test_rejects_huge_file_before_reading() -> void:
 	DirAccess.make_dir_recursive_absolute(dir)
 	var path := dir.path_join("big.worldpoc")
 	var f := FileAccess.open(path, FileAccess.WRITE)
-	f.seek(16 * 1024 * 1024)
+	f.seek(20 * 1024 * 1024 + 1)
 	f.store_8(0)
 	f.close()
 	assert_error_contains(ZipInspector.inspect(path).error, "limit")

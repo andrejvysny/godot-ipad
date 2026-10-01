@@ -80,13 +80,14 @@ static func _check_terrain(t: Variant) -> String:
 	if not _region_locations_match(t.region_locations):
 		return "terrain.region_locations must be exactly %s" % str(WorldConstants.REGION_LOCATIONS)
 	var enc := {"height_encoding": WorldConstants.HEIGHT_ENCODING,
-		"control_encoding": WorldConstants.CONTROL_ENCODING, "control_schema": WorldConstants.CONTROL_SCHEMA}
+		"control_encoding": WorldConstants.CONTROL_ENCODING, "control_schema": WorldConstants.CONTROL_SCHEMA,
+		"color_encoding": WorldConstants.COLOR_ENCODING}
 	for k in enc:
 		if not same(t[k], enc[k]):
 			return "unsupported terrain.%s '%s' (expected '%s')" % [k, str(t[k]), enc[k]]
 	if typeof(t.material_slots) != TYPE_DICTIONARY or t.material_slots != WorldConstants.MATERIAL_SLOTS:
 		return "unsupported terrain.material_slots %s (expected %s)" % [str(t.material_slots), str(WorldConstants.MATERIAL_SLOTS)]
-	return ""
+	return TerrainRules.from_dict(t.rules)[1]
 
 
 static func _region_locations_match(v: Variant) -> bool:
@@ -118,6 +119,8 @@ static func _check_payloads(v: Variant) -> String:
 			return "payload %s bytes must be a non-negative integer" % e.path
 		if WorldCodec.is_region_path(e.path) and int(e.bytes) != WorldConstants.REGION_MAP_BYTES:
 			return "payload %s must be %d bytes, manifest says %d" % [e.path, WorldConstants.REGION_MAP_BYTES, int(e.bytes)]
+		if int(e.bytes) > WorldCodec.payload_limit(e.path):
+			return "payload %s is %d bytes, limit %d" % [e.path, int(e.bytes), WorldCodec.payload_limit(e.path)]
 		if not is_hex64(e.sha256):
 			return "payload %s sha256 is missing or a placeholder" % e.path
 	return ""

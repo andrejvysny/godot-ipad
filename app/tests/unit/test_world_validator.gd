@@ -58,13 +58,13 @@ func test_rejects_bad_heights() -> void:
 
 
 func test_rejects_unsupported_control_ids() -> void:
-	for bad in [2 << ControlCodec.BASE_SHIFT, 3 << ControlCodec.OVERLAY_SHIFT, 0x7FC00001, 0xFFFFFFFF]:
+	for bad in [4 << ControlCodec.BASE_SHIFT, 4 << ControlCodec.OVERLAY_SHIFT, 0x7FC00001, 0xFFFFFFFF]:
 		var doc := _valid_doc()
 		doc.get_region(Vector2i(-1, 0)).control[77] = bad
 		_expect_rejected(doc, "control[77]")
 	var ok := _valid_doc()
-	# Reserved, hole, nav, uv bits and base/overlay 1 are all supported.
-	ok.get_region(Vector2i(-1, 0)).control[5] = (1 << 27) | (1 << 22) | (255 << 14) | 0x3FFF
+	# Reserved, hole, nav, uv bits and base/overlay ids 0-3 are all supported.
+	ok.get_region(Vector2i(-1, 0)).control[5] = (3 << 27) | (2 << 22) | (255 << 14) | 0x3FFF
 	assert_eq(WorldValidator.validate(ok, _catalog), PackedStringArray(), "supported bits")
 
 
@@ -117,7 +117,7 @@ func test_rejects_catalog_identity_and_region_set() -> void:
 	doc.get_region(Vector2i(0, 0)).heights.resize(10)
 	_expect_rejected(doc, "samples")
 	doc = _valid_doc()
-	doc.schema_version = 2
+	doc.schema_version = 1
 	_expect_rejected(doc, "schema_version")
 	assert_false(WorldValidator.validate(_valid_doc(), null).is_empty(), "null catalog rejected")
 

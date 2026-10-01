@@ -17,7 +17,7 @@ class HostileJsonTests(GenerationTestCase):
 		path.write_text(text.replace(old, new, 1))
 
 	def _raw_objects(self, record_json: str) -> None:
-		self.write_objects([], raw=('{"schema_version": 1, "objects": [%s]}' % record_json).encode("utf-8"))
+		self.write_objects([], raw=('{"schema_version": 2, "objects": [%s]}' % record_json).encode("utf-8"))
 		self.reseal()
 
 	def assertRejectedAscii(self, needle: str) -> list[str]:
@@ -27,11 +27,11 @@ class HostileJsonTests(GenerationTestCase):
 		return errors
 
 	def test_huge_int_schema_version(self) -> None:
-		self._raw_manifest('"schema_version": 1', '"schema_version": ' + HUGE)
+		self._raw_manifest('"schema_version": 2', '"schema_version": ' + HUGE)
 		self.assertRejectedAscii("unknown schema_version")
 
 	def test_int_beyond_python_digit_limit(self) -> None:
-		self._raw_manifest('"schema_version": 1', '"schema_version": 1' + "0" * 5000)
+		self._raw_manifest('"schema_version": 2', '"schema_version": 2' + "0" * 5000)
 		self.assertRejectedAscii("not valid JSON")
 
 	def test_huge_int_payload_bytes_and_revision(self) -> None:
@@ -91,7 +91,7 @@ class HostileJsonTests(GenerationTestCase):
 				self.assertIn("INVALID" if not extra else '"valid": false', p.stdout)
 
 	def test_hostile_package_is_invalid_not_raised(self) -> None:
-		self._raw_manifest('"schema_version": 1', '"schema_version": ' + HUGE)
+		self._raw_manifest('"schema_version": 2', '"schema_version": ' + HUGE)
 		pkg = self.tmp / "hostile.worldpoc"
 		wf.write_package(self.gen, pkg)
 		result = wf.validate_path(pkg)

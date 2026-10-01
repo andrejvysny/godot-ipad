@@ -1,26 +1,29 @@
 # Bundled fixtures
 
-Read-only generation directories in the world format (`docs/world-format.md`, schema 1), generated
+Read-only generation directories in the world format (`docs/world-format.md`, schema 2), generated
 on the Mac by `python3 scripts/generate_fixtures.py` and committed as bytes (spec §3.2). Opening a
 fixture creates a new working-document copy; these files are never edited in place.
 
 Verify the committed bytes: `python3 scripts/generate_fixtures.py --check` (regenerates into a temp
 directory and byte-compares; exit 1 on mismatch). Validate: `python3 scripts/validate_world.py app/fixtures/<name>`.
 
-Common to all: `document_revision` 0, every control word `0x00400000`
-(base 0 = grass, overlay 1 = dirt, blend 0), catalog `poc_nature` v1 with the catalog hash of the
-bundled catalog at generation time. Changing `app/assets/catalog.json` or a referenced model scene
+Common to all: `document_revision` 0, every control word `0x00000001` (auto bit set, base 0,
+overlay 0, blend 0: the auto-paint rule layer only), every tint sample `FF FF FF 00` (default colour,
+weight 0), default rules (`rock_enabled` true, `rock_slope_deg` 30, `sand_enabled` true,
+`sand_height_dm` -4), empty `scatter.bin` (16 bytes) and empty `paths.bin` (12 bytes), catalog
+`poc_nature` v1 with the catalog hash of the bundled catalog at generation time. Changing `app/assets/catalog.json` or a referenced model scene
 changes the catalog hash, so the fixtures must then be regenerated and `config/toolchain.lock.json`
 updated.
 
 | Fixture | world_id | authored_content_hash |
 |---|---|---|
-| `flat` | `0f1a7000-0000-4000-8000-000000000001` | `d5072791614659d3ea2f0f9f66b959b2556b95937afc9bb57b84e622b6b05bb3` |
-| `gentle_hills` | `0e111150-0000-4000-8000-000000000002` | `6a34a9fbd86e99f6387386f699f101e898a599938e054ef5e267f4033064823f` |
-| `stress_100` | `57e55100-0000-4000-8000-000000000003` | `42e55c7b29ebe7832096a8c9a750785acf5a805a9a140290ac6d4661e0f0a5c9` |
+| `flat` | `0f1a7000-0000-4000-8000-000000000001` | `be76f01f80f2ae7abbc40272b7030fa9ba2b6da22666e2aa9b9137b5e66fd1dd` |
+| `gentle_hills` | `0e111150-0000-4000-8000-000000000002` | `6c38b11259c44ec7c0df2380a141d5f4c679bd65ac419761386e3c4b8749ec9a` |
+| `stress_100` | `57e55100-0000-4000-8000-000000000003` | `13f8636ba6481e89b9c3f5fe19b849fe8a4208fa54c262c9090dfd9534b5acff` |
 
-The GDScript `CanonicalEncoder.authored_hash` of flat and gentle_hills was checked equal to these values
-(throwaway Godot 4.7.2 probe loading the region bytes into a `WorldDocument`).
+These are the schema 2 (V2 stream) hashes computed by `scripts/worldpoc_values.py`. They have not yet
+been cross-checked against the GDScript `CanonicalEncoder` (schema 1 values were). Heights and objects
+are byte-identical to the schema 1 fixtures; only control words, the new files and the manifest changed.
 
 ## flat
 

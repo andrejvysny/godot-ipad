@@ -6,10 +6,12 @@ extends RefCounted
 const MAX_OBJECTS := 2000
 const UNIT_QUAT_TOLERANCE := 1e-6
 const GROUNDING_TOLERANCE_M := 1e-3
-## Bits 23-26 and 28-31: set only when base or overlay id >= 2. Fast path; ControlCodec
-## stays authoritative for anything this mask flags.
-const CONTROL_UNSUPPORTED_FAST_MASK := 0xF7800000
+## Ids < 4 need base bits 29-31 (0xE0000000) and overlay bits 24-26 (0x07000000) clear
+## (ids occupy bits 27-31 / 22-26). Fast path; ControlCodec stays authoritative for anything
+## this mask flags.
+const CONTROL_UNSUPPORTED_FAST_MASK := 0xE7000000
 const MAX_ERRORS_PER_REGION := 1
+const MAX_SCATTER_ERRORS := 5
 
 
 static func validate(doc: WorldDocument, catalog: AssetCatalog) -> PackedStringArray:
@@ -21,8 +23,13 @@ static func validate(doc: WorldDocument, catalog: AssetCatalog) -> PackedStringA
 		errors.append("unsupported schema_version %d" % doc.schema_version)
 	errors.append_array(_validate_catalog_identity(doc, catalog))
 	errors.append_array(_validate_regions(doc))
+	var rules_err := "rules are missing" if doc.rules == null else doc.rules.range_error()
+	if rules_err != "":
+		errors.append(rules_err)
 	if catalog != null:
 		errors.append_array(_validate_objects(doc, catalog))
+		errors.append_array(_validate_scatter(doc.scatter, catalog))
+	errors.append_array(_validate_paths(doc))
 	return errors
 
 
@@ -50,9 +57,11 @@ static func _validate_regions(doc: WorldDocument) -> PackedStringArray:
 		if r == null:
 			errors.append("missing region %s" % str(loc))
 			continue
-		if r.heights.size() != WorldConstants.REGION_SAMPLE_COUNT or r.control.size() != WorldConstants.REGION_SAMPLE_COUNT:
-			errors.append("region %s buffers have %d/%d samples, expected %d" % [
-				str(loc), r.heights.size(), r.control.size(), WorldConstants.REGION_SAMPLE_COUNT])
+		if r.heights.size() != WorldConstants.REGION_SAMPLE_COUNT or r.control.size() != WorldConstants.REGION_SAMPLE_COUNT \
+				or r.color.size() != WorldConstants.REGION_MAP_BYTES:
+			errors.append("region %s buffers have %d/%d samples and %d color bytes, expected %d/%d" % [
+				str(loc), r.heights.size(), r.control.size(), r.color.size(),
+				WorldConstants.REGION_SAMPLE_COUNT, WorldConstants.REGION_MAP_BYTES])
 			continue
 		errors.append_array(_validate_heights(loc, r.heights))
 		errors.append_array(_validate_control(loc, r.control))
@@ -99,6 +108,96 @@ static func _validate_objects(doc: WorldDocument, catalog: AssetCatalog) -> Pack
 		if err != "":
 			errors.append(err)
 	return errors
+
+
+static func _validate_scatter(layer: ScatterLayer, catalog: AssetCatalog) -> PackedStringArray:
+	var errors := PackedStringArray()
+	if layer == null:
+		errors.append("scatter layer is missing")
+		return errors
+	var n := layer.count()
+	if layer.flags.size() != n or layer.x.size() != n or layer.z.size() != n \
+			or layer.yaw.size() != n or layer.scale.size() != n \
+			or layer.asset_ids.size() != layer.asset_versions.size():
+		errors.append("scatter arrays have inconsistent lengths")
+		return errors
+	if n > WorldConstants.MAX_SCATTER_INSTANCES:
+		errors.append("%d scatter instances exceed the limit of %d" % [n, WorldConstants.MAX_SCATTER_INSTANCES])
+		return errors
+	var slot_ok := {}  # slot -> AssetDefinition or null
+	for i in n:
+		if errors.size() >= MAX_SCATTER_ERRORS:
+			break
+		var s := layer.slot[i]
+		if s < 0 or s >= layer.asset_ids.size():
+			errors.append("scatter instance %d slot %d is out of range" % [i, s])
+			continue
+		if not slot_ok.has(s):
+			slot_ok[s] = _scatter_asset(layer.asset_ids[s], layer.asset_versions[s], catalog, errors)
+		var a: AssetDefinition = slot_ok[s]
+		if a != null:
+			var err := _scatter_instance_error(layer, i, a)
+			if err != "":
+				errors.append(err)
+	return errors
+
+
+## Returns the asset when it may be scattered, else null and appends the reason.
+static func _scatter_asset(id: String, version: int, catalog: AssetCatalog, errors: PackedStringArray) -> AssetDefinition:
+	var a := catalog.get_asset(id)
+	if a == null:
+		errors.append("scatter uses unknown asset '%s'" % id)
+	elif a.version != version:
+		errors.append("scatter asset '%s' v%d is incompatible with trusted v%d" % [id, version, a.version])
+	elif not a.scatter_allowed or a.scatter_mesh == "":
+		errors.append("scatter asset '%s' is not scatter_allowed with a scatter_mesh" % id)
+	else:
+		return a
+	return null
+
+
+static func _scatter_instance_error(layer: ScatterLayer, i: int, a: AssetDefinition) -> String:
+	if (layer.flags[i] & ~ScatterLayer.FLAGS_ALLOWED) != 0:
+		return "scatter instance %d has unknown flag bits 0x%x" % [i, layer.flags[i]]
+	var px := layer.x[i]
+	var pz := layer.z[i]
+	if not (is_finite(px) and is_finite(pz)) or not WorldConstants.is_inside_world(px, pz):
+		return "scatter instance %d position (%s, %s) is outside the world extent" % [i, px, pz]
+	if not (absf(layer.yaw[i]) <= WorldConstants.YAW_LIMIT):
+		return "scatter instance %d yaw %s is not finite within +-%s" % [i, layer.yaw[i], WorldConstants.YAW_LIMIT]
+	if not a.scale_in_range(layer.scale[i]):
+		return "scatter instance %d scale %s outside [%s, %s]" % [i, layer.scale[i], a.scale_min, a.scale_max]
+	return ""
+
+
+static func _validate_paths(doc: WorldDocument) -> PackedStringArray:
+	var errors := PackedStringArray()
+	if doc.paths.size() > WorldConstants.MAX_PATHS:
+		errors.append("%d paths exceed the limit of %d" % [doc.paths.size(), WorldConstants.MAX_PATHS])
+	for id in doc.sorted_path_ids():
+		var err := validate_path(doc.paths[id])
+		if err == "" and doc.paths[id].path_id != id:
+			err = "path stored under key %s has path_id %s" % [id, doc.paths[id].path_id]
+		if err != "":
+			errors.append(err)
+	return errors
+
+
+## Returns "" when the path satisfies docs/world-format.md §6.
+static func validate_path(p: PathRecord) -> String:
+	if p == null:
+		return "path record is null"
+	if not ObjectRecord.is_uuid(p.path_id):
+		return "path_id '%s' is not a lowercase UUID" % p.path_id
+	var tag := " (path %s)" % p.path_id
+	if not (p.width_m >= WorldConstants.PATH_WIDTH_MIN and p.width_m <= WorldConstants.PATH_WIDTH_MAX):
+		return "width_m %s outside [%s, %s]%s" % [p.width_m, WorldConstants.PATH_WIDTH_MIN, WorldConstants.PATH_WIDTH_MAX, tag]
+	if p.points.size() < WorldConstants.PATH_POINTS_MIN or p.points.size() > WorldConstants.PATH_POINTS_MAX:
+		return "%d points, allowed %d..%d%s" % [p.points.size(), WorldConstants.PATH_POINTS_MIN, WorldConstants.PATH_POINTS_MAX, tag]
+	for pt in p.points:
+		if not (is_finite(pt.x) and is_finite(pt.y)) or not WorldConstants.is_inside_world(pt.x, pt.y):
+			return "point (%s, %s) is outside the world extent%s" % [pt.x, pt.y, tag]
+	return ""
 
 
 ## Returns "" when the record is valid for the trusted catalog.

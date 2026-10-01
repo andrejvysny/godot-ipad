@@ -62,5 +62,9 @@ func test_quantize_and_dirt_blend() -> void:
 
 func test_supported_layout() -> void:
 	assert_true(ControlCodec.is_supported(ControlCodec.grass_value()))
-	assert_false(ControlCodec.is_supported(2 << 27), "base id 2 has no material slot")
+	assert_true(ControlCodec.is_supported(3 << 27), "base id 3 (sand) is a material slot")
+	assert_true(ControlCodec.is_supported(2 << 22), "overlay id 2 (rock) is a material slot")
+	assert_false(ControlCodec.is_supported(4 << 27), "base id 4 has no material slot")
 	assert_false(ControlCodec.is_supported(5 << 22), "overlay id 5 has no material slot")
+	assert_eq(ControlCodec.default_value(), 0x00000001, "default: auto bit only")
+	assert_true(ControlCodec.is_supported(ControlCodec.default_value()))

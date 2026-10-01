@@ -25,17 +25,26 @@ from worldpoc_constants import (
 	REGION_MAP_BYTES,
 	MANIFEST_MAX_BYTES,
 	OBJECTS_MAX_BYTES,
+	SCATTER_MAX_BYTES,
+	PATHS_MAX_BYTES,
+	SCATTER_PATH,
+	PATHS_PATH,
 	PACKAGE_MAX_TOTAL_BYTES,
 	PACKAGE_MAX_FILE_BYTES,
+	PACKAGE_MAX_ENTRIES,
+	SCHEMA_VERSION,
 	PAYLOAD_PATHS,
 	GENERATION_FILES,
 )
 
 from worldpoc_values import (
 	show,
+	is_json_int,
+	parse_json_bytes,
+	FormatError,
 )
 
-# --- .worldpoc package (world-format §7) -----------------------------------------------
+# --- .worldpoc package (world-format §9) -----------------------------------------------
 PACKAGE_ALLOWED_DIRS = {"regions/"}
 
 
@@ -44,6 +53,10 @@ def _entry_limit(name: str) -> int:
 		return MANIFEST_MAX_BYTES
 	if name == "objects.json":
 		return OBJECTS_MAX_BYTES
+	if name == SCATTER_PATH:
+		return SCATTER_MAX_BYTES
+	if name == PATHS_PATH:
+		return PATHS_MAX_BYTES
 	return REGION_MAP_BYTES
 
 
@@ -51,7 +64,6 @@ EOCD_SIZE = 22
 EOCD_SEARCH = EOCD_SIZE + 65535
 SIG_EOCD = b"PK\x05\x06"
 SIG_ZIP64_LOCATOR = b"PK\x06\x07"
-PACKAGE_MAX_ENTRIES = 16  # ZipInspector.default_limits().max_entries
 
 
 def _zip64_locator_present(tail: bytes, eocd: int) -> bool:
@@ -201,6 +213,23 @@ def safe_extract(path: Path) -> tuple[Path | None, list[str]]:
 		shutil.rmtree(dest, ignore_errors=True)
 		return None, errors
 	return dest, []
+
+
+def schema_error(path: Path) -> str:
+	"""Explicit unknown-schema diagnostic for a package whose manifest names another schema.
+	Such packages (e.g. schema 1) also fail the entry-set check; this names the real cause."""
+	try:
+		with zipfile.ZipFile(path) as zf:
+			info = zf.getinfo("manifest.json")
+			if info.file_size > MANIFEST_MAX_BYTES:
+				return ""
+			manifest = parse_json_bytes(zf.read(info))
+	except (zipfile.BadZipFile, OSError, KeyError, ValueError, FormatError, EOFError, zlib.error):
+		return ""
+	version = manifest.get("schema_version") if isinstance(manifest, dict) else None
+	if is_json_int(version) and version == SCHEMA_VERSION:
+		return ""
+	return "unknown schema_version %s (supported: %d; older schemas are not migrated)" % (show(version), SCHEMA_VERSION)
 
 
 def write_package(gen_dir: Path, out_path: Path) -> None:

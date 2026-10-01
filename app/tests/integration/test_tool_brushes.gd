@@ -251,4 +251,4 @@ func test_setting_change_does_not_affect_stroke_in_progress() -> void:
 	assert_empty_string(h.ctrl.set_setting("paint", "radius", 16.0))
 	h.act("tool_move", h.at(42, 40, 1.02))
 	h.act("tool_end", h.at(42, 40, 1.04))
-	assert_eq(doc_control(40, 46), ControlCodec.grass_value(), "radius stayed 2 m")
+	assert_eq(doc_control(40, 46), ControlCodec.default_value(), "radius stayed 2 m")

@@ -102,7 +102,8 @@ def stress_objects(heights: dict[tuple[int, int], bytes], catalog: dict[str, Any
 
 def build_doc(name: str, catalog: dict[str, Any]) -> dict[str, Any]:
 	fn = flat_height if name == "flat" else hills_height
-	control = struct.pack("<I", wf.GRASS_VALUE) * wf.REGION_SAMPLE_COUNT
+	control = struct.pack("<I", wf.DEFAULT_CONTROL) * wf.REGION_SAMPLE_COUNT
+	color = wf.DEFAULT_COLOR * wf.REGION_SAMPLE_COUNT
 	heights = {loc: region_height_bytes(loc, fn) for loc in wf.REGION_LOCATIONS}
 	return {
 		"world_id": WORLD_IDS[name],
@@ -111,6 +112,10 @@ def build_doc(name: str, catalog: dict[str, Any]) -> dict[str, Any]:
 		"catalog": {"id": catalog["id"], "version": catalog["version"], "sha256": catalog["sha256"]},
 		"heights": heights,
 		"controls": {loc: control for loc in wf.REGION_LOCATIONS},
+		"colors": {loc: color for loc in wf.REGION_LOCATIONS},
+		"rules": dict(wf.DEFAULT_RULES),
+		"scatter": [],
+		"paths": [],
 		"objects": stress_objects(heights, catalog) if name == "stress_100" else [],
 	}
 

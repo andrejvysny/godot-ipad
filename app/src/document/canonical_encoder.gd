@@ -1,20 +1,13 @@
 class_name CanonicalEncoder
 extends RefCounted
-## Shared canonical byte encoding for the authored-content hash (docs/world-format.md §5).
+## Shared canonical byte encoding for the authored-content hash (docs/world-format.md §7).
 ## Python (scripts/worldpoc_format.py) implements the identical stream; tests pin known vectors.
 ## Hashing binary values avoids depending on JSON whitespace or float formatting.
-##
-## Stream: "WPOC-AUTHORED-V1\n", u32 schema, str catalog_id, u32 catalog_version,
-## str catalog_sha256, f64 sample_spacing, u32 region_samples, u32 region_count,
-## per region (sorted Z then X): i32 x, i32 z, 32-byte sha256(height bytes),
-## 32-byte sha256(control bytes); u32 object_count, per object (sorted by id): str id,
-## str asset_id, u32 asset_version, f64 pos[3], f64 rot[4], f64 scale, str grounding,
-## f64 height_offset, str origin, str scatter_operation_id.
 ## Integers little-endian; str = u32 byte length + UTF-8; -0.0 is written as +0.0.
 ## world_id and document_revision are deliberately excluded: undo+redo or reopening a
 ## copy must yield the same authored hash.
 
-const MAGIC := "WPOC-AUTHORED-V1\n"
+const MAGIC := "WPOC-AUTHORED-V2\n"
 
 var _buf := PackedByteArray()
 
@@ -30,6 +23,20 @@ func put_i32(v: int) -> void:
 	var b := PackedByteArray()
 	b.resize(4)
 	b.encode_s32(0, v)
+	_buf.append_array(b)
+
+
+func put_u16(v: int) -> void:
+	var b := PackedByteArray()
+	b.resize(2)
+	b.encode_u16(0, v)
+	_buf.append_array(b)
+
+
+func put_f32(v: float) -> void:
+	var b := PackedByteArray()
+	b.resize(4)
+	b.encode_float(0, v)
 	_buf.append_array(b)
 
 
@@ -93,6 +100,10 @@ static func authored_bytes(doc: WorldDocument) -> PackedByteArray:
 	e.put_str(doc.catalog_sha256)
 	e.put_f64(WorldConstants.SAMPLE_SPACING)
 	e.put_u32(WorldConstants.REGION_SAMPLES)
+	e.put_u8(1 if doc.rules.rock_enabled else 0)
+	e.put_i32(doc.rules.rock_slope_deg)
+	e.put_u8(1 if doc.rules.sand_enabled else 0)
+	e.put_i32(doc.rules.sand_height_dm)
 	var locs := doc.sorted_region_locations()
 	e.put_u32(locs.size())
 	for loc in locs:
@@ -101,6 +112,9 @@ static func authored_bytes(doc: WorldDocument) -> PackedByteArray:
 		e.put_i32(loc.y)
 		e.put_raw(sha256(r.height_bytes()))
 		e.put_raw(sha256(r.control_bytes()))
+		e.put_raw(sha256(r.color_bytes()))
+	e.put_raw(sha256(doc.scatter.encode()))
+	e.put_raw(sha256(PathRecord.encode_all(doc.paths)))
 	var ids := doc.sorted_object_ids()
 	e.put_u32(ids.size())
 	for id in ids:

@@ -46,7 +46,7 @@ class GenerationTestCase(unittest.TestCase):
 		(self.gen / "manifest.json").write_bytes(wf.dump_json(m))
 
 	def write_objects(self, objects: list[Any], raw: bytes | None = None) -> None:
-		data = raw if raw is not None else wf.dump_json({"schema_version": 1, "objects": objects})
+		data = raw if raw is not None else wf.dump_json({"schema_version": 2, "objects": objects})
 		(self.gen / "objects.json").write_bytes(data)
 
 	def reseal(self) -> None:
@@ -60,9 +60,10 @@ class GenerationTestCase(unittest.TestCase):
 			objs = json.loads((self.gen / "objects.json").read_text())["objects"]
 			records = [wf.parse_object_record(o)[0] for o in objs]
 			if all(r is not None for r in records):
-				digests = {loc: (hashlib.sha256((self.gen / wf.height_path(loc)).read_bytes()).digest(),
-					hashlib.sha256((self.gen / wf.control_path(loc)).read_bytes()).digest()) for loc in wf.REGION_LOCATIONS}
-				m["authored_content_hash"] = wf.authored_hash(m["catalog"], digests, records)  # type: ignore[arg-type]
+				digests = {loc: tuple(hashlib.sha256((self.gen / f(loc)).read_bytes()).digest()
+					for f in (wf.height_path, wf.control_path, wf.color_path)) for loc in wf.REGION_LOCATIONS}
+				m["authored_content_hash"] = wf.authored_hash(m["catalog"], m["terrain"]["rules"], digests,  # type: ignore[arg-type]
+					(self.gen / "scatter.bin").read_bytes(), (self.gen / "paths.bin").read_bytes(), records)
 		except (ValueError, KeyError, TypeError):
 			pass
 		self.write_manifest(m)
@@ -75,3 +76,23 @@ class GenerationTestCase(unittest.TestCase):
 		errors = self.errors()
 		self.assertTrue(any(needle in e for e in errors), "expected an error containing %r, got %r" % (needle, errors))
 		return errors
+
+
+def write_test_catalog(app_dir: Path) -> None:
+	"""Copy of the bundled catalog (and its geometry files) plus scatter-capable assets, so scatter
+	tests have something valid to reference. Returns nothing; use app_dir as the trusted catalog."""
+	shutil.copytree(wf.APP_DIR / "assets", app_dir / "assets")
+	path = app_dir / "assets" / "catalog.json"
+	cat = json.loads(path.read_text())
+	base = next(a for a in cat["assets"] if a["asset_id"] == BOULDER)
+	mesh = base["preview_scene"]  # any existing text resource serves as a stand-in scatter mesh
+	for asset_id, version in (("test.scatter.grass_a", 1), ("test.scatter.pine_b", 3)):
+		a = dict(base, asset_id=asset_id, version=version, scatter_allowed=True, scatter_mesh=mesh,
+			scale_min=0.5, scale_max=2.0)
+		cat["assets"].append(a)
+	path.write_text(json.dumps(cat, indent=2))
+
+
+def scatter_instance(asset_id: str = "test.scatter.grass_a", version: int = 1, x: float = 1.5, z: float = -2.5,
+		yaw: float = 0.5, scale: float = 1.0, flags: int = 0) -> dict[str, Any]:
+	return {"asset_id": asset_id, "asset_version": version, "flags": flags, "x": x, "z": z, "yaw_rad": yaw, "scale": scale}

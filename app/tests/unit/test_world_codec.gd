@@ -3,6 +3,9 @@ extends TestCase
 
 const OBJ_A := "11111111-1111-4111-8111-111111111111"
 const OBJ_B := "22222222-2222-4222-8222-222222222222"
+const PATH_A := "33333333-3333-4333-8333-333333333333"
+const PATH_B := "44444444-4444-4444-8444-444444444444"
+const SPRUCE := "nature.tree.spruce_a"
 
 var _catalog: AssetCatalog
 var _dir := ""
@@ -10,6 +13,8 @@ var _dir := ""
 
 func before_each() -> void:
 	_catalog = AssetCatalog.load_from()[0]
+	# The shipped catalog has no scatter-capable asset yet; make spruce one for these tests.
+	_catalog.get_asset(SPRUCE).scatter_mesh = "res://assets/test_scatter_mesh.tres"
 	_dir = "user://wp_storage_tests/%s_%s" % [current_test.replace("::", "_"), StorageFs.random_hex(4)]
 	DirAccess.make_dir_recursive_absolute(_dir)
 
@@ -31,6 +36,29 @@ func _doc() -> WorldDocument:
 	r.heights[3] = WorldConstants.HEIGHT_MAX
 	r.heights[65535] = WorldConstants.HEIGHT_MIN
 	doc.get_region(Vector2i(0, 0)).control[9] = ControlCodec.encode_paint(0x78, 200)
+	doc.get_region(Vector2i(0, 0)).control[10] = (3 << 27) | (2 << 22) | (77 << 14) | 1
+	var col := doc.get_region(Vector2i(-1, 0)).color
+	col[0] = 12
+	col[1] = 34
+	col[2] = 56
+	col[3] = 255
+	col[col.size() - 1] = 7
+	doc.get_region(Vector2i(-1, 0)).color = col
+	doc.rules.rock_enabled = false
+	doc.rules.rock_slope_deg = 45
+	doc.rules.sand_height_dm = 12
+	doc.scatter.add(SPRUCE, 1, 1.5, -2.25, 1.0, 1.25, 1)
+	doc.scatter.add(SPRUCE, 1, -128.0, 127.5, -3.1416, 0.5, 0)
+	var pa := PathRecord.new()
+	pa.path_id = PATH_B
+	pa.width_m = 2.5
+	pa.points = PackedVector2Array([Vector2(-10, -10), Vector2(0, 5.5), Vector2(10, 20)])
+	doc.put_path(pa)
+	var pb := PathRecord.new()
+	pb.path_id = PATH_A
+	pb.width_m = 1.0
+	pb.points = PackedVector2Array([Vector2(1, 1), Vector2(2, 2)])
+	doc.put_path(pb)
 	var a := ObjectRecord.new()
 	a.object_id = OBJ_B
 	a.asset_id = "nature.tree.spruce_a"
@@ -95,7 +123,8 @@ func test_payload_bytes_round_trip_exactly() -> void:
 	for path in WorldCodec.payload_paths():
 		assert_eq(v.files[path], snap.files[path], "bytes of %s" % path)
 	var back := RegionBuffers.new(Vector2i(0, -1))
-	back.set_from_bytes(v.files["regions/r_0_-1.height.f32le"], v.files["regions/r_0_-1.control.u32le"])
+	back.set_from_bytes(v.files["regions/r_0_-1.height.f32le"], v.files["regions/r_0_-1.control.u32le"],
+		v.files["regions/r_0_-1.color.rgba8"])
 	assert_eq(back.get_control(0), 0x7FC00001, "NaN-like control pattern")
 	assert_eq(back.get_control(1), 0xFFFFFFFF)
 	assert_eq(back.get_control(2), 0x80000000)
@@ -119,7 +148,14 @@ func test_manifest_shape() -> void:
 		assert_eq(int(e.bytes), bytes.size(), "size " + e.path)
 		assert_eq(e.sha256, CanonicalEncoder.sha256_hex(bytes), "hash " + e.path)
 	assert_eq(PackedStringArray(paths), WorldCodec.payload_paths(), "sorted exact set")
+	assert_eq(paths.size(), 15)
 	assert_eq(paths[0], "objects.json")
+	assert_eq(paths[1], "paths.bin")
+	assert_eq(paths[14], "scatter.bin")
+	assert_eq(m.terrain.color_encoding, "rgba8-tint-v1")
+	assert_eq(m.terrain.control_schema, "terrain3d-1.0.2-control-v2")
+	assert_eq(m.terrain.rules, {"rock_enabled": false, "rock_slope_deg": 45.0, "sand_enabled": true, "sand_height_dm": 12.0})
+	assert_eq(m.schema_version, 2.0)
 	assert_eq(m.created_with.godot, "4.7.2.stable.official.ed1daf0bf")
 	var objs: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(dir.path_join("objects.json")))
 	assert_eq(objs.objects[0].object_id, OBJ_A, "objects sorted by id")
@@ -142,6 +178,15 @@ func test_read_generation_round_trip() -> void:
 	for loc in WorldConstants.REGION_LOCATIONS:
 		assert_eq(back.get_region(loc).height_bytes(), doc.get_region(loc).height_bytes(), "heights %s" % loc)
 		assert_eq(back.get_region(loc).control_bytes(), doc.get_region(loc).control_bytes(), "control %s" % loc)
+		assert_eq(back.get_region(loc).color_bytes(), doc.get_region(loc).color_bytes(), "color %s" % loc)
+	assert_true(back.rules.equals(doc.rules), "rules")
+	assert_false(back.rules.equals(TerrainRules.defaults()), "non-default rules survived")
+	assert_true(back.scatter.equals(doc.scatter), "scatter")
+	assert_eq(back.scatter.count(), 2)
+	assert_eq(back.sorted_path_ids(), doc.sorted_path_ids())
+	for id in doc.sorted_path_ids():
+		assert_true(back.get_path_record(id).equals(doc.get_path_record(id)), "path %s" % id)
+	assert_eq(back.get_color_at_sample(-256, 0), (12 << 24) | (34 << 16) | (56 << 8) | 255, "tint sample")
 
 
 func test_read_rejects_invalid_content() -> void:
@@ -160,7 +205,8 @@ func test_rejects_manifest_tampering() -> void:
 	var cases := {
 		"unknown format": func(m: Dictionary) -> void: m.format = "other",
 		"unknown format ": func(m: Dictionary) -> void: m.format = 5,
-		"unsupported schema_version 2": func(m: Dictionary) -> void: m.schema_version = 2,
+		"unsupported schema_version 1": func(m: Dictionary) -> void: m.schema_version = 1,
+		"unsupported schema_version 3": func(m: Dictionary) -> void: m.schema_version = 3,
 		"unsupported schema_version 1.5": func(m: Dictionary) -> void: m.schema_version = 1.5,
 		"missing field 'created_with'": func(m: Dictionary) -> void: m.erase("created_with"),
 		"unknown field 'extra'": func(m: Dictionary) -> void: m["extra"] = 1,
@@ -177,9 +223,23 @@ func test_rejects_manifest_tampering() -> void:
 		"region_locations ": func(m: Dictionary) -> void: m.terrain.region_locations.pop_back(),
 		"height_encoding": func(m: Dictionary) -> void: m.terrain.height_encoding = "uint16",
 		"control_schema": func(m: Dictionary) -> void: m.terrain.control_schema = "terrain3d-2",
+		"color_encoding": func(m: Dictionary) -> void: m.terrain.color_encoding = "rgb8",
 		"material_slots": func(m: Dictionary) -> void: m.terrain.material_slots = {"0": "dirt", "1": "grass"},
-		"exactly the 9 payload files": func(m: Dictionary) -> void: m.payload_files.pop_back(),
-		"exactly the 9 payload files ": func(m: Dictionary) -> void: m.payload_files.append(m.payload_files[0].duplicate()),
+		"material_slots ": func(m: Dictionary) -> void: m.terrain.material_slots = {"0": "grass", "1": "dirt"},
+		"missing field 'rules'": func(m: Dictionary) -> void: m.terrain.erase("rules"),
+		"rules missing field 'sand_enabled'": func(m: Dictionary) -> void: m.terrain.rules.erase("sand_enabled"),
+		"rules has unknown field": func(m: Dictionary) -> void: m.terrain.rules["extra"] = 1,
+		"must be a boolean": func(m: Dictionary) -> void: m.terrain.rules.rock_enabled = 1,
+		"must be a boolean ": func(m: Dictionary) -> void: m.terrain.rules.sand_enabled = "true",
+		"rock_slope_deg must be an integer": func(m: Dictionary) -> void: m.terrain.rules.rock_slope_deg = 30.5,
+		"sand_height_dm must be an integer": func(m: Dictionary) -> void: m.terrain.rules.sand_height_dm = "-4",
+		"rock_slope_deg 9 outside": func(m: Dictionary) -> void: m.terrain.rules.rock_slope_deg = 9,
+		"rock_slope_deg 61 outside": func(m: Dictionary) -> void: m.terrain.rules.rock_slope_deg = 61,
+		"sand_height_dm -31 outside": func(m: Dictionary) -> void: m.terrain.rules.sand_height_dm = -31,
+		"sand_height_dm 31 outside": func(m: Dictionary) -> void: m.terrain.rules.sand_height_dm = 31,
+		"rules must be an object": func(m: Dictionary) -> void: m.terrain.rules = [],
+		"exactly the 15 payload files": func(m: Dictionary) -> void: m.payload_files.pop_back(),
+		"exactly the 15 payload files ": func(m: Dictionary) -> void: m.payload_files.append(m.payload_files[0].duplicate()),
 		"sorted by path": func(m: Dictionary) -> void: m.payload_files.reverse(),
 		"placeholder": func(m: Dictionary) -> void: m.payload_files[1].sha256 = "<hex>",
 		"placeholder ": func(m: Dictionary) -> void: m.payload_files[1].sha256 = "0".repeat(64),
@@ -212,6 +272,51 @@ func test_rejects_payload_tampering() -> void:
 	dir = _gen()
 	DirAccess.remove_absolute(dir.path_join("regions/r_-1_0.height.f32le"))
 	assert_error_contains(WorldCodec.read_generation(dir, _catalog)[1], "r_-1_0.height")
+
+
+func test_rejects_scatter_and_path_payload_damage() -> void:
+	var base := _gen()
+	var scatter: PackedByteArray = FileAccess.get_file_as_bytes(base.path_join("scatter.bin"))
+	var pathbin: PackedByteArray = FileAccess.get_file_as_bytes(base.path_join("paths.bin"))
+	var bad_scatter := scatter.duplicate()
+	bad_scatter.append(0)
+	var bad_magic := scatter.duplicate()
+	bad_magic[0] = 0x58
+	var bad_paths := pathbin.duplicate()
+	bad_paths.append(0)
+	var cases := [
+		["scatter.bin", bad_scatter, "trailing"],
+		["scatter.bin", bad_magic, "bad magic"],
+		["paths.bin", bad_paths, "trailing"],
+		["paths.bin", pathbin.slice(0, 20), "truncated"],
+	]
+	for c in cases:
+		var dir := _dir.path_join("t_" + StorageFs.random_hex(4))
+		_copy_dir(base, dir)
+		_replace_payload(dir, c[0], c[1])
+		var r := WorldCodec.read_generation(dir, _catalog)
+		assert_eq(r[0], null, "%s %s" % [c[0], c[2]])
+		assert_error_contains(r[1], c[2], "%s %s" % [c[0], c[2]])
+
+
+func test_semantic_scatter_and_path_errors_reach_the_reader() -> void:
+	var doc := _doc()
+	doc.scatter.scale[0] = 9.0
+	assert_error_contains(WorldCodec.read_generation(_gen(doc), _catalog)[1], "scale", "scatter scale")
+	doc = _doc()
+	doc.scatter.x[1] = 128.0
+	assert_error_contains(WorldCodec.read_generation(_gen(doc), _catalog)[1], "extent", "scatter extent")
+	doc = _doc()
+	doc.get_path_record(PATH_A).points[1] = Vector2(500, 0)
+	assert_error_contains(WorldCodec.read_generation(_gen(doc), _catalog)[1], "extent", "path extent")
+
+
+func test_unknown_scatter_asset_is_rejected_on_read() -> void:
+	var dir := _gen()
+	var plain := _catalog.to_plain()
+	plain.assets[SPRUCE].scatter_allowed = false
+	var no_scatter := AssetCatalog.from_plain(plain)
+	assert_error_contains(WorldCodec.read_generation(dir, no_scatter)[1], "scatter_allowed", "catalog forbids scatter")
 
 
 func test_rejects_object_order_and_duplicates() -> void:

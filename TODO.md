@@ -2,6 +2,26 @@
 
 Updated: 2026-10-01. Scope: Core PoC WP00–WP06 only (WP07/PoC+ not authorized). Physical iPad Air 4 / Pencil testing confirms the Mobile/Vulkan baseline; full G1 remains INCOMPLETE.
 
+## World Editor v2 (2026-10-01, ADR 0009) — full redesign incl. PoC+
+
+Source: claude.ai design "World Editor v2" (`World Editor v2.dc.html`, `terrain-engine.js`).
+User authorized full scope incl. PoC+ (4 materials, rules, tint, alphas, flatten/noise/smooth,
+scatter/fill/sets, spline paths). Invert = on-screen button + D key (no Pencil double-tap hook).
+
+- [x] P0 Contracts: ADR 0009, `docs/world-format.md` schema 2
+- [x] P1a Format schema 2, GDScript: constants, RegionBuffers color, ScatterLayer, PathLayer, rules,
+  WorldDocument, codec/manifest/validator/zip limits, CanonicalEncoder V2, history capture, adapter colour upload
+- [x] P1b Format schema 2, Python mirror (`scripts/worldpoc_*`), tests
+- [ ] P2 Catalog v2 (4 ground-cover assets + scatter meshes + thumbnails), fixtures regenerated, cross-language hash check
+- [ ] P3 Editor v2 behaviour spec (`docs/editor-v2.md`); ToolController v2 (modes/tools/invert/settings)
+- [ ] P4 Brush engine v2: alphas, 4-layer paint/erase, spray, tint, pick; flatten (+pick height), noise/smooth
+- [ ] P5 Terrain shader: 4 textures, auto-paint rules, tint, rule highlight (Mac rendered check)
+- [ ] P6 Scatter: MultiMesh renderer, scatter/erase brush, fill/clear lasso, sets store, quick mix
+- [ ] P7 Paths: draw (flatten + record), draped ribbon, handle edit, delete
+- [ ] P8 UI v2: top bar, mode rail + popover, chip + invert, Library (Objects/Sets), set editor, inspector, ghost, hints, toasts
+- [ ] P9 Mac consumer schema 2, selftest, docs (architecture, input contract, checklist), Mac screenshot review
+- [ ] P10 iPad build + user device check (NOT RUN until measured)
+
 ## UI redesign (2026-10-01, ADR 0007)
 
 Source: claude.ai design "World Editor" proposal 1a. Search field, Unicode glyph icons, and an

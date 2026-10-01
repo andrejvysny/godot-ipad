@@ -10,25 +10,42 @@ const OBJECTS_FILE := "objects.json"
 const TERRAIN3D_VERSION := "1.0.2-stable@0077405b"
 const MAX_MANIFEST_BYTES := 64 * 1024
 const MAX_OBJECTS_BYTES := 4 * 1024 * 1024
+const MAX_SCATTER_BYTES := 512 * 1024
+const MAX_PATHS_BYTES := 640 * 1024
 const MANIFEST_KEYS := ["format", "schema_version", "world_id", "document_revision", "created_with",
 	"catalog", "terrain", "payload_files", "authored_content_hash"]
 const CREATED_WITH_KEYS := ["godot", "terrain3d", "world_painter"]
 const CATALOG_KEYS := ["id", "version", "sha256"]
 const TERRAIN_KEYS := ["sample_spacing_m", "region_samples", "region_locations", "height_encoding",
-	"control_encoding", "control_schema", "material_slots"]
+	"control_encoding", "control_schema", "color_encoding", "material_slots", "rules"]
 const PAYLOAD_KEYS := ["path", "bytes", "sha256"]
 const MAX_JSON_INT := 9007199254740992.0  # 2^53: larger JSON numbers are not exact integers
 
 
-## The 9 payload paths, sorted byte-wise (the order payload_files must use).
+## The 15 payload paths, sorted byte-wise (the order payload_files must use).
 static func payload_paths() -> PackedStringArray:
-	var out := PackedStringArray([OBJECTS_FILE])
+	var out := PackedStringArray([OBJECTS_FILE, WorldConstants.SCATTER_FILE, WorldConstants.PATHS_FILE])
 	for loc in WorldConstants.REGION_LOCATIONS:
 		var stem := WorldConstants.region_file_stem(loc)
 		out.append(stem + ".height.f32le")
 		out.append(stem + ".control.u32le")
+		out.append(stem + ".color.rgba8")
 	out.sort()
 	return out
+
+
+## Largest allowed byte length of a payload file.
+static func payload_limit(path: String) -> int:
+	if is_region_path(path):
+		return WorldConstants.REGION_MAP_BYTES
+	match path:
+		OBJECTS_FILE:
+			return MAX_OBJECTS_BYTES
+		WorldConstants.SCATTER_FILE:
+			return MAX_SCATTER_BYTES
+		WorldConstants.PATHS_FILE:
+			return MAX_PATHS_BYTES
+	return 0
 
 
 static func is_region_path(path: String) -> bool:
@@ -55,17 +72,23 @@ static func objects_json_bytes(doc: WorldDocument) -> PackedByteArray:
 
 ## Copies everything a checkpoint needs into plain values (no references into `doc`).
 static func snapshot(doc: WorldDocument, created_with: Dictionary) -> Dictionary:
-	var files := {OBJECTS_FILE: objects_json_bytes(doc)}
+	var files := {
+		OBJECTS_FILE: objects_json_bytes(doc),
+		WorldConstants.SCATTER_FILE: doc.scatter.encode(),
+		WorldConstants.PATHS_FILE: PathRecord.encode_all(doc.paths),
+	}
 	for loc in WorldConstants.REGION_LOCATIONS:
 		var r := doc.get_region(loc)
 		var stem := WorldConstants.region_file_stem(loc)
 		files[stem + ".height.f32le"] = r.height_bytes() if r != null else PackedByteArray()
 		files[stem + ".control.u32le"] = r.control_bytes() if r != null else PackedByteArray()
+		files[stem + ".color.rgba8"] = r.color_bytes() if r != null else PackedByteArray()
 	return {
 		"world_id": doc.world_id,
 		"document_revision": doc.document_revision,
 		"created_with": created_with.duplicate(true),
 		"catalog": {"id": doc.catalog_id, "version": doc.catalog_version, "sha256": doc.catalog_sha256},
+		"rules": doc.rules.to_dict(),
 		"files": files,
 		"authored_content_hash": CanonicalEncoder.authored_hash(doc),
 	}
@@ -87,6 +110,8 @@ static func write_snapshot(dir: String, snap: Dictionary, fail_on_file: String =
 		var data: PackedByteArray = snap.files.get(path, PackedByteArray())
 		if is_region_path(path) and data.size() != WorldConstants.REGION_MAP_BYTES:
 			return "region payload %s has %d bytes, expected %d" % [path, data.size(), WorldConstants.REGION_MAP_BYTES]
+		if data.size() > payload_limit(path):
+			return "payload %s has %d bytes, limit %d" % [path, data.size(), payload_limit(path)]
 		if path == fail_on_file:
 			return "write to '%s' failed (injected fault)" % dir.path_join(path)
 		err = StorageFs.write_bytes(dir.path_join(path), data)
@@ -117,7 +142,9 @@ static func build_manifest(snap: Dictionary, payload_entries: Array) -> Dictiona
 			"height_encoding": WorldConstants.HEIGHT_ENCODING,
 			"control_encoding": WorldConstants.CONTROL_ENCODING,
 			"control_schema": WorldConstants.CONTROL_SCHEMA,
+			"color_encoding": WorldConstants.COLOR_ENCODING,
 			"material_slots": WorldConstants.MATERIAL_SLOTS.duplicate(),
+			"rules": snap.rules,
 		},
 		"payload_files": payload_entries,
 		"authored_content_hash": snap.authored_content_hash,
@@ -138,8 +165,7 @@ static func load_verified(dir: String) -> Dictionary:
 		return out
 	var manifest: Dictionary = parsed[0]
 	for entry in manifest.payload_files:
-		var limit: int = MAX_OBJECTS_BYTES if entry.path == OBJECTS_FILE else WorldConstants.REGION_MAP_BYTES
-		var payload := StorageFs.read_bytes(dir.path_join(entry.path), limit)
+		var payload := StorageFs.read_bytes(dir.path_join(entry.path), payload_limit(entry.path))
 		if payload[1] != "":
 			out.error = "payload %s: %s" % [entry.path, payload[1]]
 			return out
@@ -177,22 +203,39 @@ static func read_generation(dir: String, catalog: AssetCatalog) -> Array:
 	doc.catalog_id = m.catalog.id
 	doc.catalog_version = int(m.catalog.version)
 	doc.catalog_sha256 = m.catalog.sha256
-	for loc in WorldConstants.REGION_LOCATIONS:
-		var stem := WorldConstants.region_file_stem(loc)
-		var r := RegionBuffers.new(loc)
-		var err := r.set_from_bytes(verified.files[stem + ".height.f32le"], verified.files[stem + ".control.u32le"])
-		if err != "":
-			return [null, err]
-		doc.regions[loc] = r
-	var obj_err := _read_objects(doc, verified.files[OBJECTS_FILE])
-	if obj_err != "":
-		return [null, "objects.json: " + obj_err]
+	doc.rules = (TerrainRules.from_dict(m.terrain.rules))[0]
+	var err := _read_layers(doc, verified.files)
+	if err != "":
+		return [null, err]
 	if CanonicalEncoder.authored_hash(doc) != m.authored_content_hash:
 		return [null, "authored_content_hash does not match the loaded content"]
 	var errors := WorldValidator.validate(doc, catalog)
 	if not errors.is_empty():
 		return [null, "; ".join(errors)]
 	return [doc, ""]
+
+
+static func _read_layers(doc: WorldDocument, files: Dictionary) -> String:
+	for loc in WorldConstants.REGION_LOCATIONS:
+		var stem := WorldConstants.region_file_stem(loc)
+		var r := RegionBuffers.new(loc)
+		var err := r.set_from_bytes(files[stem + ".height.f32le"], files[stem + ".control.u32le"],
+			files[stem + ".color.rgba8"])
+		if err != "":
+			return err
+		doc.regions[loc] = r
+	var obj_err := _read_objects(doc, files[OBJECTS_FILE])
+	if obj_err != "":
+		return "objects.json: " + obj_err
+	var scatter := ScatterLayer.decode(files[WorldConstants.SCATTER_FILE])
+	if scatter[1] != "":
+		return scatter[1]
+	doc.scatter = scatter[0]
+	var paths := PathRecord.decode_all(files[WorldConstants.PATHS_FILE])
+	if paths[1] != "":
+		return paths[1]
+	doc.paths = paths[0]
+	return ""
 
 
 static func _read_objects(doc: WorldDocument, data: PackedByteArray) -> String:
