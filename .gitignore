@@ -33,3 +33,7 @@ __pycache__/
 # Generated build identity (bundled by export; regenerate before building)
 app/config/build_fingerprint.json
 venv/
+
+# Agent-local state
+.claude/agent-memory/
+.claude/worktrees/
