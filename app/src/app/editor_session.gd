@@ -249,10 +249,6 @@ func _process(_delta: float) -> void:
 		frames.add(gap_ms)
 		if tools.has_active_operation():
 			_op_max_gap_ms = maxf(_op_max_gap_ms, gap_ms)
-		var stall_s := float(defaults.brush.stall_cancel_s)
-		if gap_ms / 1000.0 > stall_s and tools.has_active_operation() and not tools.has_object_edit():
-			input.cancel_all("tool_error")
-			post_message("Stroke cancelled: frame stall over %d ms." % roundi(stall_s * 1000.0), true)
 	_last_frame_usec = now_usec
 	tools.advance(input.active_provider().now_seconds())
 	rig.frozen = tools.has_active_operation()

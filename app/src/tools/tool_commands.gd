@@ -87,6 +87,4 @@ static func error_message(err: String) -> String:
 	match err:
 		BrushKernels.ERROR_BUDGET:
 			return "Stroke cancelled: action memory budget exceeded."
-		SculptStroke.ERROR_STALL:
-			return "Stroke cancelled: frame stall over 250 ms."
 	return "Operation cancelled: %s." % err

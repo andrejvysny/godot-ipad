@@ -5,7 +5,13 @@ extends RefCounted
 ## timeline are applied with dt = their duration, so a stationary pencil keeps sculpting and a
 ## moving one spreads each step's time along its path. Paused gaps receive no work.
 ## The caller owns the EditTransaction: it finishes it on success, or cancels the stroke (which
-## rolls it back) on any result error ("stall", "budget", "invalid_input").
+## rolls it back) on any result error ("budget", "invalid_input").
+##
+## Backlog (ADR 0012): slow frames never cancel the stroke. A backlog of at most MAX_EXACT_STEPS
+## steps is processed step by step (exact). A larger backlog is applied as MERGED_INTERVALS
+## grid-aligned intervals whose contiguous timeline pieces are coalesced into segments of at most
+## COALESCE_RADIUS_FRACTION * radius, so the work per call stays bounded however far behind the
+## stroke is. The total sculpted time is unchanged; only the sub-step distribution is coarser.
 ##
 ## Input latency: samples reach the stroke some time after their timestamps. A step is processed
 ## only once the timeline is known up to its end, or once `now` is input_latency_s past it (a
@@ -15,24 +21,25 @@ extends RefCounted
 ##
 ## Settings: radius, kind (raise | flatten | noise | smooth; default raise), direction (+1 raise /
 ## -1 lower), speed_m_per_s, strength, shape, alpha_mode (docs/editor-v2.md §3), target (flatten),
-## pressure_enabled, fixed_step_s, stall_cancel_s, input_latency_s.
+## pressure_enabled, fixed_step_s, input_latency_s.
 
-const ERROR_STALL := "stall"
 const ERROR_INVALID := BrushKernels.ERROR_INVALID
 const DEFAULT_INPUT_LATENCY_S := 0.05
-## Lower bound on fixed_step_s; also bounds the steps processed per call to ~(stall + latency) / step.
 const MIN_FIXED_STEP_S := 0.001
+const MAX_EXACT_STEPS := 4
+const MERGED_INTERVALS := 2
+const COALESCE_RADIUS_FRACTION := 0.5
 
 var settings: Dictionary = {}
 var timeline := StrokeTimeline.new()
 var error: String = ""
 var steps_processed: int = 0
+var pieces_applied: int = 0  ## kernel calls, for bounded-work checks and diagnostics
 
 var _doc: WorldDocument
 var _tx: EditTransaction
 var _t0 := 0.0
 var _step := 1.0 / 60.0
-var _stall := 0.25
 var _latency := DEFAULT_INPUT_LATENCY_S
 var _last_processed := 0.0
 var _height_rate := 0.0
@@ -41,19 +48,18 @@ var _finished := false
 
 
 ## Invalid timing (non-finite t0, fixed_step_s below MIN_FIXED_STEP_S, negative or non-finite
-## stall/latency) sets `error` to "invalid_input"; every later call then returns that error.
+## latency) sets `error` to "invalid_input"; every later call then returns that error.
 func begin(doc: WorldDocument, tx: EditTransaction, p_settings: Dictionary, t0: float, pos: Vector2, pf: float) -> void:
 	_doc = doc
 	_tx = tx
 	settings = p_settings.duplicate(true)
 	_step = float(settings.get("fixed_step_s", 1.0 / 60.0))
-	_stall = float(settings.get("stall_cancel_s", 0.25))
 	_latency = float(settings.get("input_latency_s", DEFAULT_INPUT_LATENCY_S))
 	_height_rate = signf(float(settings.get("direction", 1.0))) * float(settings.get("speed_m_per_s", 2.0))
 	_t0 = t0
 	_last_processed = t0
 	var timing_ok := is_finite(t0) and is_finite(_step) and _step >= MIN_FIXED_STEP_S \
-			and is_finite(_stall) and _stall >= 0.0 and is_finite(_latency) and _latency >= 0.0
+			and is_finite(_latency) and _latency >= 0.0
 	if not timing_ok:
 		error = ERROR_INVALID
 		return
@@ -73,8 +79,7 @@ func resume(t: float, pos: Vector2, pf: float) -> void:
 
 
 ## Processes every whole step ending at or before the input horizon
-## min(now, max(timeline.known_until(), now - input_latency_s)). A main-loop gap longer than
-## stall_cancel_s + fixed_step_s (+ input_latency_s) returns error "stall" without applying the backlog.
+## min(now, max(timeline.known_until(), now - input_latency_s)).
 func advance_to(now: float) -> Dictionary:
 	var res := BrushKernels.empty_result()
 	if not _check(now, res):
@@ -110,29 +115,36 @@ func _check(now: float, res: Dictionary) -> bool:
 		return false
 	if error == "" and not is_finite(now):
 		error = ERROR_INVALID
-	# Processing trails `now` by up to input_latency_s by design; only the excess is a stall.
-	if error == "" and now - _last_processed > _stall + _step + _latency:
-		error = ERROR_STALL
 	res.error = error
 	return error == ""
 
 
 func _process_steps(now: float, res: Dictionary) -> void:
-	while true:
-		var t_end := _t0 + float(steps_processed + 1) * _step
-		if t_end > now:
-			return
-		_process_interval(_last_processed, t_end, res)
+	var pending := 0
+	while _t0 + float(steps_processed + pending + 1) * _step <= now:
+		pending += 1
+	if pending == 0:
+		return
+	var merged := pending > MAX_EXACT_STEPS
+	var chunks := MERGED_INTERVALS if merged else pending
+	for c in chunks:
+		var n := pending * (c + 1) / chunks - pending * c / chunks  # integer split, sums to pending
+		var t_end := _t0 + float(steps_processed + n) * _step
+		_process_interval(_last_processed, t_end, res, merged)
 		if res.error != "":
 			error = res.error
 			return
-		steps_processed += 1
+		steps_processed += n
 		_last_processed = t_end
 
 
-func _process_interval(t_a: float, t_b: float, res: Dictionary) -> void:
+func _process_interval(t_a: float, t_b: float, res: Dictionary, coalesce := false) -> void:
 	var snaps := {}  # smooth reads the heights from before this step
-	for piece in timeline.segments_between(t_a, t_b):
+	var pieces := timeline.segments_between(t_a, t_b)
+	if coalesce:
+		pieces = _coalesced(pieces, COALESCE_RADIUS_FRACTION * float(settings.get("radius", 6.0)))
+	for piece in pieces:
+		pieces_applied += 1
 		var r := _apply_piece(piece, snaps)
 		BrushKernels.merge_result(res, r)
 		if res.error != "":
@@ -156,6 +168,23 @@ func _apply_piece(piece: Dictionary, snaps: Dictionary) -> Dictionary:
 	p.gain = (_height_rate if kind == "raise" else 1.0) * strength * pf_avg * dt
 	p.target = float(settings.get("target", 0.0))
 	return SculptKernels.sculpt_piece(_doc, _tx, p, snaps)
+
+
+## Joins time-contiguous pieces (same timeline segment) into straight pieces no longer than
+## `max_len`; pieces separated by a pause are never joined.
+static func _coalesced(pieces: Array[Dictionary], max_len: float) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	for p in pieces:
+		if not out.is_empty():
+			var last: Dictionary = out[out.size() - 1]
+			var joined_len := (last.p_a as Vector2).distance_to(p.p_b)
+			if last.t_b == p.t_a and last.p_b == p.p_a and joined_len <= max_len:
+				last.t_b = p.t_b
+				last.p_b = p.p_b
+				last.pf_b = p.pf_b
+				continue
+		out.append(p.duplicate())
+	return out
 
 
 ## Disabled or non-finite pressure is full strength (as BrushMath.pressure_factor), never NaN.

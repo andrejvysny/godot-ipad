@@ -10,7 +10,7 @@ func _doc(height: float = 0.0) -> WorldDocument:
 
 func _settings(kind: String, radius: float, extra: Dictionary = {}) -> Dictionary:
 	var s := {"kind": kind, "radius": radius, "direction": 1.0, "speed_m_per_s": 2.0, "strength": 1.0,
-			"pressure_enabled": false, "fixed_step_s": STEP, "stall_cancel_s": 0.25, "shape": "soft",
+			"pressure_enabled": false, "fixed_step_s": STEP, "shape": "soft",
 			"alpha_mode": "circle", "target": 0.0}
 	s.merge(extra, true)
 	return s

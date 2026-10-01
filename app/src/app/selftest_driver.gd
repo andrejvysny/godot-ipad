@@ -70,7 +70,7 @@ func drag(points: Array[Vector3], source: int, contact: int, frames_per_segment:
 	await frame()
 
 
-## One brush stroke over real time. A stroke cancelled by a frame stall is retried.
+## One brush stroke over real time. A cancelled stroke (e.g. app deactivation) is retried.
 func stroke(points: Array[Vector3]) -> Dictionary:
 	var before := session.history.size()
 	var attempts := 0

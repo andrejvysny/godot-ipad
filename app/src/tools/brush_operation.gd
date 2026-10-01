@@ -239,7 +239,6 @@ func _sculpt_settings() -> Dictionary:
 			"strength": float(_settings.get("strength", 0.8)),
 			"pressure_enabled": bool(_settings.get("pressure_enabled", true)),
 			"fixed_step_s": float(_brush.get("fixed_step_s", 1.0 / 60.0)),
-			"stall_cancel_s": float(_brush.get("stall_cancel_s", 0.25)),
 			"input_latency_s": float(_brush.get("input_latency_s", 0.05))}
 
 

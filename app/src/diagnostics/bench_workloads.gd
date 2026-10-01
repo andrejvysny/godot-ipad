@@ -126,7 +126,7 @@ func _sculpt_pos(t: float) -> Vector2:
 func _start_stroke(t: float) -> void:
 	var settings := {"radius": SCULPT_RADIUS_M, "kind": "raise", "direction": _direction,
 		"speed_m_per_s": SCULPT_SPEED_M_PER_S, "strength": 1.0, "pressure_enabled": false,
-		"fixed_step_s": 1.0 / 60.0, "stall_cancel_s": 0.25, "input_latency_s": 0.05, "shape": "soft",
+		"fixed_step_s": 1.0 / 60.0, "input_latency_s": 0.05, "shape": "soft",
 		"alpha_mode": "circle"}
 	_tx = EditTransaction.new()
 	_tx.begin(_doc, "sculpt", "Bench sculpt", settings)

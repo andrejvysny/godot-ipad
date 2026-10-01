@@ -11,7 +11,7 @@ func _doc() -> WorldDocument:
 
 func _settings(radius: float = 6.0, direction: float = 1.0, pressure: bool = true) -> Dictionary:
 	return {"radius": radius, "direction": direction, "speed_m_per_s": 2.0, "strength": 1.0,
-			"pressure_enabled": pressure, "fixed_step_s": STEP, "stall_cancel_s": 0.25}
+			"pressure_enabled": pressure, "fixed_step_s": STEP}
 
 
 func _begin(doc: WorldDocument, settings: Dictionary, t0: float, pos: Vector2, pf: float = 1.0) -> SculptStroke:
@@ -270,18 +270,60 @@ func test_paused_gap_is_not_sculpted() -> void:
 	assert_true(doc.get_height_at_sample(30, 0) > 0.0, "second segment raised")
 
 
-func test_stall_cancels_without_applying_backlog() -> void:
+## ADR 0012: a long main-loop gap never cancels; the backlog is applied in bounded merged work.
+func test_long_gap_applies_backlog_without_error() -> void:
+	var exact_doc := _doc()
+	var exact := _begin(exact_doc, _settings(), 0.0, Vector2(0, 0))
+	assert_empty_string(_tick(exact, 0.0, 1.1).error)
 	var doc := _doc()
 	var s := _begin(doc, _settings(), 0.0, Vector2(0, 0))
 	assert_empty_string(s.advance_to(0.1).error)
-	var before := doc.get_height_at_sample(0, 0)
-	var r := s.advance_to(0.1 + 0.3)
-	assert_eq(r.error, SculptStroke.ERROR_STALL)
-	assert_eq(doc.get_height_at_sample(0, 0), before, "backlog not applied")
-	assert_eq(s.finish(0.5).error, SculptStroke.ERROR_STALL, "stays failed")
-	var touched := s.cancel()
-	assert_eq((touched.heights as Array).size(), 4)
-	assert_eq(doc.get_height_at_sample(0, 0), 0.0, "rolled back")
+	var pieces := s.pieces_applied
+	assert_empty_string(s.advance_to(1.1).error, "a 1 s gap is not an error")
+	assert_eq(s.steps_processed, exact.steps_processed, "every step's time is processed")
+	assert_true(s.pieces_applied - pieces <= SculptStroke.MERGED_INTERVALS, "bounded work: %d pieces" % (s.pieces_applied - pieces))
+	var d := absf(doc.get_height_at_sample(0, 0) - exact_doc.get_height_at_sample(0, 0))
+	assert_true(d < 1e-4, "stationary raise volume preserved (|dh| %.6f)" % d)
+	assert_empty_string(s.finish(1.2).error)
+
+
+func test_backlog_of_a_moving_dense_stroke_stays_close_to_exact() -> void:
+	var exact_doc := _doc()
+	var exact := _begin(exact_doc, _settings(5.0), 0.0, _path(0.0), _path_pf(0.0))
+	var doc := _doc()
+	var s := _begin(doc, _settings(5.0), 0.0, _path(0.0), _path_pf(0.0))
+	for k in range(1, 361):
+		exact.add_sample(k / 240.0, _path(k / 240.0), _path_pf(k / 240.0))
+		s.add_sample(k / 240.0, _path(k / 240.0), _path_pf(k / 240.0))
+	assert_empty_string(_hold(exact, 0.0, 1.5, 1.0 / 60.0))
+	var calls := 0
+	var t := 0.0
+	while t + 0.25 < 1.5:  # 4 fps: every advance is far behind
+		t += 0.25
+		var before := s.pieces_applied
+		assert_empty_string(s.advance_to(t).error)
+		calls = maxi(calls, s.pieces_applied - before)
+	assert_empty_string(s.finish(1.5).error)
+	assert_true(calls < 15 * 4, "merged advances use far fewer kernel calls than 60 per 0.25 s (%d)" % calls)
+	var d := _max_diff(_heights(exact_doc), _heights(doc))
+	print("    backlog merge max |dh| vs exact %.6f m" % d)
+	assert_true(d < 0.02, "merged result stays within 2 cm of the exact stroke (%.6f)" % d)
+
+
+func test_smooth_backlog_is_stable() -> void:
+	var doc := _doc()
+	for loc: Vector2i in doc.regions:
+		var r: RegionBuffers = doc.regions[loc]
+		for i in r.heights.size():
+			r.heights[i] = 4.0 if (i / 7) % 2 == 0 else -4.0
+	doc.invalidate_all_height_ranges()
+	var settings := _settings(8.0)
+	settings["kind"] = "smooth"
+	var s := _begin(doc, settings, 0.0, Vector2(0, 0))
+	assert_empty_string(s.advance_to(3.0).error, "3 s backlog of smoothing")
+	assert_empty_string(s.finish(3.0).error)
+	var h := doc.get_height_at_sample(0, 0)
+	assert_true(is_finite(h) and h >= -4.0 and h <= 4.0, "smoothing never overshoots: %f" % h)
 
 
 func test_te12_cancel_after_touching_four_regions_restores_hash() -> void:

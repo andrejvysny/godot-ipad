@@ -190,21 +190,19 @@ func test_cancel_after_touching_all_regions_restores_authored_hash() -> void:
 	assert_false(h.ctrl.has_active_operation())
 
 
-func test_frame_stall_cancels_and_rolls_back() -> void:
-	var before := CanonicalEncoder.authored_hash(h.doc)
+func test_frame_stall_never_cancels_the_stroke() -> void:
 	h.ctrl.set_tool(ToolController.TOOL_RAISE)
 	h.act("tool_begin", h.at(40.0, 40.0, 1.0))
 	var t := 1.0
 	while t < 1.2:
 		t += 1.0 / 60.0
 		h.ctrl.advance(t)
-	assert_ne(CanonicalEncoder.authored_hash(h.doc), before, "work was applied before the stall")
-	h.ctrl.advance(t + 1.0)
-	assert_eq(h.cancels, ["tool_error"], "request_cancel called")
-	assert_eq(h.diagnostics, ["Stroke cancelled: frame stall over 250 ms."])
-	assert_eq(CanonicalEncoder.authored_hash(h.doc), before, "rollback complete")
-	assert_false(h.ctrl.has_active_operation())
-	assert_eq(h.commits.size(), 0)
+	h.ctrl.advance(t + 1.0)  # a 1 s main-loop gap
+	assert_eq(h.cancels, [], "no cancel request")
+	assert_eq(h.diagnostics, [], "no stall message")
+	assert_true(h.ctrl.has_active_operation(), "stroke continues")
+	h.act("tool_end", h.at(40.0, 40.0, t + 1.05))
+	assert_eq(h.commits.size(), 1, "one logical action")
 
 
 func test_settings_clamp_and_validate() -> void:
