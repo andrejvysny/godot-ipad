@@ -76,7 +76,7 @@ func _rect(c: Control) -> Rect2:
 
 func _select_first(s: EditorSession) -> ObjectRecord:
 	var id := s.document.sorted_object_ids()[0]
-	s.tools.set_active_tool("select")
+	s.tools.set_tool("select")
 	s.tools.select(id)
 	await _frames(3)
 	return s.document.get_object(id)
@@ -111,11 +111,13 @@ func _drag(s: EditorSession, from: Vector2, to: Vector2, end_phase: int = Pointe
 
 func test_required_controls_exist_and_are_touch_sized() -> void:
 	var s := await _start()
+	s.tools.set_tool("select")
+	await _frames(2)
 	var ui := _ui(s)
 	assert_true(ui != null, "ui built")
 	var controls: Array[Control] = [ui.history_bar().undo_button(), ui.history_bar().redo_button(),
 		ui.world_menu().world_button(), ui.reset_view_button(), ui.export_button()]
-	for id in ToolController.TOOLS:
+	for id in ToolDock.ORDER:
 		controls.append(ui.dock().tool_button(id))
 	for id in s.catalog.sorted_ids():
 		controls.append(ui.library().tile(id))
@@ -127,7 +129,7 @@ func test_required_controls_exist_and_are_touch_sized() -> void:
 	assert_eq(ui.history_bar().undo_caption().text, "Nothing")
 	assert_false(ui.history_bar().cancel_button().visible)
 	assert_true(ui.dock().tool_button("select").button_pressed)
-	s.tools.set_active_tool("paint")
+	s.tools.set_tool("paint")
 	await _frames(2)
 	for key in ["radius", "strength"]:
 		var field := ui.context_bar().scrub("paint", key)
@@ -139,6 +141,8 @@ func test_required_controls_exist_and_are_touch_sized() -> void:
 func test_pencil_switches_tool_but_finger_does_not() -> void:
 	var s := await _start()
 	var ui := _ui(s)
+	s.tools.set_tool("select")
+	await _frames(2)
 	var before := s.authored_hash()
 	var p := _center(ui.dock().tool_button("sculpt"))
 	await _feed(s, PointerSample.Source.FINGER, PointerSample.Phase.BEGIN, p)
@@ -155,16 +159,15 @@ func test_pencil_switches_tool_but_finger_does_not() -> void:
 func test_pencil_changes_paint_material_and_library_tap_arms_place() -> void:
 	var s := await _start()
 	var ui := _ui(s)
-	s.tools.set_active_tool("paint")
+	s.tools.set_tool("paint")
 	await _frames(2)
 	await _pencil_click(s, ui.context_bar().mode_button("paint", "grass"))
-	assert_eq(s.tools.settings("paint").material, "grass")
+	assert_eq(s.tools.settings("paint").layer, 0)
 	await _pencil_click(s, ui.context_bar().mode_button("paint", "dirt"))
-	assert_eq(s.tools.settings("paint").material, "dirt")
+	assert_eq(s.tools.settings("paint").layer, 1)
 	var id := s.catalog.sorted_ids()[1]
 	await _pencil_click(s, ui.library().tile(id))
-	assert_eq(s.tools.settings("place").asset_id, id)
-	assert_eq(s.tools.active_tool(), "place")
+	assert_eq(s.tools.armed_asset(), id)
 	assert_eq(s.history.size(), 0, "a tap places nothing")
 	assert_eq(s.document.objects.size(), 0)
 	assert_true(ui.dock().tool_button("place").button_pressed)
@@ -173,7 +176,7 @@ func test_pencil_changes_paint_material_and_library_tap_arms_place() -> void:
 func test_context_scrub_drag_is_one_history_free_setting_and_cancel_restores() -> void:
 	var s := await _start()
 	var ui := _ui(s)
-	s.tools.set_active_tool("path")
+	s.tools.set_tool("path")
 	await _frames(2)
 	var field := ui.context_bar().scrub("path", "width")
 	var rect := _rect(field)
@@ -339,7 +342,7 @@ func test_inspector_avoids_neighbouring_object() -> void:
 func test_library_drag_released_over_ui_or_cancelled_creates_nothing() -> void:
 	var s := await _start()
 	var ui := _ui(s)
-	s.tools.set_active_tool("paint")
+	s.tools.set_tool("paint")
 	await _frames(2)
 	var tile := _center(ui.library().tile("nature.rock.boulder_a"))
 	var centre := tree.root.get_visible_rect().get_center()
@@ -366,7 +369,7 @@ func test_inspector_hidden_during_operations_and_for_other_tools() -> void:
 	var ui := _ui(s)
 	await _select_first(s)
 	assert_true(ui.inspector().visible)
-	s.tools.set_active_tool("paint")
+	s.tools.set_tool("paint")
 	await _frames(2)
 	assert_false(ui.inspector().visible, "hidden when tool != select")
 	var centre := tree.root.get_visible_rect().get_center()
@@ -376,7 +379,7 @@ func test_inspector_hidden_during_operations_and_for_other_tools() -> void:
 	assert_false(ui.inspector().visible, "hidden during a stroke")
 	assert_true(ui.history_bar().cancel_button().visible, "explicit Cancel while an operation is open")
 	await _feed(s, PointerSample.Source.PENCIL, PointerSample.Phase.END, centre + Vector2(20, 0))
-	s.tools.set_active_tool("select")
+	s.tools.set_tool("select")
 	await _frames(2)
 	assert_true(ui.inspector().visible)
 

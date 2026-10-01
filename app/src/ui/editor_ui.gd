@@ -254,7 +254,7 @@ func _refresh_banner(text: String) -> void:
 
 func _inspector_wanted() -> bool:
 	var tools := _session.tools
-	if tools.active_tool() != ToolController.TOOL_SELECT or tools.selected_id() == "":
+	if tools.mode() != "place" or tools.active_tool() != ToolController.TOOL_SELECT or tools.selected_id() == "":
 		return false
 	return not (tools.has_active_operation() and not tools.has_object_edit())
 

@@ -106,7 +106,7 @@ func test_restart_recovers_and_falls_back_past_corrupt_generation() -> void:
 	var root := scratch_dir() + "/worlds"
 	var first: EditorSession = await _start("flat", root)
 	var original_hash := first.authored_hash()
-	first.tools.set_active_tool(ToolController.TOOL_PAINT)
+	first.tools.set_tool(ToolController.TOOL_PAINT)
 	_stroke(first, -6.0, 6.0)
 	await _settle(first)
 	var stroked_hash := first.authored_hash()
@@ -132,7 +132,7 @@ func test_restart_recovers_and_falls_back_past_corrupt_generation() -> void:
 func test_stroke_commit_undo_redo() -> void:
 	var s: EditorSession = await _start()
 	var before := s.authored_hash()
-	s.tools.set_active_tool(ToolController.TOOL_PAINT)
+	s.tools.set_tool(ToolController.TOOL_PAINT)
 	_stroke(s, -6.0, 6.0)
 	assert_eq(s.document.document_revision, 1)
 	assert_eq(s.history.size(), 1)
@@ -153,7 +153,7 @@ func test_stroke_commit_undo_redo() -> void:
 
 func test_undo_refused_during_active_stroke() -> void:
 	var s: EditorSession = await _start()
-	s.tools.set_active_tool(ToolController.TOOL_PAINT)
+	s.tools.set_tool(ToolController.TOOL_PAINT)
 	_act(s, "tool_begin", 0.0, 0.0, 1.0)
 	assert_true(s.tools.has_active_operation())
 	assert_eq(s.undo(), EditorSession.BUSY_MESSAGE)
@@ -167,8 +167,7 @@ func test_undo_refused_during_active_stroke() -> void:
 func test_placement_undo_removes_object_and_selection() -> void:
 	var s: EditorSession = await _start()
 	var baseline := s.presenter.object_count()
-	s.tools.set_active_tool(ToolController.TOOL_PLACE)
-	assert_empty_string(s.tools.set_setting("place", "asset_id", ToolHarness.BOULDER))
+	assert_empty_string(s.tools.arm_asset(ToolHarness.BOULDER))
 	_act(s, "tool_begin", 0.0, 0.0, 1.0)
 	_act(s, "tool_end", 0.0, 0.0, 1.05)
 	assert_eq(s.presenter.object_count(), baseline + 1)
@@ -229,7 +228,7 @@ func test_open_fixture_replaces_world_and_rejects_unknown() -> void:
 
 func test_export_is_verified() -> void:
 	var s: EditorSession = await _start()
-	s.tools.set_active_tool(ToolController.TOOL_PAINT)
+	s.tools.set_tool(ToolController.TOOL_PAINT)
 	_stroke(s, -6.0, 6.0)
 	var result := s.export_world()
 	assert_eq(result.error, "")
@@ -245,7 +244,7 @@ func test_deactivation_rolls_back_active_stroke() -> void:
 	s.commit(_tiny_change("base"))
 	await _settle(s)
 	var before := s.authored_hash()
-	s.tools.set_active_tool(ToolController.TOOL_SCULPT)
+	s.tools.set_tool(ToolController.TOOL_RAISE)
 	_act(s, "tool_begin", 0.0, 0.0, 1.0)
 	_act(s, "tool_move", 3.0, 0.0, 1.1)
 	_act(s, "tool_move", 6.0, 0.0, 1.2)
@@ -278,7 +277,7 @@ func test_history_eviction_posts_message_without_changing_world() -> void:
 func test_status_has_all_keys() -> void:
 	var s: EditorSession = await _start()
 	var status := s.status()
-	for key in ["tool", "stroke_state", "revision", "save_text", "save_state", "can_undo", "can_redo",
+	for key in ["tool", "mode", "inverted", "armed_asset", "picking_height", "stroke_state", "revision", "save_text", "save_state", "can_undo", "can_redo",
 			"undo_label", "redo_label", "history_size", "history_bytes", "evicted", "object_count",
 			"selected_id", "provider_label", "banner", "editing_enabled", "development_input",
 			"router_state", "contacts", "pressure_available", "renderer", "driver", "frame_p50_ms",

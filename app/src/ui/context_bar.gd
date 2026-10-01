@@ -113,7 +113,7 @@ func _build_brush(tool_id: String) -> void:
 	_add(tool_id, _scrub(tool_id, "strength", "Strength", ToolController.STRENGTH_MIN,
 			ToolController.STRENGTH_MAX, 0.05, func(v: float) -> String: return "%d%%" % roundi(v * 100.0)))
 	var pressure := UiKit.switch_button("Pressure", func(on: bool) -> void: _post(
-			_tools.set_setting(tool_id, "pressure_enabled", on)))
+			_tools.set_setting("brush", "pressure_enabled", on)))
 	_pressure[tool_id] = pressure
 	_controls.append(pressure)
 	_add(tool_id, pressure)
@@ -122,7 +122,7 @@ func _build_brush(tool_id: String) -> void:
 func _build_path() -> void:
 	var lo := float(_session.defaults.brush.path_width_min_m)
 	var hi := float(_session.defaults.brush.path_width_max_m)
-	_add("path", _scrub("path", "width", "Width", lo, hi, 0.5, func(v: float) -> String: return "%.1f m" % v))
+	_add("path", _scrub("path", "width", "Width", lo, hi, 0.1, func(v: float) -> String: return "%.1f m" % v))
 
 
 func _build_place_chip() -> void:
@@ -159,7 +159,10 @@ func _post(error: String) -> void:
 
 
 func _on_mode(tool_id: String, value: String) -> void:
-	_post(_tools.set_setting(tool_id, BRUSH_MODES[tool_id].key, value))
+	if tool_id == "paint":
+		_post(_tools.set_setting("paint", "layer", 0 if value == "grass" else 1))
+	else:
+		_post(_tools.set_inverted(value == "lower"))
 	refresh(_session.status())
 
 
@@ -235,7 +238,7 @@ static func _set_field(field: ScrubField, value: float) -> void:
 func refresh(status: Dictionary) -> void:
 	if _session == null:
 		return
-	var active := _tools.active_tool()
+	var active := _ui_tool()
 	_pressure_available = bool(status.pressure_available)
 	for id: String in _items:
 		for c: Control in _items[id]:
@@ -262,18 +265,28 @@ func refresh(status: Dictionary) -> void:
 func _refresh_brush(tool_id: String) -> void:
 	var s := _tools.settings(tool_id)
 	var mode: Dictionary = BRUSH_MODES[tool_id]
+	var current: String = ("lower" if _tools.inverted() else "raise") if tool_id == "sculpt" \
+			else ["grass", "dirt", "", ""][int(s.layer)]
 	for value: String in mode.values:
-		mode_button(tool_id, value).set_pressed_no_signal(value == str(s[mode.key]))
+		mode_button(tool_id, value).set_pressed_no_signal(value == current)
 	_set_field(scrub(tool_id, "radius"), float(s.radius))
 	_set_field(scrub(tool_id, "strength"), float(s.strength))
-	UiKit.set_switch(pressure_switch(tool_id), bool(s.pressure_enabled))
+	UiKit.set_switch(pressure_switch(tool_id), bool(_tools.settings("brush").pressure_enabled))
 
 
 func _refresh_place() -> void:
-	var asset := _session.catalog.get_asset(str(_tools.settings("place").get("asset_id", "")))
+	var asset := _session.catalog.get_asset(_tools.armed_asset())
 	_chip_thumb.texture = load(asset.thumbnail) as Texture2D if asset != null else null
 	_chip_thumb.visible = asset != null
 	_chip_name.text = asset.display_name if asset != null else "No asset"
+
+
+## Panel key of the active tool: the old five-tool vocabulary this bar is laid out in.
+func _ui_tool() -> String:
+	if _tools.armed_asset() != "":
+		return "place"
+	var id := _tools.active_tool()
+	return "sculpt" if id == "raise" else id
 
 
 func _update_hint() -> void:
@@ -285,7 +298,7 @@ func _update_hint() -> void:
 		return
 	_hint.add_theme_color_override("font_color", UiKit.TEXT_MUTED)
 	var text := ""
-	match _tools.active_tool():
+	match _ui_tool():
 		"select":
 			text = "Tap an object to select. Drag it to move."
 		"place":

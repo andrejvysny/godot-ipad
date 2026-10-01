@@ -82,6 +82,17 @@ func cancel() -> void:
 	_ctx.presenter.hide_ghost()
 
 
+## Turns the candidate yaw; snaps to the placement yaw snap when snapping is on.
+func rotate_yaw(delta_deg: float) -> void:
+	var snap := float(_ctx.default("placement", "yaw_snap_deg", 15.0)) if _snap else 0.0
+	ObjectEdits.apply_yaw(_record, rad_to_deg(_record.get_yaw()) + delta_deg, snap)
+	_show()
+
+
+func yaw_deg() -> float:
+	return rad_to_deg(_record.get_yaw())
+
+
 func _update(hit: TerrainHit) -> void:
 	var p: Variant = _candidate(hit)
 	_valid_now = p != null

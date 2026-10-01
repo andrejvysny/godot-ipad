@@ -1,40 +1,30 @@
 class_name ToolController
-extends Node
-## Routes input-router tool actions to one operation at a time, owns tool settings, selection and
-## single-action object edits. Operations never touch history: every committed WorldChange goes
-## through ToolContext.commit. Expected failures return error strings or ToolContext.diagnostic
-## messages; nothing here calls push_error.
+extends ToolModel
+## Routes input-router tool actions to one operation at a time, owns selection and single-action
+## object edits on top of the ToolModel. Operations never touch history: every committed
+## WorldChange goes through ToolContext.commit. Expected failures return error strings or
+## ToolContext.diagnostic messages; nothing here calls push_error. Spec: docs/editor-v2.md §2.
 
-signal tool_changed(tool_id: String)
 signal selection_changed(id: String)
-signal settings_changed(tool_id: String)
+signal path_selection_changed(id: String)
 signal operation_started(tool_id: String)
 signal operation_finished(change: WorldChange)
 signal operation_cancelled(reason: String)
 
-const TOOL_SELECT := "select"
-const TOOL_PLACE := "place"
-const TOOL_PAINT := "paint"
-const TOOL_SCULPT := "sculpt"
-const TOOL_PATH := "path"
-const TOOLS: Array[String] = [TOOL_SELECT, TOOL_PLACE, TOOL_PAINT, TOOL_SCULPT, TOOL_PATH]
-const STRENGTH_MIN := 0.05
-const STRENGTH_MAX := 1.0
-const BUSY := "Another operation is in progress."
+const OP_PLACE := "place"  # operation kind of an armed placement or Library drop
+## Tools with a working operation; every other tool reports "arrives in a later build".
+const IMPLEMENTED: Array[String] = ["raise", "paint", "path", "select"]
 const NO_SELECTION := "Select an object first."
+const NO_PATH_SELECTION := "Select a path first."
+const LATER_PAINT_MESSAGE := "Rock and sand painting arrive in a later build."
 
-var editing_enabled := true
-
-var _ctx: ToolContext
-var _settings: Dictionary = {}
-var _active_tool := TOOL_SELECT
-var _snap := true
 var _ring: BrushRing
 var _op: RefCounted
 var _op_tool := ""
 var _drop := false  # _op is a Library drop, not a router-owned contact
 var _ignore_contact := false
 var _selected := ""
+var _selected_path := ""
 var _last_hit := TerrainHit.new()
 var _edit_tx: EditTransaction
 var _edit_kind := ""
@@ -42,19 +32,7 @@ var _edit_id := ""
 
 
 func setup(ctx: ToolContext) -> void:
-	_ctx = ctx
-	var strength := float(ctx.default("brush", "strength_default", 0.8))
-	_settings = {
-		TOOL_PAINT: {"radius": float(ctx.default("brush", "paint_radius_default_m", 4.0)),
-				"strength": strength, "material": "dirt", "pressure_enabled": true},
-		TOOL_SCULPT: {"radius": float(ctx.default("brush", "sculpt_radius_default_m", 6.0)),
-				"strength": float(ctx.default("brush", "sculpt_strength_default", 1.0)), "direction": "raise", "pressure_enabled": true},
-		TOOL_PATH: {"width": float(ctx.default("brush", "path_width_default_m", 3.0))},
-		TOOL_PLACE: {"asset_id": ""},
-		TOOL_SELECT: {},
-	}
-	_snap = true
-	_active_tool = TOOL_SELECT
+	_setup_model(ctx)
 	if _ring == null:
 		_ring = BrushRing.new()
 		add_child(_ring)
@@ -65,52 +43,20 @@ func set_document(doc: WorldDocument) -> String:
 		return BUSY
 	_ctx.document = doc
 	select("")
+	select_path("")
 	return ""
-
-
-func active_tool() -> String:
-	return _active_tool
-
-
-func set_active_tool(id: String) -> String:
-	if id not in TOOLS:
-		return "Unknown tool '%s'." % id
-	if has_active_operation():
-		return BUSY
-	_ctx.presenter.hide_ghost()
-	if id != _active_tool:
-		_active_tool = id
-		tool_changed.emit(id)
-	return ""
-
-
-func settings(tool_id: String) -> Dictionary:
-	return (_settings.get(tool_id, {}) as Dictionary).duplicate(true)
-
-
-func set_setting(tool_id: String, key: String, value: Variant) -> String:
-	if not _settings.has(tool_id) or not (_settings[tool_id] as Dictionary).has(key):
-		return "Unknown setting '%s.%s'." % [tool_id, key]
-	var checked := _validate_setting(tool_id, key, value)
-	if checked.error != "":
-		return checked.error
-	(_settings[tool_id] as Dictionary)[key] = checked.value
-	settings_changed.emit(tool_id)
-	return ""
-
-
-func snap_enabled() -> bool:
-	return _snap
-
-
-func set_snap_enabled(on: bool) -> void:
-	if on != _snap:
-		_snap = on
-		settings_changed.emit(TOOL_SELECT)
 
 
 func last_hit() -> TerrainHit:
 	return _last_hit
+
+
+## Turns the yaw of the placement in progress (armed contact or Library drop).
+func rotate_ghost(delta_deg: float) -> String:
+	if not (_op is PlaceOperation) or not is_finite(delta_deg):
+		return "No placement in progress."
+	(_op as PlaceOperation).rotate_yaw(delta_deg)
+	return ""
 
 
 # --- Pointer operations ------------------------------------------------------------------
@@ -119,6 +65,7 @@ func handle_tool_action(action: Dictionary) -> void:
 	var kind: String = action.get("type", "")
 	if kind == "tool_cancel":
 		_ignore_contact = false
+		_pick_contact = false
 		if _op != null:
 			_cancel_op(str(action.get("reason", "")))
 		return
@@ -160,13 +107,19 @@ func stroke_state() -> String:
 	if _op == null:
 		return "Idle"
 	match _op_tool:
-		TOOL_PAINT:
+		"paint", "spray", "tint":
 			return "Painting"
-		TOOL_SCULPT:
+		"raise", "flatten", "noise":
 			return "Sculpting"
+		"scatter":
+			return "Scattering"
+		"erase":
+			return "Erasing"
+		"fill":
+			return "Filling"
 		TOOL_PATH:
 			return "Drawing path"
-		TOOL_PLACE:
+		OP_PLACE:
 			return "Placing"
 	return "Moving" if _op.is_moving() else "Idle"
 
@@ -180,32 +133,59 @@ func cancel_active(reason: String) -> void:
 
 
 func _on_begin(sample: PointerSample) -> void:
-	if has_active_operation():
+	if has_active_operation() or _pick_contact:
 		return
 	_ignore_contact = false
 	_last_hit = _ctx.hit_for(sample)
+	if _picking:
+		_pick_contact = true
+		return
 	var op := _make_operation()
 	if op == null:
 		_ignore_contact = true
 		return
 	_op = op
-	_op_tool = _active_tool
-	operation_started.emit(_active_tool)
+	_op_tool = OP_PLACE if _armed != "" else active_tool()
+	operation_started.emit(_op_tool)
 	_op.begin(sample, _last_hit)
 	_check_error()
 
 
+## Null (after reporting why) when the contact starts nothing.
 func _make_operation() -> RefCounted:
-	match _active_tool:
+	if _armed != "":
+		var asset := _ctx.catalog.get_asset(_armed)
+		if asset == null:
+			disarm()
+			_ctx.report("Choose an asset in the Library first.")
+			return null
+		return PlaceOperation.new(_ctx, asset, _snap)
+	var tool_id := active_tool()
+	if tool_id not in IMPLEMENTED:
+		_ctx.report("%s arrives in a later build." % TOOL_LABELS[tool_id])
+		return null
+	match tool_id:
 		TOOL_SELECT:
 			return SelectOperation.new(_ctx, _snap, _selected)
-		TOOL_PLACE:
-			var asset := _ctx.catalog.get_asset(str(_settings[TOOL_PLACE].asset_id))
-			if asset == null:
-				_ctx.report("Choose an asset in the Library first.")
-				return null
-			return PlaceOperation.new(_ctx, asset, _snap)
-	return BrushOperation.new(_ctx, _ring, _active_tool, settings(_active_tool))
+		TOOL_PATH:
+			return BrushOperation.new(_ctx, _ring, "path", {"width": _values.values("path").width})
+		TOOL_RAISE:
+			return BrushOperation.new(_ctx, _ring, "sculpt", _brush_settings("sculpt"))
+	if _inverted or int(_values.values("paint").layer) > 1:
+		_ctx.report(LATER_PAINT_MESSAGE)
+		return null
+	return BrushOperation.new(_ctx, _ring, "paint", _brush_settings("paint"))
+
+
+## Settings in the shape BrushOperation reads (legacy keys: material, direction).
+func _brush_settings(ns: String) -> Dictionary:
+	var s := _values.values(ns)
+	s["pressure_enabled"] = _values.values("brush").pressure_enabled
+	if ns == "sculpt":
+		s["direction"] = "lower" if _inverted else "raise"
+	else:
+		s["material"] = "dirt" if int(s.layer) == 1 else "grass"
+	return s
 
 
 func _on_move(is_resume: bool, sample: PointerSample) -> void:
@@ -221,6 +201,10 @@ func _on_move(is_resume: bool, sample: PointerSample) -> void:
 
 func _on_end(sample: PointerSample, over_ui: bool) -> void:
 	_ignore_contact = false
+	if _pick_contact:
+		_pick_contact = false
+		_finish_height_pick(sample, over_ui)
+		return
 	if _op == null:
 		return
 	_last_hit = _ctx.hit_for(sample)
@@ -236,21 +220,35 @@ func _finish(sample: PointerSample, over_ui: bool) -> void:
 	_drop = false
 	if op.error != "":
 		op.cancel()
-		_ctx.report(_error_message(op.error))
+		_ctx.report(ToolCommands.error_message(op.error))
 		operation_cancelled.emit("tool_error")
 		return
 	_commit(change)
-	if tool_id == TOOL_PLACE and op.created_id() != "":
+	if tool_id == OP_PLACE and op.created_id() != "":
 		select(op.created_id())
-		set_active_tool(TOOL_SELECT)
+		disarm()
+		set_tool(TOOL_SELECT)
 	elif tool_id == TOOL_SELECT and op.tap_selection() != null:
 		select(str(op.tap_selection()))
+
+
+func _finish_height_pick(sample: PointerSample, over_ui: bool) -> void:
+	if over_ui or not _picking:
+		return
+	_last_hit = _ctx.hit_for(sample)
+	if not _last_hit.ok:
+		_ctx.report("No terrain under the Pencil.")
+		return
+	_values.set_value("flatten", "target", _last_hit.position.y)
+	_picking = false
+	settings_changed.emit(TOOL_FLATTEN)
+	_ctx.report("Target height %.1f m" % float(_values.values("flatten").target))
 
 
 func _check_error() -> void:
 	if _op == null or _op.error == "":
 		return
-	_ctx.report(_error_message(_op.error))
+	_ctx.report(ToolCommands.error_message(_op.error))
 	if _ctx.request_cancel.is_valid():
 		_ctx.request_cancel.call("tool_error")
 	if _op != null:
@@ -273,13 +271,14 @@ func begin_drop(asset_id: String) -> String:
 		return "Editing is disabled."
 	if has_active_operation():
 		return BUSY
-	var err := set_setting(TOOL_PLACE, "asset_id", asset_id)
-	if err != "":
-		return err
-	_op = PlaceOperation.new(_ctx, _ctx.catalog.get_asset(asset_id), _snap)
-	_op_tool = TOOL_PLACE
+	var asset := _ctx.catalog.get_asset(asset_id)
+	if asset == null:
+		return "Unknown asset '%s'." % asset_id
+	_cancel_height_pick()
+	_op = PlaceOperation.new(_ctx, asset, _snap)
+	_op_tool = OP_PLACE
 	_drop = true
-	operation_started.emit(TOOL_PLACE)
+	operation_started.emit(OP_PLACE)
 	return ""
 
 
@@ -304,48 +303,6 @@ func finish_drop(pos: Vector2, over_ui: bool) -> void:
 		_finish(null, over_ui)
 
 
-static func _error_message(err: String) -> String:
-	match err:
-		BrushKernels.ERROR_BUDGET:
-			return "Stroke cancelled: action memory budget exceeded."
-		SculptStroke.ERROR_STALL:
-			return "Stroke cancelled: frame stall over 250 ms."
-	return "Operation cancelled: %s." % err
-
-
-# --- Settings validation -----------------------------------------------------------------
-
-func _validate_setting(tool_id: String, key: String, value: Variant) -> Dictionary:
-	var bad := {"error": "Invalid value for %s.%s." % [tool_id, key], "value": null}
-	match key:
-		"radius", "width", "strength":
-			if typeof(value) != TYPE_FLOAT and typeof(value) != TYPE_INT:
-				return bad
-			var v := float(value)
-			if not is_finite(v):
-				return bad
-			return {"error": "", "value": _clamp_numeric(tool_id, key, v)}
-		"material":
-			return {"error": "", "value": value} if value in ["grass", "dirt"] else bad
-		"direction":
-			return {"error": "", "value": value} if value in ["raise", "lower"] else bad
-		"pressure_enabled":
-			return {"error": "", "value": value} if typeof(value) == TYPE_BOOL else bad
-		"asset_id":
-			if typeof(value) == TYPE_STRING and _ctx.catalog.get_asset(value) != null:
-				return {"error": "", "value": value}
-			return {"error": "Unknown asset '%s'." % str(value), "value": null}
-	return bad
-
-
-func _clamp_numeric(tool_id: String, key: String, v: float) -> float:
-	if key == "strength":
-		return clampf(v, STRENGTH_MIN, STRENGTH_MAX)
-	var prefix := "path_width" if key == "width" else tool_id + "_radius"
-	return clampf(v, float(_ctx.default("brush", prefix + "_min_m", 1.0)),
-			float(_ctx.default("brush", prefix + "_max_m", 16.0)))
-
-
 # --- Selection ---------------------------------------------------------------------------
 
 func selected_id() -> String:
@@ -368,6 +325,33 @@ func selected_record() -> ObjectRecord:
 func validate_selection() -> void:
 	if _selected != "" and _ctx.document.get_object(_selected) == null:
 		select("")
+	if _selected_path != "" and _ctx.document.get_path_record(_selected_path) == null:
+		select_path("")
+
+
+func selected_path_id() -> String:
+	return _selected_path
+
+
+func select_path(id: String) -> void:
+	var target := id if _ctx.document.get_path_record(id) != null else ""
+	if target == _selected_path:
+		return
+	_selected_path = target
+	path_selection_changed.emit(target)
+
+
+func delete_selected_path() -> String:
+	if _selected_path == "":
+		return NO_PATH_SELECTION
+	if has_active_operation():
+		return BUSY
+	var res := ToolCommands.delete_path(_ctx, _selected_path)
+	if res.error != "":
+		return res.error
+	select_path("")
+	_commit(res.change)
+	return ""
 
 
 # --- Object edits ------------------------------------------------------------------------
@@ -455,6 +439,20 @@ func set_grounding(mode: String) -> String:
 		return err
 	_store_edit(edited)
 	end_object_edit()
+	return ""
+
+
+## Copy offset +3 m X, +1.5 m Z, grounded on the terrain; the copy becomes the selection.
+func duplicate_selected() -> String:
+	if _selected == "":
+		return NO_SELECTION
+	if has_active_operation():
+		return BUSY
+	var res := ToolCommands.duplicate_object(_ctx, selected_record())
+	if res.error != "":
+		return res.error
+	_commit(res.change)
+	select(res.id)
 	return ""
 
 

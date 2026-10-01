@@ -50,7 +50,7 @@ func doc_control(x: float, z: float) -> int:
 
 
 func test_paint_dirt_stroke_is_one_change_limited_to_radius_and_undoable() -> void:
-	h.ctrl.set_active_tool(ToolController.TOOL_PAINT)
+	h.ctrl.set_tool(ToolController.TOOL_PAINT)
 	var before := h.control_snapshot()
 	_drag(40.0, 30.0, 50.0)
 	assert_eq(h.commits.size(), 1, "exactly one commit")
@@ -70,11 +70,11 @@ func test_paint_dirt_stroke_is_one_change_limited_to_radius_and_undoable() -> vo
 
 
 func test_paint_grass_target_reduces_blend() -> void:
-	h.ctrl.set_active_tool(ToolController.TOOL_PAINT)
+	h.ctrl.set_tool(ToolController.TOOL_PAINT)
 	_drag(40.0, 30.0, 50.0)
 	var dirt := _blend(40, 40)
 	assert_true(dirt > 0.3, "dirt applied %.3f" % dirt)
-	assert_empty_string(h.ctrl.set_setting("paint", "material", "grass"))
+	assert_empty_string(h.ctrl.set_setting("paint", "layer", 0))
 	_drag(40.0, 30.0, 50.0, 5.0)
 	assert_eq(h.commits.size(), 2)
 	assert_eq(h.commits[1].label, "Paint grass")
@@ -87,7 +87,7 @@ func test_path_paints_inside_half_width_only_and_never_touches_objects() -> void
 	var before_rock := rock.clone()
 	var before_lodge := lodge.clone()
 	var before := h.control_snapshot()
-	h.ctrl.set_active_tool(ToolController.TOOL_PATH)
+	h.ctrl.set_tool(ToolController.TOOL_PATH)
 	_drag(40.0, 30.0, 50.0)
 	assert_eq(h.commits.size(), 1)
 	assert_eq(h.commits[0].label, "Path")
@@ -104,7 +104,7 @@ func test_path_paints_inside_half_width_only_and_never_touches_objects() -> void
 
 
 func test_pause_resume_never_bridges_the_gap() -> void:
-	h.ctrl.set_active_tool(ToolController.TOOL_PAINT)
+	h.ctrl.set_tool(ToolController.TOOL_PAINT)
 	h.act("tool_begin", h.at(20, 40, 1.0))
 	h.act("tool_move", h.at(21, 40, 1.02))
 	h.act("tool_pause", h.at(21, 40, 1.04))
@@ -119,7 +119,7 @@ func test_pause_resume_never_bridges_the_gap() -> void:
 
 
 func test_invalid_hit_writes_nothing_and_creates_no_regions() -> void:
-	h.ctrl.set_active_tool(ToolController.TOOL_PAINT)
+	h.ctrl.set_tool(ToolController.TOOL_PAINT)
 	h.act("tool_begin", h.at(40, 40, 1.0))
 	var snap := h.control_snapshot()
 	var marks := h.terrain.marks.size()
@@ -133,7 +133,7 @@ func test_invalid_hit_writes_nothing_and_creates_no_regions() -> void:
 
 
 func test_begin_on_sky_waits_for_first_valid_hit() -> void:
-	h.ctrl.set_active_tool(ToolController.TOOL_PAINT)
+	h.ctrl.set_tool(ToolController.TOOL_PAINT)
 	var before := h.control_snapshot()
 	h.act("tool_begin", h.sky(1.0))
 	assert_true(h.ctrl.has_active_operation())
@@ -159,7 +159,7 @@ func test_sculpt_raise_regrounds_follow_terrain_objects_in_one_change() -> void:
 	var lodge_before := lodge.clone()
 	var far_before := tree_far.clone()
 	var heights_before := h.height_snapshot()
-	h.ctrl.set_active_tool(ToolController.TOOL_SCULPT)
+	h.ctrl.set_tool(ToolController.TOOL_RAISE)
 	_hold_sculpt(42.0, 40.0, 1.0, 1.5)
 	assert_eq(h.commits.size(), 1)
 	assert_eq(h.commits[0].label, "Raise terrain")
@@ -179,8 +179,9 @@ func test_sculpt_raise_regrounds_follow_terrain_objects_in_one_change() -> void:
 
 
 func test_sculpt_lower_label_and_direction() -> void:
-	h.ctrl.set_active_tool(ToolController.TOOL_SCULPT)
-	assert_empty_string(h.ctrl.set_setting("sculpt", "direction", "lower"))
+	h.ctrl.set_tool(ToolController.TOOL_RAISE)
+	assert_empty_string(h.ctrl.set_inverted(true))
+	assert_true(h.ctrl.inverted())
 	var before := h.doc.sample_height(40, 40)
 	_hold_sculpt(40.0, 40.0, 1.0, 1.4)
 	assert_eq(h.commits[0].label, "Lower terrain")
@@ -189,7 +190,7 @@ func test_sculpt_lower_label_and_direction() -> void:
 
 func test_cancel_after_touching_all_regions_restores_authored_hash() -> void:
 	var before := CanonicalEncoder.authored_hash(h.doc)
-	h.ctrl.set_active_tool(ToolController.TOOL_SCULPT)
+	h.ctrl.set_tool(ToolController.TOOL_RAISE)
 	assert_empty_string(h.ctrl.set_setting("sculpt", "radius", 12.0))
 	h.act("tool_begin", h.at(0.0, 0.0, 1.0))
 	var t := 1.0
@@ -209,7 +210,7 @@ func test_cancel_after_touching_all_regions_restores_authored_hash() -> void:
 
 func test_frame_stall_cancels_and_rolls_back() -> void:
 	var before := CanonicalEncoder.authored_hash(h.doc)
-	h.ctrl.set_active_tool(ToolController.TOOL_SCULPT)
+	h.ctrl.set_tool(ToolController.TOOL_RAISE)
 	h.act("tool_begin", h.at(40.0, 40.0, 1.0))
 	var t := 1.0
 	while t < 1.2:
@@ -233,11 +234,9 @@ func test_settings_clamp_and_validate() -> void:
 	assert_eq(h.ctrl.settings("path").width, 6.0)
 	assert_empty_string(h.ctrl.set_setting("paint", "strength", 0.0))
 	assert_eq(h.ctrl.settings("paint").strength, 0.05)
-	assert_error_contains(h.ctrl.set_setting("paint", "material", "lava"), "paint.material")
-	assert_error_contains(h.ctrl.set_setting("sculpt", "direction", "sideways"), "sculpt.direction")
+	assert_error_contains(h.ctrl.set_setting("paint", "layer", 4), "paint.layer")
+	assert_error_contains(h.ctrl.set_setting("brush", "shape", "lava"), "brush.shape")
 	assert_error_contains(h.ctrl.set_setting("paint", "radius", NAN), "paint.radius")
-	assert_error_contains(h.ctrl.set_setting("place", "asset_id", "no.such"), "no.such")
-	assert_empty_string(h.ctrl.set_setting("place", "asset_id", ToolHarness.BOULDER))
 	assert_error_contains(h.ctrl.set_setting("paint", "bogus", 1), "bogus")
 	var copy := h.ctrl.settings("paint")
 	copy.radius = 12.0
@@ -245,7 +244,7 @@ func test_settings_clamp_and_validate() -> void:
 
 
 func test_setting_change_does_not_affect_stroke_in_progress() -> void:
-	h.ctrl.set_active_tool(ToolController.TOOL_PAINT)
+	h.ctrl.set_tool(ToolController.TOOL_PAINT)
 	assert_empty_string(h.ctrl.set_setting("paint", "radius", 2.0))
 	h.act("tool_begin", h.at(40, 40, 1.0))
 	assert_empty_string(h.ctrl.set_setting("paint", "radius", 16.0))

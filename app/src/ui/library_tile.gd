@@ -143,9 +143,7 @@ func _on_release(pos: Vector2) -> void:
 		_session.tools.finish_drop(pos, _session.input.ui_hits.is_over_ui(pos))
 		_clear_hint()
 		return
-	var error := _session.tools.set_setting("place", "asset_id", asset_id)
-	if error == "":
-		error = _session.tools.set_active_tool("place")
+	var error := _session.tools.arm_asset(asset_id)
 	if error != "":
 		_session.post_message(error, true)
 	else:

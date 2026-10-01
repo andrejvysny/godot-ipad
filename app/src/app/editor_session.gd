@@ -262,7 +262,8 @@ func _on_ui_cancelled(reason: String) -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if ready_for_input and event is InputEventKey and event.pressed and not event.echo:
+	if ready_for_input and event is InputEventKey and event.pressed and not event.echo \
+			and not (input.is_development_input() and SessionWorldOps.dev_key(tools, event.keycode)):
 		_simulator_key(event.keycode)
 
 
@@ -479,7 +480,7 @@ func verify_gpu_terrain() -> String:
 func status() -> Dictionary:
 	var revision := document.document_revision
 	var history_state := {"size": history.size(), "bytes": history.total_bytes()}
-	return {"tool": tools.active_tool(), "stroke_state": tools.stroke_state(), "revision": revision,
+	return {"stroke_state": tools.stroke_state(), "revision": revision,
 		"save_text": storage.status_text(revision), "save_state": storage.get_save_state(),
 		"can_undo": history.can_undo(), "can_redo": history.can_redo(),
 		"undo_label": history.peek_undo_label(), "redo_label": history.peek_redo_label(),
@@ -496,4 +497,4 @@ func status() -> Dictionary:
 		"brush_p95_ms": frames.sample_p95("brush"), "render_scale": get_viewport().scaling_3d_scale,
 		"world_id": document.world_id, "operation_id": tools.active_operation_id(),
 		"last_hit": SessionWorldOps.hit_text(tools.last_hit()), "last_stroke": SessionWorldOps.with_gap(_tool_ctx.last_stroke, _op_max_gap_ms),
-		"last_cancel": _last_cancel_reason, "terrain_stats": terrain.stats(), "render": RenderCounters.snapshot(get_viewport())}
+		"last_cancel": _last_cancel_reason, "terrain_stats": terrain.stats(), "render": RenderCounters.snapshot(get_viewport())}.merged(SessionWorldOps.tool_status(tools))

@@ -8,6 +8,7 @@ func before_each() -> void:
 	h = ToolHarness.new()
 	var err := h.setup(tree)
 	assert_empty_string(err, "harness setup")
+	assert_empty_string(h.ctrl.set_tool(ToolController.TOOL_SELECT))
 
 
 func after_each() -> void:
@@ -15,8 +16,7 @@ func after_each() -> void:
 
 
 func _place_tool(asset_id: String = ToolHarness.BOULDER) -> void:
-	assert_empty_string(h.ctrl.set_setting("place", "asset_id", asset_id))
-	assert_empty_string(h.ctrl.set_active_tool(ToolController.TOOL_PLACE))
+	assert_empty_string(h.ctrl.arm_asset(asset_id))
 
 
 func _selected_boulder(offset: float = 0.0) -> ObjectRecord:
@@ -84,11 +84,11 @@ func test_place_released_over_ui_or_sky_creates_nothing() -> void:
 	h.act("tool_end", h.sky(2.04))
 	assert_eq(h.doc.objects.size(), 0, "sky")
 	assert_eq(h.commits.size(), 0)
-	assert_eq(h.ctrl.active_tool(), ToolController.TOOL_PLACE, "tool stays for another try")
+	assert_eq(h.ctrl.armed_asset(), ToolHarness.BOULDER, "stays armed for another try")
 
 
 func test_place_after_sculpt_uses_the_new_height() -> void:
-	h.ctrl.set_active_tool(ToolController.TOOL_SCULPT)
+	h.ctrl.set_tool(ToolController.TOOL_RAISE)
 	h.act("tool_begin", h.at(40, 40, 1.0))
 	var t := 1.0
 	while t < 1.5:
@@ -104,13 +104,13 @@ func test_place_after_sculpt_uses_the_new_height() -> void:
 
 
 func test_place_without_asset_is_refused() -> void:
-	h.ctrl.set_active_tool(ToolController.TOOL_PLACE)
-	h.act("tool_begin", h.at(40, 40, 1.0))
-	assert_eq(h.diagnostics, ["Choose an asset in the Library first."])
-	assert_false(h.ctrl.has_active_operation())
-	h.act("tool_move", h.at(41, 40, 1.02))
+	assert_ne(h.ctrl.arm_asset("nature.rock.missing"), "")
+	assert_eq(h.ctrl.armed_asset(), "")
+	h.ctrl.set_tool(ToolController.TOOL_SELECT)
+	h.act("tool_begin", h.at(41, 40, 1.0))
 	h.act("tool_end", h.at(41, 40, 1.04))
 	assert_eq(h.doc.objects.size(), 0)
+	assert_eq(h.diagnostics, [])
 
 
 func test_place_ignores_existing_objects() -> void:
@@ -340,17 +340,17 @@ func test_validate_selection_clears_vanished_object() -> void:
 # --- Controller guards -----------------------------------------------------------------------
 
 func test_tool_switch_refused_while_operation_active() -> void:
-	h.ctrl.set_active_tool(ToolController.TOOL_PAINT)
+	h.ctrl.set_tool(ToolController.TOOL_PAINT)
 	h.act("tool_begin", h.at(40, 40, 1.0))
 	assert_eq(h.ctrl.stroke_state(), "Painting")
-	assert_ne(h.ctrl.set_active_tool(ToolController.TOOL_SELECT), "")
+	assert_ne(h.ctrl.set_tool(ToolController.TOOL_SELECT), "")
 	assert_eq(h.ctrl.active_tool(), ToolController.TOOL_PAINT)
 	assert_ne(h.ctrl.begin_object_edit("yaw"), "")
 	assert_ne(h.ctrl.set_document(h.doc), "")
 	h.act("tool_end", h.at(40, 40, 1.02))
 	assert_eq(h.ctrl.stroke_state(), "Idle")
-	assert_empty_string(h.ctrl.set_active_tool(ToolController.TOOL_SELECT))
-	assert_error_contains(h.ctrl.set_active_tool("lasso"), "lasso")
+	assert_empty_string(h.ctrl.set_tool(ToolController.TOOL_SELECT))
+	assert_error_contains(h.ctrl.set_tool("lasso"), "lasso")
 
 
 func test_object_edit_refused_without_selection_or_during_edit() -> void:
@@ -359,13 +359,13 @@ func test_object_edit_refused_without_selection_or_during_edit() -> void:
 	assert_empty_string(h.ctrl.begin_object_edit("yaw"))
 	assert_ne(h.ctrl.begin_object_edit("scale"), "")
 	assert_ne(h.ctrl.nudge("scale", 0.1), "")
-	assert_ne(h.ctrl.set_active_tool(ToolController.TOOL_PAINT), "")
+	assert_ne(h.ctrl.set_tool(ToolController.TOOL_PAINT), "")
 	h.ctrl.cancel_active("test")
 	assert_false(h.ctrl.has_active_operation())
 
 
 func test_editing_disabled_ignores_begin_but_not_cancel() -> void:
-	h.ctrl.set_active_tool(ToolController.TOOL_PAINT)
+	h.ctrl.set_tool(ToolController.TOOL_PAINT)
 	h.ctrl.editing_enabled = false
 	h.act("tool_begin", h.at(40, 40, 1.0))
 	assert_false(h.ctrl.has_active_operation())
@@ -381,7 +381,7 @@ func test_editing_disabled_ignores_begin_but_not_cancel() -> void:
 
 func test_cancel_active_rolls_back_pointer_operation() -> void:
 	var before := CanonicalEncoder.authored_hash(h.doc)
-	h.ctrl.set_active_tool(ToolController.TOOL_PAINT)
+	h.ctrl.set_tool(ToolController.TOOL_PAINT)
 	h.act("tool_begin", h.at(40, 40, 1.0))
 	assert_ne(CanonicalEncoder.authored_hash(h.doc), before)
 	h.ctrl.cancel_active("background")
@@ -396,10 +396,9 @@ func _pos(x: float, z: float) -> Vector2:
 
 
 func test_library_drop_places_selects_and_ignores_router_actions() -> void:
-	h.ctrl.set_active_tool(ToolController.TOOL_PAINT)
+	h.ctrl.set_tool(ToolController.TOOL_PAINT)
 	assert_empty_string(h.ctrl.begin_drop(ToolHarness.BOULDER))
 	assert_true(h.ctrl.has_drop() and h.ctrl.has_active_operation())
-	assert_eq(h.ctrl.settings("place").asset_id, ToolHarness.BOULDER, "drop remembers the asset")
 	assert_eq(h.ctrl.stroke_state(), "Placing")
 	h.ctrl.update_drop(_pos(40.2, 40.3), false)
 	assert_true(h.presenter.has_ghost_visible() and h.presenter.ghost_valid())
@@ -446,7 +445,7 @@ func test_library_drop_refused_when_busy_disabled_or_unknown() -> void:
 	h.ctrl.editing_enabled = false
 	assert_ne(h.ctrl.begin_drop(ToolHarness.BOULDER), "")
 	h.ctrl.editing_enabled = true
-	h.ctrl.set_active_tool(ToolController.TOOL_PAINT)
+	h.ctrl.set_tool(ToolController.TOOL_PAINT)
 	h.act("tool_begin", h.at(40, 40, 1.0))
 	assert_eq(h.ctrl.begin_drop(ToolHarness.BOULDER), ToolController.BUSY)
 	h.act("tool_end", h.at(40, 40, 1.02))

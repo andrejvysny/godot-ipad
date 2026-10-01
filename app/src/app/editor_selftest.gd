@@ -130,8 +130,7 @@ func _s03_place() -> void:
 		var asset_id: String = entry[0]
 		var target: Vector2 = entry[1]
 		var known := _session.document.objects.keys()
-		var error := _session.tools.set_setting("place", "asset_id", asset_id)
-		error += _session.tools.set_active_tool("place")
+		var error := _session.tools.arm_asset(asset_id)
 		var path := _d.seg(_d.ground(target.x - 6.0, target.y), _d.ground(target.x, target.y))
 		var created := ""
 		var attempts := 0
@@ -220,11 +219,11 @@ func _s04_rock_edits() -> void:
 func _s05_sculpt() -> void:
 	_session.tools.set_setting("sculpt", "radius", 8.0)
 	_session.tools.set_setting("sculpt", "strength", 1.0)
-	_session.tools.set_setting("sculpt", "direction", "raise")
-	_session.tools.set_active_tool("sculpt")
+	_session.tools.set_tool("raise")
+	_session.tools.set_inverted(false)
 	var before := _d.snapshot("heights")
 	var raise := await _d.stroke(_d.seg(_d.ground(-16, -40), _d.ground(16, -40)))
-	_session.tools.set_setting("sculpt", "direction", "lower")
+	_session.tools.set_inverted(true)
 	var lower := await _d.stroke(_d.seg(_d.ground(48, 36), _d.ground(72, 36)))
 	var regions := _d.changed_regions(before, _d.snapshot("heights"))
 	_check("S05", "raise stroke across x=0 and lower stroke changed heights in >= 2 regions",
@@ -238,7 +237,7 @@ func _s06_follow_terrain() -> void:
 	var spruce := doc.get_object(_spruce_id).clone()
 	var lodge := doc.get_object(_lodge_id).clone()
 	var hash_before := _session.authored_hash()
-	_session.tools.set_setting("sculpt", "direction", "raise")
+	_session.tools.set_inverted(false)
 	var path := _d.seg(_d.ground(spruce.position[0], spruce.position[2]), _d.ground(lodge.position[0], lodge.position[2]))
 	var stroke := await _d.stroke(path)
 	var spruce_now := doc.get_object(_spruce_id)
@@ -260,22 +259,22 @@ func _s06_follow_terrain() -> void:
 
 func _s07_paint() -> void:
 	var tools := _session.tools
-	tools.set_setting("paint", "material", "dirt")
+	tools.set_setting("paint", "layer", 1)
 	tools.set_setting("paint", "radius", 5.0)
-	tools.set_active_tool("paint")
+	tools.set_tool("paint")
 	var before := _d.snapshot("control")
 	var paint := await _d.stroke(_d.seg(_d.ground(40, -8), _d.ground(62, -8)))
 	var after_paint := _d.snapshot("control")
 	_check("S07", "dirt paint stroke changed control maps",
 			paint.committed and not _d.changed_regions(before, after_paint).is_empty(), {"attempts": paint.attempts, "over_ui": paint.over_ui})
-	tools.set_active_tool("path")
+	tools.set_tool("path")
 	tools.set_setting("path", "width", 3.0)
 	var records := _object_records()
 	var path := await _d.stroke(_d.seg(_d.ground(8, 20), _d.ground(34, 20)))
 	_check("S07", "path stroke changed control maps", path.committed
 			and not _d.changed_regions(after_paint, _d.snapshot("control")).is_empty(), {"attempts": path.attempts})
 	_check("S07", "PA-00 path left every object record unchanged", _records_equal(records, _object_records()), {})
-	tools.set_active_tool("select")
+	tools.set_tool("select")
 	await _d.frames(3)
 	await _shot("painted")
 
@@ -309,8 +308,8 @@ func _s08_undo_redo() -> void:
 # --- S09 / S10 / S11 ----------------------------------------------------------------------
 
 func _s09_interrupted() -> void:
-	_session.tools.set_setting("sculpt", "direction", "raise")
-	_session.tools.set_active_tool("sculpt")
+	_session.tools.set_tool("raise")
+	_session.tools.set_inverted(false)
 	var hash_before := _session.authored_hash()
 	var entries := _session.history.size()
 	var attempts := 0
@@ -327,7 +326,7 @@ func _s09_interrupted() -> void:
 		_provider.push(PointerSample.Source.MOUSE_DEV, id, PointerSample.Phase.CANCEL, from, false, 0.0, "native_cancel")
 		await _d.frames(3)
 		reason = _cancel_reasons[0] if not _cancel_reasons.is_empty() else ""
-	_session.tools.set_active_tool("select")
+	_session.tools.set_tool("select")
 	_check("S09", "IN-09 native cancel rolled the stroke back: hash equal, no history entry",
 			reason == "native_cancel" and _session.authored_hash() == hash_before
 			and _session.history.size() == entries and not _session.tools.has_active_operation(),

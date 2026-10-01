@@ -11,7 +11,7 @@ var h: ToolHarness
 func before_each() -> void:
 	h = ToolHarness.new()
 	assert_empty_string(h.setup(tree), "harness setup")
-	h.ctrl.set_active_tool(ToolController.TOOL_SCULPT)
+	h.ctrl.set_tool(ToolController.TOOL_RAISE)
 
 
 func after_each() -> void:

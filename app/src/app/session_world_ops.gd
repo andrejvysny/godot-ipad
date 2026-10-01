@@ -112,3 +112,31 @@ static func with_gap(stroke: Dictionary, max_gap_ms: float) -> Dictionary:
 	if not out.is_empty():
 		out["max_gap_ms"] = max_gap_ms
 	return out
+
+
+## Tool-model keys of status(): mode, tool (id), inverted, armed_asset, picking_height.
+static func tool_status(tools: ToolController) -> Dictionary:
+	return {"mode": tools.mode(), "tool": tools.active_tool(), "inverted": tools.inverted(),
+		"armed_asset": tools.armed_asset(), "picking_height": tools.is_picking_height()}
+
+
+## Mac development keys (docs/editor-v2.md §9): D invert, [ / ] radius -/+ 1 m, Q/E rotate the ghost,
+## Esc disarms. True when the key was consumed; Esc is not (the provider's cancel still runs).
+static func dev_key(tools: ToolController, key: int) -> bool:
+	match key:
+		KEY_D:
+			tools.set_inverted(not tools.inverted())
+		KEY_BRACKETLEFT, KEY_BRACKETRIGHT:
+			var mode := tools.mode()
+			tools.set_setting(mode, "radius", float(tools.settings(mode).radius) + (1.0 if key == KEY_BRACKETRIGHT else -1.0))
+		KEY_Q:
+			tools.rotate_ghost(-15.0)
+		KEY_E:
+			tools.rotate_ghost(15.0)
+		KEY_ESCAPE:
+			tools.disarm()
+			tools.cancel_height_pick()
+			return false
+		_:
+			return false
+	return true

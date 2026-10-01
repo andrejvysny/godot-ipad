@@ -196,8 +196,8 @@ func on_ui_cancelled(_reason: String) -> void:
 func refresh() -> void:
 	if _session == null:
 		return
-	var place_id := str(_session.tools.settings("place").get("asset_id", ""))
-	var armed := _session.tools.active_tool() == "place"
+	var place_id := _session.tools.armed_asset()
+	var armed := place_id != ""
 	var enabled := _session.input.editing_enabled()
 	for id: String in _tiles:
 		var t: LibraryTile = _tiles[id]
