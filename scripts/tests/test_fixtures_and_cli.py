@@ -52,7 +52,23 @@ class FixturePropertyTests(unittest.TestCase):
 			self.assertEqual(m["world_id"], world_id)
 			self.assertEqual(m["document_revision"], 0)
 			self.assertEqual(m["created_with"], generate_fixtures.CREATED_WITH)
-			self.assertEqual(json.loads((FIXTURES / name / "objects.json").read_text())["objects"], [])
+			objects = json.loads((FIXTURES / name / "objects.json").read_text())["objects"]
+			self.assertEqual(len(objects), 100 if name == "stress_100" else 0)
+
+	def test_stress_100_objects(self) -> None:
+		gen, errors = wf.validate_generation(FIXTURES / "stress_100")
+		self.assertEqual(errors, [])
+		objects = json.loads((FIXTURES / "stress_100" / "objects.json").read_text())["objects"]
+		self.assertEqual(len({o["object_id"] for o in objects}), 100)
+		counts: dict[str, int] = {}
+		for o in objects:
+			counts[o["asset_id"]] = counts.get(o["asset_id"], 0) + 1
+		self.assertEqual(counts, {"built.lodge.cabin_a": 10, "nature.rock.boulder_a": 40, "nature.tree.spruce_a": 50})
+		regions = wf.load_region_arrays(gen.heights)
+		for o in objects:
+			if o["grounding"] == "FOLLOW_TERRAIN":
+				x, y, z = o["position"]
+				self.assertAlmostEqual(y, wf.sample_height(regions, x, z) + o["height_offset_m"], delta=1e-3)
 
 
 class DeterminismTests(unittest.TestCase):
@@ -69,6 +85,7 @@ class DeterminismTests(unittest.TestCase):
 		with tempfile.TemporaryDirectory() as d:
 			shutil.copytree(FIXTURES / "flat", Path(d) / "flat")
 			shutil.copytree(FIXTURES / "gentle_hills", Path(d) / "gentle_hills")
+			shutil.copytree(FIXTURES / "stress_100", Path(d) / "stress_100")
 			(Path(d) / "flat" / "objects.json").write_text('{"objects": [], "schema_version": 1}')
 			self.assertEqual(generate_fixtures.check(Path(d)), ["flat/objects.json"])
 			rc, _ = quiet(generate_fixtures.main, ["--check", "--out", d])
@@ -80,6 +97,8 @@ class ValidateWorldCliTests(unittest.TestCase):
 		rc, out = quiet(validate_world.main, [str(FIXTURES / "gentle_hills")])
 		self.assertEqual(rc, 0)
 		self.assertIn("VALID", out)
+		rc, _ = quiet(validate_world.main, [str(FIXTURES / "stress_100")])
+		self.assertEqual(rc, 0)
 		rc, out = quiet(validate_world.main, [str(FIXTURES / "flat"), "--json"])
 		self.assertEqual(rc, 0)
 		self.assertTrue(json.loads(out)["valid"])

@@ -1,0 +1,296 @@
+{
+	"driver": "vulkan",
+	"evidence_class": "SYNTHETIC — not device evidence",
+	"export_path": "user://selftest_worlds/9e6337a8-332c-43fd-ba19-5b83f89ab937/exports/9e6337a8-332c-43fd-ba19-5b83f89ab937-rev-00000045.worldpoc",
+	"final_authored_hash": "4a64b2a3a6bf9b8ba3ba12619e551b9fa94fde4c1002f8b2bfbd0da0d70f5f5b",
+	"model": "iPad13,1",
+	"platform": "iOS",
+	"provider": "selftest_script",
+	"renderer": "mobile",
+	"result": "PASS",
+	"screenshots": [
+		{
+			"file": "01-opened.png",
+			"name": "opened",
+			"note": "ok"
+		},
+		{
+			"file": "02-placed.png",
+			"name": "placed",
+			"note": "ok"
+		},
+		{
+			"file": "03-sculpted.png",
+			"name": "sculpted",
+			"note": "ok"
+		},
+		{
+			"file": "04-painted.png",
+			"name": "painted",
+			"note": "ok"
+		},
+		{
+			"file": "05-diagnostics.png",
+			"name": "diagnostics",
+			"note": "ok"
+		}
+	],
+	"steps": [
+		{
+			"details": {
+				"error": "",
+				"world_id": "9e6337a8-332c-43fd-ba19-5b83f89ab937"
+			},
+			"id": "S01",
+			"result": "PASS",
+			"title": "Gentle Hills opened as a new working copy"
+		},
+		{
+			"details": {
+				"objects": 0,
+				"revision": 0
+			},
+			"id": "S01",
+			"result": "PASS",
+			"title": "revision 0, no objects, empty history"
+		},
+		{
+			"details": {
+				"attempts": 1
+			},
+			"id": "S02",
+			"result": "PASS",
+			"title": "CA-01 one-finger orbit: camera transform changed"
+		},
+		{
+			"details": {
+				"attempts": 1
+			},
+			"id": "S02",
+			"result": "PASS",
+			"title": "CA-02 two-finger pan: camera transform changed"
+		},
+		{
+			"details": {
+				"attempts": 1
+			},
+			"id": "S02",
+			"result": "PASS",
+			"title": "CA-03 two-finger pinch: camera transform changed"
+		},
+		{
+			"details": {},
+			"id": "S02",
+			"result": "PASS",
+			"title": "camera gestures left the authored hash unchanged"
+		},
+		{
+			"details": {
+				"state": "IDLE"
+			},
+			"id": "S02",
+			"result": "PASS",
+			"title": "router back to IDLE with no open contacts"
+		},
+		{
+			"details": {
+				"attempts": 2,
+				"error": "",
+				"id": "82aae488-d644-460c-a33e-327141b169d0"
+			},
+			"id": "S03",
+			"result": "PASS",
+			"title": "built.lodge.cabin_a placed near (20, 20) and selected"
+		},
+		{
+			"details": {
+				"attempts": 1,
+				"error": "",
+				"id": "032eef50-d37f-444d-bcad-1f239e62028a"
+			},
+			"id": "S03",
+			"result": "PASS",
+			"title": "nature.rock.boulder_a placed near (12, 26) and selected"
+		},
+		{
+			"details": {
+				"attempts": 1,
+				"error": "",
+				"id": "d906c663-2b93-4ffc-9502-9abca48f948d"
+			},
+			"id": "S03",
+			"result": "PASS",
+			"title": "nature.tree.spruce_a placed near (26, 12) and selected"
+		},
+		{
+			"details": {
+				"count": 3
+			},
+			"id": "S03",
+			"result": "PASS",
+			"title": "3 objects in the document"
+		},
+		{
+			"details": {
+				"error_m": 0.0
+			},
+			"id": "S03",
+			"result": "PASS",
+			"title": "OB-01 boulder anchor maps to record position"
+		},
+		{
+			"details": {},
+			"id": "S04",
+			"result": "PASS",
+			"title": "boulder selected by tapping it"
+		},
+		{
+			"details": {
+				"hit_delta_m": 3.44253945350647,
+				"moved_m": 3.5355339050293
+			},
+			"id": "S04",
+			"result": "PASS",
+			"title": "OB-02 first drag frame moves by the hit delta, no jump"
+		},
+		{
+			"details": {
+				"entries": 1
+			},
+			"id": "S04",
+			"result": "PASS",
+			"title": "drag is one history action"
+		},
+		{
+			"details": {
+				"errors": "",
+				"height_offset": 0.2,
+				"scale": 1.4,
+				"yaw_deg": 30.0
+			},
+			"id": "S04",
+			"result": "PASS",
+			"title": "yaw +30 (two nudges), scale and height edits: 4 history entries"
+		},
+		{
+			"details": {
+				"lower_attempts": 1,
+				"over_ui": false,
+				"raise_attempts": 2,
+				"regions": 3
+			},
+			"id": "S05",
+			"result": "PASS",
+			"title": "raise stroke across x=0 and lower stroke changed heights in >= 2 regions"
+		},
+		{
+			"details": {
+				"attempts": 1,
+				"spruce_dy": 0.620498657226562
+			},
+			"id": "S06",
+			"result": "PASS",
+			"title": "TE-11 spruce rises with the terrain, lodge y unchanged"
+		},
+		{
+			"details": {},
+			"id": "S06",
+			"result": "PASS",
+			"title": "one undo restores terrain and both objects exactly"
+		},
+		{
+			"details": {},
+			"id": "S06",
+			"result": "PASS",
+			"title": "redo reapplies the stroke exactly"
+		},
+		{
+			"details": {
+				"attempts": 1,
+				"over_ui": false
+			},
+			"id": "S07",
+			"result": "PASS",
+			"title": "dirt paint stroke changed control maps"
+		},
+		{
+			"details": {
+				"attempts": 1
+			},
+			"id": "S07",
+			"result": "PASS",
+			"title": "path stroke changed control maps"
+		},
+		{
+			"details": {},
+			"id": "S07",
+			"result": "PASS",
+			"title": "PA-00 path left every object record unchanged"
+		},
+		{
+			"details": {},
+			"id": "S08",
+			"result": "PASS",
+			"title": "undo of path and paint changes the hash"
+		},
+		{
+			"details": {},
+			"id": "S08",
+			"result": "PASS",
+			"title": "redo of paint and path restores the exact hash"
+		},
+		{
+			"details": {
+				"entries": 13,
+				"undone": 13
+			},
+			"id": "S08",
+			"result": "PASS",
+			"title": "undoing every action removes all placements"
+		},
+		{
+			"details": {
+				"redone": 13
+			},
+			"id": "S08",
+			"result": "PASS",
+			"title": "redo restores the same object ids and the exact hash"
+		},
+		{
+			"details": {
+				"attempts": 1,
+				"cancel_reason": "native_cancel"
+			},
+			"id": "S09",
+			"result": "PASS",
+			"title": "IN-09 native cancel rolled the stroke back: hash equal, no history entry"
+		},
+		{
+			"details": {},
+			"id": "S09",
+			"result": "PASS",
+			"title": "TE-12 router back to IDLE after cancel"
+		},
+		{
+			"details": {
+				"durable": true,
+				"error": ""
+			},
+			"id": "S10",
+			"result": "PASS",
+			"title": "checkpoint is durable and recovery reproduces the authored hash"
+		},
+		{
+			"details": {
+				"export_error": "",
+				"load_error": "",
+				"path": "user://selftest_worlds/9e6337a8-332c-43fd-ba19-5b83f89ab937/exports/9e6337a8-332c-43fd-ba19-5b83f89ab937-rev-00000045.worldpoc"
+			},
+			"id": "S11",
+			"result": "PASS",
+			"title": "export exists and reloads with the same authored hash and object ids"
+		}
+	],
+	"user_data_dir": "/var/mobile/Containers/Data/Application/A20489F2-097E-4D27-BF1B-BD32C606BF96/Documents",
+	"world_id": "9e6337a8-332c-43fd-ba19-5b83f89ab937"
+}

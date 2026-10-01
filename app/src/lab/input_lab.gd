@@ -283,7 +283,7 @@ func _mark(result: Dictionary) -> void:
 
 func _mark_control(loc: Vector2i) -> void:
 	if _simulator_preview != null:
-		_simulator_preview.mark_dirty(loc)
+		_simulator_preview.mark_dirty(TerrainView.MAP_CONTROL, loc)
 	else:
 		adapter.mark_dirty(TerrainAdapter.MAP_CONTROL, loc)
 

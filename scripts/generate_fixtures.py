@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deterministic bundled fixtures (spec §3.2): app/fixtures/flat and app/fixtures/gentle_hills.
+"""Deterministic bundled fixtures (spec §3.2): app/fixtures/{flat,gentle_hills,stress_100}.
 
 Heights are computed in float64 at world (x, z) = (g * 0.5) and packed as float32. The committed
 bytes are the reference; --check regenerates into a temp dir and byte-compares.
@@ -29,7 +29,11 @@ CREATED_WITH = {
 WORLD_IDS = {
 	"flat": "0f1a7000-0000-4000-8000-000000000001",
 	"gentle_hills": "0e111150-0000-4000-8000-000000000002",
+	"stress_100": "57e55100-0000-4000-8000-000000000003",
 }
+STRESS_GRID = 10
+STRESS_SPACING_M = 20.0
+STRESS_ORIGIN_M = -90.0
 # (cx, cz, amplitude m, sigma m)
 BUMPS = [(-60.0, -50.0, 11.5, 28.0), (55.0, -40.0, 9.0, 22.0), (-45.0, 60.0, 8.0, 25.0),
 	(40.0, 55.0, 7.0, 30.0), (0.0, 0.0, 3.0, 40.0), (85.0, -85.0, 8.0, 9.0), (-90.0, 10.0, -3.0, 18.0)]
@@ -72,17 +76,42 @@ def region_height_bytes(loc: tuple[int, int], fn: Callable[[float, float], float
 	return struct.pack("<%df" % len(values), *values)
 
 
+def stress_objects(heights: dict[tuple[int, int], bytes], catalog: dict[str, Any]) -> list[dict[str, Any]]:
+	"""100 manual proxy objects on a 10x10 grid; y comes from the canonical float32 sampler."""
+	regions = wf.load_region_arrays(heights)
+	kinds = ["built.lodge.cabin_a"] + ["nature.rock.boulder_a"] * 4 + ["nature.tree.spruce_a"] * 5
+	records = []
+	for i in range(STRESS_GRID * STRESS_GRID):
+		asset = catalog["assets"][kinds[i % 10]]
+		x = STRESS_ORIGIN_M + STRESS_SPACING_M * (i % STRESS_GRID)
+		z = STRESS_ORIGIN_M + STRESS_SPACING_M * (i // STRESS_GRID)
+		if i % 10 == 0:
+			scale = 1.0
+		elif i % 10 < 5:
+			scale = 0.5 + 0.25 * (i % 4)
+		else:
+			scale = 0.75 + 0.25 * (i % 3)
+		half = math.radians((i * 37) % 360) / 2.0
+		offset = 0.0
+		y = wf.sample_height(regions, x, z) + offset
+		records.append(wf.make_object_record("57e55100-0000-4000-8000-%012x" % (i + 1), asset["asset_id"],
+			int(asset["version"]), [x, y, z], [0.0, math.sin(half), 0.0, math.cos(half)], scale,
+			asset["default_grounding"], offset))
+	return records
+
+
 def build_doc(name: str, catalog: dict[str, Any]) -> dict[str, Any]:
-	fn = hills_height if name == "gentle_hills" else flat_height
+	fn = flat_height if name == "flat" else hills_height
 	control = struct.pack("<I", wf.GRASS_VALUE) * wf.REGION_SAMPLE_COUNT
+	heights = {loc: region_height_bytes(loc, fn) for loc in wf.REGION_LOCATIONS}
 	return {
 		"world_id": WORLD_IDS[name],
 		"document_revision": 0,
 		"created_with": CREATED_WITH,
 		"catalog": {"id": catalog["id"], "version": catalog["version"], "sha256": catalog["sha256"]},
-		"heights": {loc: region_height_bytes(loc, fn) for loc in wf.REGION_LOCATIONS},
+		"heights": heights,
 		"controls": {loc: control for loc in wf.REGION_LOCATIONS},
-		"objects": [],
+		"objects": stress_objects(heights, catalog) if name == "stress_100" else [],
 	}
 
 

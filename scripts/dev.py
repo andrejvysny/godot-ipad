@@ -4,6 +4,7 @@
   doctor [--strict]          environment, pinned hashes, fixtures, config sync, secrets
   test                       Godot import + GDScript suites, then Python unittest
   run-mac                    launch the app windowed on this Mac
+  selftest                   windowed scripted end-to-end self-test (SYNTHETIC input) on this Mac
   export-ios                 iOS export (needs config/local.signing.json)
   validate-world PATH        validate a .worldpoc or generation directory
   open-consumer PATH         validate, then open in res://scenes/mac_consumer.tscn
@@ -49,6 +50,7 @@ REQUIRED_FILES = [
 	"app/addons/terrain_3d/terrain.gdextension", "scripts/dev.py", "scripts/validate_world.py",
 	"scripts/generate_fixtures.py", "docs/world-format.md", "docs/evidence/environment.json",
 	"app/fixtures/flat/manifest.json", "app/fixtures/gentle_hills/manifest.json",
+	"app/fixtures/stress_100/manifest.json",
 ]
 # Deliverables of work packages still in progress: missing -> PENDING, not a host failure.
 PENDING_FILES = [
@@ -344,18 +346,64 @@ def cmd_run_mac(a: argparse.Namespace) -> int:
 	return _launch(engine, user, a.timeout)
 
 
-def _open_consumer(path: Path, passthrough: list[str], timeout: int) -> int:
+def _open_consumer(path: Path, passthrough: list[str], timeout: int, verify_only: bool = False) -> int:
 	if not (APP / "scenes" / "mac_consumer.tscn").is_file():
 		print("error: app/scenes/mac_consumer.tscn does not exist yet", file=sys.stderr)
 		return 2
 	if validate_world.main([str(path)]) != 0:
 		print("error: world failed Python validation; not opening", file=sys.stderr)
 		return 1
-	return _launch(["--scene", "res://scenes/mac_consumer.tscn"] + passthrough, ["--world=%s" % path.resolve()], timeout)
+	engine = (["--headless"] if verify_only else []) + ["--scene", "res://scenes/mac_consumer.tscn"] + passthrough
+	user = ["--world=%s" % path.resolve()] + (["--verify-only"] if verify_only else [])
+	return _launch(engine, user, timeout)
 
 
 def cmd_open_consumer(a: argparse.Namespace) -> int:
-	return _open_consumer(a.path, a.passthrough, a.timeout)
+	return _open_consumer(a.path, a.passthrough, a.timeout, a.verify_only)
+
+
+# --- selftest --------------------------------------------------------------------------
+SELFTEST_OUT = REPO / "build" / "selftest-mac"
+SELFTEST_STORAGE = "selftest_worlds"
+
+
+def godot_user_dir() -> Path:
+	"""macOS user:// of the project; honors config/use_custom_user_dir."""
+	text = (APP / "project.godot").read_text()
+	name = re.search(r'^config/name="([^"]*)"', text, re.M)
+	custom = re.search(r'^config/custom_user_dir_name="([^"]*)"', text, re.M)
+	support = Path.home() / "Library" / "Application Support"
+	if re.search(r"^config/use_custom_user_dir=true", text, re.M) and custom:
+		return support / custom.group(1)
+	return support / "Godot" / "app_userdata" / (name.group(1) if name else "Godot")
+
+
+def print_selftest_report(report: dict) -> None:
+	print("\n== editor self-test (%s) ==" % report.get("evidence_class", "?"))
+	for step in report.get("steps", []):
+		print("  %-4s %-4s %s" % (step["result"], step["id"], step["title"]))
+	for shot in report.get("screenshots", []):
+		print("  shot %-12s %s" % (shot["name"], shot["file"] or shot["note"]))
+
+
+def cmd_selftest(a: argparse.Namespace) -> int:
+	user = godot_user_dir()
+	for stale in (user / "selftest", user / SELFTEST_STORAGE):
+		shutil.rmtree(stale, ignore_errors=True)
+	user_args = ["--editor-selftest", "--storage-root=user://" + SELFTEST_STORAGE]
+	if not a.keep_open:
+		user_args.append("--selftest-quit")
+	rc = _launch([], user_args, a.timeout)
+	source = user / "selftest"
+	shutil.rmtree(SELFTEST_OUT, ignore_errors=True)
+	if not (source / "report.json").is_file():
+		print("error: Godot rc=%d and no selftest/report.json under %s" % (rc, user), file=sys.stderr)
+		return rc or 1
+	shutil.copytree(source, SELFTEST_OUT)
+	report = load_json(SELFTEST_OUT / "report.json")
+	print_selftest_report(report)
+	print("Godot rc=%d, result %s, copied to %s" % (rc, report.get("result"), SELFTEST_OUT))
+	return 0 if rc == 0 and report.get("result") == "PASS" else 1
 
 
 # --- small commands --------------------------------------------------------------------
@@ -410,6 +458,10 @@ def build_parser() -> argparse.ArgumentParser:
 	s.add_argument("--consumer", type=Path, default=None, help="open a world in the Mac consumer")
 	s.add_argument("--timeout", type=int, default=0, help="kill Godot after N seconds (0 = 3600-second limit)")
 	s.set_defaults(fn=cmd_run_mac)
+	s = sub.add_parser("selftest", help="windowed scripted self-test with SYNTHETIC input; copies evidence to build/selftest-mac")
+	s.add_argument("--timeout", type=int, default=300, help="kill Godot after N seconds")
+	s.add_argument("--keep-open", action="store_true", help="do not quit after the run")
+	s.set_defaults(fn=cmd_selftest)
 	s = sub.add_parser("export-ios", help="export the iOS app", description=SIGNING_HELP,
 		formatter_class=argparse.RawDescriptionHelpFormatter)
 	s.add_argument("--project-only", action="store_true", help="generate the Xcode project only (no .ipa)")
@@ -424,6 +476,7 @@ def build_parser() -> argparse.ArgumentParser:
 	s = sub.add_parser("open-consumer", help="validate, then open in the Mac consumer")
 	s.add_argument("path", type=Path)
 	s.add_argument("--timeout", type=int, default=0)
+	s.add_argument("--verify-only", action="store_true", help="headless: print WORLDPOC_REPORT and exit 0/1")
 	s.set_defaults(fn=cmd_open_consumer)
 	sub.add_parser("build-native", help="run native/ios_input/build.sh").set_defaults(fn=cmd_build_native)
 	s = sub.add_parser("fixtures", help="regenerate fixtures, or --check them")

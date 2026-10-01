@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import shlex
 import shutil
 import subprocess
 import tarfile
@@ -18,6 +19,7 @@ SOURCE = REPO / "build/simulator-source" / ("Terrain3D-" + TERRAIN_COMMIT)
 PROJECT = REPO / "build/ios-simulator"
 FRAMEWORK = Path("WorldPainter/dylibs/addons/terrain_3d/bin/libterrain.ios.debug.universal.framework")
 BINARY = "libterrain.ios.debug.universal"
+BUNDLE_ID = "sk.andrejvysny.worldpainterpoc"
 
 
 def fetch_archive(repository: str, commit: str, directory: Path) -> None:
@@ -81,26 +83,57 @@ def build() -> None:
          "CODE_SIGNING_ALLOWED=NO", "build"], PROJECT / "build.log")
 
 
-def launch(device: str) -> None:
+def launch(device: str, app_args: list[str] | None = None) -> None:
     app = PROJECT / "DerivedDataX86/Build/Products/Debug-iphonesimulator/WorldPainter.app"
     run(["xcrun", "simctl", "install", device, str(app)], PROJECT / "install.log")
-    run(["xcrun", "simctl", "launch", "--terminate-running-process", device,
-         "sk.andrejvysny.worldpainterpoc"], PROJECT / "launch.log")
+    run(["xcrun", "simctl", "launch", "--terminate-running-process", device, BUNDLE_ID,
+         *(app_args or [])], PROJECT / "launch.log")
 
 
-def main() -> int:
+def fetch_selftest(device: str, destination: Path) -> Path:
+    """Copies the app's user://selftest folder (report.json + screenshots) into destination."""
+    result = subprocess.run(["xcrun", "simctl", "get_app_container", device, BUNDLE_ID, "data"],
+                            capture_output=True, text=True, stdin=subprocess.DEVNULL, timeout=60)
+    if result.returncode:
+        raise RuntimeError(f"get_app_container failed: {result.stderr.strip()}")
+    reports = sorted(Path(result.stdout.strip()).rglob("selftest/report.json"))
+    if not reports:
+        raise RuntimeError("No selftest/report.json in the app data container; run the self-test first")
+    shutil.rmtree(destination, ignore_errors=True)
+    shutil.copytree(reports[0].parent, destination)
+    return destination / "report.json"
+
+
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--build-terrain", action="store_true")
     parser.add_argument("--fetch-sources", action="store_true")
     parser.add_argument("--device", help="Booted iOS 18.5 simulator UUID; install and launch after build")
-    args = parser.parse_args()
+    parser.add_argument("--app-args", default="",
+                        help='Launch arguments after the bundle id, e.g. "-- --editor-selftest --selftest-quit"')
+    parser.add_argument("--fetch-selftest", type=Path, metavar="DIR",
+                        help="Only copy the app's selftest/ output (needs --device) into DIR")
+    args = parser.parse_args(argv)
+    args.app_args = shlex.split(args.app_args)
+    if args.fetch_selftest and not args.device:
+        parser.error("--fetch-selftest needs --device")
+    if args.app_args and not args.device:
+        parser.error("--app-args needs --device")
+    return args
+
+
+def main() -> int:
+    args = parse_args()
     try:
+        if args.fetch_selftest:
+            print(f"Self-test output: {fetch_selftest(args.device, args.fetch_selftest)}")
+            return 0
         if args.fetch_sources:
             fetch_sources()
         prepare(args.build_terrain)
         build()
         if args.device:
-            launch(args.device)
+            launch(args.device, args.app_args)
     except (OSError, RuntimeError, subprocess.SubprocessError) as error:
         print(error)
         return 1

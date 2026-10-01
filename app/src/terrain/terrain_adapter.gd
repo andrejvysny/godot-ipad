@@ -1,5 +1,5 @@
 class_name TerrainAdapter
-extends Node3D
+extends TerrainView
 ## The only code that mutates Terrain3D (spec §4.1, §11.1). Terrain3D region Images are
 ## a runtime projection of WorldDocument bytes: the document is edited first, callers then
 ## mark_dirty(kind, region) and the adapter copies the document bytes into the region
@@ -11,8 +11,6 @@ extends Node3D
 ## recompute height ranges, so the adapter does that before uploading heights.
 ## Changing an Image alone never refreshes the GPU texture array.
 
-const MAP_HEIGHT := 0
-const MAP_CONTROL := 1
 const DEBUG_VIEWS := ["normal", "control_blend", "heightmap"]
 ## Terrain3D's own neutral color/roughness default (constants.h COLOR_ROUGHNESS): white
 ## albedo multiplier, roughness offset ~0. Reproducible configuration, not authored data.

@@ -1,0 +1,3605 @@
+{
+	"objects": [
+		{
+			"asset_id": "built.lodge.cabin_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000008056c0",
+					"00000080b7d40240",
+					"00000000008056c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"0000000000000000",
+					"0000000000000000",
+					"000000000000f03f"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "WORLD_FIXED",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000001",
+			"origin": "MANUAL",
+			"position": [
+				-90.0,
+				2.353865623474121,
+				-90.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.0,
+				0.0,
+				1.0
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000008051c0",
+					"000000a079860f40",
+					"00000000008056c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"81378830b84ed43f",
+					"0000000000000000",
+					"2448a4d9aa58ee3f"
+				],
+				"uniform_scale": "000000000000e83f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000002",
+			"origin": "MANUAL",
+			"position": [
+				-70.0,
+				3.940661668777466,
+				-90.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.31730465640509214,
+				0.0,
+				0.9483236552061993
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.75
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000000049c0",
+					"0000002093fc0f40",
+					"00000000008056c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"b6be55941142e33f",
+					"0000000000000000",
+					"147aa20e6c8ee93f"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000003",
+			"origin": "MANUAL",
+			"position": [
+				-50.0,
+				3.9983274936676025,
+				-90.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.6018150231520483,
+				0.0,
+				0.7986355100472928
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000003ec0",
+					"000000809c1f0440",
+					"00000000008056c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"f2137de23d5fea3f",
+					"0000000000000000",
+					"74f6faf8ff1fe23f"
+				],
+				"uniform_scale": "000000000000f43f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000004",
+			"origin": "MANUAL",
+			"position": [
+				-30.0,
+				2.515435218811035,
+				-90.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.8241261886220157,
+				0.0,
+				0.5664062369248328
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.25
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000000024c0",
+					"000000203e4ef13f",
+					"00000000008056c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"807b5ee3a7c2ee3f",
+					"0000000000000000",
+					"298e32dd0aa4d13f"
+				],
+				"uniform_scale": "000000000000e03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000005",
+			"origin": "MANUAL",
+			"position": [
+				-10.0,
+				1.0816022157669067,
+				-90.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.9612616959383189,
+				0.0,
+				0.27563735581699916
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.5
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000002440",
+					"0000004065d6df3f",
+					"00000000008056c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"f745daf933f8ef3f",
+					"0000000000000000",
+					"014e69c44755a6bf"
+				],
+				"uniform_scale": "000000000000f43f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000006",
+			"origin": "MANUAL",
+			"position": [
+				10.0,
+				0.49746066331863403,
+				-90.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.9990482215818578,
+				0.0,
+				-0.04361938736533589
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.25
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000003e40",
+					"000000e0a4efe13f",
+					"00000000008056c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"05b8ff0ee4dfed3f",
+					"0000000000000000",
+					"3cd3ce1f80efd6bf"
+				],
+				"uniform_scale": "000000000000e83f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000007",
+			"origin": "MANUAL",
+			"position": [
+				30.0,
+				0.5605034232139587,
+				-90.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.9335804264972017,
+				0.0,
+				-0.35836794954530027
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.75
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000004940",
+					"00000060d0e1e83f",
+					"00000000008056c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"8313ce0926b1e83f",
+					"0000000000000000",
+					"e54e39b6c05ae4bf"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000008",
+			"origin": "MANUAL",
+			"position": [
+				50.0,
+				0.7775651812553406,
+				-90.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.7716245833877199,
+				0.0,
+				-0.6360782202777641
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000805140",
+					"0000004033670240",
+					"00000000008056c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"2bddac3e19f5e03f",
+					"0000000000000000",
+					"45a9cdc23523ebbf"
+				],
+				"uniform_scale": "000000000000f43f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000009",
+			"origin": "MANUAL",
+			"position": [
+				70.0,
+				2.3003907203674316,
+				-90.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.529919264233205,
+				0.0,
+				-0.848048096156426
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.25
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000805640",
+					"0000000081581840",
+					"00000000008056c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"d0fb94a589e1cd3f",
+					"0000000000000000",
+					"ce1bf785a71defbf"
+				],
+				"uniform_scale": "000000000000e83f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000000a",
+			"origin": "MANUAL",
+			"position": [
+				90.0,
+				6.086429595947266,
+				-90.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.23344536385590553,
+				0.0,
+				-0.9723699203976766
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.75
+		},
+		{
+			"asset_id": "built.lodge.cabin_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000008056c0",
+					"000000e055481440",
+					"00000000008051c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"0281c2b8d64fb63f",
+					"0000000000000000",
+					"a21518b4d3e0ef3f"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "WORLD_FIXED",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000000b",
+			"origin": "MANUAL",
+			"position": [
+				-90.0,
+				5.0706400871276855,
+				-70.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.08715574274765817,
+				0.0,
+				0.9961946980917455
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000008051c0",
+					"000000202b002140",
+					"00000000008051c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"5c0a96d01a85d93f",
+					"0000000000000000",
+					"28727e5e8e58ed3f"
+				],
+				"uniform_scale": "000000000000f43f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000000c",
+			"origin": "MANUAL",
+			"position": [
+				-70.0,
+				8.50032901763916,
+				-70.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.3987490689252462,
+				0.0,
+				0.917060074385124
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.25
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000000049c0",
+					"000000607a502140",
+					"00000000008051c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"d80be2968469e53f",
+					"0000000000000000",
+					"c2be33a8d7c7e73f"
+				],
+				"uniform_scale": "000000000000e03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000000d",
+			"origin": "MANUAL",
+			"position": [
+				-50.0,
+				8.657183647155762,
+				-70.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.6691306063588582,
+				0.0,
+				0.7431448254773942
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.5
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000003ec0",
+					"000000804c0b1640",
+					"00000000008051c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"c25f3e30f4d9eb3f",
+					"0000000000000000",
+					"6e279b1bde83df3f"
+				],
+				"uniform_scale": "000000000000e83f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000000e",
+			"origin": "MANUAL",
+			"position": [
+				-30.0,
+				5.51103401184082,
+				-70.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.8703556959398997,
+				0.0,
+				0.4924235601034671
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.75
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000000024c0",
+					"0000008020de0340",
+					"00000000008051c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"c2b638697d69ef3f",
+					"0000000000000000",
+					"536276dd6d6cc83f"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000000f",
+			"origin": "MANUAL",
+			"position": [
+				-10.0,
+				2.4834604263305664,
+				-70.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.981627183447664,
+				0.0,
+				0.19080899537654492
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000002440",
+					"000000a03b5af73f",
+					"00000000008051c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"9b68ec92eab9ef3f",
+					"0000000000000000",
+					"d1a26d0f15b5c0bf"
+				],
+				"uniform_scale": "000000000000e83f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000010",
+			"origin": "MANUAL",
+			"position": [
+				10.0,
+				1.4595295190811157,
+				-70.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.9914448613738104,
+				0.0,
+				-0.1305261922200516
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.75
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000003e40",
+					"00000080713b0340",
+					"00000000008051c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"c93856bbebc2ec3f",
+					"0000000000000000",
+					"ca05beda450edcbf"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000011",
+			"origin": "MANUAL",
+			"position": [
+				30.0,
+				2.404025077819824,
+				-70.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.8987940462991669,
+				0.0,
+				-0.4383711467890775
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000004940",
+					"000000a0a51d0e40",
+					"00000000008051c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"462f1f9bf2d2e63f",
+					"0000000000000000",
+					"7233f443d96de6bf"
+				],
+				"uniform_scale": "000000000000f43f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000012",
+			"origin": "MANUAL",
+			"position": [
+				50.0,
+				3.7644760608673096,
+				-70.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.7132504491541816,
+				0.0,
+				-0.7009092642998509
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.25
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000805140",
+					"000000e073a10b40",
+					"00000000008051c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"02de442b2e0edd3f",
+					"0000000000000000",
+					"6c2c3d1d2083ecbf"
+				],
+				"uniform_scale": "000000000000e83f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000013",
+			"origin": "MANUAL",
+			"position": [
+				70.0,
+				3.453834295272827,
+				-70.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.45399049973954686,
+				0.0,
+				-0.8910065241883678
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.75
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000805640",
+					"000000008c1b0640",
+					"00000000008051c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"7edd6b356bebc23f",
+					"0000000000000000",
+					"1cab8b9804a6efbf"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000014",
+			"origin": "MANUAL",
+			"position": [
+				90.0,
+				2.7634506225585938,
+				-70.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.14780941112961082,
+				0.0,
+				-0.9890158633619168
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "built.lodge.cabin_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000008056c0",
+					"000000404d4d1a40",
+					"00000000000049c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"89730b7e1a3ac63f",
+					"0000000000000000",
+					"171c818c8b83ef3f"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "WORLD_FIXED",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000015",
+			"origin": "MANUAL",
+			"position": [
+				-90.0,
+				6.5754899978637695,
+				-50.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.17364817766693033,
+				0.0,
+				0.984807753012208
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000008051c0",
+					"000000a042292640",
+					"00000000000049c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"b12794e5c489de3f",
+					"0000000000000000",
+					"958bc110451fec3f"
+				],
+				"uniform_scale": "000000000000e83f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000016",
+			"origin": "MANUAL",
+			"position": [
+				-70.0,
+				11.080586433410645,
+				-50.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.4771587602596084,
+				0.0,
+				0.8788171126619654
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.75
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000000049c0",
+					"000000200fd62640",
+					"00000000000049c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"8269c8e03f67e73f",
+					"0000000000000000",
+					"2b9c8c39eed2e53f"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000017",
+			"origin": "MANUAL",
+			"position": [
+				-50.0,
+				11.418084144592285,
+				-50.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.7313537016191705,
+				0.0,
+				0.6819983600624985
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000003ec0",
+					"000000e002151e40",
+					"00000000000049c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"be526119671eed3f",
+					"0000000000000000",
+					"d52ac586558ada3f"
+				],
+				"uniform_scale": "000000000000f43f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000018",
+			"origin": "MANUAL",
+			"position": [
+				-30.0,
+				7.520518779754639,
+				-50.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.9099612708765432,
+				0.0,
+				0.41469324265623914
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.25
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000000024c0",
+					"000000e0d62f0e40",
+					"00000000000049c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"c667f8941fd3ef3f",
+					"0000000000000000",
+					"6b573c9b60c2ba3f"
+				],
+				"uniform_scale": "000000000000e03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000019",
+			"origin": "MANUAL",
+			"position": [
+				-10.0,
+				3.7733590602874756,
+				-50.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.9945218953682733,
+				0.0,
+				0.10452846326765346
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.5
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000002440",
+					"000000a059c80640",
+					"00000000000049c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"b674b91fd13def3f",
+					"0000000000000000",
+					"6e25b6134bb4cbbf"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000001a",
+			"origin": "MANUAL",
+			"position": [
+				10.0,
+				2.847827196121216,
+				-50.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.9762960071199334,
+				0.0,
+				-0.2164396139381028
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000003e40",
+					"000000808b7d1540",
+					"00000000000049c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"deea761eea6deb3f",
+					"0000000000000000",
+					"14dffd20317be0bf"
+				],
+				"uniform_scale": "000000000000f43f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000001b",
+			"origin": "MANUAL",
+			"position": [
+				30.0,
+				5.372602462768555,
+				-50.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.8571673007021123,
+				0.0,
+				-0.5150380749100543
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.25
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000004940",
+					"00000060c71d2140",
+					"00000000000049c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"efee004647c8e43f",
+					"0000000000000000",
+					"12ef3de43e55e8bf"
+				],
+				"uniform_scale": "000000000000e83f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000001c",
+			"origin": "MANUAL",
+			"position": [
+				50.0,
+				8.558161735534668,
+				-50.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.6494480483301838,
+				0.0,
+				-0.7604059656000308
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.75
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000805140",
+					"00000020a4f61a40",
+					"00000000000049c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"8596e5ee8df9d73f",
+					"0000000000000000",
+					"57cb97797dabedbf"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000001d",
+			"origin": "MANUAL",
+			"position": [
+				70.0,
+				6.740860462188721,
+				-50.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.37460659341591224,
+				0.0,
+				-0.9271838545667873
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000805640",
+					"000000c03e400340",
+					"00000000000049c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"bba28a11c141af3f",
+					"0000000000000000",
+					"4b168763b8f0efbf"
+				],
+				"uniform_scale": "000000000000f43f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000001e",
+			"origin": "MANUAL",
+			"position": [
+				90.0,
+				2.406369686126709,
+				-50.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.06104853953485675,
+				0.0,
+				-0.998134798421867
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.25
+		},
+		{
+			"asset_id": "built.lodge.cabin_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000008056c0",
+					"000000e08cca1340",
+					"0000000000003ec0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"900693c17d90d03f",
+					"0000000000000000",
+					"15bf4847dde8ee3f"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "WORLD_FIXED",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000001f",
+			"origin": "MANUAL",
+			"position": [
+				-90.0,
+				4.947803020477295,
+				-30.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.25881904510252074,
+				0.0,
+				0.9659258262890683
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000008051c0",
+					"00000020dc702140",
+					"0000000000003ec0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"a8c7abc077a9e13f",
+					"0000000000000000",
+					"cd0ccc5131afea3f"
+				],
+				"uniform_scale": "000000000000f43f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000020",
+			"origin": "MANUAL",
+			"position": [
+				-70.0,
+				8.720429420471191,
+				-30.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.5519369853120581,
+				0.0,
+				0.8338858220671682
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.25
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000000049c0",
+					"000000401cc72240",
+					"0000000000003ec0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"d263f4536237e93f",
+					"0000000000000000",
+					"39c9bdb17fb3e33f"
+				],
+				"uniform_scale": "000000000000e03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000021",
+			"origin": "MANUAL",
+			"position": [
+				-50.0,
+				9.388887405395508,
+				-30.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.788010753606722,
+				0.0,
+				0.6156614753256583
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.5
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000003ec0",
+					"00000000c6001b40",
+					"0000000000003ec0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"9ffe027d1e2aee3f",
+					"0000000000000000",
+					"b9bae571175dd53f"
+				],
+				"uniform_scale": "000000000000e83f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000022",
+			"origin": "MANUAL",
+			"position": [
+				-30.0,
+				6.750755310058594,
+				-30.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.9426414910921784,
+				0.0,
+				0.3338068592337709
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.75
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000000024c0",
+					"00000000cb921040",
+					"0000000000003ec0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"8aaff597c0feef3f",
+					"0000000000000000",
+					"37dd892b0bdf913f"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000023",
+			"origin": "MANUAL",
+			"position": [
+				-10.0,
+				4.143352508544922,
+				-30.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.9998476951563913,
+				0.0,
+				0.0174524064372836
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000002440",
+					"000000e032540d40",
+					"0000000000003ec0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"e1572369d984ee3f",
+					"0000000000000000",
+					"1ea8a589c33ed3bf"
+				],
+				"uniform_scale": "000000000000f43f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000024",
+			"origin": "MANUAL",
+			"position": [
+				10.0,
+				3.6661126613616943,
+				-30.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.9537169507482269,
+				0.0,
+				-0.3007057995042731
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.25
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000003e40",
+					"00000040e88a1840",
+					"0000000000003ec0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"a8f4979b77e3e93f",
+					"0000000000000000",
+					"5d5a750423cfe2bf"
+				],
+				"uniform_scale": "000000000000e83f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000025",
+			"origin": "MANUAL",
+			"position": [
+				30.0,
+				6.135651588439941,
+				-30.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.8090169943749475,
+				0.0,
+				-0.587785252292473
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.75
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000004940",
+					"00000020e1232240",
+					"0000000000003ec0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"3d026f5d1e95e23f",
+					"0000000000000000",
+					"1235d0fc3b0deabf"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000026",
+			"origin": "MANUAL",
+			"position": [
+				50.0,
+				9.070076942443848,
+				-30.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.5807029557109399,
+				0.0,
+				-0.8141155183563191
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000805140",
+					"000000a0ddff1b40",
+					"0000000000003ec0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"c5d583cf37b6d23f",
+					"0000000000000000",
+					"20db7b6e0c9aeebf"
+				],
+				"uniform_scale": "000000000000f43f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000027",
+			"origin": "MANUAL",
+			"position": [
+				70.0,
+				6.999868869781494,
+				-30.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.2923717047227366,
+				0.0,
+				-0.9563047559630355
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.25
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000805640",
+					"00000060df020440",
+					"0000000000003ec0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"91ca904321ce9a3f",
+					"0000000000000000",
+					"7542bf5b31fdef3f"
+				],
+				"uniform_scale": "000000000000e83f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000028",
+			"origin": "MANUAL",
+			"position": [
+				90.0,
+				2.5014026165008545,
+				-30.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.026176948307873153,
+				0.0,
+				0.9996573249755573
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.75
+		},
+		{
+			"asset_id": "built.lodge.cabin_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000008056c0",
+					"00000060b857ef3f",
+					"00000000000024c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"f50b8a74a8e3d53f",
+					"0000000000000000",
+					"1c2d5242f611ee3f"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "WORLD_FIXED",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000029",
+			"origin": "MANUAL",
+			"position": [
+				-90.0,
+				0.9794580340385437,
+				-10.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.3420201433256687,
+				0.0,
+				0.9396926207859084
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000008051c0",
+					"00000000c6ef0d40",
+					"00000000000024c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"0f7ab4d0a3ebe33f",
+					"0000000000000000",
+					"5472e842200be93f"
+				],
+				"uniform_scale": "000000000000e83f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000002a",
+			"origin": "MANUAL",
+			"position": [
+				-70.0,
+				3.742076873779297,
+				-10.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.6225146366376196,
+				0.0,
+				0.7826081568524139
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.75
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000000049c0",
+					"0000000044fc1440",
+					"00000000000024c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"dc2faea863d6ea3f",
+					"0000000000000000",
+					"1d7770d7ae6de13f"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000002b",
+			"origin": "MANUAL",
+			"position": [
+				-50.0,
+				5.2463531494140625,
+				-10.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.838670567945424,
+				0.0,
+				0.5446390350150271
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000003ec0",
+					"00000020f0ce1240",
+					"00000000000024c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"0ef4a3c210fbee3f",
+					"0000000000000000",
+					"781d3fda3906d03f"
+				],
+				"uniform_scale": "000000000000f43f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000002c",
+			"origin": "MANUAL",
+			"position": [
+				-30.0,
+				4.702087879180908,
+				-10.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.9681476403781077,
+				0.0,
+				0.2503800040544415
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.25
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000000024c0",
+					"000000c092730f40",
+					"00000000000024c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"f6ff70710becef3f",
+					"0000000000000000",
+					"2a516a6d8fdbb1bf"
+				],
+				"uniform_scale": "000000000000e03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000002d",
+			"origin": "MANUAL",
+			"position": [
+				-10.0,
+				3.9314322471618652,
+				-10.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.9975640502598242,
+				0.0,
+				-0.06975647374412533
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.5
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000002440",
+					"0000004032df0e40",
+					"00000000000024c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"468d32cf6b90ed3f",
+					"0000000000000000",
+					"62a9aea6e27dd8bf"
+				],
+				"uniform_scale": "000000000000e83f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000002e",
+			"origin": "MANUAL",
+			"position": [
+				10.0,
+				3.858982563018799,
+				-10.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.9238795325112867,
+				0.0,
+				-0.3826834323650897
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.75
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000003e40",
+					"000000c003dd1240",
+					"00000000000024c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"381ca1b49426e83f",
+					"0000000000000000",
+					"d34f38816ffee4bf"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000002f",
+			"origin": "MANUAL",
+			"position": [
+				30.0,
+				4.715834617614746,
+				-10.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.7547095802227721,
+				0.0,
+				-0.6560590289905072
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000004940",
+					"000000800ab61540",
+					"00000000000024c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"1536cc17c13de03f",
+					"0000000000000000",
+					"920a2c517792ebbf"
+				],
+				"uniform_scale": "000000000000f43f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000030",
+			"origin": "MANUAL",
+			"position": [
+				50.0,
+				5.427774429321289,
+				-10.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.5075383629607041,
+				0.0,
+				-0.8616291604415258
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.25
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000805140",
+					"0000002023cd0e40",
+					"00000000000024c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"f55842acd99cca3f",
+					"0000000000000000",
+					"80007a32fc4cefbf"
+				],
+				"uniform_scale": "000000000000e83f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000031",
+			"origin": "MANUAL",
+			"position": [
+				70.0,
+				3.8501646518707275,
+				-10.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.20791169081775931,
+				0.0,
+				-0.9781476007338057
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.75
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000805640",
+					"000000206567f63f",
+					"00000000000024c0"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"f56cefc4e2fabc3f",
+					"0000000000000000",
+					"576c4b3457cbef3f"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000032",
+			"origin": "MANUAL",
+			"position": [
+				90.0,
+				1.4002429246902466,
+				-10.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.11320321376790672,
+				0.0,
+				0.9935718556765875
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "built.lodge.cabin_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000008056c0",
+					"000000000a6ffebf",
+					"0000000000002440"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"539837772d0cdb3f",
+					"0000000000000000",
+					"67d72d307900ed3f"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "WORLD_FIXED",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000033",
+			"origin": "MANUAL",
+			"position": [
+				-90.0,
+				-1.902109146118164,
+				10.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.42261826174069944,
+				0.0,
+				0.9063077870366499
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000008051c0",
+					"000000c0ba32e83f",
+					"0000000000002440"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"1c03d52c0007e63f",
+					"0000000000000000",
+					"ce561b504436e73f"
+				],
+				"uniform_scale": "000000000000f43f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000034",
+			"origin": "MANUAL",
+			"position": [
+				-70.0,
+				0.7561925649642944,
+				10.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.6883545756937539,
+				0.0,
+				0.7253743710122877
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.25
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000000049c0",
+					"00000080dbff0940",
+					"0000000000002440"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"07276d4f1b41ec3f",
+					"0000000000000000",
+					"7a502474d20bde3f"
+				],
+				"uniform_scale": "000000000000e03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000035",
+			"origin": "MANUAL",
+			"position": [
+				-50.0,
+				3.2499303817749023,
+				10.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.8829475928589269,
+				0.0,
+				0.46947156278589086
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.5
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000003ec0",
+					"00000000971d0f40",
+					"0000000000002440"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"72c763d2a68fef3f",
+					"0000000000000000",
+					"e133baaa4720c53f"
+				],
+				"uniform_scale": "000000000000e83f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000036",
+			"origin": "MANUAL",
+			"position": [
+				-30.0,
+				3.8894481658935547,
+				10.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.9862856015372314,
+				0.0,
+				0.1650476058606776
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.75
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000000024c0",
+					"00000000a2231040",
+					"0000000000002440"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"5ce42f94249bef3f",
+					"0000000000000000",
+					"7353a8670b06c4bf"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000037",
+			"origin": "MANUAL",
+			"position": [
+				-10.0,
+				4.034797668457031,
+				10.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.9876883405951378,
+				0.0,
+				-0.1564344650402308
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000002440",
+					"0000008085a61440",
+					"0000000000002440"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"7257f68a6462ec3f",
+					"0000000000000000",
+					"3657340e4a8dddbf"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000038",
+			"origin": "MANUAL",
+			"position": [
+				10.0,
+				5.162618637084961,
+				10.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.8870108331782218,
+				0.0,
+				-0.4617486132350338
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000003e40",
+					"0000008061db1440",
+					"0000000000002440"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"0f73e030a43ae63f",
+					"0000000000000000",
+					"3a4da5e6d404e7bf"
+				],
+				"uniform_scale": "000000000000f43f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000039",
+			"origin": "MANUAL",
+			"position": [
+				30.0,
+				5.214239120483398,
+				10.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.6946583704589971,
+				0.0,
+				-0.7193398003386513
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.25
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000004940",
+					"000000e09c941040",
+					"0000000000002440"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"75d4566a7e8ddb3f",
+					"0000000000000000",
+					"bb45c488fae1ecbf"
+				],
+				"uniform_scale": "000000000000e83f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000003a",
+			"origin": "MANUAL",
+			"position": [
+				50.0,
+				4.145129680633545,
+				10.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.4305110968082951,
+				0.0,
+				-0.9025852843498606
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.75
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000805140",
+					"000000e0f45e0440",
+					"0000000000002440"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"d8624f4cd432bf3f",
+					"0000000000000000",
+					"8b3ea225f0c2efbf"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000003b",
+			"origin": "MANUAL",
+			"position": [
+				70.0,
+				2.54636549949646,
+				10.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.12186934340514755,
+				0.0,
+				-0.992546151641322
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000805640",
+					"0000000019adef3f",
+					"0000000000002440"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"16b21873e384c93f",
+					"0000000000000000",
+					"0f72dc0d8b5bef3f"
+				],
+				"uniform_scale": "000000000000f43f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000003c",
+			"origin": "MANUAL",
+			"position": [
+				90.0,
+				0.9898800849914551,
+				10.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.1993679344171972,
+				0.0,
+				0.9799247046208296
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.25
+		},
+		{
+			"asset_id": "built.lodge.cabin_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000008056c0",
+					"0000000085d8e1bf",
+					"0000000000003e40"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"ffffffffffffdf3f",
+					"0000000000000000",
+					"ab4c58e87ab6eb3f"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "WORLD_FIXED",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000003d",
+			"origin": "MANUAL",
+			"position": [
+				-90.0,
+				-0.557680606842041,
+				30.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.49999999999999994,
+				0.0,
+				0.8660254037844387
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000008051c0",
+					"000000008f550140",
+					"0000000000003e40"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"9e1bdefc71f7e73f",
+					"0000000000000000",
+					"4f5698f52e34e53f"
+				],
+				"uniform_scale": "000000000000e83f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000003e",
+			"origin": "MANUAL",
+			"position": [
+				-70.0,
+				2.166776657104492,
+				30.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.7489557207890021,
+				0.0,
+				0.6626200482157375
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.75
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000000049c0",
+					"000000c0a7d01340",
+					"0000000000003e40"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"6f662c98c674ed3f",
+					"0000000000000000",
+					"aaff9822bd01d93f"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000003f",
+			"origin": "MANUAL",
+			"position": [
+				-50.0,
+				4.953764915466309,
+				30.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.9205048534524404,
+				0.0,
+				0.3907311284892737
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000003ec0",
+					"000000a0848f1540",
+					"0000000000003e40"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"af60262ebfe6ef3f",
+					"0000000000000000",
+					"4d8e3932e515b43f"
+				],
+				"uniform_scale": "000000000000f43f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000040",
+			"origin": "MANUAL",
+			"position": [
+				-30.0,
+				5.3901543617248535,
+				30.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.996917333733128,
+				0.0,
+				0.078459095727845
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.25
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000000024c0",
+					"000000601db81340",
+					"0000000000003e40"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"25ba799fa90cef3f",
+					"0000000000000000",
+					"1fb9e4f24bf7cebf"
+				],
+				"uniform_scale": "000000000000e03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000041",
+			"origin": "MANUAL",
+			"position": [
+				-10.0,
+				4.929799556732178,
+				30.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.9702957262759965,
+				0.0,
+				-0.24192189559966779
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.5
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000002440",
+					"000000e0d5721540",
+					"0000000000003e40"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"8fc2af0e10fdea3f",
+					"0000000000000000",
+					"5c1ac0f28e31e1bf"
+				],
+				"uniform_scale": "000000000000f43f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000042",
+			"origin": "MANUAL",
+			"position": [
+				10.0,
+				5.3621439933776855,
+				30.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.8433914458128856,
+				0.0,
+				-0.537299608346824
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.25
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000003e40",
+					"00000000c1161640",
+					"0000000000003e40"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"bd7a48846423e43f",
+					"0000000000000000",
+					"28a3153561dee8bf"
+				],
+				"uniform_scale": "000000000000e83f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000043",
+			"origin": "MANUAL",
+			"position": [
+				30.0,
+				5.522220611572266,
+				30.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.6293203910498374,
+				0.0,
+				-0.7771459614569709
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.75
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000004940",
+					"0000006010191740",
+					"0000000000003e40"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"1df15438cc69d63f",
+					"0000000000000000",
+					"7ca07cf437f9edbf"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000044",
+			"origin": "MANUAL",
+			"position": [
+				50.0,
+				5.774476528167725,
+				30.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.35020738125946754,
+				0.0,
+				-0.9366721892483976
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000805140",
+					"000000002d480c40",
+					"0000000000003e40"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"40dcf7c958dea13f",
+					"0000000000000000",
+					"6705bf7802fbefbf"
+				],
+				"uniform_scale": "000000000000f43f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000045",
+			"origin": "MANUAL",
+			"position": [
+				70.0,
+				3.5352420806884766,
+				30.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.03489949670250114,
+				0.0,
+				-0.9993908270190958
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.25
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000805640",
+					"000000c0f2dff63f",
+					"0000000000003e40"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"643144b24e2dd23f",
+					"0000000000000000",
+					"c09580b9a6aeee3f"
+				],
+				"uniform_scale": "000000000000e83f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000046",
+			"origin": "MANUAL",
+			"position": [
+				90.0,
+				1.4296748638153076,
+				30.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.28401534470392265,
+				0.0,
+				0.958819734868193
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.75
+		},
+		{
+			"asset_id": "built.lodge.cabin_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000008056c0",
+					"00000040f040f53f",
+					"0000000000004940"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"78497cf8bc5ae23f",
+					"0000000000000000",
+					"478715597e36ea3f"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "WORLD_FIXED",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000047",
+			"origin": "MANUAL",
+			"position": [
+				-90.0,
+				1.3283541202545166,
+				50.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.573576436351046,
+				0.0,
+				0.8191520442889918
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000008051c0",
+					"000000a0dba91240",
+					"0000000000004940"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"8984e00532b9e93f",
+					"0000000000000000",
+					"2a6700ccc908e33f"
+				],
+				"uniform_scale": "000000000000f43f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000048",
+			"origin": "MANUAL",
+			"position": [
+				-70.0,
+				4.665876865386963,
+				50.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.8038568606172173,
+				0.0,
+				0.5948227867513414
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.25
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000000049c0",
+					"00000080a4c31f40",
+					"0000000000004940"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"ff5444130e6fee3f",
+					"0000000000000000",
+					"50e92f37efc6d33f"
+				],
+				"uniform_scale": "000000000000e03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000049",
+			"origin": "MANUAL",
+			"position": [
+				-50.0,
+				7.941057205200195,
+				50.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.9510565162951535,
+				0.0,
+				0.30901699437494745
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.5
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000003ec0",
+					"0000004005ad1e40",
+					"0000000000004940"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"cdc99925b0ffef3f",
+					"0000000000000000",
+					"454c95c437df81bf"
+				],
+				"uniform_scale": "000000000000e83f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000004a",
+			"origin": "MANUAL",
+			"position": [
+				-30.0,
+				7.6689653396606445,
+				50.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.9999619230641713,
+				0.0,
+				-0.008726535498373997
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.75
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000000024c0",
+					"0000006023501740",
+					"0000000000004940"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"cbb4fe2bb041ee3f",
+					"0000000000000000",
+					"dbcd00d01bd6d4bf"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000004b",
+			"origin": "MANUAL",
+			"position": [
+				-10.0,
+				5.8282599449157715,
+				50.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.9455185755993168,
+				0.0,
+				-0.32556815445715664
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000002440",
+					"000000c06bb41840",
+					"0000000000004940"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"9224578b2663e93f",
+					"0000000000000000",
+					"ea13953ff97ae3bf"
+				],
+				"uniform_scale": "000000000000e83f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000004c",
+			"origin": "MANUAL",
+			"position": [
+				10.0,
+				6.176192283630371,
+				50.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.7933533402912352,
+				0.0,
+				-0.6087614290087207
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.75
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000003e40",
+					"00000020039a1e40",
+					"0000000000004940"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"13fd1184e8e4e13f",
+					"0000000000000000",
+					"a4eea8cd7987eabf"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000004d",
+			"origin": "MANUAL",
+			"position": [
+				30.0,
+				7.650402545928955,
+				50.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.5591929034707469,
+				0.0,
+				-0.8290375725550416
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000004940",
+					"00000000abaa1c40",
+					"0000000000004940"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"3b815ffd6e1ad13f",
+					"0000000000000000",
+					"01be3e880fd6eebf"
+				],
+				"uniform_scale": "000000000000f43f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000004e",
+			"origin": "MANUAL",
+			"position": [
+				50.0,
+				7.166667938232422,
+				50.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.267238376078257,
+				0.0,
+				-0.963630453208623
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.25
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000805140",
+					"00000040b4f11140",
+					"0000000000004940"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"0ec9ef48c7cbaa3f",
+					"0000000000000000",
+					"1de612edc5f4ef3f"
+				],
+				"uniform_scale": "000000000000e83f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000004f",
+			"origin": "MANUAL",
+			"position": [
+				70.0,
+				4.486039161682129,
+				50.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.052335956242943835,
+				0.0,
+				0.9986295347545738
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.75
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000805640",
+					"000000c0d54cfd3f",
+					"0000000000004940"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"1c62ae8fc174d73f",
+					"0000000000000000",
+					"b2694310fbc5ed3f"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000050",
+			"origin": "MANUAL",
+			"position": [
+				90.0,
+				1.8312585353851318,
+				50.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.3665012267242973,
+				0.0,
+				0.9304175679820246
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "built.lodge.cabin_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000008056c0",
+					"00000000f00af83f",
+					"0000000000805140"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"1c163c52b791e43f",
+					"0000000000000000",
+					"3950cfa26f83e83f"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "WORLD_FIXED",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000051",
+			"origin": "MANUAL",
+			"position": [
+				-90.0,
+				1.5026702880859375,
+				70.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.6427876096865393,
+				0.0,
+				0.766044443118978
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000008051c0",
+					"00000000b67c1240",
+					"0000000000805140"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"4005a506d448eb3f",
+					"0000000000000000",
+					"9d2ef5e84eb8e03f"
+				],
+				"uniform_scale": "000000000000e83f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000052",
+			"origin": "MANUAL",
+			"position": [
+				-70.0,
+				4.621788024902344,
+				70.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.8526401643540922,
+				0.0,
+				0.5224985647159489
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.75
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000000049c0",
+					"000000c0ff6a1e40",
+					"0000000000805140"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"0f874e210a2eef3f",
+					"0000000000000000",
+					"72c6cd3632cbcc3f"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000053",
+			"origin": "MANUAL",
+			"position": [
+				-50.0,
+				7.604491233825684,
+				70.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.9743700647852352,
+				0.0,
+				0.22495105434386492
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000003ec0",
+					"000000a05c421c40",
+					"0000000000805140"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"a697d12049daef3f",
+					"0000000000000000",
+					"56ed88e45889b8bf"
+				],
+				"uniform_scale": "000000000000f43f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000054",
+			"origin": "MANUAL",
+			"position": [
+				-30.0,
+				7.0648064613342285,
+				70.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.9953961983671789,
+				0.0,
+				-0.09584575252022395
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.25
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000000024c0",
+					"000000a0acc31340",
+					"0000000000805140"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"957fffaec33bed3f",
+					"0000000000000000",
+					"d21a0621f907dabf"
+				],
+				"uniform_scale": "000000000000e03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000055",
+			"origin": "MANUAL",
+			"position": [
+				-10.0,
+				4.9410881996154785,
+				70.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.9135454576426009,
+				0.0,
+				-0.40673664307580026
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.5
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000002440",
+					"000000802d211440",
+					"0000000000805140"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"85ce35a4c697e73f",
+					"0000000000000000",
+					"a7a0e65a6f9ee5bf"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000056",
+			"origin": "MANUAL",
+			"position": [
+				10.0,
+				5.032400131225586,
+				70.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.7372773368101241,
+				0.0,
+				-0.6755902076156602
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000003e40",
+					"000000406aa91940",
+					"0000000000805140"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"efa0efed1e07df3f",
+					"0000000000000000",
+					"c639d377e2fcebbf"
+				],
+				"uniform_scale": "000000000000f43f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000057",
+			"origin": "MANUAL",
+			"position": [
+				30.0,
+				6.415444374084473,
+				70.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.48480962024633717,
+				0.0,
+				-0.8746197071393957
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.25
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000004940",
+					"00000000a1951840",
+					"0000000000805140"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"383e14637e53c73f",
+					"0000000000000000",
+					"4accf3fed276efbf"
+				],
+				"uniform_scale": "000000000000e83f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000058",
+			"origin": "MANUAL",
+			"position": [
+				50.0,
+				6.146121978759766,
+				70.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.18223552549214772,
+				0.0,
+				-0.9832549075639545
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.75
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000805140",
+					"000000404e190f40",
+					"0000000000805140"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"199e8d966cd0c13f",
+					"0000000000000000",
+					"7a9430a946b0ef3f"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000059",
+			"origin": "MANUAL",
+			"position": [
+				70.0,
+				3.8873562812805176,
+				70.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.13917310096006544,
+				0.0,
+				0.9902680687415704
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000805640",
+					"00000080d378f93f",
+					"0000000000805140"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"449db645818edc3f",
+					"0000000000000000",
+					"fab6e4624da3ec3f"
+				],
+				"uniform_scale": "000000000000f43f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000005a",
+			"origin": "MANUAL",
+			"position": [
+				90.0,
+				1.59199857711792,
+				70.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.44619781310980877,
+				0.0,
+				0.8949343616020251
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.25
+		},
+		{
+			"asset_id": "built.lodge.cabin_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000008056c0",
+					"00000000da45e93f",
+					"0000000000805640"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"cc3b7f669ea0e63f",
+					"0000000000000000",
+					"cd3b7f669ea0e63f"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "WORLD_FIXED",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000005b",
+			"origin": "MANUAL",
+			"position": [
+				-90.0,
+				0.7897768020629883,
+				90.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.7071067811865475,
+				0.0,
+				0.7071067811865476
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000008051c0",
+					"000000406a570340",
+					"0000000000805640"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"fab6e4624da3ec3f",
+					"0000000000000000",
+					"439db645818edc3f"
+				],
+				"uniform_scale": "000000000000f43f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000005c",
+			"origin": "MANUAL",
+			"position": [
+				-70.0,
+				2.4176831245422363,
+				90.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.8949343616020251,
+				0.0,
+				0.4461978131098087
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.25
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000000049c0",
+					"0000000086b90f40",
+					"0000000000805640"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"7a9430a946b0ef3f",
+					"0000000000000000",
+					"1a9e8d966cd0c13f"
+				],
+				"uniform_scale": "000000000000e03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000005d",
+			"origin": "MANUAL",
+			"position": [
+				-50.0,
+				3.965587615966797,
+				90.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.9902680687415704,
+				0.0,
+				0.13917310096006547
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.5
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000003ec0",
+					"000000a05f530d40",
+					"0000000000805640"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"4bccf3fed276ef3f",
+					"0000000000000000",
+					"313e14637e53c7bf"
+				],
+				"uniform_scale": "000000000000e83f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000005e",
+			"origin": "MANUAL",
+			"position": [
+				-30.0,
+				3.6657097339630127,
+				90.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.9832549075639546,
+				0.0,
+				-0.18223552549214753
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.75
+		},
+		{
+			"asset_id": "nature.rock.boulder_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"00000000000024c0",
+					"00000040e29c0440",
+					"0000000000805640"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"c739d377e2fceb3f",
+					"0000000000000000",
+					"eca0efed1e07dfbf"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-00000000005f",
+			"origin": "MANUAL",
+			"position": [
+				-10.0,
+				2.576603412628174,
+				90.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.8746197071393959,
+				0.0,
+				-0.484809620246337
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000002440",
+					"00000000a0d10540",
+					"0000000000805640"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"a8a0e65a6f9ee53f",
+					"0000000000000000",
+					"84ce35a4c697e7bf"
+				],
+				"uniform_scale": "000000000000f43f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000060",
+			"origin": "MANUAL",
+			"position": [
+				10.0,
+				2.72735595703125,
+				90.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.6755902076156604,
+				0.0,
+				-0.737277336810124
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.25
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000003e40",
+					"00000080209c0c40",
+					"0000000000805640"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"d51a0621f907da3f",
+					"0000000000000000",
+					"947fffaec33bedbf"
+				],
+				"uniform_scale": "000000000000e83f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000061",
+			"origin": "MANUAL",
+			"position": [
+				30.0,
+				3.5762338638305664,
+				90.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.40673664307580043,
+				0.0,
+				-0.9135454576426008
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.75
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000004940",
+					"0000004030b80b40",
+					"0000000000805640"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"53ed88e45889b83f",
+					"0000000000000000",
+					"a697d12049daefbf"
+				],
+				"uniform_scale": "000000000000f03f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000062",
+			"origin": "MANUAL",
+			"position": [
+				50.0,
+				3.464935779571533,
+				90.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.09584575252022391,
+				0.0,
+				-0.9953961983671789
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.0
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000805140",
+					"000000209e9c0140",
+					"0000000000805640"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"75c6cd3632cbcc3f",
+					"0000000000000000",
+					"0f874e210a2eef3f"
+				],
+				"uniform_scale": "000000000000f43f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000063",
+			"origin": "MANUAL",
+			"position": [
+				70.0,
+				2.2014734745025635,
+				90.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.224951054343865,
+				0.0,
+				0.9743700647852352
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 1.25
+		},
+		{
+			"asset_id": "nature.tree.spruce_a",
+			"asset_version": 1,
+			"f64le": {
+				"height_offset_m": "0000000000000000",
+				"position": [
+					"0000000000805640",
+					"000000e097e3ec3f",
+					"0000000000805640"
+				],
+				"rotation_xyzw": [
+					"0000000000000000",
+					"9c2ef5e84eb8e03f",
+					"0000000000000000",
+					"4105a506d448eb3f"
+				],
+				"uniform_scale": "000000000000e83f"
+			},
+			"grounding": "FOLLOW_TERRAIN",
+			"height_offset_m": 0.0,
+			"object_id": "57e55100-0000-4000-8000-000000000064",
+			"origin": "MANUAL",
+			"position": [
+				90.0,
+				0.9027823805809021,
+				90.0
+			],
+			"rotation_xyzw": [
+				0.0,
+				0.5224985647159488,
+				0.0,
+				0.8526401643540923
+			],
+			"scatter_operation_id": null,
+			"uniform_scale": 0.75
+		}
+	],
+	"schema_version": 1
+}

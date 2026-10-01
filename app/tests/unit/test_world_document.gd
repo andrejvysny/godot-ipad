@@ -159,9 +159,19 @@ func test_object_enums_reject_wrong_types_without_script_errors() -> void:
 
 func test_fixture_authored_hash_matches_manifest_in_godot() -> void:
 	var catalog: AssetCatalog = AssetCatalog.load_from()[0]
-	for name in ["flat", "gentle_hills"]:
+	for name in ["flat", "gentle_hills", "stress_100"]:
 		var path: String = "res://fixtures/" + name
 		var loaded := WorldCodec.read_generation(path, catalog)
 		assert_empty_string(loaded[1])
 		var manifest: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(path + "/manifest.json"))
 		assert_eq(CanonicalEncoder.authored_hash(loaded[0]), manifest.authored_content_hash)
+
+
+func test_stress_100_fixture_loads_valid_and_grounded() -> void:
+	var catalog: AssetCatalog = AssetCatalog.load_from()[0]
+	var loaded := WorldCodec.read_generation("res://fixtures/stress_100", catalog)
+	assert_empty_string(loaded[1])
+	var doc: WorldDocument = loaded[0]
+	assert_eq(doc.objects.size(), 100)
+	assert_eq(WorldValidator.validate(doc, catalog).size(), 0)
+	assert_eq(WorldValidator.grounding_report(doc, catalog).size(), 0)

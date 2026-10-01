@@ -66,7 +66,7 @@ class HashTests(unittest.TestCase):
 		self.assertEqual(json.loads((FIXTURES / "gentle_hills" / "manifest.json").read_text())["catalog"]["sha256"], expected)
 
 	def test_fixture_authored_hashes_match_manifests(self) -> None:
-		for name in ("flat", "gentle_hills"):
+		for name in ("flat", "gentle_hills", "stress_100"):
 			gen, errors = wf.validate_generation(FIXTURES / name)
 			self.assertEqual(errors, [], name)
 			m = json.loads((FIXTURES / name / "manifest.json").read_text())

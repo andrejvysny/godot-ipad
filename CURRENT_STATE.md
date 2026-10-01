@@ -1,6 +1,25 @@
 # Current State
 
-Updated: 2026-10-01. Scope: Core PoC WP00–WP06. Broad editor work remains gated on physical G1.
+Updated: 2026-10-01. Scope: Core PoC WP00–WP06. The user confirmed the iPad test environment and
+directed building the full editor; formal G1 evidence is still INCOMPLETE.
+
+## Editor (2026-10-01)
+
+`editor_main.tscn` is now the main scene (Input Lab via `--input-lab`). Implemented: TerrainView
+(Terrain3D or Simulator preview), ObjectPresenter, ToolController with Select/Place/Paint/Sculpt/Path,
+move and yaw/scale/height edits, grounding toggle, delete, sculpt-induced FOLLOW_TERRAIN moves in the
+same transaction, EditorSession (recovery, commit, undo/redo, checkpoints, open fixture with
+confirmation, verified export, deactivation save, fault injection), Pencil-operated EditorUI with
+diagnostics overlay and debug views, Mac consumer with `--verify-only`, stress_100 fixture, iOS
+Files/iTunes sharing, and the `--editor-selftest` scripted run.
+
+- Host: **397 Godot tests, 110 Python tests, zero failures**.
+- Scripted self-test (synthetic input, not Pencil evidence): **PASS 31/31** on the physical iPad
+  Air 4 (Mobile/Vulkan, Debug) and on the Mac (Metal). Evidence:
+  [editor-selftest-2026-10-01.md](docs/evidence/editor-selftest-2026-10-01.md).
+- iPad Debug self-test frame p95 46.6 ms: below target; Release measurement pending.
+- Pending: user Pencil test of the editor, formal G1, device checklist editor section, final report.
+  PoC+ not started (needs authorization).
 
 ## Working device baseline
 

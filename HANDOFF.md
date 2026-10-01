@@ -79,3 +79,14 @@ devices before use. Its GLES preview and synthetic gestures cannot close physica
    export flow, stress fixture, and final acceptance report.
 
 Unresolved questions: none for handoff. G1 remains INCOMPLETE; no full PoC acceptance is claimed.
+
+## Editor build — 2026-10-01
+
+The full Core PoC editor is implemented and committed (see `CURRENT_STATE.md`, `TODO.md` "Editor
+build", `docs/architecture.md` "Editor modules"). Device build/install: `dev.py export-ios
+--project-only`, `xcodebuild -project build/ios/WorldPainter.xcodeproj -scheme WorldPainter
+-configuration Debug -sdk iphoneos -destination generic/platform=iOS -derivedDataPath
+build/ios/deriveddata-live CODE_SIGN_STYLE=Automatic -allowProvisioningUpdates build`, then
+`xcrun devicectl device install app` / `process launch`. Self-test on device: launch arguments
+`-- -- --editor-selftest --selftest-quit --storage-root=user://selftest_worlds`. Next: user Pencil
+test (spec §21.1), Release performance, final report.

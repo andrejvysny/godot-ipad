@@ -2,7 +2,37 @@
 
 Updated: 2026-10-01. Scope: Core PoC WP00–WP06 only (WP07/PoC+ not authorized). Physical iPad Air 4 / Pencil testing confirms the Mobile/Vulkan baseline; full G1 remains INCOMPLETE.
 
-## Now
+## Editor build (started 2026-10-01)
+
+User reported the iPad test environment works and directed building the full editor. Phases 3–5
+are unblocked by that direction; formal G1 evidence is still INCOMPLETE and device gates stay NOT RUN.
+Scope = Core PoC (WP03–WP06). PoC+ (smooth/flatten/forest/clearing) not started.
+
+Gap vs spec: input, camera, document, storage, history, terrain adapter/picker, brush kernels and
+strokes exist and are tested. Missing: ObjectPresenter, tools (select/place/move/transform/delete,
+paint/sculpt/path wiring, TE-11 induced moves, brush ring), EditorSession, EditorUI (rail, asset
+strip, status row, tool panels, confirm dialog, diagnostics overlay, debug views), editor_main as
+main scene, Mac consumer + verify-only + integration example, export UI, iOS file sharing,
+stress_100 fixture, fault-injection hooks, final report.
+
+- [x] A: `TerrainView` base; TerrainAdapter + SimulatorTerrainPreview implement it. Fixed preview
+  geometry drawn at 2× world scale (sample units, not metres): misaligned with canonical picking.
+- [x] B: ObjectPresenter (nodes, OBB pick, ghost, selection, anchors, IDs) + tests
+- [x] F: stress_100 fixture (100 proxies) + parity tests
+- [x] C: ToolController + brush/place/select/move/object-edit operations + brush ring + tests
+- [x] E: Mac consumer scene, `--verify-only`, WorldLoader, integration example, dev.py test
+- [x] D: EditorSession + EditorUI + editor_main.tscn as main scene (Input Lab via `--input-lab`)
+- [x] G: iOS preset file sharing (Files app / iTunes) for transfer
+- [x] H: in-app scripted self-test (`--editor-selftest`): Mac PASS, physical iPad PASS (synthetic input,
+  Vulkan); Simulator boots and renders, run stopped early by user. See `docs/evidence/editor-selftest-2026-10-01.md`
+- [ ] I: docs: architecture (done), state files (done); device checklist editor section, final-poc-report pending
+- [ ] J: user Pencil test of the editor on the iPad (demo sequence §21.1, palm, interruption); formal G1
+- [ ] K: Release-build performance at 100%/50% scale (Debug self-test p95 46.6 ms)
+
+Host validation: 397 Godot tests, 110 Python tests, zero failures (2026-10-01).
+Open questions: PoC+ (smooth/flatten/forest) authorization.
+
+## Previous (Input Lab / device audit)
 
 - [x] iPad failure audit: startup, rendering, native input, storage, and test coverage inspected. Device Metal logs reproduce repeated fence timeouts; Mobile/Vulkan renders and accepts orbit/paint (user confirmed).
 - [x] Apply focused fixes: iOS Mobile/Vulkan, wall-clock stall diagnostics, 4 Hz labels, opt-in/lazy runtime capture, explicit Pencil/finger roles. Preserve input ownership and per-frame terrain batching.

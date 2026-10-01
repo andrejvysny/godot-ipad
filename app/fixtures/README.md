@@ -7,7 +7,7 @@ fixture creates a new working-document copy; these files are never edited in pla
 Verify the committed bytes: `python3 scripts/generate_fixtures.py --check` (regenerates into a temp
 directory and byte-compares; exit 1 on mismatch). Validate: `python3 scripts/validate_world.py app/fixtures/<name>`.
 
-Common to both: `document_revision` 0, no objects, every control word `0x00400000`
+Common to all: `document_revision` 0, every control word `0x00400000`
 (base 0 = grass, overlay 1 = dirt, blend 0), catalog `poc_nature` v1 with the catalog hash of the
 bundled catalog at generation time. Changing `app/assets/catalog.json` or a referenced model scene
 changes the catalog hash, so the fixtures must then be regenerated and `config/toolchain.lock.json`
@@ -17,17 +17,20 @@ updated.
 |---|---|---|
 | `flat` | `0f1a7000-0000-4000-8000-000000000001` | `d5072791614659d3ea2f0f9f66b959b2556b95937afc9bb57b84e622b6b05bb3` |
 | `gentle_hills` | `0e111150-0000-4000-8000-000000000002` | `6a34a9fbd86e99f6387386f699f101e898a599938e054ef5e267f4033064823f` |
+| `stress_100` | `57e55100-0000-4000-8000-000000000003` | `42e55c7b29ebe7832096a8c9a750785acf5a805a9a140290ac6d4661e0f0a5c9` |
 
-The GDScript `CanonicalEncoder.authored_hash` of both fixtures was checked equal to these values
+The GDScript `CanonicalEncoder.authored_hash` of flat and gentle_hills was checked equal to these values
 (throwaway Godot 4.7.2 probe loading the region bytes into a `WorldDocument`).
 
 ## flat
+
+No objects.
 
 All heights 0.0 m.
 
 ## gentle_hills
 
-Height at world `(x, z) = (g * 0.5)` is computed in float64, then packed as float32:
+No objects. Height at world `(x, z) = (g * 0.5)` is computed in float64, then packed as float32:
 
 - Sum of Gaussian bumps `amp * exp(-((x-cx)^2 + (z-cz)^2) / (2 * sigma^2))` with
   `(cx, cz, amp, sigma)` = `(-60,-50,11.5,28)`, `(55,-40,9,22)`, `(-45,60,8,25)`, `(40,55,7,30)`,
@@ -58,3 +61,16 @@ seam, per half (all non-zero, so every quadrant varies at the seams):
 Determinism: the generator uses only `math.exp`/`math.hypot` in float64 and a float32 pack, and
 `--check` confirms byte equality on this Mac (Python 3.14, macOS 26.6.2 arm64). A different libm
 could round `exp` differently; the committed bytes, not the formula, are the reference.
+
+## stress_100
+
+Terrain bytes identical to `gentle_hills`, plus 100 manually placed proxy objects (spec §19 WP06).
+Grid index `i = row * 10 + col` (0..99): `x = -90 + 20 * col`, `z = -90 + 20 * row` m.
+
+- Asset by `i % 10`: 0 lodge, 1-4 boulder, 5-9 spruce (10 / 40 / 50).
+- `object_id` = `57e55100-0000-4000-8000-<i+1 as 12 hex digits>`.
+- Yaw `radians((i * 37) % 360)` about +Y; scale lodge 1.0, boulder `0.5 + 0.25 * (i % 4)`,
+  spruce `0.75 + 0.25 * (i % 3)`.
+- Grounding = asset default (lodge WORLD_FIXED, others FOLLOW_TERRAIN), `height_offset_m` 0, origin MANUAL.
+- `position.y` = canonical bilinear `sample_height(x, z)` of the stored float32 terrain, so FOLLOW_TERRAIN
+  consistency holds exactly; lodges use the same y.

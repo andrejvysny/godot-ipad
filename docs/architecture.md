@@ -16,7 +16,7 @@ flowchart TB
     TC --> ES
     ES --> H["CommandHistory"]
     ES --> ST["WorldStorage (worker thread)"]
-    DOC --> TA["TerrainAdapter → Terrain3D"]
+    DOC --> TA["TerrainView: TerrainAdapter → Terrain3D | SimulatorTerrainPreview"]
     DOC --> OP["ObjectPresenter (nodes, picking, ghost)"]
     TC --> TP["TerrainPicker (canonical heights)"]
     ST --> PKG[".worldpoc"] --> MC["mac_consumer.tscn"]
@@ -38,44 +38,23 @@ flowchart TB
 
 Scene tree, UI and Terrain3D are touched only on the main thread (spec §18.2).
 
-## Module contracts (batch 2)
+## Editor modules (implemented)
 
-### ObjectPresenter (`app/src/objects/object_presenter.gd`, Node3D)
+| Module | File | Role |
+|---|---|---|
+| `EditorSession` | `app/src/app/editor_session.gd` (+ `session_world_ops.gd`) | Composition root of `editor_main.tscn`: boot/recovery, commit, undo/redo, checkpoints, open fixture, verified export, deactivation save, stall cancel, status, fault injection |
+| `TerrainView` | `app/src/terrain/terrain_view.gd` | Projection interface: `TerrainAdapter` (Terrain3D) or `SimulatorTerrainPreview` (GLES mesh, Simulator only) |
+| `ObjectPresenter` | `app/src/objects/object_presenter.gd` | Nodes from records, oriented-bounds picking, ghost, selection, anchor/ID markers |
+| `ToolController` | `app/src/tools/tool_controller.gd` | Active tool, settings, selection, object edits; one operation per contact |
+| Operations | `brush_operation.gd`, `place_operation.gd`, `select_operation.gd`, `object_edits.gd`, `brush_ring.gd` | Paint/sculpt/path strokes (sculpt re-grounds FOLLOW_TERRAIN objects in the same transaction), placement ghost, tap-select and move, transform edits |
+| `EditorUI` | `app/src/ui/` | Status row, tool rail, tool panel, asset strip, open/confirm dialog, diagnostics overlay |
+| `MacConsumer` / `WorldLoader` | `app/src/consumer/` | Read-only consumer scene and `--verify-only` report |
+| Self-test | `app/src/app/editor_selftest.gd`, `scripted_input_provider.gd` | `--editor-selftest`: synthetic §21.1 sequence, report + screenshots (never device evidence) |
 
-- `setup(catalog: AssetCatalog)`; `rebuild(doc: WorldDocument)`; `sync_object(doc, id)` (add,
-  update or remove to match the document); `node_for(id) -> Node3D`.
-- `pick(origin: Vector3, dir: Vector3) -> Dictionary {id: String ("" if none), distance: float}` —
-  ray vs each object's oriented catalog bounds; the ghost and overlays are never pickable.
-- `show_ghost(asset_id: String, record: ObjectRecord, valid: bool)`, `hide_ghost()`.
-- `set_selected(id: String)` (outline box + anchor marker), `selected_id()`.
-- Debug: `set_show_anchors(on)`, `set_show_ids(on)`.
-- Node transform always comes from `ObjectRecord.node_transform(asset.anchor_local)`.
-
-### ToolController (`app/src/tools/tool_controller.gd`, Node)
-
-- `setup(ctx: ToolContext)` where `ToolContext` bundles: `doc_provider: Callable -> WorldDocument`,
-  `catalog`, `picker: TerrainPicker`, `camera: Camera3D`, `adapter: TerrainAdapter`,
-  `presenter: ObjectPresenter`, `commit: Callable(WorldChange)`, `now: Callable -> float`
-  (provider clock), `defaults: Dictionary` (poc_defaults), `diagnostic: Callable(String)`.
-- `set_active_tool(id)` — `select | place | paint | sculpt | path`; refused while an operation is
-  active.
-- `handle_tool_action(action: Dictionary)` — router vocabulary (`tool_begin/move/pause/resume/end/cancel`).
-- `advance(now: float)` — once per frame.
-- `has_active_operation() -> bool`, `cancel_active(reason: String)`.
-- Settings: `settings(tool_id) -> Dictionary`, `set_setting(tool_id, key, value)`.
-- Selection edits (UI): `begin_object_edit(kind)` / `update_object_edit(value)` /
-  `end_object_edit()` / `cancel_object_edit()` for slider drags (one drag = one action), and
-  one-shot `nudge_yaw(deg)`, `nudge_scale(delta)`, `nudge_height(delta)`, `set_grounding(mode)`,
-  `delete_selected()`.
-- Signals: `operation_started(tool_id)`, `operation_finished(change_or_null)`,
-  `operation_cancelled(reason)`, `selection_changed(id)`, `tool_changed(id)`, `settings_changed(tool_id)`.
-
-### EditorSession (`app/src/app/editor_session.gd`, Node)
-
-Owns catalog, document, history, storage, adapter, presenter, camera rig, input system, tool
-controller. `start()` recovers the latest valid world or opens Gentle Hills as a new working copy.
-`commit(change)` bumps the revision, pushes history, requests a checkpoint and presents the change.
-`undo()`/`redo()` are refused while an operation owns the viewport. `open_fixture(name)` validates
-into a temporary document first, attempts a checkpoint of the current world, then replaces it.
-`export_world()` makes sure the current revision is durable, then exports and validates the package.
-`status() -> Dictionary` feeds the status row and diagnostics overlay.
+Contracts in code: `ToolContext` carries document, catalog, camera, terrain view, presenter, defaults,
+`commit` (session bumps revision, pushes history, requests a checkpoint), `request_cancel` (routes to
+`InputSystem.cancel_all`, which synchronously delivers `tool_cancel`), `diagnostic`, `units_per_point`.
+Operations mutate the document only inside an `EditTransaction`; the placement ghost is presentation
+only, so a placement inserts its record at release. One slider drag is one action; a cancelled drag
+restores the exact starting record. Undo/redo, save, export and open are refused while an operation
+owns the viewport. The Input Lab stays available through `--input-lab` (`dev.py run-mac --input-lab`).

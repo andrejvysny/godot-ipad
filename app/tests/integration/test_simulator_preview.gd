@@ -16,9 +16,13 @@ func test_preview_preserves_authored_bytes_and_rebuilds_dirty_mesh() -> void:
 	var reaches_boundary := false
 	for vertex in vertices:
 		assert_true(vertex.is_finite())
-		reaches_boundary = reaches_boundary or vertex.x == 256.0
-	assert_true(reaches_boundary, "preview reaches adjacent region without a four-meter gap")
-	preview.mark_dirty(Vector2i.ZERO)
+		reaches_boundary = reaches_boundary or vertex.x == 128.0
+	assert_true(reaches_boundary, "preview reaches adjacent region without a two-meter gap")
+	# Vertices are in world metres, so the preview lines up with canonical picking.
+	var probe: Vector3 = vertices[vertices.size() / 2]
+	assert_near(probe.y, document.sample_height(probe.x, probe.z), 1e-4, "preview vertex at world position")
+	assert_eq(preview.mark_dirty(TerrainView.MAP_CONTROL, Vector2i.ZERO), "")
+	assert_error_contains(preview.mark_dirty(TerrainView.MAP_HEIGHT, Vector2i(5, 5)), "not loaded")
 	preview.flush()
 	assert_ne(instance.mesh, mesh)
 	assert_eq(CanonicalEncoder.authored_hash(document), before)
