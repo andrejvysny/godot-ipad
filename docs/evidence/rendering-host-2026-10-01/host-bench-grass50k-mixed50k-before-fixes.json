@@ -1,0 +1,5646 @@
+{
+	"abort_reason": null,
+	"bench_profiles": [
+		"performance"
+	],
+	"cameras": [
+		"overview",
+		"ground"
+	],
+	"correctness": {
+		"authored_hash_after": "133d5013176873deba05b98c45109fed36e6c3ddbe370627043a6e9e77034934",
+		"authored_hash_before": "133d5013176873deba05b98c45109fed36e6c3ddbe370627043a6e9e77034934",
+		"history_size_after": 0,
+		"history_size_before": 0,
+		"restored": true,
+		"revision_after": 0,
+		"revision_before": 0
+	},
+	"counts": [
+		0,
+		1000,
+		5000
+	],
+	"driver": "metal",
+	"duration_s": 104.072201013565,
+	"evidence": {
+		"acceptance": "NOT_ACCEPTANCE_RUN",
+		"build": "debug",
+		"device_model": "Mac16,8",
+		"is_target_device": false,
+		"platform_class": "HOST"
+	},
+	"evidence_class": "HOST",
+	"fingerprints": {
+		"catalog_sha256": "3ec750f696154df2ad4cd97d5afb9991a288a07ccd19bb29204c4ad25606cab3",
+		"config_sha256": "3e36b4274f8bc57ce4c3b8d943cff752f0a18fb7e09f20b14f39e7845c1347e1",
+		"godot": "4.7.2.stable.official.ed1daf0bf",
+		"rendering_profiles_sha256": "578884f98aacbea3e04fc1f8a94c8daa0bdd823c82ccf4ef3f7b0ab5f0bd2732",
+		"source_sha256": "88017c3930386174aa69a3e2000917f7f74986e4d5d4b1a58a76fff862eb89ba"
+	},
+	"idle_pacing": "never_enabled",
+	"kinds": [],
+	"measure_frames": 300,
+	"measure_seconds": 3.0,
+	"not_run": {
+		"asset_diversity": "needs 8-32 prepared resource/material families; only 6 bench assets are prepared"
+	},
+	"os": "macOS 26.6.2",
+	"populations": {
+		"grass_50k": {
+			"authored_meaningful": 0,
+			"build_ms": 503.535,
+			"by_asset": {},
+			"decorative": 50000,
+			"layout": "km1",
+			"patches": 60,
+			"present_ms": 233.537,
+			"world": "km1"
+		},
+		"mixed_world_50k": {
+			"authored_meaningful": 50000,
+			"build_ms": 1159.203,
+			"by_asset": {
+				"bench.rock.slab_a": 5000,
+				"bench.shrub.bush_cards": 9000,
+				"bench.structure.tower_a": 1000,
+				"bench.tree.broadleaf_geo": 17500,
+				"bench.tree.pine_cards": 17500
+			},
+			"decorative": 50000,
+			"layout": "km1",
+			"patches": 40,
+			"present_ms": 678.887,
+			"world": "km1"
+		}
+	},
+	"preview_stopped_for_bench": false,
+	"profiles": [
+		"scale_100",
+		"scale_075",
+		"scale_065",
+		"scale_050",
+		"legacy_shadows_diagnostic"
+	],
+	"renderer": "mobile",
+	"scenarios": [
+		"grass_50k",
+		"mixed_world_50k"
+	],
+	"seed": 1234,
+	"started_unix": 1790865928.52755,
+	"status": "COMPLETED",
+	"steps": [
+		{
+			"cache": {
+				"by_kind": {
+					"material": 0,
+					"mesh": 0,
+					"preview_texture": 0,
+					"texture": 0
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 0,
+				"errors": 0,
+				"evictions": 0,
+				"fallback_bytes": 0,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 0,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 0,
+				"soft_bytes": 402653184
+			},
+			"cache_start": {
+				"by_kind": {
+					"material": 0,
+					"mesh": 0,
+					"preview_texture": 0,
+					"texture": 0
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 0,
+				"errors": 0,
+				"evictions": 0,
+				"fallback_bytes": 0,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 0,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 0,
+				"soft_bytes": 402653184
+			},
+			"camera": "overview",
+			"camera_poses": {
+				"duration_s": 3.0,
+				"path": "overview",
+				"samples": [
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 0.0,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 0.6,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 1.2,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 1.8,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 2.4,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 3.0,
+						"yaw_deg": 30.0
+					}
+				]
+			},
+			"counters_last": {
+				"buffer_mem_mib": 6.89302825927734,
+				"cpu_ms": 0.642000019550323,
+				"cpu_status": "AVAILABLE",
+				"gpu_ms": 0.0,
+				"gpu_status": "AVAILABLE",
+				"pipelines": {
+					"canvas": 2,
+					"draw": 2,
+					"mesh": 0,
+					"specialization": 3,
+					"surface": 5
+				},
+				"scale_3d": 0.649999976158142,
+				"shadow_draws": 0,
+				"shadow_objects": 0,
+				"shadow_prims": 0,
+				"static_mem_mib": 191.796151161194,
+				"texture_mem_mib": 57.6671142578125,
+				"video_mem_mib": 124.734375,
+				"viewport_size": [
+					1180,
+					820
+				],
+				"visible_draws": 115,
+				"visible_objects": 115,
+				"visible_prims": 355424
+			},
+			"counters_peak": {
+				"cpu_ms": 1.13900005817413,
+				"gpu_ms": 0.0,
+				"shadow_draws": 0.0,
+				"shadow_prims": 0.0,
+				"visible_draws": 115.0,
+				"visible_objects": 115.0,
+				"visible_prims": 355424.0
+			},
+			"diagnostic": false,
+			"first_frame_ms": 23,
+			"id": "grass_50k-performance-overview",
+			"nodes": 0,
+			"overview_stats": {
+				"active": {
+					"256": 16
+				},
+				"built": 80,
+				"built_triangles": 0,
+				"cells_covered": 1024,
+				"groups": 80,
+				"jobs": 0,
+				"last_mesh_ms": 0.015,
+				"last_worker_ms": 0.0,
+				"max_mesh_ms": 0.021,
+				"max_worker_ms": 0.0,
+				"mesh_builds": 80,
+				"pending_builds": 0,
+				"proxy_triangles": 0
+			},
+			"population": {
+				"authored_meaningful": 0,
+				"by_asset": {},
+				"decorative": 50000,
+				"layout": "km1",
+				"patches": 60,
+				"presented": 0,
+				"represented": 0,
+				"world": "km1"
+			},
+			"prepare_ms": 0.081,
+			"profile": "performance",
+			"render_stats": {
+				"batch_builds": 0,
+				"batches": 0,
+				"cell_roles": {},
+				"cells": 0,
+				"covered_cells": 1024,
+				"estimated_triangles": 0,
+				"full_uploads": 0,
+				"instances": 0,
+				"lod_evaluations": 0,
+				"nodes": 0,
+				"partial_uploads": 0,
+				"pending_builds": 0,
+				"placeholders": 0,
+				"pooled_nodes": 0,
+				"preview_nodes": 0,
+				"promoted": 0,
+				"visible_instances": 0,
+				"visible_triangles": 0,
+				"world_epoch": 1
+			},
+			"repeat": false,
+			"scenario": "grass_50k",
+			"screenshot": "/Users/andrejvysny/Library/Application Support/Godot/app_userdata/World Painter PoC/traces/bench-shots/grass_50k-performance-overview.png",
+			"settle_ms": 38,
+			"settled": true,
+			"summary": {
+				"cpu_p50_ms": 0.4,
+				"cpu_p95_ms": 0.7,
+				"cpu_p99_ms": 0.8,
+				"cpu_samples": 180,
+				"cpu_status": "AVAILABLE",
+				"frame_interval_source": "wall_clock_proxy",
+				"frame_max_ms": 18.739,
+				"frame_p50_ms": 16.8,
+				"frame_p95_ms": 17.3,
+				"frame_p99_ms": 17.6,
+				"frames": 180,
+				"gpu_p50_ms": 0.1,
+				"gpu_p95_ms": 0.1,
+				"gpu_p99_ms": 0.1,
+				"gpu_samples": 180,
+				"gpu_status": "AVAILABLE",
+				"histogram_resolution_ms": 0.1,
+				"hitches_over_50_ms": 0,
+				"missed_target": 0,
+				"over_100_ms": 0,
+				"over_16_7": 93,
+				"over_250_ms": 0,
+				"over_33_4": 0,
+				"target_ms": 16.6666666666667
+			},
+			"target_budget_ms": 16.6666666666667,
+			"target_fps": 60.0,
+			"telemetry": {
+				"end": {
+					"footprint_mib": 682.095146179199,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				},
+				"start": {
+					"footprint_mib": 494.157600402832,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				}
+			},
+			"terrain_mesh": {
+				"lods": 7,
+				"mesh_size": 48
+			},
+			"workload": "camera_path"
+		},
+		{
+			"cache": {
+				"by_kind": {
+					"material": 1,
+					"mesh": 4960,
+					"preview_texture": 0,
+					"texture": 21845
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 4,
+				"errors": 0,
+				"evictions": 0,
+				"fallback_bytes": 992,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 4,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 26806,
+				"soft_bytes": 402653184
+			},
+			"cache_start": {
+				"by_kind": {
+					"material": 0,
+					"mesh": 0,
+					"preview_texture": 0,
+					"texture": 0
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 0,
+				"errors": 0,
+				"evictions": 0,
+				"fallback_bytes": 0,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 0,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 0,
+				"soft_bytes": 402653184
+			},
+			"camera": "focus",
+			"camera_poses": {
+				"duration_s": 3.0,
+				"path": "focus",
+				"samples": [
+					{
+						"distance_m": 40.0,
+						"pitch_deg": 35.0,
+						"pivot": [
+							-334.61,
+							14.93,
+							411.86
+						],
+						"t_s": 0.0,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 40.0,
+						"pitch_deg": 35.0,
+						"pivot": [
+							-334.61,
+							14.93,
+							411.86
+						],
+						"t_s": 0.6,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 40.0,
+						"pitch_deg": 35.0,
+						"pivot": [
+							-334.61,
+							14.93,
+							411.86
+						],
+						"t_s": 1.2,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 40.0,
+						"pitch_deg": 35.0,
+						"pivot": [
+							-334.61,
+							14.93,
+							411.86
+						],
+						"t_s": 1.8,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 40.0,
+						"pitch_deg": 35.0,
+						"pivot": [
+							-334.61,
+							14.93,
+							411.86
+						],
+						"t_s": 2.4,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 40.0,
+						"pitch_deg": 35.0,
+						"pivot": [
+							-334.61,
+							14.93,
+							411.86
+						],
+						"t_s": 3.0,
+						"yaw_deg": 30.0
+					}
+				]
+			},
+			"counters_last": {
+				"buffer_mem_mib": 6.90010070800781,
+				"cpu_ms": 0.41100001335144,
+				"cpu_status": "AVAILABLE",
+				"gpu_ms": 0.0,
+				"gpu_status": "AVAILABLE",
+				"pipelines": {
+					"canvas": 2,
+					"draw": 2,
+					"mesh": 2,
+					"specialization": 5,
+					"surface": 7
+				},
+				"scale_3d": 0.649999976158142,
+				"shadow_draws": 0,
+				"shadow_objects": 0,
+				"shadow_prims": 0,
+				"static_mem_mib": 192.54757976532,
+				"texture_mem_mib": 57.6983642578125,
+				"video_mem_mib": 124.765625,
+				"viewport_size": [
+					1180,
+					820
+				],
+				"visible_draws": 45,
+				"visible_objects": 45,
+				"visible_prims": 126896
+			},
+			"counters_peak": {
+				"cpu_ms": 0.837000012397766,
+				"gpu_ms": 0.0,
+				"shadow_draws": 0.0,
+				"shadow_prims": 0.0,
+				"visible_draws": 45.0,
+				"visible_objects": 45.0,
+				"visible_prims": 126896.0
+			},
+			"diagnostic": false,
+			"first_frame_ms": 1,
+			"id": "grass_50k-performance-focus",
+			"nodes": 0,
+			"overview_stats": {
+				"active": {
+					"128": 14,
+					"256": 11
+				},
+				"built": 80,
+				"built_triangles": 0,
+				"cells_covered": 928,
+				"groups": 80,
+				"jobs": 0,
+				"last_mesh_ms": 0.015,
+				"last_worker_ms": 0.0,
+				"max_mesh_ms": 0.021,
+				"max_worker_ms": 0.0,
+				"mesh_builds": 80,
+				"pending_builds": 0,
+				"proxy_triangles": 0
+			},
+			"population": {
+				"authored_meaningful": 0,
+				"by_asset": {},
+				"decorative": 50000,
+				"layout": "km1",
+				"patches": 60,
+				"presented": 0,
+				"represented": 0,
+				"world": "km1"
+			},
+			"prepare_ms": 0.098,
+			"profile": "performance",
+			"render_stats": {
+				"batch_builds": 0,
+				"batches": 0,
+				"cell_roles": {},
+				"cells": 0,
+				"covered_cells": 928,
+				"estimated_triangles": 0,
+				"full_uploads": 0,
+				"instances": 0,
+				"lod_evaluations": 0,
+				"nodes": 0,
+				"partial_uploads": 0,
+				"pending_builds": 0,
+				"placeholders": 0,
+				"pooled_nodes": 0,
+				"preview_nodes": 0,
+				"promoted": 0,
+				"visible_instances": 0,
+				"visible_triangles": 0,
+				"world_epoch": 1
+			},
+			"repeat": false,
+			"scenario": "grass_50k",
+			"screenshot": "/Users/andrejvysny/Library/Application Support/Godot/app_userdata/World Painter PoC/traces/bench-shots/grass_50k-performance-focus.png",
+			"settle_ms": 1,
+			"settled": true,
+			"summary": {
+				"cpu_p50_ms": 0.4,
+				"cpu_p95_ms": 0.6,
+				"cpu_p99_ms": 0.9,
+				"cpu_samples": 180,
+				"cpu_status": "AVAILABLE",
+				"frame_interval_source": "wall_clock_proxy",
+				"frame_max_ms": 18.825,
+				"frame_p50_ms": 16.7,
+				"frame_p95_ms": 17.5,
+				"frame_p99_ms": 17.7,
+				"frames": 180,
+				"gpu_p50_ms": 0.1,
+				"gpu_p95_ms": 0.1,
+				"gpu_p99_ms": 0.1,
+				"gpu_samples": 180,
+				"gpu_status": "AVAILABLE",
+				"histogram_resolution_ms": 0.1,
+				"hitches_over_50_ms": 0,
+				"missed_target": 0,
+				"over_100_ms": 0,
+				"over_16_7": 83,
+				"over_250_ms": 0,
+				"over_33_4": 0,
+				"target_ms": 16.6666666666667
+			},
+			"target_budget_ms": 16.6666666666667,
+			"target_fps": 60.0,
+			"telemetry": {
+				"end": {
+					"footprint_mib": 692.095169067383,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				},
+				"start": {
+					"footprint_mib": 682.095146179199,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				}
+			},
+			"terrain_mesh": {
+				"lods": 7,
+				"mesh_size": 48
+			},
+			"workload": "camera_path"
+		},
+		{
+			"cache": {
+				"by_kind": {
+					"material": 1,
+					"mesh": 4960,
+					"preview_texture": 0,
+					"texture": 21845
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 4,
+				"errors": 0,
+				"evictions": 0,
+				"fallback_bytes": 992,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 4,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 26806,
+				"soft_bytes": 402653184
+			},
+			"cache_start": {
+				"by_kind": {
+					"material": 1,
+					"mesh": 4960,
+					"preview_texture": 0,
+					"texture": 21845
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 4,
+				"errors": 0,
+				"evictions": 0,
+				"fallback_bytes": 992,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 4,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 26806,
+				"soft_bytes": 402653184
+			},
+			"camera": "path",
+			"camera_poses": {
+				"duration_s": 3.0,
+				"path": "path",
+				"samples": [
+					{
+						"distance_m": 12.0,
+						"pitch_deg": 20.0,
+						"pivot": [
+							-334.61,
+							14.93,
+							411.86
+						],
+						"t_s": 0.0,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 327.91,
+						"pitch_deg": 32.1,
+						"pivot": [
+							-277.55,
+							13.14,
+							411.86
+						],
+						"t_s": 0.6,
+						"yaw_deg": 102.0
+					},
+					{
+						"distance_m": 132.67,
+						"pitch_deg": 51.7,
+						"pivot": [
+							-299.35,
+							15.88,
+							411.86
+						],
+						"t_s": 1.2,
+						"yaw_deg": 174.0
+					},
+					{
+						"distance_m": 132.67,
+						"pitch_deg": 51.7,
+						"pivot": [
+							-369.88,
+							10.28,
+							411.86
+						],
+						"t_s": 1.8,
+						"yaw_deg": 246.0
+					},
+					{
+						"distance_m": 327.91,
+						"pitch_deg": 32.1,
+						"pivot": [
+							-391.68,
+							4.53,
+							411.86
+						],
+						"t_s": 2.4,
+						"yaw_deg": 318.0
+					},
+					{
+						"distance_m": 12.0,
+						"pitch_deg": 20.0,
+						"pivot": [
+							-334.61,
+							14.93,
+							411.86
+						],
+						"t_s": 3.0,
+						"yaw_deg": 390.0
+					}
+				]
+			},
+			"counters_last": {
+				"buffer_mem_mib": 6.90138244628906,
+				"cpu_ms": 0.375999987125397,
+				"cpu_status": "AVAILABLE",
+				"gpu_ms": 0.0,
+				"gpu_status": "AVAILABLE",
+				"pipelines": {
+					"canvas": 2,
+					"draw": 2,
+					"mesh": 2,
+					"specialization": 5,
+					"surface": 7
+				},
+				"scale_3d": 0.649999976158142,
+				"shadow_draws": 0,
+				"shadow_objects": 0,
+				"shadow_prims": 0,
+				"static_mem_mib": 192.72824382782,
+				"texture_mem_mib": 57.6983642578125,
+				"video_mem_mib": 124.765625,
+				"viewport_size": [
+					1180,
+					820
+				],
+				"visible_draws": 63,
+				"visible_objects": 63,
+				"visible_prims": 163552
+			},
+			"counters_peak": {
+				"cpu_ms": 0.814000010490417,
+				"gpu_ms": 0.0,
+				"shadow_draws": 0.0,
+				"shadow_prims": 0.0,
+				"visible_draws": 71.0,
+				"visible_objects": 71.0,
+				"visible_prims": 184096.0
+			},
+			"diagnostic": false,
+			"first_frame_ms": 0,
+			"id": "grass_50k-performance-path",
+			"nodes": 0,
+			"overview_stats": {
+				"active": {
+					"128": 14,
+					"256": 11
+				},
+				"built": 80,
+				"built_triangles": 0,
+				"cells_covered": 928,
+				"groups": 80,
+				"jobs": 0,
+				"last_mesh_ms": 0.015,
+				"last_worker_ms": 0.0,
+				"max_mesh_ms": 0.021,
+				"max_worker_ms": 0.0,
+				"mesh_builds": 80,
+				"pending_builds": 0,
+				"proxy_triangles": 0
+			},
+			"population": {
+				"authored_meaningful": 0,
+				"by_asset": {},
+				"decorative": 50000,
+				"layout": "km1",
+				"patches": 60,
+				"presented": 0,
+				"represented": 0,
+				"world": "km1"
+			},
+			"prepare_ms": 0.098,
+			"profile": "performance",
+			"render_stats": {
+				"batch_builds": 0,
+				"batches": 0,
+				"cell_roles": {},
+				"cells": 0,
+				"covered_cells": 928,
+				"estimated_triangles": 0,
+				"full_uploads": 0,
+				"instances": 0,
+				"lod_evaluations": 0,
+				"nodes": 0,
+				"partial_uploads": 0,
+				"pending_builds": 0,
+				"placeholders": 0,
+				"pooled_nodes": 0,
+				"preview_nodes": 0,
+				"promoted": 0,
+				"visible_instances": 0,
+				"visible_triangles": 0,
+				"world_epoch": 1
+			},
+			"repeat": false,
+			"scenario": "grass_50k",
+			"screenshot": "/Users/andrejvysny/Library/Application Support/Godot/app_userdata/World Painter PoC/traces/bench-shots/grass_50k-performance-path.png",
+			"settle_ms": 0,
+			"settled": true,
+			"summary": {
+				"cpu_p50_ms": 0.3,
+				"cpu_p95_ms": 0.6,
+				"cpu_p99_ms": 0.7,
+				"cpu_samples": 180,
+				"cpu_status": "AVAILABLE",
+				"frame_interval_source": "wall_clock_proxy",
+				"frame_max_ms": 18.571,
+				"frame_p50_ms": 16.7,
+				"frame_p95_ms": 17.5,
+				"frame_p99_ms": 18.4,
+				"frames": 180,
+				"gpu_p50_ms": 0.1,
+				"gpu_p95_ms": 0.1,
+				"gpu_p99_ms": 0.1,
+				"gpu_samples": 180,
+				"gpu_status": "AVAILABLE",
+				"histogram_resolution_ms": 0.1,
+				"hitches_over_50_ms": 0,
+				"missed_target": 0,
+				"over_100_ms": 0,
+				"over_16_7": 83,
+				"over_250_ms": 0,
+				"over_33_4": 0,
+				"target_ms": 16.6666666666667
+			},
+			"target_budget_ms": 16.6666666666667,
+			"target_fps": 60.0,
+			"telemetry": {
+				"end": {
+					"footprint_mib": 694.517044067383,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				},
+				"start": {
+					"footprint_mib": 692.095169067383,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				}
+			},
+			"terrain_mesh": {
+				"lods": 7,
+				"mesh_size": 48
+			},
+			"workload": "camera_path"
+		},
+		{
+			"cache": {
+				"by_kind": {
+					"material": 1,
+					"mesh": 4960,
+					"preview_texture": 0,
+					"texture": 21845
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 4,
+				"errors": 0,
+				"evictions": 0,
+				"fallback_bytes": 992,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 4,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 26806,
+				"soft_bytes": 402653184
+			},
+			"cache_start": {
+				"by_kind": {
+					"material": 1,
+					"mesh": 4960,
+					"preview_texture": 0,
+					"texture": 21845
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 4,
+				"errors": 0,
+				"evictions": 0,
+				"fallback_bytes": 992,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 4,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 26806,
+				"soft_bytes": 402653184
+			},
+			"camera": "travel",
+			"camera_poses": {
+				"duration_s": 3.0,
+				"path": "travel",
+				"samples": [
+					{
+						"distance_m": 40.0,
+						"pitch_deg": 35.0,
+						"pivot": [
+							-334.61,
+							14.93,
+							411.86
+						],
+						"t_s": 0.0,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 40.0,
+						"pitch_deg": 35.0,
+						"pivot": [
+							-334.61,
+							14.93,
+							411.86
+						],
+						"t_s": 0.6,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 40.0,
+						"pitch_deg": 35.0,
+						"pivot": [
+							-334.61,
+							14.93,
+							411.86
+						],
+						"t_s": 1.2,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 40.0,
+						"pitch_deg": 35.0,
+						"pivot": [
+							-334.61,
+							14.93,
+							411.86
+						],
+						"t_s": 1.8,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 40.0,
+						"pitch_deg": 35.0,
+						"pivot": [
+							305.17,
+							8.96,
+							-324.96
+						],
+						"t_s": 2.4,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 40.0,
+						"pitch_deg": 35.0,
+						"pivot": [
+							305.17,
+							8.96,
+							-324.96
+						],
+						"t_s": 3.0,
+						"yaw_deg": 30.0
+					}
+				]
+			},
+			"counters_last": {
+				"buffer_mem_mib": 6.90156555175781,
+				"cpu_ms": 0.501999974250793,
+				"cpu_status": "AVAILABLE",
+				"gpu_ms": 0.0,
+				"gpu_status": "AVAILABLE",
+				"pipelines": {
+					"canvas": 2,
+					"draw": 2,
+					"mesh": 2,
+					"specialization": 5,
+					"surface": 7
+				},
+				"scale_3d": 0.649999976158142,
+				"shadow_draws": 0,
+				"shadow_objects": 0,
+				"shadow_prims": 0,
+				"static_mem_mib": 192.77511882782,
+				"texture_mem_mib": 57.6983642578125,
+				"video_mem_mib": 124.765625,
+				"viewport_size": [
+					1180,
+					820
+				],
+				"visible_draws": 41,
+				"visible_objects": 41,
+				"visible_prims": 126640
+			},
+			"counters_peak": {
+				"cpu_ms": 0.754000008106232,
+				"gpu_ms": 0.0,
+				"shadow_draws": 0.0,
+				"shadow_prims": 0.0,
+				"visible_draws": 50.0,
+				"visible_objects": 50.0,
+				"visible_prims": 127728.0
+			},
+			"diagnostic": false,
+			"first_frame_ms": 0,
+			"id": "grass_50k-performance-travel",
+			"nodes": 0,
+			"overview_stats": {
+				"active": {
+					"128": 26,
+					"256": 7
+				},
+				"built": 80,
+				"built_triangles": 0,
+				"cells_covered": 864,
+				"groups": 80,
+				"jobs": 0,
+				"last_mesh_ms": 0.015,
+				"last_worker_ms": 0.0,
+				"max_mesh_ms": 0.021,
+				"max_worker_ms": 0.0,
+				"mesh_builds": 80,
+				"pending_builds": 0,
+				"proxy_triangles": 0
+			},
+			"population": {
+				"authored_meaningful": 0,
+				"by_asset": {},
+				"decorative": 50000,
+				"layout": "km1",
+				"patches": 60,
+				"presented": 0,
+				"represented": 0,
+				"world": "km1"
+			},
+			"prepare_ms": 0.096,
+			"profile": "performance",
+			"render_stats": {
+				"batch_builds": 0,
+				"batches": 0,
+				"cell_roles": {},
+				"cells": 0,
+				"covered_cells": 864,
+				"estimated_triangles": 0,
+				"full_uploads": 0,
+				"instances": 0,
+				"lod_evaluations": 0,
+				"nodes": 0,
+				"partial_uploads": 0,
+				"pending_builds": 0,
+				"placeholders": 0,
+				"pooled_nodes": 0,
+				"preview_nodes": 0,
+				"promoted": 0,
+				"visible_instances": 0,
+				"visible_triangles": 0,
+				"world_epoch": 1
+			},
+			"repeat": false,
+			"scenario": "grass_50k",
+			"screenshot": "/Users/andrejvysny/Library/Application Support/Godot/app_userdata/World Painter PoC/traces/bench-shots/grass_50k-performance-travel.png",
+			"settle_ms": 3,
+			"settled": true,
+			"summary": {
+				"cpu_p50_ms": 0.4,
+				"cpu_p95_ms": 0.5,
+				"cpu_p99_ms": 0.7,
+				"cpu_samples": 180,
+				"cpu_status": "AVAILABLE",
+				"frame_interval_source": "wall_clock_proxy",
+				"frame_max_ms": 18.388,
+				"frame_p50_ms": 16.8,
+				"frame_p95_ms": 17.3,
+				"frame_p99_ms": 17.7,
+				"frames": 180,
+				"gpu_p50_ms": 0.1,
+				"gpu_p95_ms": 0.1,
+				"gpu_p99_ms": 0.1,
+				"gpu_samples": 180,
+				"gpu_status": "AVAILABLE",
+				"histogram_resolution_ms": 0.1,
+				"hitches_over_50_ms": 0,
+				"missed_target": 0,
+				"over_100_ms": 0,
+				"over_16_7": 92,
+				"over_250_ms": 0,
+				"over_33_4": 0,
+				"target_ms": 16.6666666666667
+			},
+			"target_budget_ms": 16.6666666666667,
+			"target_fps": 60.0,
+			"telemetry": {
+				"end": {
+					"footprint_mib": 694.532669067383,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				},
+				"start": {
+					"footprint_mib": 694.517044067383,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				}
+			},
+			"terrain_mesh": {
+				"lods": 7,
+				"mesh_size": 48
+			},
+			"workload": "camera_path"
+		},
+		{
+			"cache": {
+				"by_kind": {
+					"material": 1,
+					"mesh": 4960,
+					"preview_texture": 0,
+					"texture": 21845
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 4,
+				"errors": 0,
+				"evictions": 0,
+				"fallback_bytes": 992,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 4,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 26806,
+				"soft_bytes": 402653184
+			},
+			"cache_start": {
+				"by_kind": {
+					"material": 1,
+					"mesh": 4960,
+					"preview_texture": 0,
+					"texture": 21845
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 4,
+				"errors": 0,
+				"evictions": 0,
+				"fallback_bytes": 992,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 4,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 26806,
+				"soft_bytes": 402653184
+			},
+			"camera": "edit_sculpt",
+			"counters_last": {
+				"buffer_mem_mib": 6.90010070800781,
+				"cpu_ms": 0.28099998831749,
+				"cpu_status": "AVAILABLE",
+				"gpu_ms": 0.0,
+				"gpu_status": "AVAILABLE",
+				"pipelines": {
+					"canvas": 2,
+					"draw": 2,
+					"mesh": 2,
+					"specialization": 5,
+					"surface": 7
+				},
+				"scale_3d": 0.649999976158142,
+				"shadow_draws": 0,
+				"shadow_objects": 0,
+				"shadow_prims": 0,
+				"static_mem_mib": 193.242331504822,
+				"texture_mem_mib": 57.6983642578125,
+				"video_mem_mib": 124.765625,
+				"viewport_size": [
+					1180,
+					820
+				],
+				"visible_draws": 45,
+				"visible_objects": 45,
+				"visible_prims": 126896
+			},
+			"counters_peak": {
+				"cpu_ms": 0.746999979019165,
+				"gpu_ms": 0.0,
+				"shadow_draws": 0.0,
+				"shadow_prims": 0.0,
+				"visible_draws": 45.0,
+				"visible_objects": 45.0,
+				"visible_prims": 126896.0
+			},
+			"diagnostic": false,
+			"first_frame_ms": 0,
+			"id": "grass_50k-performance-edit_sculpt",
+			"nodes": 0,
+			"overview_stats": {
+				"active": {
+					"128": 18,
+					"256": 10
+				},
+				"built": 80,
+				"built_triangles": 0,
+				"cells_covered": 928,
+				"groups": 80,
+				"jobs": 0,
+				"last_mesh_ms": 0.015,
+				"last_worker_ms": 0.0,
+				"max_mesh_ms": 0.021,
+				"max_worker_ms": 0.0,
+				"mesh_builds": 80,
+				"pending_builds": 0,
+				"proxy_triangles": 0
+			},
+			"population": {
+				"authored_meaningful": 0,
+				"by_asset": {},
+				"decorative": 50000,
+				"layout": "km1",
+				"patches": 60,
+				"presented": 0,
+				"represented": 0,
+				"world": "km1"
+			},
+			"prepare_ms": 0.105,
+			"profile": "performance",
+			"render_stats": {
+				"batch_builds": 0,
+				"batches": 0,
+				"cell_roles": {},
+				"cells": 0,
+				"covered_cells": 928,
+				"estimated_triangles": 0,
+				"full_uploads": 0,
+				"instances": 0,
+				"lod_evaluations": 0,
+				"nodes": 0,
+				"partial_uploads": 0,
+				"pending_builds": 0,
+				"placeholders": 0,
+				"pooled_nodes": 0,
+				"preview_nodes": 0,
+				"promoted": 0,
+				"visible_instances": 0,
+				"visible_triangles": 0,
+				"world_epoch": 1
+			},
+			"repeat": false,
+			"scenario": "grass_50k",
+			"screenshot": "/Users/andrejvysny/Library/Application Support/Godot/app_userdata/World Painter PoC/traces/bench-shots/grass_50k-performance-edit_sculpt.png",
+			"settle_ms": 0,
+			"settled": true,
+			"summary": {
+				"cpu_p50_ms": 0.4,
+				"cpu_p95_ms": 0.6,
+				"cpu_p99_ms": 0.7,
+				"cpu_samples": 180,
+				"cpu_status": "AVAILABLE",
+				"frame_interval_source": "wall_clock_proxy",
+				"frame_max_ms": 18.241,
+				"frame_p50_ms": 16.7,
+				"frame_p95_ms": 17.3,
+				"frame_p99_ms": 18.1,
+				"frames": 180,
+				"gpu_p50_ms": 0.1,
+				"gpu_p95_ms": 0.1,
+				"gpu_p99_ms": 0.1,
+				"gpu_samples": 180,
+				"gpu_status": "AVAILABLE",
+				"histogram_resolution_ms": 0.1,
+				"hitches_over_50_ms": 0,
+				"missed_target": 0,
+				"over_100_ms": 0,
+				"over_16_7": 78,
+				"over_250_ms": 0,
+				"over_33_4": 0,
+				"target_ms": 16.6666666666667
+			},
+			"target_budget_ms": 16.6666666666667,
+			"target_fps": 60.0,
+			"telemetry": {
+				"end": {
+					"footprint_mib": 694.345169067383,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				},
+				"start": {
+					"footprint_mib": 694.532669067383,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				}
+			},
+			"terrain_mesh": {
+				"lods": 7,
+				"mesh_size": 48
+			},
+			"workload": "edit_sculpt",
+			"workload_result": {
+				"seam_x_m": -384.0,
+				"stroke_errors": 0,
+				"strokes": 2,
+				"terrain_latency": {
+					"last_ms": 1.924,
+					"max_ms": 2.57999992370605,
+					"oldest_pending_ms": 0.665,
+					"p50_ms": 1.5110000371933,
+					"p95_ms": 2.26999998092651,
+					"samples": 256
+				},
+				"workload": "edit_sculpt"
+			}
+		},
+		{
+			"cache": {
+				"by_kind": {
+					"material": 1,
+					"mesh": 4960,
+					"preview_texture": 0,
+					"texture": 21845
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 4,
+				"errors": 0,
+				"evictions": 40,
+				"fallback_bytes": 992,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 4,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 26806,
+				"soft_bytes": 402653184
+			},
+			"cache_start": {
+				"by_kind": {
+					"material": 1,
+					"mesh": 4960,
+					"preview_texture": 0,
+					"texture": 21845
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 4,
+				"errors": 0,
+				"evictions": 0,
+				"fallback_bytes": 992,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 4,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 26806,
+				"soft_bytes": 402653184
+			},
+			"camera": "preview_cycles",
+			"counters_last": {
+				"buffer_mem_mib": 6.90132141113281,
+				"cpu_ms": 0.159999996423721,
+				"cpu_status": "AVAILABLE",
+				"gpu_ms": 0.0,
+				"gpu_status": "AVAILABLE",
+				"pipelines": {
+					"canvas": 2,
+					"draw": 2,
+					"mesh": 2,
+					"specialization": 7,
+					"surface": 9
+				},
+				"scale_3d": 0.649999976158142,
+				"shadow_draws": 0,
+				"shadow_objects": 0,
+				"shadow_prims": 0,
+				"static_mem_mib": 192.789711952209,
+				"texture_mem_mib": -74.4891357421875,
+				"video_mem_mib": 138.890625,
+				"viewport_size": [
+					1180,
+					820
+				],
+				"visible_draws": 44,
+				"visible_objects": 44,
+				"visible_prims": 126960
+			},
+			"counters_peak": {
+				"cpu_ms": 0.827000021934509,
+				"gpu_ms": 0.0,
+				"shadow_draws": 0.0,
+				"shadow_prims": 0.0,
+				"visible_draws": 45.0,
+				"visible_objects": 45.0,
+				"visible_prims": 127026.0
+			},
+			"diagnostic": false,
+			"first_frame_ms": 0,
+			"id": "grass_50k-performance-preview_cycles",
+			"nodes": 0,
+			"overview_stats": {
+				"active": {
+					"128": 18,
+					"256": 10
+				},
+				"built": 80,
+				"built_triangles": 0,
+				"cells_covered": 928,
+				"groups": 80,
+				"jobs": 0,
+				"last_mesh_ms": 0.015,
+				"last_worker_ms": 0.0,
+				"max_mesh_ms": 0.03,
+				"max_worker_ms": 0.0,
+				"mesh_builds": 160,
+				"pending_builds": 0,
+				"proxy_triangles": 0
+			},
+			"population": {
+				"authored_meaningful": 0,
+				"by_asset": {},
+				"decorative": 50000,
+				"layout": "km1",
+				"patches": 60,
+				"presented": 0,
+				"represented": 0,
+				"world": "km1"
+			},
+			"prepare_ms": 0.079,
+			"profile": "performance",
+			"render_stats": {
+				"batch_builds": 0,
+				"batches": 0,
+				"cell_roles": {},
+				"cells": 0,
+				"covered_cells": 928,
+				"estimated_triangles": 0,
+				"full_uploads": 0,
+				"instances": 0,
+				"lod_evaluations": 0,
+				"nodes": 0,
+				"partial_uploads": 0,
+				"pending_builds": 0,
+				"placeholders": 0,
+				"pooled_nodes": 0,
+				"preview_nodes": 0,
+				"promoted": 0,
+				"visible_instances": 0,
+				"visible_triangles": 0,
+				"world_epoch": 2
+			},
+			"repeat": false,
+			"scenario": "grass_50k",
+			"screenshot": "/Users/andrejvysny/Library/Application Support/Godot/app_userdata/World Painter PoC/traces/bench-shots/grass_50k-performance-preview_cycles.png",
+			"settle_ms": 5,
+			"settled": true,
+			"summary": {
+				"cpu_p50_ms": 0.3,
+				"cpu_p95_ms": 0.6,
+				"cpu_p99_ms": 0.8,
+				"cpu_samples": 698,
+				"cpu_status": "AVAILABLE",
+				"frame_interval_source": "wall_clock_proxy",
+				"frame_max_ms": 34.534,
+				"frame_p50_ms": 16.7,
+				"frame_p95_ms": 17.8,
+				"frame_p99_ms": 33.1,
+				"frames": 701,
+				"gpu_p50_ms": 0.1,
+				"gpu_p95_ms": 0.1,
+				"gpu_p99_ms": 0.1,
+				"gpu_samples": 698,
+				"gpu_status": "AVAILABLE",
+				"histogram_resolution_ms": 0.1,
+				"hitches_over_50_ms": 0,
+				"missed_target": 19,
+				"over_100_ms": 0,
+				"over_16_7": 317,
+				"over_250_ms": 0,
+				"over_33_4": 6,
+				"target_ms": 16.6666666666667
+			},
+			"target_budget_ms": 16.6666666666667,
+			"target_fps": 60.0,
+			"telemetry": {
+				"end": {
+					"footprint_mib": 807.063987731934,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				},
+				"start": {
+					"footprint_mib": 839.813987731934,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				}
+			},
+			"terrain_mesh": {
+				"lods": 7,
+				"mesh_size": 48
+			},
+			"workload": "preview_cycles",
+			"workload_result": {
+				"completed": true,
+				"cycles": [
+					{
+						"after": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 2,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"before": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 0,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"cycle": 0,
+						"during": {
+							"entries": 6,
+							"errors": 0,
+							"evictions": 0,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 8415412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 4,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"before": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 2,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"cycle": 1,
+						"during": {
+							"entries": 6,
+							"errors": 0,
+							"evictions": 2,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 8415412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 6,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"before": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 4,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"cycle": 2,
+						"during": {
+							"entries": 6,
+							"errors": 0,
+							"evictions": 4,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 8415412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 8,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"before": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 6,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"cycle": 3,
+						"during": {
+							"entries": 6,
+							"errors": 0,
+							"evictions": 6,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 8415412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 10,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"before": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 8,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"cycle": 4,
+						"during": {
+							"entries": 6,
+							"errors": 0,
+							"evictions": 8,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 8415412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 12,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"before": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 10,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"cycle": 5,
+						"during": {
+							"entries": 6,
+							"errors": 0,
+							"evictions": 10,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 8415412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 14,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"before": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 12,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"cycle": 6,
+						"during": {
+							"entries": 6,
+							"errors": 0,
+							"evictions": 12,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 8415412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 16,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"before": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 14,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"cycle": 7,
+						"during": {
+							"entries": 6,
+							"errors": 0,
+							"evictions": 14,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 8415412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 18,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"before": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 16,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"cycle": 8,
+						"during": {
+							"entries": 6,
+							"errors": 0,
+							"evictions": 16,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 8415412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 20,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"before": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 18,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"cycle": 9,
+						"during": {
+							"entries": 6,
+							"errors": 0,
+							"evictions": 18,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 8415412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 22,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"before": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 20,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"cycle": 10,
+						"during": {
+							"entries": 6,
+							"errors": 0,
+							"evictions": 20,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 8415412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 24,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"before": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 22,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"cycle": 11,
+						"during": {
+							"entries": 6,
+							"errors": 0,
+							"evictions": 22,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 8415412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 26,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"before": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 24,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"cycle": 12,
+						"during": {
+							"entries": 6,
+							"errors": 0,
+							"evictions": 24,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 8415412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 28,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"before": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 26,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"cycle": 13,
+						"during": {
+							"entries": 6,
+							"errors": 0,
+							"evictions": 26,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 8415412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 30,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"before": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 28,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"cycle": 14,
+						"during": {
+							"entries": 6,
+							"errors": 0,
+							"evictions": 28,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 8415412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 32,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"before": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 30,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"cycle": 15,
+						"during": {
+							"entries": 6,
+							"errors": 0,
+							"evictions": 30,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 8415412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 34,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"before": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 32,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"cycle": 16,
+						"during": {
+							"entries": 6,
+							"errors": 0,
+							"evictions": 32,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 8415412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 36,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"before": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 34,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"cycle": 17,
+						"during": {
+							"entries": 6,
+							"errors": 0,
+							"evictions": 34,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 8415412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 38,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"before": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 36,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"cycle": 18,
+						"during": {
+							"entries": 6,
+							"errors": 0,
+							"evictions": 36,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 8415412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 40,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"before": {
+							"entries": 4,
+							"errors": 0,
+							"evictions": 38,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 26806
+						},
+						"cycle": 19,
+						"during": {
+							"entries": 6,
+							"errors": 0,
+							"evictions": 38,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 8415412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					}
+				],
+				"cycles_done": 20,
+				"cycles_requested": 20,
+				"skipped_restricted": false,
+				"workload": "preview_cycles"
+			}
+		},
+		{
+			"cache": {
+				"by_kind": {
+					"material": 10,
+					"mesh": 42264,
+					"preview_texture": 0,
+					"texture": 218452
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 21,
+				"errors": 0,
+				"evictions": 40,
+				"fallback_bytes": 38296,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 21,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 260726,
+				"soft_bytes": 402653184
+			},
+			"cache_start": {
+				"by_kind": {
+					"material": 10,
+					"mesh": 42264,
+					"preview_texture": 0,
+					"texture": 218452
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 21,
+				"errors": 0,
+				"evictions": 40,
+				"fallback_bytes": 38296,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 21,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 260726,
+				"soft_bytes": 402653184
+			},
+			"camera": "overview",
+			"camera_poses": {
+				"duration_s": 3.0,
+				"path": "overview",
+				"samples": [
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 0.0,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 0.6,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 1.2,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 1.8,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 2.4,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 3.0,
+						"yaw_deg": 30.0
+					}
+				]
+			},
+			"counters_last": {
+				"buffer_mem_mib": 32.4934730529785,
+				"cpu_ms": 0.372000008821487,
+				"cpu_status": "AVAILABLE",
+				"gpu_ms": 0.0,
+				"gpu_status": "AVAILABLE",
+				"pipelines": {
+					"canvas": 2,
+					"draw": 2,
+					"mesh": 6,
+					"specialization": 11,
+					"surface": 9
+				},
+				"scale_3d": 0.649999976158142,
+				"shadow_draws": 0,
+				"shadow_objects": 0,
+				"shadow_prims": 0,
+				"static_mem_mib": 424.01202583313,
+				"texture_mem_mib": -96.290771484375,
+				"video_mem_mib": 167.359375,
+				"viewport_size": [
+					1180,
+					820
+				],
+				"visible_draws": 155,
+				"visible_objects": 155,
+				"visible_prims": 532528
+			},
+			"counters_peak": {
+				"cpu_ms": 0.648000001907349,
+				"gpu_ms": 0.0,
+				"shadow_draws": 0.0,
+				"shadow_prims": 0.0,
+				"visible_draws": 155.0,
+				"visible_objects": 155.0,
+				"visible_prims": 532528.0
+			},
+			"diagnostic": false,
+			"first_frame_ms": 0,
+			"id": "mixed_world_50k-performance-overview",
+			"nodes": 2399,
+			"overview_stats": {
+				"active": {
+					"256": 16
+				},
+				"built": 80,
+				"built_triangles": 693238,
+				"cells_covered": 1024,
+				"groups": 80,
+				"jobs": 0,
+				"last_mesh_ms": 0.376,
+				"last_worker_ms": 8.34,
+				"max_mesh_ms": 0.667,
+				"max_worker_ms": 20.156,
+				"mesh_builds": 240,
+				"pending_builds": 0,
+				"proxy_triangles": 165912
+			},
+			"population": {
+				"authored_meaningful": 50000,
+				"by_asset": {
+					"bench.rock.slab_a": 5000,
+					"bench.shrub.bush_cards": 9000,
+					"bench.structure.tower_a": 1000,
+					"bench.tree.broadleaf_geo": 17500,
+					"bench.tree.pine_cards": 17500
+				},
+				"decorative": 50000,
+				"layout": "km1",
+				"patches": 40,
+				"presented": 50000,
+				"represented": 50000,
+				"world": "km1"
+			},
+			"prepare_ms": 0.085,
+			"profile": "performance",
+			"render_stats": {
+				"batch_builds": 2407,
+				"batches": 2399,
+				"cell_roles": {
+					"far": 593
+				},
+				"cells": 593,
+				"covered_cells": 1024,
+				"estimated_triangles": 13834000,
+				"full_uploads": 2407,
+				"instances": 50000,
+				"lod_evaluations": 593,
+				"nodes": 2399,
+				"partial_uploads": 0,
+				"pending_builds": 0,
+				"placeholders": 0,
+				"pooled_nodes": 0,
+				"preview_nodes": 0,
+				"promoted": 0,
+				"visible_instances": 39,
+				"visible_triangles": 11192,
+				"world_epoch": 3
+			},
+			"repeat": false,
+			"scenario": "mixed_world_50k",
+			"screenshot": "/Users/andrejvysny/Library/Application Support/Godot/app_userdata/World Painter PoC/traces/bench-shots/mixed_world_50k-performance-overview.png",
+			"settle_ms": 4177,
+			"settled": true,
+			"summary": {
+				"cpu_p50_ms": 0.4,
+				"cpu_p95_ms": 0.6,
+				"cpu_p99_ms": 0.7,
+				"cpu_samples": 180,
+				"cpu_status": "AVAILABLE",
+				"frame_interval_source": "wall_clock_proxy",
+				"frame_max_ms": 18.082,
+				"frame_p50_ms": 16.7,
+				"frame_p95_ms": 17.4,
+				"frame_p99_ms": 18.082,
+				"frames": 180,
+				"gpu_p50_ms": 0.1,
+				"gpu_p95_ms": 0.1,
+				"gpu_p99_ms": 0.1,
+				"gpu_samples": 180,
+				"gpu_status": "AVAILABLE",
+				"histogram_resolution_ms": 0.1,
+				"hitches_over_50_ms": 0,
+				"missed_target": 0,
+				"over_100_ms": 0,
+				"over_16_7": 90,
+				"over_250_ms": 0,
+				"over_33_4": 0,
+				"target_ms": 16.6666666666667
+			},
+			"target_budget_ms": 16.6666666666667,
+			"target_fps": 60.0,
+			"telemetry": {
+				"end": {
+					"footprint_mib": 1148.90789794922,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				},
+				"start": {
+					"footprint_mib": 1148.79852294922,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				}
+			},
+			"terrain_mesh": {
+				"lods": 7,
+				"mesh_size": 48
+			},
+			"workload": "camera_path"
+		},
+		{
+			"cache": {
+				"by_kind": {
+					"material": 10,
+					"mesh": 174716,
+					"preview_texture": 0,
+					"texture": 218452
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 26,
+				"errors": 0,
+				"evictions": 40,
+				"fallback_bytes": 38296,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 26,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 393178,
+				"soft_bytes": 402653184
+			},
+			"cache_start": {
+				"by_kind": {
+					"material": 10,
+					"mesh": 42264,
+					"preview_texture": 0,
+					"texture": 218452
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 21,
+				"errors": 0,
+				"evictions": 40,
+				"fallback_bytes": 38296,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 21,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 260726,
+				"soft_bytes": 402653184
+			},
+			"camera": "focus",
+			"camera_poses": {
+				"duration_s": 3.0,
+				"path": "focus",
+				"samples": [
+					{
+						"distance_m": 40.0,
+						"pitch_deg": 35.0,
+						"pivot": [
+							-14.76,
+							8.96,
+							-77.29
+						],
+						"t_s": 0.0,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 40.0,
+						"pitch_deg": 35.0,
+						"pivot": [
+							-14.76,
+							8.96,
+							-77.29
+						],
+						"t_s": 0.6,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 40.0,
+						"pitch_deg": 35.0,
+						"pivot": [
+							-14.76,
+							8.96,
+							-77.29
+						],
+						"t_s": 1.2,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 40.0,
+						"pitch_deg": 35.0,
+						"pivot": [
+							-14.76,
+							8.96,
+							-77.29
+						],
+						"t_s": 1.8,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 40.0,
+						"pitch_deg": 35.0,
+						"pivot": [
+							-14.76,
+							8.96,
+							-77.29
+						],
+						"t_s": 2.4,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 40.0,
+						"pitch_deg": 35.0,
+						"pivot": [
+							-14.76,
+							8.96,
+							-77.29
+						],
+						"t_s": 3.0,
+						"yaw_deg": 30.0
+					}
+				]
+			},
+			"counters_last": {
+				"buffer_mem_mib": 32.5217056274414,
+				"cpu_ms": 0.700999975204468,
+				"cpu_status": "AVAILABLE",
+				"gpu_ms": 0.0,
+				"gpu_status": "AVAILABLE",
+				"pipelines": {
+					"canvas": 2,
+					"draw": 2,
+					"mesh": 6,
+					"specialization": 11,
+					"surface": 9
+				},
+				"scale_3d": 0.649999976158142,
+				"shadow_draws": 0,
+				"shadow_objects": 0,
+				"shadow_prims": 0,
+				"static_mem_mib": 424.181890487671,
+				"texture_mem_mib": -96.290771484375,
+				"video_mem_mib": 167.53125,
+				"viewport_size": [
+					1180,
+					820
+				],
+				"visible_draws": 249,
+				"visible_objects": 249,
+				"visible_prims": 2931006
+			},
+			"counters_peak": {
+				"cpu_ms": 0.814999997615814,
+				"gpu_ms": 0.0,
+				"shadow_draws": 0.0,
+				"shadow_prims": 0.0,
+				"visible_draws": 249.0,
+				"visible_objects": 249.0,
+				"visible_prims": 2931006.0
+			},
+			"diagnostic": false,
+			"first_frame_ms": 0,
+			"id": "mixed_world_50k-performance-focus",
+			"nodes": 2399,
+			"overview_stats": {
+				"active": {
+					"128": 42,
+					"256": 2
+				},
+				"built": 80,
+				"built_triangles": 693238,
+				"cells_covered": 800,
+				"groups": 80,
+				"jobs": 0,
+				"last_mesh_ms": 0.376,
+				"last_worker_ms": 8.34,
+				"max_mesh_ms": 0.667,
+				"max_worker_ms": 20.156,
+				"mesh_builds": 240,
+				"pending_builds": 0,
+				"proxy_triangles": 346670
+			},
+			"population": {
+				"authored_meaningful": 50000,
+				"by_asset": {
+					"bench.rock.slab_a": 5000,
+					"bench.shrub.bush_cards": 9000,
+					"bench.structure.tower_a": 1000,
+					"bench.tree.broadleaf_geo": 17500,
+					"bench.tree.pine_cards": 17500
+				},
+				"decorative": 50000,
+				"layout": "km1",
+				"patches": 40,
+				"presented": 50000,
+				"represented": 50000,
+				"world": "km1"
+			},
+			"prepare_ms": 0.104,
+			"profile": "performance",
+			"render_stats": {
+				"batch_builds": 2493,
+				"batches": 2399,
+				"cell_roles": {
+					"far": 573,
+					"mid": 20
+				},
+				"cells": 593,
+				"covered_cells": 800,
+				"estimated_triangles": 15220424,
+				"full_uploads": 2493,
+				"instances": 50000,
+				"lod_evaluations": 1186,
+				"nodes": 2399,
+				"partial_uploads": 0,
+				"pending_builds": 0,
+				"placeholders": 0,
+				"pooled_nodes": 0,
+				"preview_nodes": 0,
+				"promoted": 0,
+				"visible_instances": 16738,
+				"visible_triangles": 6027540,
+				"world_epoch": 3
+			},
+			"repeat": false,
+			"scenario": "mixed_world_50k",
+			"screenshot": "/Users/andrejvysny/Library/Application Support/Godot/app_userdata/World Painter PoC/traces/bench-shots/mixed_world_50k-performance-focus.png",
+			"settle_ms": 0,
+			"settled": true,
+			"summary": {
+				"cpu_p50_ms": 0.7,
+				"cpu_p95_ms": 0.8,
+				"cpu_p99_ms": 0.9,
+				"cpu_samples": 180,
+				"cpu_status": "AVAILABLE",
+				"frame_interval_source": "wall_clock_proxy",
+				"frame_max_ms": 18.474,
+				"frame_p50_ms": 16.7,
+				"frame_p95_ms": 17.8,
+				"frame_p99_ms": 18.2,
+				"frames": 180,
+				"gpu_p50_ms": 0.1,
+				"gpu_p95_ms": 0.1,
+				"gpu_p99_ms": 0.1,
+				"gpu_samples": 180,
+				"gpu_status": "AVAILABLE",
+				"histogram_resolution_ms": 0.1,
+				"hitches_over_50_ms": 0,
+				"missed_target": 0,
+				"over_100_ms": 0,
+				"over_16_7": 83,
+				"over_250_ms": 0,
+				"over_33_4": 0,
+				"target_ms": 16.6666666666667
+			},
+			"target_budget_ms": 16.6666666666667,
+			"target_fps": 60.0,
+			"telemetry": {
+				"end": {
+					"footprint_mib": 1258.68914794922,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				},
+				"start": {
+					"footprint_mib": 1148.90789794922,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				}
+			},
+			"terrain_mesh": {
+				"lods": 7,
+				"mesh_size": 48
+			},
+			"workload": "camera_path"
+		},
+		{
+			"cache": {
+				"by_kind": {
+					"material": 10,
+					"mesh": 174716,
+					"preview_texture": 0,
+					"texture": 218452
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 26,
+				"errors": 0,
+				"evictions": 40,
+				"fallback_bytes": 38296,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 26,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 393178,
+				"soft_bytes": 402653184
+			},
+			"cache_start": {
+				"by_kind": {
+					"material": 10,
+					"mesh": 174716,
+					"preview_texture": 0,
+					"texture": 218452
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 26,
+				"errors": 0,
+				"evictions": 40,
+				"fallback_bytes": 38296,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 26,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 393178,
+				"soft_bytes": 402653184
+			},
+			"camera": "shallow",
+			"camera_poses": {
+				"duration_s": 3.0,
+				"path": "shallow",
+				"samples": [
+					{
+						"distance_m": 25.0,
+						"pitch_deg": 15.0,
+						"pivot": [
+							-14.76,
+							8.96,
+							-77.29
+						],
+						"t_s": 0.0,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 25.0,
+						"pitch_deg": 15.0,
+						"pivot": [
+							-14.76,
+							8.96,
+							-77.29
+						],
+						"t_s": 0.6,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 25.0,
+						"pitch_deg": 15.0,
+						"pivot": [
+							-14.76,
+							8.96,
+							-77.29
+						],
+						"t_s": 1.2,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 25.0,
+						"pitch_deg": 15.0,
+						"pivot": [
+							-14.76,
+							8.96,
+							-77.29
+						],
+						"t_s": 1.8,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 25.0,
+						"pitch_deg": 15.0,
+						"pivot": [
+							-14.76,
+							8.96,
+							-77.29
+						],
+						"t_s": 2.4,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 25.0,
+						"pitch_deg": 15.0,
+						"pivot": [
+							-14.76,
+							8.96,
+							-77.29
+						],
+						"t_s": 3.0,
+						"yaw_deg": 30.0
+					}
+				]
+			},
+			"counters_last": {
+				"buffer_mem_mib": 32.5217056274414,
+				"cpu_ms": 0.377999991178513,
+				"cpu_status": "AVAILABLE",
+				"gpu_ms": 0.0,
+				"gpu_status": "AVAILABLE",
+				"pipelines": {
+					"canvas": 2,
+					"draw": 2,
+					"mesh": 6,
+					"specialization": 11,
+					"surface": 9
+				},
+				"scale_3d": 0.649999976158142,
+				"shadow_draws": 0,
+				"shadow_objects": 0,
+				"shadow_prims": 0,
+				"static_mem_mib": 424.219369888306,
+				"texture_mem_mib": -96.290771484375,
+				"video_mem_mib": 167.65625,
+				"viewport_size": [
+					1180,
+					820
+				],
+				"visible_draws": 275,
+				"visible_objects": 275,
+				"visible_prims": 2887714
+			},
+			"counters_peak": {
+				"cpu_ms": 0.851999998092651,
+				"gpu_ms": 0.0,
+				"shadow_draws": 0.0,
+				"shadow_prims": 0.0,
+				"visible_draws": 275.0,
+				"visible_objects": 275.0,
+				"visible_prims": 2887714.0
+			},
+			"diagnostic": false,
+			"first_frame_ms": 0,
+			"id": "mixed_world_50k-performance-shallow",
+			"nodes": 2399,
+			"overview_stats": {
+				"active": {
+					"128": 42,
+					"256": 2
+				},
+				"built": 80,
+				"built_triangles": 693238,
+				"cells_covered": 800,
+				"groups": 80,
+				"jobs": 0,
+				"last_mesh_ms": 0.376,
+				"last_worker_ms": 8.34,
+				"max_mesh_ms": 0.667,
+				"max_worker_ms": 20.156,
+				"mesh_builds": 240,
+				"pending_builds": 0,
+				"proxy_triangles": 346670
+			},
+			"population": {
+				"authored_meaningful": 50000,
+				"by_asset": {
+					"bench.rock.slab_a": 5000,
+					"bench.shrub.bush_cards": 9000,
+					"bench.structure.tower_a": 1000,
+					"bench.tree.broadleaf_geo": 17500,
+					"bench.tree.pine_cards": 17500
+				},
+				"decorative": 50000,
+				"layout": "km1",
+				"patches": 40,
+				"presented": 50000,
+				"represented": 50000,
+				"world": "km1"
+			},
+			"prepare_ms": 0.112,
+			"profile": "performance",
+			"render_stats": {
+				"batch_builds": 2502,
+				"batches": 2399,
+				"cell_roles": {
+					"far": 571,
+					"mid": 22
+				},
+				"cells": 593,
+				"covered_cells": 800,
+				"estimated_triangles": 15415936,
+				"full_uploads": 2502,
+				"instances": 50000,
+				"lod_evaluations": 1779,
+				"nodes": 2399,
+				"partial_uploads": 0,
+				"pending_builds": 0,
+				"placeholders": 0,
+				"pooled_nodes": 0,
+				"preview_nodes": 0,
+				"promoted": 0,
+				"visible_instances": 16738,
+				"visible_triangles": 6223052,
+				"world_epoch": 3
+			},
+			"repeat": false,
+			"scenario": "mixed_world_50k",
+			"screenshot": "/Users/andrejvysny/Library/Application Support/Godot/app_userdata/World Painter PoC/traces/bench-shots/mixed_world_50k-performance-shallow.png",
+			"settle_ms": 0,
+			"settled": true,
+			"summary": {
+				"cpu_p50_ms": 0.7,
+				"cpu_p95_ms": 0.8,
+				"cpu_p99_ms": 0.9,
+				"cpu_samples": 180,
+				"cpu_status": "AVAILABLE",
+				"frame_interval_source": "wall_clock_proxy",
+				"frame_max_ms": 18.046,
+				"frame_p50_ms": 16.7,
+				"frame_p95_ms": 17.6,
+				"frame_p99_ms": 18.0,
+				"frames": 180,
+				"gpu_p50_ms": 0.1,
+				"gpu_p95_ms": 0.1,
+				"gpu_p99_ms": 0.1,
+				"gpu_samples": 180,
+				"gpu_status": "AVAILABLE",
+				"histogram_resolution_ms": 0.1,
+				"hitches_over_50_ms": 0,
+				"missed_target": 0,
+				"over_100_ms": 0,
+				"over_16_7": 84,
+				"over_250_ms": 0,
+				"over_33_4": 0,
+				"target_ms": 16.6666666666667
+			},
+			"target_budget_ms": 16.6666666666667,
+			"target_fps": 60.0,
+			"telemetry": {
+				"end": {
+					"footprint_mib": 1258.95477294922,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				},
+				"start": {
+					"footprint_mib": 1258.68914794922,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				}
+			},
+			"terrain_mesh": {
+				"lods": 7,
+				"mesh_size": 48
+			},
+			"workload": "camera_path"
+		},
+		{
+			"cache": {
+				"by_kind": {
+					"material": 10,
+					"mesh": 174716,
+					"preview_texture": 0,
+					"texture": 218452
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 26,
+				"errors": 0,
+				"evictions": 40,
+				"fallback_bytes": 38296,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 26,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 393178,
+				"soft_bytes": 402653184
+			},
+			"cache_start": {
+				"by_kind": {
+					"material": 10,
+					"mesh": 174716,
+					"preview_texture": 0,
+					"texture": 218452
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 26,
+				"errors": 0,
+				"evictions": 40,
+				"fallback_bytes": 38296,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 26,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 393178,
+				"soft_bytes": 402653184
+			},
+			"camera": "canopy",
+			"camera_poses": {
+				"duration_s": 3.0,
+				"path": "canopy",
+				"samples": [
+					{
+						"distance_m": 6.0,
+						"pitch_deg": 30.0,
+						"pivot": [
+							-14.76,
+							18.17,
+							-77.29
+						],
+						"t_s": 0.0,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 6.0,
+						"pitch_deg": 30.0,
+						"pivot": [
+							-14.76,
+							18.17,
+							-77.29
+						],
+						"t_s": 0.6,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 6.0,
+						"pitch_deg": 30.0,
+						"pivot": [
+							-14.76,
+							18.17,
+							-77.29
+						],
+						"t_s": 1.2,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 6.0,
+						"pitch_deg": 30.0,
+						"pivot": [
+							-14.76,
+							18.17,
+							-77.29
+						],
+						"t_s": 1.8,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 6.0,
+						"pitch_deg": 30.0,
+						"pivot": [
+							-14.76,
+							18.17,
+							-77.29
+						],
+						"t_s": 2.4,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 6.0,
+						"pitch_deg": 30.0,
+						"pivot": [
+							-14.76,
+							18.17,
+							-77.29
+						],
+						"t_s": 3.0,
+						"yaw_deg": 30.0
+					}
+				]
+			},
+			"counters_last": {
+				"buffer_mem_mib": 32.5213851928711,
+				"cpu_ms": 0.574999988079071,
+				"cpu_status": "AVAILABLE",
+				"gpu_ms": 0.0,
+				"gpu_status": "AVAILABLE",
+				"pipelines": {
+					"canvas": 2,
+					"draw": 2,
+					"mesh": 6,
+					"specialization": 11,
+					"surface": 9
+				},
+				"scale_3d": 0.649999976158142,
+				"shadow_draws": 0,
+				"shadow_objects": 0,
+				"shadow_prims": 0,
+				"static_mem_mib": 424.242994308472,
+				"texture_mem_mib": -96.290771484375,
+				"video_mem_mib": 167.65625,
+				"viewport_size": [
+					1180,
+					820
+				],
+				"visible_draws": 242,
+				"visible_objects": 242,
+				"visible_prims": 2760946
+			},
+			"counters_peak": {
+				"cpu_ms": 0.685999989509583,
+				"gpu_ms": 0.0,
+				"shadow_draws": 0.0,
+				"shadow_prims": 0.0,
+				"visible_draws": 242.0,
+				"visible_objects": 242.0,
+				"visible_prims": 2760946.0
+			},
+			"diagnostic": false,
+			"first_frame_ms": 0,
+			"id": "mixed_world_50k-performance-canopy",
+			"nodes": 2399,
+			"overview_stats": {
+				"active": {
+					"128": 42,
+					"256": 2
+				},
+				"built": 80,
+				"built_triangles": 693238,
+				"cells_covered": 800,
+				"groups": 80,
+				"jobs": 0,
+				"last_mesh_ms": 0.376,
+				"last_worker_ms": 8.34,
+				"max_mesh_ms": 0.667,
+				"max_worker_ms": 20.156,
+				"mesh_builds": 240,
+				"pending_builds": 0,
+				"proxy_triangles": 346670
+			},
+			"population": {
+				"authored_meaningful": 50000,
+				"by_asset": {
+					"bench.rock.slab_a": 5000,
+					"bench.shrub.bush_cards": 9000,
+					"bench.structure.tower_a": 1000,
+					"bench.tree.broadleaf_geo": 17500,
+					"bench.tree.pine_cards": 17500
+				},
+				"decorative": 50000,
+				"layout": "km1",
+				"patches": 40,
+				"presented": 50000,
+				"represented": 50000,
+				"world": "km1"
+			},
+			"prepare_ms": 0.102,
+			"profile": "performance",
+			"render_stats": {
+				"batch_builds": 2519,
+				"batches": 2399,
+				"cell_roles": {
+					"far": 567,
+					"mid": 26
+				},
+				"cells": 593,
+				"covered_cells": 800,
+				"estimated_triangles": 15789436,
+				"full_uploads": 2519,
+				"instances": 50000,
+				"lod_evaluations": 2372,
+				"nodes": 2399,
+				"partial_uploads": 0,
+				"pending_builds": 0,
+				"placeholders": 0,
+				"pooled_nodes": 0,
+				"preview_nodes": 0,
+				"promoted": 0,
+				"visible_instances": 16738,
+				"visible_triangles": 6596552,
+				"world_epoch": 3
+			},
+			"repeat": false,
+			"scenario": "mixed_world_50k",
+			"screenshot": "/Users/andrejvysny/Library/Application Support/Godot/app_userdata/World Painter PoC/traces/bench-shots/mixed_world_50k-performance-canopy.png",
+			"settle_ms": 0,
+			"settled": true,
+			"summary": {
+				"cpu_p50_ms": 0.6,
+				"cpu_p95_ms": 0.7,
+				"cpu_p99_ms": 0.7,
+				"cpu_samples": 180,
+				"cpu_status": "AVAILABLE",
+				"frame_interval_source": "wall_clock_proxy",
+				"frame_max_ms": 19.316,
+				"frame_p50_ms": 16.7,
+				"frame_p95_ms": 17.7,
+				"frame_p99_ms": 17.9,
+				"frames": 180,
+				"gpu_p50_ms": 0.1,
+				"gpu_p95_ms": 0.1,
+				"gpu_p99_ms": 0.1,
+				"gpu_samples": 180,
+				"gpu_status": "AVAILABLE",
+				"histogram_resolution_ms": 0.1,
+				"hitches_over_50_ms": 0,
+				"missed_target": 0,
+				"over_100_ms": 0,
+				"over_16_7": 86,
+				"over_250_ms": 0,
+				"over_33_4": 0,
+				"target_ms": 16.6666666666667
+			},
+			"target_budget_ms": 16.6666666666667,
+			"target_fps": 60.0,
+			"telemetry": {
+				"end": {
+					"footprint_mib": 1258.93914794922,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				},
+				"start": {
+					"footprint_mib": 1258.95477294922,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				}
+			},
+			"terrain_mesh": {
+				"lods": 7,
+				"mesh_size": 48
+			},
+			"workload": "camera_path"
+		},
+		{
+			"cache": {
+				"by_kind": {
+					"material": 10,
+					"mesh": 174716,
+					"preview_texture": 0,
+					"texture": 218452
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 26,
+				"errors": 0,
+				"evictions": 40,
+				"fallback_bytes": 38296,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 26,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 393178,
+				"soft_bytes": 402653184
+			},
+			"cache_start": {
+				"by_kind": {
+					"material": 10,
+					"mesh": 174716,
+					"preview_texture": 0,
+					"texture": 218452
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 26,
+				"errors": 0,
+				"evictions": 40,
+				"fallback_bytes": 38296,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 26,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 393178,
+				"soft_bytes": 402653184
+			},
+			"camera": "path",
+			"camera_poses": {
+				"duration_s": 3.0,
+				"path": "path",
+				"samples": [
+					{
+						"distance_m": 12.0,
+						"pitch_deg": 20.0,
+						"pivot": [
+							-14.76,
+							8.96,
+							-77.29
+						],
+						"t_s": 0.0,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 327.91,
+						"pitch_deg": 32.1,
+						"pivot": [
+							42.3,
+							10.25,
+							-77.29
+						],
+						"t_s": 0.6,
+						"yaw_deg": 102.0
+					},
+					{
+						"distance_m": 132.67,
+						"pitch_deg": 51.7,
+						"pivot": [
+							20.51,
+							10.54,
+							-77.29
+						],
+						"t_s": 1.2,
+						"yaw_deg": 174.0
+					},
+					{
+						"distance_m": 132.67,
+						"pitch_deg": 51.7,
+						"pivot": [
+							-50.03,
+							4.87,
+							-77.29
+						],
+						"t_s": 1.8,
+						"yaw_deg": 246.0
+					},
+					{
+						"distance_m": 327.91,
+						"pitch_deg": 32.1,
+						"pivot": [
+							-71.82,
+							2.77,
+							-77.29
+						],
+						"t_s": 2.4,
+						"yaw_deg": 318.0
+					},
+					{
+						"distance_m": 12.0,
+						"pitch_deg": 20.0,
+						"pivot": [
+							-14.76,
+							8.96,
+							-77.29
+						],
+						"t_s": 3.0,
+						"yaw_deg": 390.0
+					}
+				]
+			},
+			"counters_last": {
+				"buffer_mem_mib": 32.5212936401367,
+				"cpu_ms": 0.259999990463257,
+				"cpu_status": "AVAILABLE",
+				"gpu_ms": 0.0,
+				"gpu_status": "AVAILABLE",
+				"pipelines": {
+					"canvas": 2,
+					"draw": 2,
+					"mesh": 6,
+					"specialization": 11,
+					"surface": 9
+				},
+				"scale_3d": 0.649999976158142,
+				"shadow_draws": 0,
+				"shadow_objects": 0,
+				"shadow_prims": 0,
+				"static_mem_mib": 424.341711044312,
+				"texture_mem_mib": -96.290771484375,
+				"video_mem_mib": 167.65625,
+				"viewport_size": [
+					1180,
+					820
+				],
+				"visible_draws": 252,
+				"visible_objects": 252,
+				"visible_prims": 2857466
+			},
+			"counters_peak": {
+				"cpu_ms": 0.800999999046326,
+				"gpu_ms": 0.0,
+				"shadow_draws": 0.0,
+				"shadow_prims": 0.0,
+				"visible_draws": 822.0,
+				"visible_objects": 822.0,
+				"visible_prims": 6973306.0
+			},
+			"diagnostic": false,
+			"first_frame_ms": 1,
+			"id": "mixed_world_50k-performance-path",
+			"nodes": 2399,
+			"overview_stats": {
+				"active": {
+					"128": 42,
+					"256": 2
+				},
+				"built": 80,
+				"built_triangles": 693238,
+				"cells_covered": 800,
+				"groups": 80,
+				"jobs": 0,
+				"last_mesh_ms": 0.376,
+				"last_worker_ms": 8.34,
+				"max_mesh_ms": 0.667,
+				"max_worker_ms": 20.156,
+				"mesh_builds": 240,
+				"pending_builds": 0,
+				"proxy_triangles": 346670
+			},
+			"population": {
+				"authored_meaningful": 50000,
+				"by_asset": {
+					"bench.rock.slab_a": 5000,
+					"bench.shrub.bush_cards": 9000,
+					"bench.structure.tower_a": 1000,
+					"bench.tree.broadleaf_geo": 17500,
+					"bench.tree.pine_cards": 17500
+				},
+				"decorative": 50000,
+				"layout": "km1",
+				"patches": 40,
+				"presented": 50000,
+				"represented": 50000,
+				"world": "km1"
+			},
+			"prepare_ms": 0.103,
+			"profile": "performance",
+			"render_stats": {
+				"batch_builds": 2519,
+				"batches": 2399,
+				"cell_roles": {
+					"far": 567,
+					"mid": 26
+				},
+				"cells": 593,
+				"covered_cells": 800,
+				"estimated_triangles": 15789436,
+				"full_uploads": 2519,
+				"instances": 50000,
+				"lod_evaluations": 50324,
+				"nodes": 2399,
+				"partial_uploads": 0,
+				"pending_builds": 0,
+				"placeholders": 0,
+				"pooled_nodes": 0,
+				"preview_nodes": 0,
+				"promoted": 0,
+				"visible_instances": 16738,
+				"visible_triangles": 6596552,
+				"world_epoch": 3
+			},
+			"repeat": false,
+			"scenario": "mixed_world_50k",
+			"screenshot": "/Users/andrejvysny/Library/Application Support/Godot/app_userdata/World Painter PoC/traces/bench-shots/mixed_world_50k-performance-path.png",
+			"settle_ms": 1,
+			"settled": true,
+			"summary": {
+				"cpu_p50_ms": 0.5,
+				"cpu_p95_ms": 0.6,
+				"cpu_p99_ms": 0.7,
+				"cpu_samples": 180,
+				"cpu_status": "AVAILABLE",
+				"frame_interval_source": "wall_clock_proxy",
+				"frame_max_ms": 19.146,
+				"frame_p50_ms": 16.7,
+				"frame_p95_ms": 17.7,
+				"frame_p99_ms": 18.6,
+				"frames": 180,
+				"gpu_p50_ms": 0.1,
+				"gpu_p95_ms": 0.1,
+				"gpu_p99_ms": 0.1,
+				"gpu_samples": 180,
+				"gpu_status": "AVAILABLE",
+				"histogram_resolution_ms": 0.1,
+				"hitches_over_50_ms": 0,
+				"missed_target": 0,
+				"over_100_ms": 0,
+				"over_16_7": 79,
+				"over_250_ms": 0,
+				"over_33_4": 0,
+				"target_ms": 16.6666666666667
+			},
+			"target_budget_ms": 16.6666666666667,
+			"target_fps": 60.0,
+			"telemetry": {
+				"end": {
+					"footprint_mib": 1441.18914794922,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				},
+				"start": {
+					"footprint_mib": 1258.93914794922,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				}
+			},
+			"terrain_mesh": {
+				"lods": 7,
+				"mesh_size": 48
+			},
+			"workload": "camera_path"
+		},
+		{
+			"cache": {
+				"by_kind": {
+					"material": 10,
+					"mesh": 174716,
+					"preview_texture": 0,
+					"texture": 218452
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 26,
+				"errors": 0,
+				"evictions": 40,
+				"fallback_bytes": 38296,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 26,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 393178,
+				"soft_bytes": 402653184
+			},
+			"cache_start": {
+				"by_kind": {
+					"material": 10,
+					"mesh": 174716,
+					"preview_texture": 0,
+					"texture": 218452
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 26,
+				"errors": 0,
+				"evictions": 40,
+				"fallback_bytes": 38296,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 26,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 393178,
+				"soft_bytes": 402653184
+			},
+			"camera": "travel",
+			"camera_poses": {
+				"duration_s": 3.0,
+				"path": "travel",
+				"samples": [
+					{
+						"distance_m": 40.0,
+						"pitch_deg": 35.0,
+						"pivot": [
+							-14.76,
+							8.96,
+							-77.29
+						],
+						"t_s": 0.0,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 40.0,
+						"pitch_deg": 35.0,
+						"pivot": [
+							-14.76,
+							8.96,
+							-77.29
+						],
+						"t_s": 0.6,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 40.0,
+						"pitch_deg": 35.0,
+						"pivot": [
+							-14.76,
+							8.96,
+							-77.29
+						],
+						"t_s": 1.2,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 40.0,
+						"pitch_deg": 35.0,
+						"pivot": [
+							-14.76,
+							8.96,
+							-77.29
+						],
+						"t_s": 1.8,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 40.0,
+						"pitch_deg": 35.0,
+						"pivot": [
+							-334.61,
+							14.93,
+							411.86
+						],
+						"t_s": 2.4,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 40.0,
+						"pitch_deg": 35.0,
+						"pivot": [
+							-334.61,
+							14.93,
+							411.86
+						],
+						"t_s": 3.0,
+						"yaw_deg": 30.0
+					}
+				]
+			},
+			"counters_last": {
+				"buffer_mem_mib": 32.5307235717773,
+				"cpu_ms": 0.568000018596649,
+				"cpu_status": "AVAILABLE",
+				"gpu_ms": 0.0,
+				"gpu_status": "AVAILABLE",
+				"pipelines": {
+					"canvas": 2,
+					"draw": 2,
+					"mesh": 6,
+					"specialization": 11,
+					"surface": 9
+				},
+				"scale_3d": 0.649999976158142,
+				"shadow_draws": 0,
+				"shadow_objects": 0,
+				"shadow_prims": 0,
+				"static_mem_mib": 424.484338760376,
+				"texture_mem_mib": -96.290771484375,
+				"video_mem_mib": 167.65625,
+				"viewport_size": [
+					1180,
+					820
+				],
+				"visible_draws": 158,
+				"visible_objects": 158,
+				"visible_prims": 894064
+			},
+			"counters_peak": {
+				"cpu_ms": 0.736000001430511,
+				"gpu_ms": 0.0,
+				"shadow_draws": 0.0,
+				"shadow_prims": 0.0,
+				"visible_draws": 249.0,
+				"visible_objects": 249.0,
+				"visible_prims": 3362326.0
+			},
+			"diagnostic": false,
+			"first_frame_ms": 0,
+			"id": "mixed_world_50k-performance-travel",
+			"nodes": 2399,
+			"overview_stats": {
+				"active": {
+					"128": 18,
+					"256": 10
+				},
+				"built": 80,
+				"built_triangles": 693238,
+				"cells_covered": 928,
+				"groups": 80,
+				"jobs": 0,
+				"last_mesh_ms": 0.376,
+				"last_worker_ms": 8.34,
+				"max_mesh_ms": 0.667,
+				"max_worker_ms": 20.156,
+				"mesh_builds": 240,
+				"pending_builds": 0,
+				"proxy_triangles": 271642
+			},
+			"population": {
+				"authored_meaningful": 50000,
+				"by_asset": {
+					"bench.rock.slab_a": 5000,
+					"bench.shrub.bush_cards": 9000,
+					"bench.structure.tower_a": 1000,
+					"bench.tree.broadleaf_geo": 17500,
+					"bench.tree.pine_cards": 17500
+				},
+				"decorative": 50000,
+				"layout": "km1",
+				"patches": 40,
+				"presented": 50000,
+				"represented": 50000,
+				"world": "km1"
+			},
+			"prepare_ms": 0.097,
+			"profile": "performance",
+			"render_stats": {
+				"batch_builds": 2699,
+				"batches": 2399,
+				"cell_roles": {
+					"far": 578,
+					"mid": 15
+				},
+				"cells": 593,
+				"covered_cells": 928,
+				"estimated_triangles": 14202144,
+				"full_uploads": 2699,
+				"instances": 50000,
+				"lod_evaluations": 51591,
+				"nodes": 2399,
+				"partial_uploads": 0,
+				"pending_builds": 0,
+				"placeholders": 0,
+				"pooled_nodes": 0,
+				"preview_nodes": 0,
+				"promoted": 0,
+				"visible_instances": 5242,
+				"visible_triangles": 1817128,
+				"world_epoch": 3
+			},
+			"repeat": false,
+			"scenario": "mixed_world_50k",
+			"screenshot": "/Users/andrejvysny/Library/Application Support/Godot/app_userdata/World Painter PoC/traces/bench-shots/mixed_world_50k-performance-travel.png",
+			"settle_ms": 320,
+			"settled": true,
+			"summary": {
+				"cpu_p50_ms": 0.6,
+				"cpu_p95_ms": 0.7,
+				"cpu_p99_ms": 0.8,
+				"cpu_samples": 180,
+				"cpu_status": "AVAILABLE",
+				"frame_interval_source": "wall_clock_proxy",
+				"frame_max_ms": 18.37,
+				"frame_p50_ms": 16.7,
+				"frame_p95_ms": 17.8,
+				"frame_p99_ms": 18.3,
+				"frames": 180,
+				"gpu_p50_ms": 0.1,
+				"gpu_p95_ms": 0.1,
+				"gpu_p99_ms": 0.1,
+				"gpu_samples": 180,
+				"gpu_status": "AVAILABLE",
+				"histogram_resolution_ms": 0.1,
+				"hitches_over_50_ms": 0,
+				"missed_target": 0,
+				"over_100_ms": 0,
+				"over_16_7": 84,
+				"over_250_ms": 0,
+				"over_33_4": 0,
+				"target_ms": 16.6666666666667
+			},
+			"target_budget_ms": 16.6666666666667,
+			"target_fps": 60.0,
+			"telemetry": {
+				"end": {
+					"footprint_mib": 1440.75164794922,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				},
+				"start": {
+					"footprint_mib": 1445.25164794922,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				}
+			},
+			"terrain_mesh": {
+				"lods": 7,
+				"mesh_size": 48
+			},
+			"workload": "camera_path"
+		},
+		{
+			"cache": {
+				"by_kind": {
+					"material": 10,
+					"mesh": 174716,
+					"preview_texture": 0,
+					"texture": 218452
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 26,
+				"errors": 0,
+				"evictions": 40,
+				"fallback_bytes": 38296,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 26,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 393178,
+				"soft_bytes": 402653184
+			},
+			"cache_start": {
+				"by_kind": {
+					"material": 10,
+					"mesh": 174716,
+					"preview_texture": 0,
+					"texture": 218452
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 26,
+				"errors": 0,
+				"evictions": 40,
+				"fallback_bytes": 38296,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 26,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 393178,
+				"soft_bytes": 402653184
+			},
+			"camera": "edit_sculpt",
+			"counters_last": {
+				"buffer_mem_mib": 31.3888778686523,
+				"cpu_ms": 0.310000002384186,
+				"cpu_status": "AVAILABLE",
+				"gpu_ms": 0.0,
+				"gpu_status": "AVAILABLE",
+				"pipelines": {
+					"canvas": 2,
+					"draw": 2,
+					"mesh": 6,
+					"specialization": 11,
+					"surface": 9
+				},
+				"scale_3d": 0.649999976158142,
+				"shadow_draws": 0,
+				"shadow_objects": 0,
+				"shadow_prims": 0,
+				"static_mem_mib": 424.892049789429,
+				"texture_mem_mib": -96.290771484375,
+				"video_mem_mib": 166.453125,
+				"viewport_size": [
+					1180,
+					820
+				],
+				"visible_draws": 249,
+				"visible_objects": 249,
+				"visible_prims": 2931006
+			},
+			"counters_peak": {
+				"cpu_ms": 0.388000011444092,
+				"gpu_ms": 0.0,
+				"shadow_draws": 0.0,
+				"shadow_prims": 0.0,
+				"visible_draws": 249.0,
+				"visible_objects": 249.0,
+				"visible_prims": 2931006.0
+			},
+			"diagnostic": false,
+			"first_frame_ms": 0,
+			"id": "mixed_world_50k-performance-edit_sculpt",
+			"nodes": 2399,
+			"overview_stats": {
+				"active": {
+					"128": 46,
+					"256": 1
+				},
+				"built": 76,
+				"built_triangles": 659802,
+				"cells_covered": 800,
+				"groups": 80,
+				"jobs": 0,
+				"last_mesh_ms": 0.376,
+				"last_worker_ms": 8.34,
+				"max_mesh_ms": 0.667,
+				"max_worker_ms": 20.156,
+				"mesh_builds": 240,
+				"pending_builds": 4,
+				"proxy_triangles": 362394
+			},
+			"population": {
+				"authored_meaningful": 50000,
+				"by_asset": {
+					"bench.rock.slab_a": 5000,
+					"bench.shrub.bush_cards": 9000,
+					"bench.structure.tower_a": 1000,
+					"bench.tree.broadleaf_geo": 17500,
+					"bench.tree.pine_cards": 17500
+				},
+				"decorative": 50000,
+				"layout": "km1",
+				"patches": 40,
+				"presented": 50000,
+				"represented": 50000,
+				"world": "km1"
+			},
+			"prepare_ms": 0.105,
+			"profile": "performance",
+			"render_stats": {
+				"batch_builds": 2843,
+				"batches": 2399,
+				"cell_roles": {
+					"far": 573,
+					"mid": 20
+				},
+				"cells": 593,
+				"covered_cells": 800,
+				"estimated_triangles": 15220424,
+				"full_uploads": 2843,
+				"instances": 50000,
+				"lod_evaluations": 52184,
+				"nodes": 2399,
+				"partial_uploads": 388,
+				"pending_builds": 0,
+				"placeholders": 0,
+				"pooled_nodes": 0,
+				"preview_nodes": 0,
+				"promoted": 0,
+				"visible_instances": 16738,
+				"visible_triangles": 6027540,
+				"world_epoch": 3
+			},
+			"repeat": false,
+			"scenario": "mixed_world_50k",
+			"screenshot": "/Users/andrejvysny/Library/Application Support/Godot/app_userdata/World Painter PoC/traces/bench-shots/mixed_world_50k-performance-edit_sculpt.png",
+			"settle_ms": 0,
+			"settled": true,
+			"summary": {
+				"cpu_p50_ms": 0.4,
+				"cpu_p95_ms": 0.4,
+				"cpu_p99_ms": 0.4,
+				"cpu_samples": 53,
+				"cpu_status": "AVAILABLE",
+				"frame_interval_source": "wall_clock_proxy",
+				"frame_max_ms": 116.085,
+				"frame_p50_ms": 58.8,
+				"frame_p95_ms": 60.7,
+				"frame_p99_ms": 116.085,
+				"frames": 53,
+				"gpu_p50_ms": 0.1,
+				"gpu_p95_ms": 0.1,
+				"gpu_p99_ms": 0.1,
+				"gpu_samples": 53,
+				"gpu_status": "AVAILABLE",
+				"histogram_resolution_ms": 0.1,
+				"hitches_over_50_ms": 50,
+				"missed_target": 50,
+				"over_100_ms": 1,
+				"over_16_7": 50,
+				"over_250_ms": 0,
+				"over_33_4": 50,
+				"target_ms": 16.6666666666667
+			},
+			"target_budget_ms": 16.6666666666667,
+			"target_fps": 60.0,
+			"telemetry": {
+				"end": {
+					"footprint_mib": 1441.81414794922,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				},
+				"start": {
+					"footprint_mib": 1440.75164794922,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				}
+			},
+			"terrain_mesh": {
+				"lods": 7,
+				"mesh_size": 48
+			},
+			"workload": "edit_sculpt",
+			"workload_result": {
+				"seam_x_m": 0.0,
+				"stroke_errors": 0,
+				"strokes": 2,
+				"terrain_latency": {
+					"last_ms": 55.343,
+					"max_ms": 112.244003295898,
+					"oldest_pending_ms": 109.904,
+					"p50_ms": 55.6870002746582,
+					"p95_ms": 57.2169990539551,
+					"samples": 87
+				},
+				"workload": "edit_sculpt"
+			}
+		},
+		{
+			"cache": {
+				"by_kind": {
+					"material": 10,
+					"mesh": 426344,
+					"preview_texture": 0,
+					"texture": 218452
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 27,
+				"errors": 0,
+				"evictions": 40,
+				"fallback_bytes": 38296,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 27,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 644806,
+				"soft_bytes": 402653184
+			},
+			"cache_start": {
+				"by_kind": {
+					"material": 10,
+					"mesh": 174716,
+					"preview_texture": 0,
+					"texture": 218452
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 26,
+				"errors": 0,
+				"evictions": 40,
+				"fallback_bytes": 38296,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 26,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 393178,
+				"soft_bytes": 402653184
+			},
+			"camera": "edit_move",
+			"counters_last": {
+				"buffer_mem_mib": 32.3020629882812,
+				"cpu_ms": 0.303000003099442,
+				"cpu_status": "AVAILABLE",
+				"gpu_ms": 0.0,
+				"gpu_status": "AVAILABLE",
+				"pipelines": {
+					"canvas": 2,
+					"draw": 2,
+					"mesh": 6,
+					"specialization": 15,
+					"surface": 11
+				},
+				"scale_3d": 0.649999976158142,
+				"shadow_draws": 0,
+				"shadow_objects": 0,
+				"shadow_prims": 0,
+				"static_mem_mib": 425.429513931274,
+				"texture_mem_mib": -118.290771484375,
+				"video_mem_mib": 167.3125,
+				"viewport_size": [
+					1180,
+					820
+				],
+				"visible_draws": 252,
+				"visible_objects": 252,
+				"visible_prims": 3088066
+			},
+			"counters_peak": {
+				"cpu_ms": 0.871999979019165,
+				"gpu_ms": 0.0,
+				"shadow_draws": 0.0,
+				"shadow_prims": 0.0,
+				"visible_draws": 252.0,
+				"visible_objects": 252.0,
+				"visible_prims": 3088066.0
+			},
+			"diagnostic": false,
+			"first_frame_ms": 0,
+			"id": "mixed_world_50k-performance-edit_move",
+			"nodes": 2400,
+			"overview_stats": {
+				"active": {
+					"128": 46,
+					"256": 1
+				},
+				"built": 78,
+				"built_triangles": 678060,
+				"cells_covered": 800,
+				"groups": 80,
+				"jobs": 0,
+				"last_mesh_ms": 0.325,
+				"last_worker_ms": 8.492,
+				"max_mesh_ms": 0.667,
+				"max_worker_ms": 20.156,
+				"mesh_builds": 320,
+				"pending_builds": 2,
+				"proxy_triangles": 362394
+			},
+			"population": {
+				"authored_meaningful": 50000,
+				"by_asset": {
+					"bench.rock.slab_a": 5000,
+					"bench.shrub.bush_cards": 9000,
+					"bench.structure.tower_a": 1000,
+					"bench.tree.broadleaf_geo": 17500,
+					"bench.tree.pine_cards": 17500
+				},
+				"decorative": 50000,
+				"layout": "km1",
+				"patches": 40,
+				"presented": 50000,
+				"represented": 50000,
+				"world": "km1"
+			},
+			"prepare_ms": 0.098,
+			"profile": "performance",
+			"render_stats": {
+				"batch_builds": 5242,
+				"batches": 2399,
+				"cell_roles": {
+					"far": 571,
+					"mid": 22
+				},
+				"cells": 593,
+				"covered_cells": 800,
+				"estimated_triangles": 15415936,
+				"full_uploads": 5242,
+				"instances": 50000,
+				"lod_evaluations": 52777,
+				"nodes": 2400,
+				"partial_uploads": 401,
+				"pending_builds": 0,
+				"placeholders": 0,
+				"pooled_nodes": 1,
+				"preview_nodes": 0,
+				"promoted": 0,
+				"visible_instances": 16738,
+				"visible_triangles": 6223052,
+				"world_epoch": 4
+			},
+			"repeat": false,
+			"scenario": "mixed_world_50k",
+			"screenshot": "/Users/andrejvysny/Library/Application Support/Godot/app_userdata/World Painter PoC/traces/bench-shots/mixed_world_50k-performance-edit_move.png",
+			"settle_ms": 4327,
+			"settled": true,
+			"summary": {
+				"cpu_p50_ms": 0.6,
+				"cpu_p95_ms": 0.8,
+				"cpu_p99_ms": 0.8,
+				"cpu_samples": 183,
+				"cpu_status": "AVAILABLE",
+				"frame_interval_source": "wall_clock_proxy",
+				"frame_max_ms": 18.989,
+				"frame_p50_ms": 16.7,
+				"frame_p95_ms": 17.9,
+				"frame_p99_ms": 18.7,
+				"frames": 183,
+				"gpu_p50_ms": 0.1,
+				"gpu_p95_ms": 0.1,
+				"gpu_p99_ms": 0.1,
+				"gpu_samples": 183,
+				"gpu_status": "AVAILABLE",
+				"histogram_resolution_ms": 0.1,
+				"hitches_over_50_ms": 0,
+				"missed_target": 0,
+				"over_100_ms": 0,
+				"over_16_7": 88,
+				"over_250_ms": 0,
+				"over_33_4": 0,
+				"target_ms": 16.6666666666667
+			},
+			"target_budget_ms": 16.6666666666667,
+			"target_fps": 60.0,
+			"telemetry": {
+				"end": {
+					"footprint_mib": 1378.8143081665,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				},
+				"start": {
+					"footprint_mib": 1373.2518081665,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				}
+			},
+			"terrain_mesh": {
+				"lods": 7,
+				"mesh_size": 48
+			},
+			"workload": "edit_move",
+			"workload_result": {
+				"moves": 183,
+				"object_id": "71756e59-5472-4472-a9f8-08bb9a28bd65",
+				"sweep_m": 70.0,
+				"terrain_latency": {
+					"last_ms": 0.0,
+					"max_ms": 0.0,
+					"oldest_pending_ms": 0.0,
+					"p50_ms": 0.0,
+					"p95_ms": 0.0,
+					"samples": 0
+				},
+				"workload": "edit_move"
+			}
+		},
+		{
+			"cache": {
+				"by_kind": {
+					"material": 10,
+					"mesh": 426344,
+					"preview_texture": 0,
+					"texture": 218452
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 27,
+				"errors": 0,
+				"evictions": 80,
+				"fallback_bytes": 38296,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 27,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 644806,
+				"soft_bytes": 402653184
+			},
+			"cache_start": {
+				"by_kind": {
+					"material": 10,
+					"mesh": 426344,
+					"preview_texture": 0,
+					"texture": 218452
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 27,
+				"errors": 0,
+				"evictions": 40,
+				"fallback_bytes": 38296,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 27,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 644806,
+				"soft_bytes": 402653184
+			},
+			"camera": "preview_cycles",
+			"counters_last": {
+				"buffer_mem_mib": 32.8453483581543,
+				"cpu_ms": 0.32600000500679,
+				"cpu_status": "AVAILABLE",
+				"gpu_ms": 0.0,
+				"gpu_status": "AVAILABLE",
+				"pipelines": {
+					"canvas": 2,
+					"draw": 2,
+					"mesh": 6,
+					"specialization": 15,
+					"surface": 11
+				},
+				"scale_3d": 0.649999976158142,
+				"shadow_draws": 0,
+				"shadow_objects": 0,
+				"shadow_prims": 0,
+				"static_mem_mib": 392.050245285034,
+				"texture_mem_mib": -251.822021484375,
+				"video_mem_mib": 168.015625,
+				"viewport_size": [
+					1180,
+					820
+				],
+				"visible_draws": 249,
+				"visible_objects": 249,
+				"visible_prims": 3080678
+			},
+			"counters_peak": {
+				"cpu_ms": 1.31500005722046,
+				"gpu_ms": 0.0,
+				"shadow_draws": 0.0,
+				"shadow_prims": 0.0,
+				"visible_draws": 250.0,
+				"visible_objects": 250.0,
+				"visible_prims": 3080744.0
+			},
+			"diagnostic": false,
+			"first_frame_ms": 1,
+			"id": "mixed_world_50k-performance-preview_cycles",
+			"nodes": 2400,
+			"overview_stats": {
+				"active": {
+					"128": 46,
+					"256": 1
+				},
+				"built": 80,
+				"built_triangles": 693238,
+				"cells_covered": 800,
+				"groups": 80,
+				"jobs": 0,
+				"last_mesh_ms": 0.321,
+				"last_worker_ms": 7.431,
+				"max_mesh_ms": 0.667,
+				"max_worker_ms": 20.156,
+				"mesh_builds": 400,
+				"pending_builds": 0,
+				"proxy_triangles": 362394
+			},
+			"population": {
+				"authored_meaningful": 50000,
+				"by_asset": {
+					"bench.rock.slab_a": 5000,
+					"bench.shrub.bush_cards": 9000,
+					"bench.structure.tower_a": 1000,
+					"bench.tree.broadleaf_geo": 17500,
+					"bench.tree.pine_cards": 17500
+				},
+				"decorative": 50000,
+				"layout": "km1",
+				"patches": 40,
+				"presented": 50000,
+				"represented": 50000,
+				"world": "km1"
+			},
+			"prepare_ms": 0.094,
+			"profile": "performance",
+			"render_stats": {
+				"batch_builds": 7641,
+				"batches": 2399,
+				"cell_roles": {
+					"far": 571,
+					"mid": 22
+				},
+				"cells": 593,
+				"covered_cells": 800,
+				"estimated_triangles": 15415936,
+				"full_uploads": 7641,
+				"instances": 50000,
+				"lod_evaluations": 53370,
+				"nodes": 2400,
+				"partial_uploads": 401,
+				"pending_builds": 0,
+				"placeholders": 0,
+				"pooled_nodes": 1,
+				"preview_nodes": 0,
+				"promoted": 0,
+				"visible_instances": 16738,
+				"visible_triangles": 6223052,
+				"world_epoch": 5
+			},
+			"repeat": false,
+			"scenario": "mixed_world_50k",
+			"screenshot": "/Users/andrejvysny/Library/Application Support/Godot/app_userdata/World Painter PoC/traces/bench-shots/mixed_world_50k-performance-preview_cycles.png",
+			"settle_ms": 4538,
+			"settled": true,
+			"summary": {
+				"cpu_p50_ms": 0.4,
+				"cpu_p95_ms": 0.8,
+				"cpu_p99_ms": 0.9,
+				"cpu_samples": 701,
+				"cpu_status": "AVAILABLE",
+				"frame_interval_source": "wall_clock_proxy",
+				"frame_max_ms": 35.831,
+				"frame_p50_ms": 16.7,
+				"frame_p95_ms": 18.0,
+				"frame_p99_ms": 33.4,
+				"frames": 701,
+				"gpu_p50_ms": 0.1,
+				"gpu_p95_ms": 0.1,
+				"gpu_p99_ms": 0.1,
+				"gpu_samples": 701,
+				"gpu_status": "AVAILABLE",
+				"histogram_resolution_ms": 0.1,
+				"hitches_over_50_ms": 0,
+				"missed_target": 20,
+				"over_100_ms": 0,
+				"over_16_7": 334,
+				"over_250_ms": 0,
+				"over_33_4": 6,
+				"target_ms": 16.6666666666667
+			},
+			"target_budget_ms": 16.6666666666667,
+			"target_fps": 60.0,
+			"telemetry": {
+				"end": {
+					"footprint_mib": 1191.2361831665,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				},
+				"start": {
+					"footprint_mib": 1185.4549331665,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				}
+			},
+			"terrain_mesh": {
+				"lods": 7,
+				"mesh_size": 48
+			},
+			"workload": "preview_cycles",
+			"workload_result": {
+				"completed": true,
+				"cycles": [
+					{
+						"after": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 42,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"before": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 40,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"cycle": 0,
+						"during": {
+							"entries": 29,
+							"errors": 0,
+							"evictions": 40,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 9033412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 44,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"before": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 42,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"cycle": 1,
+						"during": {
+							"entries": 29,
+							"errors": 0,
+							"evictions": 42,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 9033412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 46,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"before": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 44,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"cycle": 2,
+						"during": {
+							"entries": 29,
+							"errors": 0,
+							"evictions": 44,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 9033412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 48,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"before": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 46,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"cycle": 3,
+						"during": {
+							"entries": 29,
+							"errors": 0,
+							"evictions": 46,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 9033412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 50,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"before": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 48,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"cycle": 4,
+						"during": {
+							"entries": 29,
+							"errors": 0,
+							"evictions": 48,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 9033412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 52,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"before": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 50,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"cycle": 5,
+						"during": {
+							"entries": 29,
+							"errors": 0,
+							"evictions": 50,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 9033412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 54,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"before": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 52,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"cycle": 6,
+						"during": {
+							"entries": 29,
+							"errors": 0,
+							"evictions": 52,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 9033412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 56,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"before": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 54,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"cycle": 7,
+						"during": {
+							"entries": 29,
+							"errors": 0,
+							"evictions": 54,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 9033412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 58,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"before": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 56,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"cycle": 8,
+						"during": {
+							"entries": 29,
+							"errors": 0,
+							"evictions": 56,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 9033412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 60,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"before": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 58,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"cycle": 9,
+						"during": {
+							"entries": 29,
+							"errors": 0,
+							"evictions": 58,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 9033412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 62,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"before": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 60,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"cycle": 10,
+						"during": {
+							"entries": 29,
+							"errors": 0,
+							"evictions": 60,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 9033412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 64,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"before": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 62,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"cycle": 11,
+						"during": {
+							"entries": 29,
+							"errors": 0,
+							"evictions": 62,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 9033412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 66,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"before": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 64,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"cycle": 12,
+						"during": {
+							"entries": 29,
+							"errors": 0,
+							"evictions": 64,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 9033412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 68,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"before": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 66,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"cycle": 13,
+						"during": {
+							"entries": 29,
+							"errors": 0,
+							"evictions": 66,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 9033412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 70,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"before": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 68,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"cycle": 14,
+						"during": {
+							"entries": 29,
+							"errors": 0,
+							"evictions": 68,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 9033412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 72,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"before": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 70,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"cycle": 15,
+						"during": {
+							"entries": 29,
+							"errors": 0,
+							"evictions": 70,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 9033412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 74,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"before": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 72,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"cycle": 16,
+						"during": {
+							"entries": 29,
+							"errors": 0,
+							"evictions": 72,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 9033412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 76,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"before": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 74,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"cycle": 17,
+						"during": {
+							"entries": 29,
+							"errors": 0,
+							"evictions": 74,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 9033412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 78,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"before": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 76,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"cycle": 18,
+						"during": {
+							"entries": 29,
+							"errors": 0,
+							"evictions": 76,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 9033412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					},
+					{
+						"after": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 80,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"before": {
+							"entries": 27,
+							"errors": 0,
+							"evictions": 78,
+							"loading": 0,
+							"preview_bytes": 0,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 644806
+						},
+						"cycle": 19,
+						"during": {
+							"entries": 29,
+							"errors": 0,
+							"evictions": 78,
+							"loading": 0,
+							"preview_bytes": 8388606,
+							"queued": 0,
+							"rejected": 0,
+							"reserved_bytes": 0,
+							"resident_bytes": 9033412
+						},
+						"load_frames": 2,
+						"released": true,
+						"state_reached": "ACTIVE"
+					}
+				],
+				"cycles_done": 20,
+				"cycles_requested": 20,
+				"skipped_restricted": false,
+				"workload": "preview_cycles"
+			}
+		},
+		{
+			"cache": {
+				"by_kind": {
+					"material": 10,
+					"mesh": 426344,
+					"preview_texture": 0,
+					"texture": 218452
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 27,
+				"errors": 0,
+				"evictions": 80,
+				"fallback_bytes": 38296,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 27,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 644806,
+				"soft_bytes": 402653184
+			},
+			"cache_start": {
+				"by_kind": {
+					"material": 10,
+					"mesh": 426344,
+					"preview_texture": 0,
+					"texture": 218452
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 27,
+				"errors": 0,
+				"evictions": 80,
+				"fallback_bytes": 38296,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 27,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 644806,
+				"soft_bytes": 402653184
+			},
+			"camera": "overview",
+			"camera_poses": {
+				"duration_s": 3.0,
+				"path": "overview",
+				"samples": [
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 0.0,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 0.6,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 1.2,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 1.8,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 2.4,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 3.0,
+						"yaw_deg": 30.0
+					}
+				]
+			},
+			"counters_last": {
+				"buffer_mem_mib": 7.38742828369141,
+				"cpu_ms": 0.345999985933304,
+				"cpu_status": "AVAILABLE",
+				"gpu_ms": 0.0,
+				"gpu_status": "AVAILABLE",
+				"pipelines": {
+					"canvas": 2,
+					"draw": 2,
+					"mesh": 6,
+					"specialization": 15,
+					"surface": 11
+				},
+				"scale_3d": 0.649999976158142,
+				"shadow_draws": 0,
+				"shadow_objects": 0,
+				"shadow_prims": 0,
+				"static_mem_mib": 343.459730148315,
+				"texture_mem_mib": -273.822021484375,
+				"video_mem_mib": 140.609375,
+				"viewport_size": [
+					1180,
+					820
+				],
+				"visible_draws": 115,
+				"visible_objects": 115,
+				"visible_prims": 355424
+			},
+			"counters_peak": {
+				"cpu_ms": 0.677999973297119,
+				"gpu_ms": 0.0,
+				"shadow_draws": 0.0,
+				"shadow_prims": 0.0,
+				"visible_draws": 115.0,
+				"visible_objects": 115.0,
+				"visible_prims": 355424.0
+			},
+			"diagnostic": false,
+			"first_frame_ms": 1,
+			"id": "grass_50k-performance-overview-repeat",
+			"nodes": 1,
+			"overview_stats": {
+				"active": {
+					"256": 16
+				},
+				"built": 80,
+				"built_triangles": 0,
+				"cells_covered": 1024,
+				"groups": 80,
+				"jobs": 0,
+				"last_mesh_ms": 0.025,
+				"last_worker_ms": 7.431,
+				"max_mesh_ms": 0.667,
+				"max_worker_ms": 20.156,
+				"mesh_builds": 480,
+				"pending_builds": 0,
+				"proxy_triangles": 0
+			},
+			"population": {
+				"authored_meaningful": 0,
+				"by_asset": {},
+				"decorative": 50000,
+				"layout": "km1",
+				"patches": 60,
+				"presented": 0,
+				"represented": 0,
+				"world": "km1"
+			},
+			"prepare_ms": 0.094,
+			"profile": "performance",
+			"render_stats": {
+				"batch_builds": 7641,
+				"batches": 0,
+				"cell_roles": {},
+				"cells": 0,
+				"covered_cells": 1024,
+				"estimated_triangles": 0,
+				"full_uploads": 7641,
+				"instances": 0,
+				"lod_evaluations": 53370,
+				"nodes": 1,
+				"partial_uploads": 401,
+				"pending_builds": 0,
+				"placeholders": 0,
+				"pooled_nodes": 1,
+				"preview_nodes": 0,
+				"promoted": 0,
+				"visible_instances": 0,
+				"visible_triangles": 0,
+				"world_epoch": 6
+			},
+			"repeat": true,
+			"scenario": "grass_50k",
+			"screenshot": "/Users/andrejvysny/Library/Application Support/Godot/app_userdata/World Painter PoC/traces/bench-shots/grass_50k-performance-overview.png",
+			"settle_ms": 3,
+			"settled": true,
+			"summary": {
+				"cpu_p50_ms": 0.4,
+				"cpu_p95_ms": 0.6,
+				"cpu_p99_ms": 0.7,
+				"cpu_samples": 180,
+				"cpu_status": "AVAILABLE",
+				"frame_interval_source": "wall_clock_proxy",
+				"frame_max_ms": 19.026,
+				"frame_p50_ms": 16.7,
+				"frame_p95_ms": 17.5,
+				"frame_p99_ms": 18.9,
+				"frames": 180,
+				"gpu_p50_ms": 0.1,
+				"gpu_p95_ms": 0.1,
+				"gpu_p99_ms": 0.1,
+				"gpu_samples": 180,
+				"gpu_status": "AVAILABLE",
+				"histogram_resolution_ms": 0.1,
+				"hitches_over_50_ms": 0,
+				"missed_target": 0,
+				"over_100_ms": 0,
+				"over_16_7": 83,
+				"over_250_ms": 0,
+				"over_33_4": 0,
+				"target_ms": 16.6666666666667
+			},
+			"target_budget_ms": 16.6666666666667,
+			"target_fps": 60.0,
+			"telemetry": {
+				"end": {
+					"footprint_mib": 1219.82995605469,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				},
+				"start": {
+					"footprint_mib": 1302.26745605469,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				}
+			},
+			"terrain_mesh": {
+				"lods": 7,
+				"mesh_size": 48
+			},
+			"workload": "camera_path"
+		}
+	],
+	"viewport_size": [
+		1180,
+		820
+	],
+	"warmup_frames": 90,
+	"warmup_seconds": 1.0
+}
