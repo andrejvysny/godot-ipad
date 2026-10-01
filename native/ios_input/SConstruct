@@ -26,7 +26,7 @@ if platform == "macos":
     # godot-cpp only suffixes OBJSUFFIX; keep debug/release shared objects apart as well.
     env["SHOBJSUFFIX"] = env["suffix"] + env["SHOBJSUFFIX"]
     objc_env["SHOBJSUFFIX"] = env["SHOBJSUFFIX"]
-    env.Append(LINKFLAGS=["-framework", "QuartzCore"])
+    env.Append(LINKFLAGS=["-framework", "QuartzCore", "-framework", "Foundation"])
     sources = [env.SharedObject(f) for f in Glob("build/obj/*.cpp")]
     sources += [objc_env.SharedObject(f) for f in Glob("build/obj/*.mm")]
     library = env.SharedLibrary(

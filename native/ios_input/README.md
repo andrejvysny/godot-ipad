@@ -221,6 +221,33 @@ export links the static xcframework and registers `wp_native_input_init` by name
 - Run: `python3 scripts/godot_test.py --sandbox <name> --filter native`. None of these exercise
   UIKit; the device steps below are the only evidence for iOS behaviour.
 
+## Platform telemetry (WPPlatformTelemetry)
+
+Optional, spec `docs/rendering-performance-spec.md` §18.2. A separate `godot::RefCounted` class registered in the same
+extension (`src/wp_platform_telemetry.*`, `src/platform_telemetry*.{h,mm}`). It has no singleton and shares no state,
+thread or `NSNotificationCenter` observer with `WPNativeInput`, `TouchRecordQueue` or the Pencil/touch path; the input
+queue ordering and contracts are untouched. Create it with `WPPlatformTelemetry.new()`; GDScript wrapper:
+`app/src/rendering/render_platform_telemetry.gd` (`RenderPlatformTelemetry`).
+
+| method | result |
+|---|---|
+| `is_available() -> bool` | true when the Apple implementation is linked (iOS and macOS host) |
+| `thermal_state() -> int` | `NSProcessInfo.thermalState`: 0 nominal, 1 fair, 2 serious, 3 critical; -1 unavailable/unknown |
+| `footprint_bytes() -> int` | `task_info(TASK_VM_INFO).phys_footprint`; -1 on failure (never 0 for unavailable) |
+| `consume_memory_warnings() -> int` | iOS: `UIApplicationDidReceiveMemoryWarningNotification` count since the previous call; macOS: 0 |
+| `source() -> String` | `ios_native` or `macos_native` |
+
+- The memory-warning observer is registered on the first `consume_memory_warnings()` call (earlier warnings are not
+  counted) and removed in the destructor. The token is an ARC-owned `id`; the notification block holds only a
+  `shared_ptr<std::atomic<int64_t>>`, so a block in flight never touches freed memory. Counting is thread-safe.
+- Public API only (Foundation, mach `task_info`, UIKit notification name). Calls are cheap and allocation-free apart from
+  the return value; sample at low frequency from the main thread.
+- Builds without the class (no extension, or any non-Apple platform) are handled by `RenderPlatformTelemetry`, which
+  reports `thermal = "unavailable"`, `thermal_level = -1`, `footprint_mib = null`, `source = "unavailable"` and supports
+  injected test events (`inject_thermal`, `inject_memory_warning`, `clear_injection`; source `"injected"`).
+- Tests: `app/tests/unit/test_render_platform_telemetry.gd`. Device behaviour (real thermal transitions, memory
+  warnings) is NOT RUN until measured on an iPad.
+
 ## Limitations
 
 - Untested on hardware until gate G1. Nothing here proves Pencil identity, pressure, coalescing or

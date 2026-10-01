@@ -1,6 +1,7 @@
 #include "register_types.h"
 
 #include "wp_native_input.h"
+#include "wp_platform_telemetry.h"
 
 #include <gdextension_interface.h>
 #include <godot_cpp/classes/engine.hpp>
@@ -22,6 +23,7 @@ void initialize_wp_native_input(ModuleInitializationLevel p_level) {
     return;
   }
   GDREGISTER_ABSTRACT_CLASS(WPNativeInput);
+  GDREGISTER_CLASS(WPPlatformTelemetry);
   singleton = memnew(WPNativeInput);
   Engine::get_singleton()->register_singleton(SINGLETON_NAME, singleton);
 }
