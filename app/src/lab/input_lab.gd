@@ -16,7 +16,7 @@ var runtime := LabRuntimeDiagnostics.new()
 var _panel := VBoxContainer.new()
 var _status := Label.new()
 var _source := Label.new()
-var _message := "Pressure disabled. Pencil paints; fingers navigate."
+var _message := "Pressure disabled. Pencil paints; fingers navigate and use controls."
 var _object: Node3D
 var _last_sample: Dictionary = {}
 var _last_begin: Dictionary = {}
@@ -434,7 +434,7 @@ func _process(_delta: float) -> void:
 	if not refresh_ui:
 		return
 	_refresh_diagnostics()
-	_source.text = "%s\nPencil: buttons and paint\nFingers: camera only\n%s %s" % [input.provider_label(),
+	_source.text = "%s\nPencil: buttons and paint\nFingers: buttons and camera\n%s %s" % [input.provider_label(),
 		_last_sample.get("source", "no BEGIN yet"), _last_sample.get("phase", "")]
 	_status.text = "%s\n%s\n%s\n%s\nRevision %d · %s\nFrame %.1f ms · tick %d" % [input.banner_text(),
 		_message, _last_operation, input.router.state_name(), document.document_revision,

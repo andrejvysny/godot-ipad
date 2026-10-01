@@ -13,6 +13,8 @@ extends InputProvider
 
 const SINGLETON_NAME := "WPNativeInput"
 const RECORD_STRIDE := 14
+## Records at least this wide carry the optional MAJOR_RADIUS field (older bridges send 14).
+const RADIUS_STRIDE := 15
 const EXPLICIT_CANCEL_CODE := 4
 const CANCEL_REASON_NAMES := {
 	1: "native_cancel", 2: "app_deactivated", 3: "queue_overflow", 4: "explicit", 5: "view_changed",
@@ -23,7 +25,7 @@ const FLAG_PREDICTED := 2
 ## Field offsets inside one record; see native/ios_input/README.md "Record layout".
 enum Field {
 	SOURCE, POINTER_ID, PHASE, TIMESTAMP, X, Y, PRESSURE_VALID, PRESSURE, TILT_VALID, TILT_X,
-	TILT_Y, FLAGS, SEQUENCE, CANCEL_REASON,
+	TILT_Y, FLAGS, SEQUENCE, CANCEL_REASON, MAJOR_RADIUS,
 }
 
 var _bridge: Object = null
@@ -143,12 +145,16 @@ static func decode_records(flat: PackedFloat64Array, stride: int) -> Array[Point
 	if layout_error(flat.size(), stride) != "":
 		return out
 	for i in range(0, flat.size(), stride):
-		out.append(_decode_record(flat, i))
+		out.append(_decode_record(flat, i, stride))
 	return out
 
 
-static func _decode_record(flat: PackedFloat64Array, i: int) -> PointerSample:
+static func _decode_record(flat: PackedFloat64Array, i: int, stride: int) -> PointerSample:
 	var s := PointerSample.new()
+	if stride >= RADIUS_STRIDE:
+		var radius: float = flat[i + Field.MAJOR_RADIUS]
+		s.major_radius_valid = is_finite(radius) and radius >= 0.0
+		s.major_radius = radius if s.major_radius_valid else 0.0
 	s.source = _decode_source(flat[i + Field.SOURCE])
 	s.pointer_id = int(flat[i + Field.POINTER_ID])
 	s.timestamp_s = flat[i + Field.TIMESTAMP]

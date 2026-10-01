@@ -16,7 +16,9 @@ separately from Core results.
 | V2-UI-01 | Tap each mode tile (Sculpt, Paint, Place); tap the active tile again | Popover opens on the dominant-hand side, lists that mode's tools, closes on the second tap; each mode remembers its last tool | NOT RUN |
 | V2-UI-02 | Open the popover, then draw on the terrain with the Pencil | Popover and world menu close when the Pencil touches the world; stroke is not lost | NOT RUN |
 | V2-UI-03 | Tap the active-tool chip; use **Invert** on Raise, Paint, Scatter, Fill | Chip label and colour show the invert state; stroke follows it; switching tool clears invert | NOT RUN |
-| V2-UI-04 | Finger-touch every button, scrub field, swatch and Library tile | Nothing reacts to fingers; Pencil operates all of them | NOT RUN |
+| V2-UI-04 | Finger-tap every button, tab and menu entry; finger-drag every slider and scrub field; finger-tap a Library tile (ADR 0011) | Every control reacts to the finger like to the Pencil; the Library tile arms | NOT RUN |
+| V2-UI-04b | Rest a palm on the UI while drawing with the Pencil; lift the Pencil and tap a button with a finger within 0.3 s, then after 0.3 s | Palm and early finger touches fire nothing (diagnostics `finger_ui_guarded` / `finger_ui_palm`); the later tap works | NOT RUN |
+| V2-UI-04c | Finger-drag from a Library tile into the world; finger-tap the tile; finger-drag and pinch in the viewport | Drag places nothing, tap arms, viewport fingers only navigate and never edit | NOT RUN |
 | V2-UI-05 | Toggle Left-handed layout (world menu) | Rail and popover mirror to the right, Library to the left; diagnostics stay clear of the Library | NOT RUN |
 | V2-UI-06 | Trigger a long toast (e.g. export result) and open diagnostics | Toast wraps inside the free span, never overlaps the rail, popover or Library; diagnostics panel stays above the chip and scrolls | NOT RUN |
 | V2-UI-07 | World menu status after an edit and after waiting | Shows "Saving revision N" then "Saved · revision N" | NOT RUN |

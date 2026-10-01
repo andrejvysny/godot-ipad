@@ -59,7 +59,8 @@ enum Field : int {
   F_FLAGS,
   F_SEQUENCE,
   F_CANCEL_REASON,
-  RECORD_STRIDE, // 14
+  F_MAJOR_RADIUS, // points; NaN when unknown
+  RECORD_STRIDE,  // 15
 };
 
 struct TouchSample {
@@ -73,6 +74,8 @@ struct TouchSample {
   double tilt_x = 0.0;
   double tilt_y = 0.0;
   uint32_t flags = 0;
+  bool radius_valid = false;
+  double major_radius = 0.0; // UITouch.majorRadius, points
 };
 
 struct QueueStats {

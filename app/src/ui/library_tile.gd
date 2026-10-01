@@ -194,6 +194,9 @@ func _on_motion(pos: Vector2) -> void:
 	if not _dragging:
 		if pos.distance_to(_press_pos) <= DRAG_PX:
 			return
+		if not _session.input.ui_press_is_pencil():
+			_dead = true  # a finger may arm by tap but never drags an asset into the world
+			return
 		var error := _session.tools.begin_drop(asset_id)
 		if error != "":
 			_session.post_message(error, true)

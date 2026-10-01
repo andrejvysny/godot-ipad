@@ -35,7 +35,7 @@ func test_macos_bridge_is_inert() -> void:
 	var bridge := _bridge()
 	if not assert_true(bridge != null, "singleton present"):
 		return
-	assert_eq(bridge.call("get_record_stride"), 14, "record stride")
+	assert_eq(bridge.call("get_record_stride"), 15, "record stride")
 	assert_eq(bridge.call("start"), false, "start() refuses on macOS")
 	assert_eq(bridge.call("is_active"), false)
 	var caps: Dictionary = bridge.call("get_capabilities")

@@ -40,6 +40,8 @@ wpni::TouchSample wp_sample_for_touch(UITouch *p_touch, UIView *p_view,
   sample.x = location.x;
   sample.y = location.y;
   sample.flags = p_flags;
+  sample.radius_valid = std::isfinite(p_touch.majorRadius);
+  sample.major_radius = p_touch.majorRadius;
   if (p_touch.type != UITouchTypePencil) {
     return sample;
   }

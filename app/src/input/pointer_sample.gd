@@ -22,6 +22,8 @@ var is_coalesced := false
 var sample_sequence: int = 0  ## monotonic per provider
 var mapping_generation: int = -1
 var cancel_reason: String = ""  ## set on CANCEL
+var major_radius_valid := false
+var major_radius: float = 0.0  ## UITouch.majorRadius in points; meaningful only when major_radius_valid
 
 
 func is_pencil_like() -> bool:
@@ -49,6 +51,8 @@ func clone() -> PointerSample:
 	s.sample_sequence = sample_sequence
 	s.mapping_generation = mapping_generation
 	s.cancel_reason = cancel_reason
+	s.major_radius_valid = major_radius_valid
+	s.major_radius = major_radius
 	return s
 
 

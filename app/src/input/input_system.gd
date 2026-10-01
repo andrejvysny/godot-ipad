@@ -58,6 +58,9 @@ var platform_override: String = ""
 var provider_override: InputProvider = null
 var native_provider_path: String = NATIVE_PROVIDER_PATH
 var orbit_threshold_pt: float = 5.0
+## Palm guards for finger UI (config input.*); forwarded to the router.
+var finger_ui_guard_s: float = 0.3
+var palm_radius_pt: float = 30.0
 
 var router := InputRouter.new()
 var mapper := CoordinateMapper.new()
@@ -72,6 +75,7 @@ var _recent_diagnostics: Array[Dictionary] = []
 var _stats := {"samples": 0, "swallowed": 0, "synthetic": 0, "cancels": 0}
 var _ui_last := Vector2.ZERO
 var _ui_press_control: Control = null
+var _ui_press_source := "pencil"
 var _guards: Dictionary = {}  # guarded viewport instance id -> RawInputGuard
 var _open := {"tool": false, "ui": false, "camera": false}  # as listeners have seen it
 var _cancel_serial := 0
@@ -83,6 +87,7 @@ func _ready() -> void:
 	_is_ios = (platform_override if platform_override != "" else OS.get_name()) == "iOS"
 	ui_hits.root = get_tree().root
 	router.ui_hit_test = ui_hits.hit_callable()
+	_load_input_config()
 	_select_provider()
 	_provider.provider_failed.connect(_on_provider_failed)
 	if _provider.has_signal("cancel_requested"):
@@ -103,6 +108,11 @@ func _exit_tree() -> void:
 
 func active_provider() -> InputProvider:
 	return _provider
+
+
+## True when the open UI press came from a Pencil (or the desktop mouse); false for a finger.
+func ui_press_is_pencil() -> bool:
+	return _ui_press_source != "finger"
 
 
 func is_ios_path() -> bool:
@@ -211,6 +221,22 @@ func _notification(what: int) -> void:
 				cancel_all("app_deactivated")
 
 
+func _load_input_config() -> void:
+	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://config/poc_defaults.json"))
+	if typeof(parsed) != TYPE_DICTIONARY or typeof((parsed as Dictionary).get("input")) != TYPE_DICTIONARY:
+		_apply_finger_ui_params()
+		return
+	var cfg: Dictionary = (parsed as Dictionary)["input"]
+	finger_ui_guard_s = maxf(0.0, float(cfg.get("finger_ui_guard_s", finger_ui_guard_s)))
+	palm_radius_pt = maxf(0.0, float(cfg.get("palm_radius_pt", palm_radius_pt)))
+	_apply_finger_ui_params()
+
+
+func _apply_finger_ui_params() -> void:
+	router.finger_ui_guard_s = finger_ui_guard_s
+	router.palm_radius_pt = palm_radius_pt  # raw points: compared with the native touch radius
+
+
 func _refresh_mapping() -> void:
 	var root := get_tree().root
 	var was_valid := mapper.is_valid()
@@ -284,6 +310,7 @@ func _on_provider_failed(reason: String) -> void:
 		router = InputRouter.new()  # IDs and suppressed contacts belong to the old provider
 		router.ui_hit_test = ui_hits.hit_callable()
 		router.orbit_threshold = threshold
+		_apply_finger_ui_params()
 		router.set_modal(was_modal)
 		_use_provider(GodotTouchFallbackProvider.new())
 		_provider.provider_failed.connect(_on_provider_failed)
@@ -361,6 +388,8 @@ func _emit_action(a: Dictionary) -> void:
 		"tool":
 			tool_action.emit(a)
 		"ui":
+			if t == "ui_press":
+				_ui_press_source = str(a.get("source", "pencil"))
 			if t == "ui_cancel":
 				ui_cancelled.emit(str(a.reason))
 			if _is_ios:

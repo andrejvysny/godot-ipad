@@ -50,7 +50,7 @@ func test_rail_switches_modes_and_toggles_popover() -> void:
 	assert_eq(s.history.size(), 0)
 
 
-func test_finger_never_operates_controls_but_pencil_picks_a_tool() -> void:
+func test_finger_and_pencil_both_pick_a_tool() -> void:
 	var s := await _start()
 	var ui := _ui(s)
 	await _tool(s, "raise")
@@ -58,7 +58,8 @@ func test_finger_never_operates_controls_but_pencil_picks_a_tool() -> void:
 	var p := _center(ui.popover().tool_tile("flatten"))
 	await _feed(s, PointerSample.Source.FINGER, PointerSample.Phase.BEGIN, p)
 	await _feed(s, PointerSample.Source.FINGER, PointerSample.Phase.END, p)
-	assert_eq(s.tools.active_tool(), "raise", "finger never operates controls")
+	assert_eq(s.tools.active_tool(), "flatten", "a finger operates controls (ADR 0011)")
+	await _tool(s, "raise")
 	await _pencil_click(s, ui.popover().tool_tile("flatten"))
 	assert_eq(s.tools.active_tool(), "flatten")
 	assert_true(ui.popover().tool_tile("flatten").button_pressed)

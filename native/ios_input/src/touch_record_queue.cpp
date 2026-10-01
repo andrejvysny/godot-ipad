@@ -1,6 +1,7 @@
 #include "touch_record_queue.h"
 
 #include <algorithm>
+#include <cmath>
 #include <unordered_set>
 
 namespace wpni {
@@ -102,6 +103,7 @@ void TouchRecordQueue::append_locked(const Contact &p_contact, int p_phase,
   r[F_FLAGS] = static_cast<double>(p_sample.flags);
   r[F_SEQUENCE] = static_cast<double>(next_sequence_++);
   r[F_CANCEL_REASON] = p_phase == PHASE_CANCEL ? p_reason : CANCEL_NONE;
+  r[F_MAJOR_RADIUS] = p_sample.radius_valid ? p_sample.major_radius : NAN;
   records_.insert(records_.end(), r, r + RECORD_STRIDE);
   records_emitted_ += 1;
 }

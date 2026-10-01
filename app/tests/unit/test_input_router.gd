@@ -240,15 +240,122 @@ func test_pencil_may_begin_in_wait_release() -> void:
 
 # --- fingers --------------------------------------------------------------------------------
 
-func test_finger_on_ui_is_ignored() -> void:
-	_assert_types(_p(FINGER, 10, BEGIN, 50, 300), [], "IN-02: no UI action")
-	_assert_types(_p(FINGER, 10, MOVE, 400, 300), [], "no camera from behind the interface")
-	_assert_types(_p(FINGER, 10, END, 400, 300), [])
+func _pt(source: int, id: int, phase: int, x: float, y: float, t: float,
+		radius: float = -1.0) -> Array[Dictionary]:
+	var s := _s(source, id, phase, Vector2(x, y))
+	s.timestamp_s = t
+	s.major_radius_valid = radius >= 0.0
+	s.major_radius = maxf(radius, 0.0)
+	return r.process(s)
+
+
+func test_finger_tap_on_ui_presses_and_releases_as_ui() -> void:
+	var a := _p(FINGER, 10, BEGIN, 50, 300)
+	_assert_types(a, ["ui_press"])
+	assert_eq(a[0].source, "finger")
+	assert_eq(a[0].pointer_id, 10)
+	assert_eq(r.state_name(), "FINGER_UI")
+	_assert_types(_p(FINGER, 10, END, 50, 300), ["ui_release"])
+	assert_eq(r.state_name(), "IDLE")
+
+
+func test_pencil_ui_press_reports_pencil_source() -> void:
+	assert_eq(_p(PENCIL, 1, BEGIN, 50, 300)[0].source, "pencil")
+	_p(PENCIL, 1, END, 50, 300)
+	assert_eq(_p(MOUSE, 2, BEGIN, 50, 300)[0].source, "pencil")
+
+
+func test_finger_drag_from_ui_moves_ui_and_never_camera() -> void:
+	_p(FINGER, 10, BEGIN, 50, 300)
+	var all: Array[Dictionary] = []
+	for x in [60.0, 200.0, 400.0, 700.0]:
+		all.append_array(_p(FINGER, 10, MOVE, x, 300))
+	_assert_types(all, ["ui_move", "ui_move", "ui_move", "ui_move"], "no camera from a UI finger")
+	_assert_types(_p(FINGER, 10, END, 700, 300), ["ui_release"])
 	assert_eq(r.state_name(), "IDLE")
 	_p(FINGER, 11, BEGIN, 50, 300)
+	_assert_types(_p(FINGER, 11, CANCEL, 60, 300, "native_cancel"), ["ui_cancel"])
+	assert_eq(r.state_name(), "IDLE")
+
+
+func test_second_finger_during_finger_ui_never_produces_camera() -> void:
+	_p(FINGER, 10, BEGIN, 50, 300)
+	var all: Array[Dictionary] = []
+	all.append_array(_p(FINGER, 11, BEGIN, 700, 400))
+	all.append_array(_p(FINGER, 11, MOVE, 800, 400))
+	all.append_array(_p(FINGER, 12, BEGIN, 700, 500))
+	all.append_array(_p(FINGER, 12, MOVE, 760, 500))
+	all.append_array(_p(FINGER, 11, END, 800, 400))
+	_assert_types(all, [], "only the first finger acts, and only on this contact")
+	_assert_types(_p(FINGER, 10, MOVE, 60, 300), ["ui_move"])
+	_assert_types(_p(FINGER, 10, END, 60, 300), ["ui_release"])
+	assert_eq(r.state_name(), "WAIT_RELEASE", "suppressed finger 12 still down")
+	_p(FINGER, 12, END, 760, 500)
+	assert_eq(r.state_name(), "IDLE")
+
+
+func test_finger_ui_blocked_while_pencil_down_and_inside_guard_after_it() -> void:
+	_pt(PENCIL, 1, BEGIN, 500, 400, 1.0)
+	var a := _pt(FINGER, 10, BEGIN, 50, 300, 1.1)
+	_assert_types(a, ["diagnostic"])
+	assert_eq(a[0].code, "finger_ui_guarded")
+	_pt(FINGER, 10, END, 50, 300, 1.2)
+	_pt(PENCIL, 1, END, 500, 400, 2.0)
+	a = _pt(FINGER, 11, BEGIN, 50, 300, 2.2)
+	assert_eq(a[0].code, "finger_ui_guarded", "within 0.3 s of Pencil end")
+	_pt(FINGER, 11, END, 50, 300, 2.25)
+	_assert_types(_pt(FINGER, 12, BEGIN, 50, 300, 2.31), ["ui_press"], "after the guard window")
+	_pt(FINGER, 12, END, 50, 300, 2.4)
+	assert_eq(r.state_name(), "IDLE")
+
+
+func test_pencil_cancel_also_starts_guard_window() -> void:
+	_pt(PENCIL, 1, BEGIN, 500, 400, 1.0)
+	_pt(PENCIL, 1, CANCEL, 500, 400, 2.0)
+	assert_eq(_pt(FINGER, 10, BEGIN, 50, 300, 2.1)[0].code, "finger_ui_guarded")
+
+
+func test_palm_radius_finger_is_not_ui() -> void:
+	var a := _pt(FINGER, 10, BEGIN, 50, 300, 1.0, 45.0)
+	assert_eq(a[0].code, "finger_ui_palm")
+	_assert_types(_pt(FINGER, 10, MOVE, 60, 300, 1.1, 45.0), [])
+	_pt(FINGER, 10, END, 60, 300, 1.2)
+	assert_eq(r.state_name(), "IDLE")
+	_assert_types(_pt(FINGER, 11, BEGIN, 50, 300, 2.0, 10.0), ["ui_press"], "small radius is a finger")
+	_pt(FINGER, 11, END, 50, 300, 2.1)
+	_assert_types(_pt(FINGER, 12, BEGIN, 50, 300, 3.0), ["ui_press"], "unknown radius is a finger")
+
+
+func test_pencil_begin_during_finger_ui_cancels_it_then_edits() -> void:
+	_p(FINGER, 10, BEGIN, 50, 300)
+	var a := _p(PENCIL, 1, BEGIN, 500, 400)
+	_assert_types(a, ["ui_cancel", "tool_begin"])
+	assert_eq(a[0].reason, "pencil_took_ownership")
+	_assert_types(_p(FINGER, 10, MOVE, 60, 300), [], "finger is suppressed")
+	_assert_types(_p(FINGER, 10, END, 60, 300), [])
+	_assert_types(_p(PENCIL, 1, END, 500, 400), ["tool_end"])
+	assert_eq(r.state_name(), "IDLE")
+	_pt(FINGER, 11, BEGIN, 50, 300, 5.0)
+	_assert_types(_pt(PENCIL, 2, BEGIN, 60, 300, 5.1), ["ui_cancel", "ui_press"], "Pencil on UI takes over")
+
+
+func test_cancel_all_and_modal_close_finger_ui() -> void:
+	_p(FINGER, 10, BEGIN, 50, 300)
+	_assert_types(r.cancel_all("explicit"), ["ui_cancel"])
+	_assert_types(_p(FINGER, 10, MOVE, 60, 300), [])
+	_p(FINGER, 10, END, 60, 300)
+	assert_eq(r.state_name(), "IDLE")
+	_p(FINGER, 11, BEGIN, 50, 300)
+	_assert_types(r.set_modal(true), [], "a modal opened by the press keeps it, like Pencil UI")
+	_assert_types(_p(FINGER, 11, END, 50, 300), ["ui_release"])
+
+
+func test_finger_ui_inert_when_camera_owns_input_and_world_finger_still_orbits() -> void:
 	_p(FINGER, 12, BEGIN, 700, 400)
-	_assert_types(_p(FINGER, 12, MOVE, 720, 400), ["camera_orbit_begin"], "UI finger is inert")
+	_assert_types(_p(FINGER, 11, BEGIN, 50, 300), [], "UI finger during camera is inert")
+	_assert_types(_p(FINGER, 12, MOVE, 720, 400), ["camera_orbit_begin"])
 	_assert_types(_p(FINGER, 12, END, 720, 400), ["camera_end"])
+	_p(FINGER, 11, END, 50, 300)
 	assert_eq(r.state_name(), "IDLE", "inert UI finger does not hold WAIT_RELEASE")
 
 
@@ -332,8 +439,8 @@ func test_finger_joining_pencil_stroke_is_suppressed() -> void:
 	assert_eq(r.state_name(), "IDLE")
 
 
-func test_finger_taps_and_long_presses_never_produce_tool_or_ui_actions() -> void:
-	for pos: Vector2 in [Vector2(600, 400), Vector2(50, 50)]:
+func test_finger_taps_and_long_presses_in_world_never_produce_tool_or_ui_actions() -> void:
+	for pos: Vector2 in [Vector2(600, 400)]:
 		var all: Array[Dictionary] = []
 		all.append_array(_p(FINGER, 10, BEGIN, pos.x, pos.y))
 		for i in 30:  # long press with sub-threshold jitter
@@ -590,6 +697,7 @@ func _check_invariants(actions: Array[Dictionary], live: Dictionary, open: Dicti
 				return false
 		if t == "ui_press":
 			var psrc: int = live.get(a.pointer_id, UNKNOWN)
-			if not assert_true(psrc == PENCIL or psrc == MOUSE, "step %d: ui_press from %d" % [step, psrc]):
+			if not assert_true(psrc == PENCIL or psrc == MOUSE or psrc == FINGER,
+					"step %d: ui_press from %d" % [step, psrc]):
 				return false
 	return true

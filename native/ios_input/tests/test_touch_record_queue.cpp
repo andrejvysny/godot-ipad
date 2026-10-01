@@ -3,6 +3,7 @@
 // `native/ios_input/build.sh test` (built with ASan/UBSan).
 #include "touch_record_queue.h"
 
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <map>
@@ -111,6 +112,23 @@ void test_lifecycle_identity_and_flags() {
         r[3].reason == CANCEL_NONE);
   CHECK(r[0].seq == 1 && r[3].seq == 4);
   CHECK(q.stats().active_contacts == 0 && q.drain().empty());
+}
+
+void test_major_radius_field() {
+  CHECK(RECORD_STRIDE == 15 && F_MAJOR_RADIUS == 14);
+  TouchRecordQueue q;
+  int k1 = 0;
+  TouchSample with_radius = sample(1.0, 1, 1);
+  with_radius.radius_valid = true;
+  with_radius.major_radius = 22.5;
+  q.touch_began(&k1, SOURCE_FINGER, with_radius);
+  q.touch_moved(&k1, sample(1.1, 2, 2));  // radius unknown
+  const std::vector<double> flat = q.drain();
+  CHECK(flat.size() == 2 * RECORD_STRIDE);
+  if (flat.size() == 2 * RECORD_STRIDE) {
+    CHECK(flat[F_MAJOR_RADIUS] == 22.5);
+    CHECK(std::isnan(flat[RECORD_STRIDE + F_MAJOR_RADIUS]));
+  }
 }
 
 void test_native_cancel_is_never_an_end() {
@@ -352,6 +370,7 @@ int main() {
   };
   const Case cases[] = {
       {"lifecycle_identity_and_flags", test_lifecycle_identity_and_flags},
+      {"major_radius_field", test_major_radius_field},
       {"native_cancel_is_never_an_end", test_native_cancel_is_never_an_end},
       {"cancel_active_then_ignored_until_lift",
        test_cancel_active_then_ignored_until_lift},

@@ -3,8 +3,8 @@ extends VBoxContainer
 ## Bottom-left gesture hints (docs/editor-v2.md §9): 10 pt white text with a shadow. Not interactive
 ## and not registered with UiHitTester, so a Pencil over them still edits the world.
 
-const TOUCH: Array[String] = ["1 finger orbit · 2 fingers pan / zoom", "Pencil edits · Invert on the chip",
-		"Library: drag to place"]
+const TOUCH: Array[String] = ["1 finger orbit · 2 fingers pan / zoom", "Pencil edits · fingers use controls · Invert on the chip",
+		"Library: Pencil drag to place · tap to arm"]
 const MAC: Array[String] = ["Click edits · right-drag orbit · middle-drag pan · wheel zoom",
 		"D inverts · [ ] brush size · Q/E rotate ghost", "Esc cancels"]
 

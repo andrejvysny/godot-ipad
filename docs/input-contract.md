@@ -43,8 +43,8 @@ InputProvider --drain_samples()--> InputSystem --map once--> InputRouter --actio
     script hook, so a raw *mouse* click on an open popup cannot be blocked.
 - Pencil-owned `ui_*` actions are re-injected on iOS as `InputEventMouseMotion` /
   `InputEventMouseButton` (left button, correct `button_mask`) via
-  `get_tree().root.push_input(ev, true)` in viewport coordinates, `device = 4242`. Fingers can never
-  produce them. On desktop nothing is injected (the real mouse already drives the GUI) and nothing is
+  `get_tree().root.push_input(ev, true)` in viewport coordinates, `device = 4242`. Finger-owned `ui_*` (ADR 0011) is injected identically; `ui_press` carries
+  `source` (`pencil` or `finger`) and `InputSystem.ui_press_is_pencil()` reports it for the open press. On desktop nothing is injected (the real mouse already drives the GUI) and nothing is
   swallowed (the Mac provider only observes). UI code must therefore never act on the `ui_action`
   signal itself (it is for diagnostics); controls are operated only by (real or synthetic) GUI events.
 - Fatal provider failure first cancels all operations, stops the failed observer, discards its
@@ -58,7 +58,7 @@ InputProvider --drain_samples()--> InputSystem --map once--> InputRouter --actio
   off-screen and released there so the button does not fire; other controls (sliders) are released
   in place and keep their current value. The pressed control is looked up in the viewport under
   the press (an embedded window or the root).
-- **Library drops** (ADR 0007). A Pencil contact that begins on a Library tile remains owned by
+- **Library drops** (ADR 0007, 0011). Drag-to-place is Pencil-only: a finger press on a tile may only arm it by tap; a finger drag past the threshold kills the press and places nothing. A Pencil contact that begins on a Library tile remains owned by
   that tile; the router stays in `PENCIL_UI` and emits no tool actions. After a short drag the tile
   opens `ToolController.begin_drop(asset_id)` and forwards each root-viewport position through
   `update_drop(pos, over_ui)`. On release it calls `finish_drop(pos, over_ui)`. `over_ui` comes from
@@ -69,12 +69,12 @@ InputProvider --drain_samples()--> InputSystem --map once--> InputRouter --actio
 - **Armed placement** (ADR 0009). A tap on a Library tile arms its asset
   (`ToolController.arm_asset`). The next Pencil contact on the world, in any mode, is an ordinary
   router-owned tool contact that opens a `Place` operation instead of the active tool (drag to
-  position, lift to place). Fingers keep their usual ownership.
+  position, lift to place). Fingers on the world only navigate.
 - **Set editor** (ADR 0009). The scatter-set editor is a full-screen registered panel, not a modal:
   every contact over it is interface. It never opens a world operation.
 - Window-based UI (dialogs, popups) is interface without registration (`UiHitTester.root`): a
   visible exclusive or popup window covers the whole screen (a Pencil tap outside it dismisses it
-  and never paints; fingers never navigate behind it); any other visible window covers its rect
+  and never paints; fingers never navigate behind it, and a finger there may only operate the window as UI); any other visible window covers its rect
   (title bar included); mouse-passthrough windows (tooltips) never count. `UiHitTester.screen_rect`
   returns root-viewport rects for controls inside embedded windows too.
 - **Listener pairing.** Handlers may call `InputSystem.cancel_all()` while actions are being
@@ -95,13 +95,16 @@ change) → drain → map (`position_viewport`, `mapping_generation`) → trace 
 | Pencil / MOUSE_DEV | world | active tool | `tool_begin`, `tool_move`, `tool_pause`, `tool_resume` | `tool_end{over_ui}` / `tool_cancel` |
 | Pencil / MOUSE_DEV | anywhere, while another pencil is active | nobody (suppressed) | `diagnostic second_pencil` | — |
 | Pencil / MOUSE_DEV | world, while a modal is open | nobody (suppressed) | `diagnostic modal_active` | — |
-| Finger | interface | nobody (inert) | none | — |
+| Finger | interface, machine IDLE, no Pencil, `finger_ui_guard_s` elapsed since the last Pencil end, not palm (`major_radius` ≤ `palm_radius_pt`) | the pressed control (`FINGER_UI`) | `ui_press{source:finger}`, `ui_move`… | `ui_release` / `ui_cancel` |
+| Finger | interface, otherwise | nobody (inert) | `diagnostic finger_ui_guarded` / `finger_ui_palm` when rejected by a palm guard | — |
 | Finger | world, machine IDLE | camera | orbit / pan-zoom | `camera_end` |
 | Finger | world, pencil active or WAIT_RELEASE or modal | nobody (suppressed until lifted) | none | — |
 | UNKNOWN | anywhere | nobody (inert) | `diagnostic unknown_source` once | — |
 | any, `is_predicted` | — | ignored entirely | none | — |
 
-Inert contacts (UNKNOWN, fingers that began over interface) never change the state and never hold
+A Pencil beginning during `FINGER_UI` cancels the finger press first (`ui_cancel`, reason
+`pencil_took_ownership`) and suppresses that finger; other fingers during `FINGER_UI` are suppressed
+(never camera). Fingers never produce `tool_*`. Inert contacts (UNKNOWN, fingers rejected as UI) never change the state and never hold
 the machine in WAIT_RELEASE. Suppressed contacts stay suppressed until they physically end or
 cancel. Pressure is optional: samples without pressure route identically (IN-11).
 

@@ -3,7 +3,9 @@
     "orbit_activation_threshold_pt": 5.0,
     "tap_move_threshold_pt": 8.0,
     "queue_capacity": 4096,
-    "calibration_tolerance_pt": 2.0
+    "calibration_tolerance_pt": 2.0,
+    "finger_ui_guard_s": 0.3,
+    "palm_radius_pt": 30.0
   },
   "camera": {
     "pitch_min_deg": 15.0,

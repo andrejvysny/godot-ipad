@@ -237,7 +237,8 @@ func test_gesture_hints_variants() -> void:
 	var s := await _start()
 	var hints := _ui(s).gesture_hints()
 	assert_eq(hints.lines(), PackedStringArray(["1 finger orbit · 2 fingers pan / zoom",
-			"Pencil edits · Invert on the chip", "Library: drag to place"]))
+			"Pencil edits · fingers use controls · Invert on the chip",
+			"Library: Pencil drag to place · tap to arm"]))
 	hints.set_development(true)
 	await _frames(1)
 	assert_eq(hints.lines(), PackedStringArray(["Click edits · right-drag orbit · middle-drag pan · wheel zoom",

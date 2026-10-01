@@ -98,6 +98,27 @@ func test_tap_arms_and_second_tap_disarms() -> void:
 	assert_eq(s.history.size(), 0)
 
 
+func test_finger_tap_arms_and_finger_drag_never_places() -> void:
+	var s := await _start()
+	var lib := _ui(s).library()
+	var tile := _center(lib.tile(BOULDER))
+	await _feed(s, PointerSample.Source.FINGER, PointerSample.Phase.BEGIN, tile)
+	await _feed(s, PointerSample.Source.FINGER, PointerSample.Phase.END, tile)
+	assert_eq(s.tools.armed_asset(), BOULDER, "a finger tap arms the asset")
+	s.tools.disarm()
+	var objects_before := s.document.objects.size()
+	var to := _centre_world(s)
+	await _feed(s, PointerSample.Source.FINGER, PointerSample.Phase.BEGIN, tile)
+	for i in range(1, 4):
+		await _feed(s, PointerSample.Source.FINGER, PointerSample.Phase.MOVE, tile.lerp(to, float(i) / 3.0))
+		assert_false(s.tools.has_drop(), "a finger drag never opens a drop")
+	await _feed(s, PointerSample.Source.FINGER, PointerSample.Phase.END, to)
+	assert_eq(s.document.objects.size(), objects_before, "nothing placed")
+	assert_eq(s.history.size(), 0)
+	assert_eq(s.tools.armed_asset(), "", "a dead press does not arm on release")
+	assert_false(s.presenter.has_ghost_visible())
+
+
 func test_set_cards_show_data_and_pick_the_source() -> void:
 	var s := await _start()
 	var ui := _ui(s)

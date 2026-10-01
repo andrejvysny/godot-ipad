@@ -74,7 +74,7 @@ UIKit touch delivery ──► GDTView (Godot's own InputEventScreenTouch/Drag, 
 
 ## Record layout
 
-`drain()` returns a `PackedFloat64Array` of records, `get_record_stride()` = 14 values each, in
+`drain()` returns a `PackedFloat64Array` of records, `get_record_stride()` = 15 values each, in
 arrival order (timestamp order per contact):
 
 | # | field | meaning |
@@ -91,6 +91,7 @@ arrival order (timestamp order per contact):
 | 11 | flags | bit0 coalesced intermediate, bit1 predicted (never set), bit2 force estimated |
 | 12 | sequence | monotonic per session (starts at 1; gaps possible after overflow) |
 | 13 | cancel_reason | 0 none, 1 native `touchesCancelled`, 2 app resign active / scene deactivate, 3 queue overflow, 4 explicit `cancel_all`, 5 view metrics changed / observer reset or detached with live contacts |
+| 14 | major_radius | `UITouch.majorRadius` in points for every touch type; NaN when unknown (synthesized CANCELs, host bridge). Older bridges send 14 values; the decoder reads this field only when stride > 14 |
 
 GDScript maps reasons to `native_cancel`, `app_deactivated`, `queue_overflow`, `explicit`,
 `view_changed` (an unknown code decodes as `unknown`, an undecodable phase as a CANCEL with

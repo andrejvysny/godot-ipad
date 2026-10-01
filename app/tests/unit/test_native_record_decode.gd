@@ -208,6 +208,20 @@ func test_wider_stride_ignores_trailing_fields() -> void:
 	assert_eq(samples[1].pointer_id, 5)
 
 
+func test_major_radius_decoded_only_from_stride_15() -> void:
+	var rec := _rec(2, 5, 0)
+	rec.append(22.5)
+	var s := P.decode_records(rec, P.RADIUS_STRIDE)[0]
+	assert_true(s.major_radius_valid)
+	assert_eq(s.major_radius, 22.5)
+	var nan_rec := _rec(2, 5, 0)
+	nan_rec.append(NAN)
+	s = P.decode_records(nan_rec, P.RADIUS_STRIDE)[0]
+	assert_false(s.major_radius_valid, "NaN means unknown")
+	s = P.decode_records(_rec(2, 5, 0), STRIDE)[0]
+	assert_false(s.major_radius_valid, "stride 14 bridges carry no radius")
+
+
 func test_provider_drains_and_decodes_through_bridge() -> void:
 	var bridge := FakeBridge.new()
 	var provider := _bound_provider(bridge)

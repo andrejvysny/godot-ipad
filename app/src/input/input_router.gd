@@ -5,7 +5,9 @@ extends RefCounted
 ## docs/input-contract.md for the normative vocabulary. Never touches the scene tree.
 ##
 ## Invariants:
-## - Only PENCIL/MOUSE_DEV contacts ever produce tool_* or ui_* actions.
+## - Only PENCIL/MOUSE_DEV contacts ever produce tool_* actions. Fingers produce ui_* only through
+##   FINGER_UI (a finger that begins over interface while idle, no Pencil down, outside the post-Pencil
+##   guard window and not palm-sized); a Pencil beginning during FINGER_UI cancels that press first.
 ## - Only non-suppressed FINGER contacts ever produce camera_* actions.
 ## - Every camera_*_begin is followed by exactly one camera_end; tool_begin by exactly one
 ##   tool_end/tool_cancel; ui_press by exactly one ui_release/ui_cancel.
@@ -15,7 +17,7 @@ extends RefCounted
 ## - Inert contacts (UNKNOWN source, fingers that begin over interface) are tracked for
 ##   diagnostics only: they never affect the state and never hold the machine in WAIT_RELEASE.
 
-enum State { IDLE, PENCIL_UI, PENCIL_TOOL, ORBIT_CANDIDATE, ORBIT, PAN_ZOOM, WAIT_RELEASE }
+enum State { IDLE, PENCIL_UI, PENCIL_TOOL, ORBIT_CANDIDATE, ORBIT, PAN_ZOOM, WAIT_RELEASE, FINGER_UI }
 
 const ROLE_PENCIL_UI := "pencil_ui"
 const ROLE_PENCIL_TOOL := "pencil_tool"
@@ -23,6 +25,7 @@ const ROLE_CAMERA := "camera_finger"
 const ROLE_SUPPRESSED := "suppressed"
 const ROLE_UNKNOWN := "unknown"
 const ROLE_FINGER_UI := "finger_on_ui"
+const ROLE_FINGER_UI_ACTIVE := "finger_ui"
 
 const INVALID_POSITION_REASON := "invalid_position"
 
@@ -47,6 +50,10 @@ class Contact:
 var orbit_threshold: float = 5.0
 ## Callable(Vector2) -> bool; true when the viewport position is over interface.
 var ui_hit_test: Callable = func(_p: Vector2) -> bool: return false
+## Seconds after a Pencil contact ends during which finger UI presses are ignored (palm guard).
+var finger_ui_guard_s: float = 0.3
+## Finger contacts with a native major radius (points, not viewport units) above this are palms.
+var palm_radius_pt: float = 30.0
 
 var _state: State = State.IDLE
 var _contacts: Dictionary = {}  # int -> Contact
@@ -56,6 +63,8 @@ var _camera_begun := false
 var _orbit_anchor := Vector2.ZERO
 var _tool_paused := false
 var _modal := false
+var _ui_finger_id := -1
+var _last_pencil_end_s := -INF
 
 
 func state() -> State:
@@ -120,7 +129,7 @@ func set_modal(on: bool) -> Array[Dictionary]:
 	if on == _modal:
 		return out
 	_modal = on
-	if on and _state != State.PENCIL_UI:
+	if on and _state != State.PENCIL_UI and _state != State.FINGER_UI:
 		_end_active_operation("modal", out)
 		for id: int in _contacts:
 			_suppress(_contacts[id])
@@ -143,7 +152,7 @@ func _on_begin(s: PointerSample, out: Array[Dictionary]) -> void:
 	if s.is_pencil_like():
 		_begin_pencil(c, s, out)
 	elif s.source == PointerSample.Source.FINGER:
-		_begin_finger(c, out)
+		_begin_finger(c, s, out)
 	else:
 		c.role = ROLE_UNKNOWN
 		out.append(_diag("unknown_source", "contact without source identity never edits", c.id))
@@ -158,6 +167,8 @@ func _begin_pencil(c: Contact, s: PointerSample, out: Array[Dictionary]) -> void
 		out.append(_diag("modal_active", "world input blocked while a modal is open", c.id))
 		_settle()
 		return
+	if _state == State.FINGER_UI:
+		_cancel_finger_ui("pencil_took_ownership", out)
 	if _state in [State.ORBIT_CANDIDATE, State.ORBIT, State.PAN_ZOOM]:
 		_end_camera("pencil_took_ownership", out)
 		for id: int in _contacts:
@@ -168,7 +179,8 @@ func _begin_pencil(c: Contact, s: PointerSample, out: Array[Dictionary]) -> void
 	if over_ui:
 		c.role = ROLE_PENCIL_UI
 		_state = State.PENCIL_UI
-		out.append({"type": "ui_press", "pos": s.position_viewport, "pointer_id": c.id})
+		out.append({"type": "ui_press", "pos": s.position_viewport, "pointer_id": c.id,
+				"source": "pencil"})
 	else:
 		c.role = ROLE_PENCIL_TOOL
 		_state = State.PENCIL_TOOL
@@ -176,9 +188,9 @@ func _begin_pencil(c: Contact, s: PointerSample, out: Array[Dictionary]) -> void
 		out.append({"type": "tool_begin", "sample": s})
 
 
-func _begin_finger(c: Contact, out: Array[Dictionary]) -> void:
+func _begin_finger(c: Contact, s: PointerSample, out: Array[Dictionary]) -> void:
 	if ui_hit_test.call(c.start_pos):
-		c.role = ROLE_FINGER_UI  # ignored; never UI, never camera behind the interface
+		_begin_finger_ui(c, s, out)  # never camera behind the interface
 		return
 	match _state:
 		State.IDLE:
@@ -204,6 +216,38 @@ func _begin_finger(c: Contact, out: Array[Dictionary]) -> void:
 			pass  # pencil active or waiting for release: stays suppressed until lifted
 
 
+## A finger over interface becomes the UI owner only when nothing else owns input and it is
+## neither inside the post-Pencil guard window nor palm-sized; otherwise it stays inert.
+func _begin_finger_ui(c: Contact, s: PointerSample, out: Array[Dictionary]) -> void:
+	c.role = ROLE_FINGER_UI
+	if _pencil_id != -1:
+		out.append(_diag("finger_ui_guarded", "finger UI ignored while a Pencil is down", c.id))
+		return
+	if _state != State.IDLE:
+		return
+	if s.timestamp_s - _last_pencil_end_s < finger_ui_guard_s:
+		out.append(_diag("finger_ui_guarded", "finger UI ignored right after a Pencil contact", c.id))
+		return
+	if s.major_radius_valid and s.major_radius > palm_radius_pt:
+		out.append(_diag("finger_ui_palm", "finger UI ignored: palm-sized contact", c.id))
+		return
+	c.role = ROLE_FINGER_UI_ACTIVE
+	c.suppressed = false
+	_ui_finger_id = c.id
+	_state = State.FINGER_UI
+	out.append({"type": "ui_press", "pos": s.position_viewport, "pointer_id": c.id,
+			"source": "finger"})
+
+
+func _cancel_finger_ui(reason: String, out: Array[Dictionary]) -> void:
+	out.append({"type": "ui_cancel", "reason": reason})
+	var f: Contact = _contacts.get(_ui_finger_id)
+	if f != null:
+		_suppress(f)
+	_ui_finger_id = -1
+	_state = State.IDLE
+
+
 func _join_camera(c: Contact) -> void:
 	c.role = ROLE_CAMERA
 	c.suppressed = false
@@ -221,7 +265,7 @@ func _on_move(s: PointerSample, out: Array[Dictionary]) -> void:
 	if c.suppressed:
 		return
 	match c.role:
-		ROLE_PENCIL_UI:
+		ROLE_PENCIL_UI, ROLE_FINGER_UI_ACTIVE:
 			out.append({"type": "ui_move", "pos": s.position_viewport})
 		ROLE_PENCIL_TOOL:
 			_move_tool(s, out)
@@ -285,12 +329,20 @@ func _on_invalid_position(s: PointerSample, out: Array[Dictionary]) -> void:
 func _terminate(c: Contact, s: PointerSample, cancelled: bool, reason: String,
 		out: Array[Dictionary]) -> void:
 	_contacts.erase(c.id)
+	if s.is_pencil_like():
+		_last_pencil_end_s = s.timestamp_s
 	if c.suppressed:
 		_settle()
 		return
 	match c.role:
 		ROLE_PENCIL_UI:
 			_pencil_id = -1
+			if cancelled:
+				out.append({"type": "ui_cancel", "reason": reason})
+			else:
+				out.append({"type": "ui_release", "pos": s.position_viewport})
+		ROLE_FINGER_UI_ACTIVE:
+			_ui_finger_id = -1
 			if cancelled:
 				out.append({"type": "ui_cancel", "reason": reason})
 			else:
@@ -332,11 +384,12 @@ func _end_active_operation(reason: String, out: Array[Dictionary]) -> void:
 	match _state:
 		State.PENCIL_TOOL:
 			out.append({"type": "tool_cancel", "reason": reason})
-		State.PENCIL_UI:
+		State.PENCIL_UI, State.FINGER_UI:
 			out.append({"type": "ui_cancel", "reason": reason})
 		State.ORBIT_CANDIDATE, State.ORBIT, State.PAN_ZOOM:
 			_end_camera(reason, out)
 	_pencil_id = -1
+	_ui_finger_id = -1
 	_tool_paused = false
 
 
@@ -356,7 +409,7 @@ func _suppress(c: Contact) -> void:
 
 ## Recomputes the resting state when no operation owns input.
 func _settle() -> void:
-	if _pencil_id != -1 or not _camera_fingers.is_empty():
+	if _pencil_id != -1 or _ui_finger_id != -1 or not _camera_fingers.is_empty():
 		return
 	_camera_begun = false
 	for id: int in _contacts:

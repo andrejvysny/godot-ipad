@@ -55,7 +55,7 @@ func test_lab_probe_checkpoint_reload_and_exact_cancel() -> void:
 	assert_true(lab._message.contains("saved"), lab._message)
 
 
-func test_lab_panel_routes_pencil_to_ui_and_ignores_fingers() -> void:
+func test_lab_panel_routes_pencil_and_fingers_to_ui() -> void:
 	allow_logged_errors()
 	log_filter = TerrainTests.KnownWarningFilter.new()
 	OS.add_logger(log_filter)
@@ -76,7 +76,10 @@ func test_lab_panel_routes_pencil_to_ui_and_ignores_fingers() -> void:
 	sample.source = PointerSample.Source.FINGER
 	sample.pointer_id = 2
 	sample.phase = PointerSample.Phase.BEGIN
-	assert_true(lab.input.router.process(sample).is_empty(), "finger over UI is inert")
+	sample.timestamp_s = 5.0  # past the post-Pencil guard window
+	actions = lab.input.router.process(sample)
+	assert_eq(actions[0].type, "ui_press", "finger over UI is UI, never a probe")
+	assert_eq(actions[0].source, "finger")
 	sample.phase = PointerSample.Phase.END
 	lab.input.router.process(sample)
 	assert_false(lab.probe.is_active())

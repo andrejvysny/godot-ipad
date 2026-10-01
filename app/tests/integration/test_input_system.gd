@@ -312,7 +312,22 @@ func test_ios_ui_cancel_does_not_fire_button() -> void:
 	assert_eq(pressed, 1, "button still usable afterwards")
 
 
-func test_ios_finger_on_button_does_nothing() -> void:
+func test_ios_finger_tap_on_button_clicks_once_as_finger_ui() -> void:
+	fake = FakeProvider.new()
+	_make_system("iOS", fake)
+	_make_button()
+	fake.push(FINGER, 10, BEGIN, BUTTON_RECT.get_center())
+	fake.push(FINGER, 10, END, BUTTON_RECT.get_center())
+	sys.run_frame()
+	assert_eq(pressed, 1, "finger operates the button")
+	assert_eq(_types(got.ui), PackedStringArray(["ui_press", "ui_release"]))
+	assert_eq(got.ui[0].source, "finger")
+	assert_false(sys.ui_press_is_pencil())
+	assert_eq(got.camera.size() + got.tool.size(), 0, "never camera or tool")
+	assert_true(sys.stats().synthetic > 0)
+
+
+func test_ios_finger_drag_off_button_does_not_fire_or_navigate() -> void:
 	fake = FakeProvider.new()
 	_make_system("iOS", fake)
 	_make_button()
@@ -320,9 +335,27 @@ func test_ios_finger_on_button_does_nothing() -> void:
 	fake.push(FINGER, 10, MOVE, BUTTON_RECT.get_center() + Vector2(300, 0))
 	fake.push(FINGER, 10, END, BUTTON_RECT.get_center() + Vector2(300, 0))
 	sys.run_frame()
-	assert_eq(pressed, 0, "IN-02")
-	assert_eq(got.ui.size() + got.camera.size() + got.tool.size(), 0)
-	assert_eq(sys.stats().synthetic, 0)
+	assert_eq(pressed, 0, "released off the button")
+	assert_eq(got.camera.size() + got.tool.size(), 0)
+
+
+func test_palm_guard_params_come_from_config() -> void:
+	fake = FakeProvider.new()
+	_make_system("iOS", fake)
+	assert_eq(sys.router.finger_ui_guard_s, 0.3)
+	assert_eq(sys.router.palm_radius_pt, 30.0)
+
+
+func test_ios_pencil_ui_press_is_pencil_source() -> void:
+	fake = FakeProvider.new()
+	_make_system("iOS", fake)
+	_make_button()
+	fake.push(PENCIL, 1, BEGIN, BUTTON_RECT.get_center())
+	sys.run_frame()
+	assert_true(sys.ui_press_is_pencil())
+	fake.push(PENCIL, 1, END, BUTTON_RECT.get_center())
+	sys.run_frame()
+	assert_eq(pressed, 1)
 
 
 func test_desktop_does_not_swallow_or_inject() -> void:
@@ -509,7 +542,7 @@ func test_modal_cancels_stroke_through_system() -> void:
 
 # --- embedded windows, pause, tree order (iOS single path) ---------------------------------------
 
-func test_ios_dialog_raw_touch_and_mouse_ignored_pencil_confirms_once() -> void:
+func test_ios_dialog_raw_touch_and_mouse_ignored_finger_and_pencil_confirm_once() -> void:
 	fake = FakeProvider.new()
 	_make_system("iOS", fake)
 	_make_button()
@@ -536,11 +569,15 @@ func test_ios_dialog_raw_touch_and_mouse_ignored_pencil_confirms_once() -> void:
 	fake.push(FINGER, 10, BEGIN, ok_center)
 	fake.push(FINGER, 10, END, ok_center)
 	sys.run_frame()
-	assert_eq(confirmed[0], 0, "finger never operates the dialog")
+	assert_eq(confirmed[0], 1, "a finger tap confirms once (ADR 0011)")
+	await tree.process_frame
+	assert_false(dialog.visible)
+	dialog.popup_centered()
+	await tree.process_frame
 	fake.push(PENCIL, 1, BEGIN, ok_center)
 	fake.push(PENCIL, 1, END, ok_center)
 	sys.run_frame()
-	assert_eq(confirmed[0], 1, "IN-03/IN-04: one Pencil tap = one confirmation")
+	assert_eq(confirmed[0], 2, "IN-03/IN-04: one Pencil tap = one confirmation")
 	await tree.process_frame
 	assert_false(dialog.visible)
 	assert_eq(pressed, 0, "nothing under the dialog fires")
@@ -583,7 +620,7 @@ func test_ios_dialog_pencil_cancel_does_not_confirm() -> void:
 	assert_true(dialog.visible)
 
 
-func test_ios_option_popup_only_pencil_selects() -> void:
+func test_ios_option_popup_raw_touch_ignored_finger_and_pencil_select() -> void:
 	fake = FakeProvider.new()
 	_make_system("iOS", fake)
 	var option := OptionButton.new()
@@ -604,17 +641,21 @@ func test_ios_option_popup_only_pencil_selects() -> void:
 	_touch(0, false, last_item)
 	assert_eq(option.selected, 0, "raw touch never selects")
 	assert_true(popup.visible, "raw touch never dismisses")
-	fake.push(FINGER, 10, BEGIN, Vector2(900, 600))
-	fake.push(FINGER, 10, MOVE, Vector2(990, 600))
-	fake.push(FINGER, 10, END, Vector2(990, 600))
+	fake.push(FINGER, 10, BEGIN, last_item)
+	fake.push(FINGER, 10, END, last_item)
 	sys.run_frame()
 	assert_eq(got.camera.size(), 0, "no orbit behind an open popup")
-	assert_true(popup.visible)
-	fake.push(PENCIL, 1, BEGIN, last_item)
-	fake.push(PENCIL, 1, END, last_item)
-	sys.run_frame()
-	assert_eq(option.selected, 2, "Pencil selects the item it taps")
+	assert_eq(option.selected, 2, "a finger selects the item it taps")
 	await tree.process_frame  # popups hide deferred
+	assert_false(popup.visible)
+	option.show_popup()
+	await tree.process_frame
+	var first_item := Vector2(rect.get_center().x, rect.position.y + rect.size.y / 6.0)
+	fake.push(PENCIL, 1, BEGIN, first_item)
+	fake.push(PENCIL, 1, END, first_item)
+	sys.run_frame()
+	assert_eq(option.selected, 0, "Pencil selects the item it taps")
+	await tree.process_frame
 	assert_false(popup.visible)
 	option.show_popup()
 	await tree.process_frame
@@ -624,7 +665,7 @@ func test_ios_option_popup_only_pencil_selects() -> void:
 	await tree.process_frame
 	assert_false(popup.visible, "Pencil tap outside dismisses the popup")
 	assert_eq(got.tool.size(), 0, "and never paints")
-	assert_eq(option.selected, 2)
+	assert_eq(option.selected, 0, "dismissal keeps the Pencil selection")
 
 
 func test_hit_tester_uses_root_coordinates_inside_plain_window() -> void:
