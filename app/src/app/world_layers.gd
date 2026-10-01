@@ -63,5 +63,10 @@ func path_changed(ids: Array) -> void:
 	paths.resync(ids)
 
 
+## Presentation only: hides vegetation scatter (see RenderConfig.rule_is_vegetation).
+func set_vegetation_hidden(hidden: bool, rule: Dictionary) -> void:
+	scatter.set_vegetation_hidden(hidden, rule)
+
+
 func stats() -> Dictionary:
 	return scatter.stats()

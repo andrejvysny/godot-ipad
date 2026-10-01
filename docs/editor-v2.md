@@ -293,3 +293,23 @@ hints and toasts do not. No Unicode symbol glyphs in text (iPad font): icons onl
 
 Asset colours (weight bars): lodge #c08a5a, spruce #3d8a4a, boulder #9a958c, grass tuft
 #8fc050, fern #2f6b26, wildflowers #e9c84a, pebbles #c7c2b8.
+
+### 9.1 Render profiles and visibility aids
+
+Rendering configuration: `config/rendering_profiles.json` (synced copy under `app/config/`, validated by
+`RenderConfig`; an invalid file falls back to built-in safe Performance defaults and posts an error).
+Spec: `docs/rendering-performance-spec.md` §4, §15.4.
+
+- **Performance indicator** top bar, immediately left of the action pill, 38 pt tall: "<Profile> · <fps> fps"
+  ("—" until frames are measured; " -> <Profile>" appended while a switch is pending). The text turns
+  danger-coloured when fps < 0.9 × the profile target. It is a warning only; nothing changes automatically.
+  Tapping it opens the **performance menu** (250 wide, right-aligned below it): radio rows Performance /
+  Balanced / Detailed, the "Hide vegetation" switch and "Target N fps · 3D P%". Both panels register with
+  UiHitTester and close on Esc or when an operation starts.
+- **Profiles** are explicit user choices; the app always starts in Performance and persists nothing. A
+  request during a stroke or object edit is deferred: toast "<Profile> applies after the current edit", the
+  row shows "(after edit)", and it is applied once when the operation commits or cancels. A profile sets the
+  3D resolution scale (bilinear, MSAA/TAA off), mesh LOD threshold and Engine.max_fps. Nothing casts
+  shadows in any profile; the light is fixed and the environment has no post effects.
+- **Hide vegetation** is presentation only: trees, shrubs and ground cover (not pebbles) are hidden in the
+  view. The document, history and selection are untouched, and the toggle is not saved.

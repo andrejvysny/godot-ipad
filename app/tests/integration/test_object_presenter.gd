@@ -179,10 +179,10 @@ func test_selection_set_clear_and_removal() -> void:
 	presenter.rebuild(doc)
 	presenter.set_selected(r.object_id)
 	assert_eq(presenter.selected_id(), r.object_id)
-	assert_true(presenter._overlay != null)
+	assert_true(presenter.selection_overlay_visible())
 	presenter.set_selected("nope")
 	assert_eq(presenter.selected_id(), "")
-	assert_true(presenter._overlay == null)
+	assert_false(presenter.selection_overlay_visible())
 	presenter.set_selected(r.object_id)
 	presenter.set_selected("")
 	assert_eq(presenter.selected_id(), "")
@@ -192,7 +192,7 @@ func test_selection_set_clear_and_removal() -> void:
 	doc.remove_object(r.object_id)
 	presenter.sync_object(doc, r.object_id)
 	assert_eq(presenter.selected_id(), "")
-	assert_true(presenter._overlay == null)
+	assert_false(presenter.selection_overlay_visible())
 	presenter.set_selected(other.object_id)
 	doc.remove_object(other.object_id)
 	presenter.rebuild(doc)
@@ -211,14 +211,14 @@ func test_world_bounds_of_scaled_object() -> void:
 func test_debug_markers_follow_sync() -> void:
 	var r := _add(BOULDER, Vector3(1, 2, 3))
 	presenter.rebuild(doc)
-	assert_eq(presenter._markers.size(), 0)
-	assert_eq(presenter._labels.size(), 0)
+	assert_eq(presenter.debug_marker_count(), 0)
+	assert_eq(presenter.debug_label_count(), 0)
 	presenter.set_show_anchors(true)
 	presenter.set_show_ids(true)
-	assert_eq(presenter._markers.size(), 1)
-	assert_eq(presenter._labels.size(), 1)
-	assert_vec_near((presenter._markers[r.object_id] as Node3D).position, Vector3(1, 2, 3), 1e-5)
-	var label := presenter._labels[r.object_id] as Label3D
+	assert_eq(presenter.debug_marker_count(), 1)
+	assert_eq(presenter.debug_label_count(), 1)
+	assert_vec_near(presenter.debug_marker_for(r.object_id).position, Vector3(1, 2, 3), 1e-5)
+	var label := presenter.debug_label_for(r.object_id)
 	assert_eq(label.text, r.object_id.left(8))
 	var wb := presenter.world_bounds(r.object_id)
 	assert_near(label.position.y, wb.end.y + 0.5, 1e-5)
@@ -226,17 +226,218 @@ func test_debug_markers_follow_sync() -> void:
 	moved.set_position(7, 2, 3)
 	doc.put_object(moved)
 	presenter.sync_object(doc, r.object_id)
-	assert_vec_near((presenter._markers[r.object_id] as Node3D).position, Vector3(7, 2, 3), 1e-5)
+	assert_vec_near(presenter.debug_marker_for(r.object_id).position, Vector3(7, 2, 3), 1e-5)
 	var second := _add(SPRUCE, Vector3(30, 0, 0))
 	presenter.sync_object(doc, second.object_id)
-	assert_eq(presenter._markers.size(), 2)
-	assert_eq(presenter._labels.size(), 2)
+	presenter.set_show_ids(true)  # assignments refresh on toggle, otherwise within 250 ms
+	assert_eq(presenter.debug_marker_count(), 2)
+	assert_eq(presenter.debug_label_count(), 2)
 	doc.remove_object(second.object_id)
 	presenter.sync_object(doc, second.object_id)
-	assert_eq(presenter._markers.size(), 1)
-	assert_eq(presenter._labels.size(), 1)
+	assert_eq(presenter.debug_marker_count(), 1)
+	assert_eq(presenter.debug_label_count(), 1)
 	presenter.set_show_anchors(false)
 	presenter.set_show_ids(false)
-	assert_eq(presenter._markers.size(), 0)
-	assert_eq(presenter._labels.size(), 0)
+	assert_eq(presenter.debug_marker_count(), 0)
+	assert_eq(presenter.debug_label_count(), 0)
 	assert_eq(presenter.pick(Vector3(7, 10, 3), Vector3.DOWN).id, r.object_id, "markers never pickable")
+
+
+func test_debug_decor_is_bounded_and_keeps_selection() -> void:
+	var last := ""
+	for i in 300:
+		last = _add(BOULDER, Vector3(i * 3.0, 0, 0)).object_id
+	presenter.rebuild(doc)
+	presenter.set_selected(last)
+	presenter.set_show_anchors(true)
+	presenter.set_show_ids(true)
+	assert_eq(presenter.debug_marker_count(), 64)
+	assert_eq(presenter.debug_label_count(), 64)
+	assert_true(presenter.debug_label_ids().has(last), "selected object always labelled")
+	var children := presenter.get_child_count()
+	presenter.set_debug_limit(8)
+	assert_eq(presenter.debug_label_count(), 8)
+	assert_eq(presenter.debug_marker_count(), 8)
+	assert_true(presenter.debug_label_ids().has(last))
+	assert_eq(presenter.get_child_count(), children, "pool nodes are hidden, not freed")
+	presenter.set_show_anchors(false)
+	presenter.set_show_ids(false)
+	assert_eq(presenter.debug_label_count(), 0)
+
+
+func test_instantiated_nodes_cast_no_shadow() -> void:
+	var r := _add(SPRUCE, Vector3.ZERO)
+	presenter.rebuild(doc)
+	var meshes := _meshes(presenter.node_for(r.object_id))
+	assert_true(not meshes.is_empty())
+	for m in meshes:
+		assert_eq(m.cast_shadow, GeometryInstance3D.SHADOW_CASTING_SETTING_OFF)
+
+
+func test_selection_overlay_is_built_once_and_followed() -> void:
+	var r := _add(BOULDER, Vector3.ZERO)
+	presenter.rebuild(doc)
+	presenter.set_selected(r.object_id)
+	var nodes := presenter.selection_overlay_nodes()
+	var mesh := (nodes[1] as MeshInstance3D).mesh
+	var children := presenter.get_child_count()
+	var anchor := catalog.get_asset(BOULDER).anchor_local
+	var rec := r.clone()
+	for i in 50:
+		rec.set_position(i * 0.5, 1.0, -i * 0.25)
+		rec.set_yaw(i * 0.1)
+		doc.put_object(rec)
+		presenter.sync_object(doc, r.object_id)
+		var now := presenter.selection_overlay_nodes()
+		assert_true(now[0] == nodes[0] and now[1] == nodes[1] and now[2] == nodes[2], "same overlay nodes")
+		assert_true((now[1] as MeshInstance3D).mesh == mesh, "same wire mesh")
+	assert_eq(presenter.get_child_count(), children)
+	assert_true((nodes[0] as Node3D).transform.is_equal_approx(presenter.applied_transform(r.object_id)))
+	assert_vec_near((nodes[2] as Node3D).position, rec.get_position_v3(), 1e-4)
+	assert_vec_near(presenter.applied_transform(r.object_id) * anchor, rec.get_position_v3(), 1e-4)
+	presenter.set_selected("")
+	assert_false(presenter.selection_overlay_visible())
+	presenter.set_selected(r.object_id)
+	assert_true(presenter.selection_overlay_nodes()[1] == nodes[1])
+	assert_true(presenter.has_object(r.object_id))
+	assert_false(presenter.has_object("nope"))
+
+
+func _doc_snapshot() -> String:
+	var parts := PackedStringArray()
+	for id in doc.sorted_object_ids():
+		parts.append(JSON.stringify(doc.get_object(id).to_dict()))
+	return "\n".join(parts)
+
+
+func test_vegetation_hidden_is_presentation_only() -> void:
+	var tree_rec := _add(SPRUCE, Vector3.ZERO)
+	var rock := _add(BOULDER, Vector3(20, 0, 0))
+	var lodge := _add(LODGE, Vector3(-20, 0, 0))
+	presenter.rebuild(doc)
+	var before := _doc_snapshot()
+	var category := catalog.get_asset(SPRUCE).category
+	assert_true(catalog.get_asset(BOULDER).category != category and catalog.get_asset(LODGE).category != category)
+	var rule := {"categories": [category], "excluded_asset_ids": []}
+	var rev := presenter.presentation_revision()
+	presenter.set_selected(tree_rec.object_id)
+	presenter.set_vegetation_hidden(true, rule)
+	assert_true(presenter.vegetation_hidden())
+	assert_true(presenter.presentation_revision() > rev)
+	assert_false(presenter.node_for(tree_rec.object_id).visible)
+	assert_true(presenter.node_for(rock.object_id).visible)
+	assert_true(presenter.node_for(lodge.object_id).visible)
+	assert_eq(presenter.pick(Vector3(0, 40, 0), Vector3.DOWN).id, "")
+	assert_eq(presenter.pick(Vector3(20, 40, 0), Vector3.DOWN).id, rock.object_id)
+	var near := presenter.objects_near(Vector3.ZERO, 100.0, 10)
+	assert_false(near.has(tree_rec.object_id))
+	assert_true(near.has(rock.object_id) and near.has(lodge.object_id))
+	assert_true(presenter.selection_overlay_visible(), "selected hidden object keeps bounds")
+	assert_eq(presenter.selected_id(), tree_rec.object_id)
+	var late := _add(SPRUCE, Vector3(5, 0, 40))
+	presenter.sync_object(doc, late.object_id)
+	assert_false(presenter.node_for(late.object_id).visible, "nodes created while hidden are hidden")
+	doc.remove_object(late.object_id)
+	presenter.sync_object(doc, late.object_id)
+	assert_eq(_doc_snapshot(), before, "document untouched")
+	presenter.set_vegetation_hidden(true, {"categories": [category], "excluded_asset_ids": [SPRUCE]})
+	assert_true(presenter.node_for(tree_rec.object_id).visible, "excluded asset stays visible")
+	presenter.set_vegetation_hidden(false, rule)
+	assert_true(presenter.node_for(tree_rec.object_id).visible)
+	assert_eq(presenter.pick(Vector3(0, 40, 0), Vector3.DOWN).id, tree_rec.object_id)
+	assert_true(presenter.objects_near(Vector3.ZERO, 100.0, 10).has(tree_rec.object_id))
+
+
+# --- picking vs the original exhaustive algorithm (PICK-01/02) ---------------------------------
+
+func _reference_pick(origin: Vector3, dir: Vector3) -> Dictionary:
+	var best := {"id": "", "distance": INF}
+	if not origin.is_finite() or not dir.is_finite() or dir.length_squared() < 1e-12:
+		return best
+	var dir_len := dir.length()
+	for id: String in presenter._xforms:
+		var asset := catalog.get_asset(presenter._asset_of[id])
+		var inv := (presenter._xforms[id] as Transform3D).affine_inverse()
+		var lo := inv * origin
+		var ld := inv.basis * dir
+		var t := 0.0
+		if not asset.bounds.has_point(lo):
+			var hit: Variant = asset.bounds.intersects_ray(lo, ld)
+			if hit == null:
+				continue
+			t = ((hit as Vector3) - lo).dot(ld) / ld.length_squared()
+			if t < 0.0:
+				continue
+		var dist := t * dir_len
+		if dist < (best["distance"] as float):
+			best = {"id": id, "distance": dist}
+	return best
+
+
+func test_pick_matches_reference_on_random_scene() -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 20261001
+	var assets := [BOULDER, LODGE, SPRUCE]
+	for i in 360:
+		var pos := Vector3(rng.randf_range(-300, 300), rng.randf_range(-2, 12), rng.randf_range(-300, 300))
+		_add(assets[i % 3], pos, rng.randf_range(0.0, TAU), rng.randf_range(0.6, 2.5))
+	presenter.rebuild(doc)
+	var ids := presenter.object_ids()
+	var hits := 0
+	for i in 600:
+		var origin: Vector3
+		var dir: Vector3
+		var mode := i % 3
+		if mode == 0:
+			origin = Vector3(rng.randf_range(-320, 320), rng.randf_range(40, 120), rng.randf_range(-320, 320))
+			dir = Vector3(rng.randf_range(-0.4, 0.4), -1.0, rng.randf_range(-0.4, 0.4)) * rng.randf_range(0.5, 3.0)
+		elif mode == 1:
+			origin = Vector3(rng.randf_range(-320, 320), rng.randf_range(1, 4), rng.randf_range(-320, 320))
+			dir = Vector3(rng.randf_range(-1, 1), rng.randf_range(-0.1, 0.05), rng.randf_range(-1, 1))
+		else:
+			origin = presenter.world_bounds(ids[rng.randi() % ids.size()]).get_center()
+			dir = Vector3(rng.randf_range(-1, 1), rng.randf_range(-1, 1), rng.randf_range(-1, 1))
+		var got := presenter.pick(origin, dir)
+		var want := _reference_pick(origin, dir)
+		assert_eq(got.id, want.id, "ray %d id" % i)
+		if want.id != "":
+			hits += 1
+			assert_near(got.distance, want.distance, 1e-9, "ray %d distance" % i)
+	assert_true(hits > 100, "random rays actually hit objects (%d)" % hits)
+
+
+func test_pick_ignores_removed_objects_and_bad_dirs() -> void:
+	var a := _add(BOULDER, Vector3.ZERO)
+	var b := _add(BOULDER, Vector3(0, 6, 0))
+	presenter.rebuild(doc)
+	assert_eq(presenter.pick(Vector3(0, 30, 0), Vector3(0, -7, 0)).id, b.object_id)
+	doc.remove_object(b.object_id)
+	presenter.sync_object(doc, b.object_id)
+	var hit := presenter.pick(Vector3(0, 30, 0), Vector3(0, -7, 0))
+	assert_eq(hit.id, a.object_id)
+	assert_near(hit.distance, 28.9, 1e-3)
+	assert_eq(presenter.pick(Vector3(0, 30, 0), Vector3(NAN, -1, 0)).id, "")
+	assert_eq(presenter.pick(Vector3(0, 30, 0), Vector3.ZERO).distance, INF)
+
+
+func test_overhanging_bounds_are_picked_from_the_neighbour_cell() -> void:
+	var r := _add(LODGE, Vector3(30.0, 0, 5.0), 0.0, 2.0)
+	presenter.rebuild(doc)
+	var wb := presenter.world_bounds(r.object_id)
+	assert_true(wb.end.x > 32.0 and wb.position.x < 32.0, "bounds straddle the cell edge")
+	var x := 32.0 + (wb.end.x - 32.0) * 0.5
+	assert_eq(presenter.pick(Vector3(x, 60, 5.0), Vector3.DOWN).id, r.object_id)
+	var shallow := presenter.pick(Vector3(x + 40.0, wb.get_center().y, 5.0), Vector3.LEFT)
+	assert_eq(shallow.id, r.object_id)
+
+
+func test_objects_near_and_revision() -> void:
+	var near := _add(BOULDER, Vector3(3, 0, 0))
+	var far := _add(BOULDER, Vector3(90, 0, 0))
+	presenter.rebuild(doc)
+	assert_eq(presenter.objects_near(Vector3.ZERO, 40.0, 5), PackedStringArray([near.object_id]))
+	assert_eq(presenter.objects_near(Vector3.ZERO, 200.0, 1), PackedStringArray([near.object_id]))
+	assert_eq(presenter.objects_near(Vector3.ZERO, 200.0, 5).size(), 2)
+	var rev := presenter.presentation_revision()
+	presenter.sync_object(doc, far.object_id)
+	assert_true(presenter.presentation_revision() > rev)

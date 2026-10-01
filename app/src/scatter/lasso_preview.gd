@@ -18,6 +18,7 @@ func _init() -> void:
 	mat.vertex_color_use_as_albedo = true
 	_instance.mesh = _mesh
 	_instance.material_override = mat
+	_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_instance.visible = false
 	add_child(_instance)
 

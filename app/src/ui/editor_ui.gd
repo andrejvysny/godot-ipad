@@ -14,6 +14,8 @@ const RAIL_GAP := 6.0
 const BANNER_MAX_W := 560.0
 const DIAG_BOTTOM_RESERVE := 64.0  # chip gap plus one toast line
 const GHOST_LABEL_OFFSET := Vector2(22, -58)
+const AVOID_RADIUS_M := 40.0
+const AVOID_CANDIDATES := 64
 
 ## Tests: lay the panels out as if the viewport had this size (zero = the real one).
 var layout_override := Vector2.ZERO
@@ -24,6 +26,8 @@ var _session: EditorSession
 var _root := Control.new()
 var _pill := WorldPill.new()
 var _menu := WorldMenu.new()
+var _perf := PerfIndicator.new()
+var _perf_menu := PerfMenu.new()
 var _history := HistoryTiles.new()
 var _actions := ActionPill.new()
 var _rail := ModeRail.new()
@@ -41,6 +45,9 @@ var _diagnostics := DiagnosticsOverlay.new()
 var _confirm := ConfirmDialog.new()
 var _left := false
 var _registered: Array[Control] = []
+var _avoid_key: Array = []
+var _avoid_points := PackedVector2Array()
+var _avoid_computes: int = 0
 var _region := Vector2(M, 1000.0)  # horizontal span free of the rail, popover and Library
 
 
@@ -56,11 +63,12 @@ func setup(session: EditorSession) -> void:
 	_banner_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	for c: Control in [_library, _rail, _popover, _inspector, _chip, _hints, _ghost_label, _toast, _banner, _pill,
-			_history, _actions, _menu, _diagnostics, _set_editor, _confirm]:
+			_history, _actions, _perf, _menu, _perf_menu, _diagnostics, _set_editor, _confirm]:
 		_root.add_child(c)
 	_setup_components(session)
 	_banner.visible = false
-	for c: Control in [_pill, _menu, _history, _actions, _rail, _popover, _chip, _library, _inspector, _diagnostics, _set_editor]:
+	for c: Control in [_pill, _menu, _history, _actions, _perf, _perf_menu, _rail, _popover, _chip, _library,
+			_inspector, _diagnostics, _set_editor]:
 		_registered.append(c)
 		session.input.ui_hits.register(c)
 	_connect_signals()
@@ -85,6 +93,8 @@ func _setup_components(session: EditorSession) -> void:
 	_actions.setup(session, _library)
 	_pill.setup(session)
 	_menu.setup(session, _confirm, _diagnostics, set_left_handed)
+	_perf.setup(session)
+	_perf_menu.setup(session)
 
 
 func _connect_signals() -> void:
@@ -95,8 +105,11 @@ func _connect_signals() -> void:
 		signal_ref.connect(_on_any_signal)
 	_session.message_posted.connect(_toast.show_message)
 	tools.dismissed.connect(_menu.close)
+	tools.dismissed.connect(_perf_menu.close)
 	_pill.toggled.connect(_menu.toggle_open)
 	_menu.visibility_changed.connect(func() -> void: _pill.set_open(_menu.visible))
+	_perf.toggled.connect(_perf_menu.toggle_open)
+	_perf_menu.visibility_changed.connect(func() -> void: _perf.set_open(_perf_menu.visible))
 	_chip.tapped.connect(_popover.toggle)
 	_popover.change_requested.connect(_on_change_source)
 	_popover.edit_set_requested.connect(_on_edit_set)
@@ -168,6 +181,14 @@ func world_pill() -> WorldPill:
 
 func world_menu() -> WorldMenu:
 	return _menu
+
+
+func perf_indicator() -> PerfIndicator:
+	return _perf
+
+
+func perf_menu() -> PerfMenu:
+	return _perf_menu
 
 
 func history_tiles() -> HistoryTiles:
@@ -249,7 +270,7 @@ func refresh() -> void:
 	if _session == null or _session.document == null:
 		return
 	var s := _session.status()
-	for c: Control in [_pill, _menu, _history, _actions, _rail, _chip]:
+	for c: Control in [_pill, _menu, _history, _actions, _perf, _perf_menu, _rail, _chip]:
 		c.call("refresh", s)
 	_refresh_banner(str(s.banner))
 	_hints.set_development(bool(s.development_input))
@@ -284,7 +305,7 @@ func layout() -> void:
 	if _session == null:
 		return
 	var vp := _viewport_size()
-	for c: Control in [_pill, _history, _actions, _rail, _chip]:
+	for c: Control in [_pill, _history, _actions, _perf, _rail, _chip]:
 		c.reset_size()
 	_popover.set_max_height(vp.y - TOP_Y - M)
 	_layout_top(vp)
@@ -294,15 +315,18 @@ func layout() -> void:
 	_set_editor.size = vp
 	_menu.reset_size()
 	_menu.position = Vector2(M, _pill.position.y + _pill.size.y + 4.0)
+	_perf_menu.reset_size()
+	_perf_menu.position = Vector2(_perf.position.x + _perf.size.x - _perf_menu.size.x, _perf.position.y + _perf.size.y + 4.0)
 	_layout_floaters()
 
 
 func _layout_top(vp: Vector2) -> void:
 	_pill.position = Vector2(M, M)
 	_actions.position = Vector2(vp.x - M - _actions.size.x, M)
+	_perf.position = Vector2(_actions.position.x - GAP - _perf.size.x, M)
 	var w := _history.base_width()
 	var lo := _pill.position.x + _pill.size.x + GAP
-	var hi := _actions.position.x - GAP - w
+	var hi := _perf.position.x - GAP - w
 	_history.position = Vector2(maxf(lo, minf(vp.x * 0.5 - w * 0.5, hi)), M)
 
 
@@ -389,20 +413,40 @@ func _place_inspector() -> void:
 	_inspector.place(anchor, free, not _left, _other_object_points())
 
 
-## Screen centres of every visible object except the selected one.
+## Screen centres of the nearest objects around the selection (bounded query), excluding the
+## selected one. Recomputed only when camera, presentation, selection or viewport change.
 func _other_object_points() -> PackedVector2Array:
-	var points := PackedVector2Array()
 	var camera := _session.rig.get_camera()
 	if camera == null:
-		return points
+		return PackedVector2Array()
+	var presenter := _session.presenter
 	var selected := _session.tools.selected_id()
-	for id in _session.presenter.object_ids():
-		if id == selected:
+	var key: Array = [camera.global_transform, presenter.presentation_revision(), selected,
+			_viewport_size(), camera.fov]
+	if key == _avoid_key:
+		return _avoid_points
+	_avoid_key = key
+	_avoid_computes += 1
+	var points := PackedVector2Array()
+	var centre := presenter.world_bounds(selected).get_center()
+	for id in presenter.objects_near(centre, AVOID_RADIUS_M, _avoid_candidates() + 1):
+		if id == selected or points.size() >= _avoid_candidates():
 			continue
-		var centre := _session.presenter.world_bounds(id).get_center()
-		if not camera.is_position_behind(centre):
-			points.append(camera.unproject_position(centre))
+		var c := presenter.world_bounds(id).get_center()
+		if not camera.is_position_behind(c):
+			points.append(camera.unproject_position(c))
+	_avoid_points = points
 	return points
+
+
+func _avoid_candidates() -> int:
+	if _session.render_config == null:
+		return AVOID_CANDIDATES
+	return int(_session.render_config.section("ui").get("inspector_candidates", AVOID_CANDIDATES))
+
+
+func inspector_avoid_computes() -> int:
+	return _avoid_computes
 
 
 ## Screen rect of the selected object's world bounds, or a rect at INF when it is not visible.

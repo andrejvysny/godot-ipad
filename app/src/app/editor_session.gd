@@ -16,6 +16,7 @@ const EDITOR_UI := "res://src/ui/editor_ui.gd"
 const SELFTEST := "res://src/app/editor_selftest.gd"
 const RENDER_BENCH := "res://src/diagnostics/render_bench.gd"
 const STATUS_INTERVAL_MSEC := 250
+const MIN_SLOW_STATUS_MSEC := 100
 
 var storage_root := "user://worlds"
 var start_fixture := "gentle_hills"
@@ -27,6 +28,8 @@ var build_ui := true
 var document: WorldDocument
 var catalog: AssetCatalog
 var defaults: Dictionary = {}
+var render_config: RenderConfig
+var render_profiles: RenderProfileController
 var input := InputSystem.new()
 var rig: OrbitCameraRig
 var terrain: TerrainView
@@ -52,6 +55,9 @@ var _last_status_msec := 0
 var _tool_ctx: ToolContext
 var _op_max_gap_ms := 0.0
 var _last_cancel_reason := ""
+var _slow_status: Dictionary = {}
+var _slow_status_msec := -1
+var _vegetation_hidden := false
 
 
 func _ready() -> void:
@@ -135,6 +141,10 @@ func _load_config() -> String:
 	if typeof(parsed) != TYPE_DICTIONARY:
 		return "Cannot read config/poc_defaults.json."
 	defaults = parsed
+	render_config = RenderConfig.load_from()
+	render_profiles = RenderProfileController.new(render_config)
+	render_profiles.set_apply_hook(_apply_profile)
+	render_profiles.profile_applied.connect(_on_profile_applied)
 	var loaded := AssetCatalog.load_from()
 	if loaded[1] != "":
 		return str(loaded[1])
@@ -190,6 +200,8 @@ func _build_scene() -> String:
 	if error != "":
 		return error
 	presenter.setup(catalog)
+	presenter.set_camera(rig.get_camera())
+	presenter.set_debug_limit(int(render_config.section("ui").max_debug_labels))
 	add_child(presenter)
 	presenter.rebuild(document)
 	layers.setup(catalog)
@@ -197,6 +209,9 @@ func _build_scene() -> String:
 	layers.rebuild(document)
 	sun = SceneLighting.build(self)
 	RenderCounters.enable(get_viewport())
+	render_profiles.apply_startup()
+	if render_config.error != "":
+		post_message(render_config.error, true)
 	return ""
 
 
@@ -218,6 +233,8 @@ func _build_tools_and_input() -> void:
 	_tool_ctx = ctx
 	tools.operation_started.connect(func(_tool: String) -> void: _op_max_gap_ms = 0.0)
 	tools.operation_cancelled.connect(func(reason: String) -> void: _last_cancel_reason = reason)
+	tools.operation_finished.connect(func(_change: WorldChange) -> void: render_profiles.operation_ended())
+	tools.operation_cancelled.connect(func(_reason: String) -> void: render_profiles.operation_ended())
 	add_child(tools)
 	tools.setup(ctx)
 	layers.bind_tools(tools)
@@ -249,6 +266,9 @@ func _process(_delta: float) -> void:
 			post_message("Stroke cancelled: frame stall over %d ms." % roundi(stall_s * 1000.0), true)
 	_last_frame_usec = now_usec
 	tools.advance(input.active_provider().now_seconds())
+	# A tap or no-op finish ends an operation without a signal.
+	if render_profiles.pending_name() != "" and not tools.has_active_operation():
+		render_profiles.operation_ended()
 	rig.frozen = tools.has_active_operation()
 	terrain.flush()
 	if Time.get_ticks_msec() - _last_status_msec >= STATUS_INTERVAL_MSEC:
@@ -422,9 +442,48 @@ func focus_selection() -> String:
 	return ""
 
 
-func set_render_scale(scale: float) -> void:
-	get_viewport().scaling_3d_scale = 0.5 if scale < 0.75 else 1.0
+## Applies or defers (during an operation) the profile; never automatic. Returns the controller result.
+func request_profile(name: String) -> Dictionary:
+	var result := render_profiles.request_profile(name, tools.has_active_operation())
+	if str(result.status) == RenderProfileController.PENDING:
+		post_message("%s applies after the current edit" % _profile_label(name))
+	return result
+
+
+func _profile_label(name: String) -> String:
+	return str(render_config.profile(name).get("label", name))
+
+
+## Immediate and deferred applies alike; the silent startup apply happens before ready_for_input.
+func _on_profile_applied(name: String) -> void:
+	if ready_for_input:
+		post_message("Profile: " + _profile_label(name))
+
+
+func _apply_profile(_name: String, p: Dictionary) -> void:
+	var viewport := get_viewport()
+	viewport.scaling_3d_mode = Viewport.SCALING_3D_MODE_BILINEAR
+	viewport.scaling_3d_scale = float(p.scale_3d)
+	viewport.msaa_3d = Viewport.MSAA_DISABLED
+	viewport.screen_space_aa = Viewport.SCREEN_SPACE_AA_DISABLED
+	viewport.use_taa = false
+	viewport.mesh_lod_threshold = float(p.mesh_lod_threshold_px)
+	# Cap only below the display rate (Detailed 30 fps); 0 leaves pacing to vsync.
+	Engine.max_fps = int(p.target_fps) if int(p.target_fps) < 60 else 0
 	status_changed.emit()
+
+
+## Presentation only: never stored in the document or history (spec §15.4).
+func set_vegetation_hidden(on: bool) -> void:
+	_vegetation_hidden = on
+	var rule := render_config.vegetation_rule()
+	layers.set_vegetation_hidden(on, rule)
+	presenter.set_vegetation_hidden(on, rule)
+	status_changed.emit()
+
+
+func vegetation_hidden() -> bool:
+	return _vegetation_hidden
 
 
 # --- Diagnostics -------------------------------------------------------------------------
@@ -474,24 +533,42 @@ func verify_gpu_terrain() -> String:
 	return report.text
 
 
+## Live fields are cheap and computed on every call; frame percentiles, render counters and stats that sort or
+## query the RenderingServer are cached for 1000 / diagnostics_refresh_hz ms (spec §15.3).
 func status() -> Dictionary:
 	var revision := document.document_revision
-	var history_state := {"size": history.size(), "bytes": history.total_bytes()}
+	var slow := _slow_part()
+	var p := render_profiles.active_profile()
+	var p50 := float(slow.frame_p50_ms)
 	return {"stroke_state": tools.stroke_state(), "revision": revision,
 		"save_text": storage.status_text(revision), "save_state": storage.get_save_state(),
 		"can_undo": history.can_undo(), "can_redo": history.can_redo(),
 		"undo_label": history.peek_undo_label(), "redo_label": history.peek_redo_label(),
-		"history_size": history_state.size, "history_bytes": history_state.bytes,
+		"history_size": history.size(), "history_bytes": history.total_bytes(),
 		"evicted": history.evicted_count, "object_count": document.objects.size(),
 		"selected_id": tools.selected_id(), "provider_label": input.provider_label(),
 		"banner": input.banner_text(), "editing_enabled": input.editing_enabled(),
 		"development_input": input.is_development_input(), "router_state": input.router.state_name(),
 		"contacts": input.router.contacts().size(),
 		"pressure_available": bool(input.active_provider().capabilities().get("pressure", false)),
-		"renderer": RenderingServer.get_current_rendering_method(),
-		"driver": RenderingServer.get_current_rendering_driver_name(),
-		"frame_p50_ms": frames.p50(), "frame_p95_ms": frames.p95(),
-		"brush_p95_ms": frames.sample_p95("brush"), "render_scale": get_viewport().scaling_3d_scale,
+		"render_scale": get_viewport().scaling_3d_scale,
 		"world_id": document.world_id, "operation_id": tools.active_operation_id(),
 		"last_hit": SessionWorldOps.hit_text(tools.last_hit()), "last_stroke": SessionWorldOps.with_gap(_tool_ctx.last_stroke, _op_max_gap_ms),
-		"last_cancel": _last_cancel_reason, "terrain_stats": terrain.stats(), "render": RenderCounters.snapshot(get_viewport())}.merged(SessionWorldOps.tool_status(tools))
+		"last_cancel": _last_cancel_reason,
+		"profile": render_profiles.active_name(), "profile_label": str(p.get("label", "")),
+		"profile_pending": render_profiles.pending_name(), "profile_target_fps": int(p.get("target_fps", 0)),
+		"vegetation_hidden": _vegetation_hidden, "fps": 1000.0 / p50 if p50 > 0.0 else 0.0,
+	}.merged(slow).merged(SessionWorldOps.tool_status(tools))
+
+
+func _slow_part() -> Dictionary:
+	var interval := maxi(MIN_SLOW_STATUS_MSEC, roundi(1000.0 / float(render_config.section("ui").diagnostics_refresh_hz)))
+	var now := Time.get_ticks_msec()
+	if _slow_status_msec < 0 or now - _slow_status_msec >= interval:
+		_slow_status_msec = now
+		_slow_status = {"renderer": RenderingServer.get_current_rendering_method(),
+			"driver": RenderingServer.get_current_rendering_driver_name(),
+			"frame_p50_ms": frames.p50(), "frame_p95_ms": frames.p95(),
+			"brush_p95_ms": frames.sample_p95("brush"), "terrain_stats": terrain.stats(),
+			"render": RenderCounters.snapshot(get_viewport())}
+	return _slow_status

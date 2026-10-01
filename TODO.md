@@ -16,7 +16,7 @@ tool = Godot headless devtools + Python descriptor validator; no automatic decim
 - [ ] Device baseline: HEAD `191b2da` Release bench on iPad Air 4 (pre-change reference)
 - [ ] WP00 bench hardening: session guard, input block + abort, dedicated deterministic population,
   full restore on every exit path, metric validity, fingerprints/evidence identity, p99/hitches
-- [ ] WP01 profiles (config + controller, Performance startup, deferred switch), shadows off everywhere,
+- [x] WP01 profiles (config + controller, Performance startup, deferred switch), shadows off everywhere,
   status/diagnostics cache, RenderSpatialIndex (pick broad phase, inspector neighbours), overlay reuse,
   bounded debug decor, hide vegetation, perf indicator + profile menu, input alignment at 0.65/0.75/1.0
 - [ ] WP04a WorldLayout + schema 3 format/limits/hash V3, GDScript + Python, legacy byte-stable

@@ -281,3 +281,37 @@ func test_left_handed_layout_mirrors_rail_popover_and_library() -> void:
 	assert_true(_rect(ui.mode_rail()).position.x > _rect(ui.library()).end.x, "rail right of the Library")
 	assert_true(_rect(ui.popover()).end.x < _rect(ui.mode_rail()).position.x, "popover beside the rail")
 	assert_true(_rect(ui.popover()).position.x > _rect(ui.library()).end.x)
+
+
+func test_inspector_avoidance_is_bounded_and_cached() -> void:
+	var s := await _start("stress_100")
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 77
+	for i in 300:
+		var r := s.document.get_object(s.document.sorted_object_ids()[0]).clone()
+		r.object_id = ObjectRecord.new_uuid_v4()
+		r.set_position(rng.randf_range(-400, 400), 0.0, rng.randf_range(-400, 400))
+		s.document.put_object(r)
+	s.presenter.rebuild(s.document)
+	assert_true(s.presenter.object_count() >= 400)
+	var first := await _select_first(s)
+	var centre := s.presenter.world_bounds(first.object_id).get_center()
+	var crowd := 0
+	for i in 100:
+		var r := first.clone()
+		r.object_id = ObjectRecord.new_uuid_v4()
+		r.set_position(centre.x + rng.randf_range(-30, 30), 0.0, centre.z + rng.randf_range(-30, 30))
+		s.document.put_object(r)
+		crowd += 1
+	s.presenter.rebuild(s.document)
+	s.presenter.set_selected(first.object_id)
+	var ui := _ui(s)
+	var points := ui._other_object_points()
+	assert_true(points.size() <= 64, "bounded candidates: %d" % points.size())
+	var computes := ui.inspector_avoid_computes()
+	var again := ui._other_object_points()
+	assert_eq(ui.inspector_avoid_computes(), computes, "unchanged inputs reuse the cache")
+	assert_eq(again, points)
+	s.presenter.sync_object(s.document, first.object_id)
+	ui._other_object_points()
+	assert_eq(ui.inspector_avoid_computes(), computes + 1, "presentation change invalidates")

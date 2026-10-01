@@ -11,7 +11,7 @@
   build-native               build the native input bridge (native/ios_input/build.sh)
   fixtures [--check]         regenerate or byte-check bundled fixtures
   catalog-hash               print the trusted catalog content hash
-  sync-config                copy config/poc_defaults.json to app/config/
+  sync-config                copy config/{poc_defaults,rendering_profiles}.json to app/config/
 """
 from __future__ import annotations
 
@@ -44,8 +44,9 @@ TEMPLATES_ROOT = Path.home() / "Library" / "Application Support" / "Godot" / "ex
 IOS_EXPORT_PATH = REPO / "build" / "ios" / "WorldPainter.ipa"
 EXPORT_TIMEOUT_S = 3600
 SECRET_PATTERNS = re.compile(r"(\.mobileprovision|\.p12|\.cer|(^|/)local\.signing\.json|(^|/)export_credentials\.cfg)$")
+SYNCED_CONFIGS = ("poc_defaults.json", "rendering_profiles.json")
 REQUIRED_FILES = [
-	".gitignore", "CLAUDE.md", "config/toolchain.lock.json", "config/poc_defaults.json", "app/project.godot",
+	".gitignore", "CLAUDE.md", "config/toolchain.lock.json", "config/poc_defaults.json", "config/rendering_profiles.json", "app/project.godot",
 	"app/export_presets.cfg", "app/scenes/editor_main.tscn", "app/assets/catalog.json", "app/tests/run_tests.gd",
 	"app/addons/terrain_3d/terrain.gdextension", "scripts/dev.py", "scripts/validate_world.py",
 	"scripts/generate_fixtures.py", "docs/world-format.md", "docs/evidence/environment.json",
@@ -211,6 +212,11 @@ def _doctor_native_bridge(r: Report, gdextension: Path = NATIVE_GDEXTENSION) -> 
 		r.add("OK" if present else "PENDING", "native bridge", "%s %s" % ("present" if present else "MISSING", Path(res).name))
 
 
+def _config_in_sync(name: str) -> bool:
+	a, b = REPO / "config" / name, APP / "config" / name
+	return a.is_file() and b.is_file() and a.read_bytes() == b.read_bytes()
+
+
 def _doctor_repo(r: Report, lock: dict) -> None:
 	bad = generate_fixtures.check()
 	r.add("FAIL" if bad else "OK", "fixtures --check", "differ: " + ", ".join(bad) if bad else "byte-identical")
@@ -218,9 +224,8 @@ def _doctor_repo(r: Report, lock: dict) -> None:
 		m = load_json(APP / "fixtures" / name / "manifest.json")
 		ok = m.get("authored_content_hash") == info.get("authored_content_hash")
 		r.add("OK" if ok else "FAIL", "fixture " + name, "authored hash %s" % m.get("authored_content_hash"))
-	a, b = REPO / "config" / "poc_defaults.json", APP / "config" / "poc_defaults.json"
-	same = a.is_file() and b.is_file() and a.read_bytes() == b.read_bytes()
-	r.add("OK" if same else "FAIL", "config sync", "identical" if same else "differs; run: python3 scripts/dev.py sync-config")
+	drift = [n for n in SYNCED_CONFIGS if not _config_in_sync(n)]
+	r.add("FAIL" if drift else "OK", "config sync", "differs: %s; run: python3 scripts/dev.py sync-config" % ", ".join(drift) if drift else "identical")
 	missing = [f for f in REQUIRED_FILES if not (REPO / f).exists()]
 	r.add("FAIL" if missing else "OK", "required files", "missing: " + ", ".join(missing) if missing else "%d present" % len(REQUIRED_FILES))
 	pending = [f for f in PENDING_FILES if not (REPO / f).exists()]
@@ -432,13 +437,16 @@ def cmd_catalog_hash(a: argparse.Namespace) -> int:
 
 
 def cmd_sync_config(a: argparse.Namespace) -> int:
-	src, dst = REPO / "config" / "poc_defaults.json", APP / "config" / "poc_defaults.json"
-	if dst.is_file() and dst.read_bytes() == src.read_bytes():
+	if all(_config_in_sync(n) for n in SYNCED_CONFIGS):
 		print("already in sync")
 		return 0
-	dst.parent.mkdir(parents=True, exist_ok=True)
-	shutil.copyfile(src, dst)
-	print("copied %s -> %s" % (src.relative_to(REPO), dst.relative_to(REPO)))
+	for name in SYNCED_CONFIGS:
+		src, dst = REPO / "config" / name, APP / "config" / name
+		if _config_in_sync(name):
+			continue
+		dst.parent.mkdir(parents=True, exist_ok=True)
+		shutil.copyfile(src, dst)
+		print("copied %s -> %s" % (src.relative_to(REPO), dst.relative_to(REPO)))
 	return 0
 
 
@@ -489,7 +497,7 @@ def build_parser() -> argparse.ArgumentParser:
 	s.add_argument("--check", action="store_true")
 	s.set_defaults(fn=cmd_fixtures)
 	sub.add_parser("catalog-hash", help="print the catalog content hash").set_defaults(fn=cmd_catalog_hash)
-	sub.add_parser("sync-config", help="copy config/poc_defaults.json into app/config").set_defaults(fn=cmd_sync_config)
+	sub.add_parser("sync-config", help="copy config/{poc_defaults,rendering_profiles}.json into app/config").set_defaults(fn=cmd_sync_config)
 	return p
 
 

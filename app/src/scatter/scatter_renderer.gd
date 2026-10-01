@@ -4,10 +4,10 @@ extends Node3D
 ## (docs/editor-v2.md §6). Instance Y is the bilinear terrain height (instances without a
 ## sample are skipped); an align flag tilts the instance to the terrain normal. Cells are rebuilt
 ## only when marked dirty (scatter edits or height edits under them), once per frame in flush().
-## Ground-cover assets cast no shadows. Never mutates the document.
+## Nothing casts shadows. Hidden vegetation (presentation only) is invisible but keeps its MultiMeshes.
+## Never mutates the document.
 
 const CELL_M := 32.0
-const GROUND_COVER := "ground_cover"
 const FLOATS_PER_INSTANCE := 12  # MultiMesh 3D transform buffer: three rows of (basis row, origin)
 
 var last_rebuild_ms := 0.0
@@ -20,6 +20,8 @@ var _data := {}  # Vector2i cell -> {asset_id -> PackedFloat32Array transform bu
 var _buckets := {}  # Vector2i cell -> {asset_id -> PackedInt32Array layer indices}
 var _buckets_valid := false
 var _dirty := {}  # Vector2i cell -> true
+var _veg_hidden := false
+var _veg_rule: Dictionary = {}
 
 
 func setup(catalog: AssetCatalog) -> void:
@@ -205,14 +207,25 @@ func _instance_for(cell: Vector2i, asset_id: String, mesh: Mesh) -> MultiMeshIns
 	mm.mesh = mesh
 	var node := MultiMeshInstance3D.new()
 	node.multimesh = mm
-	var asset := _catalog.get_asset(asset_id)
-	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF \
-			if asset != null and asset.category == GROUND_COVER \
-			else GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	node.visible = not _hidden_by_rule(asset_id)
 	add_child(node)
 	by_asset[asset_id] = node
 	_nodes[cell] = by_asset
 	return node
+
+
+## Hides (or restores) the MultiMeshes of assets `rule` classifies as vegetation; cells built later follow.
+func set_vegetation_hidden(hidden: bool, rule: Dictionary) -> void:
+	_veg_hidden = hidden
+	_veg_rule = rule.duplicate(true)
+	for cell: Vector2i in _nodes:
+		for asset_id: String in _nodes[cell]:
+			(_nodes[cell][asset_id] as MultiMeshInstance3D).visible = not _hidden_by_rule(asset_id)
+
+
+func _hidden_by_rule(asset_id: String) -> bool:
+	return _veg_hidden and RenderConfig.rule_is_vegetation(_veg_rule, _catalog.get_asset(asset_id))
 
 
 func _mesh_for(asset_id: String) -> Mesh:

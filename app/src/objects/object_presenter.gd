@@ -4,15 +4,24 @@ extends Node3D
 ## Picking is pure math against each object's oriented catalog bounds (no physics bodies).
 ## `_xforms[id]` is the scene-node transform actually applied: record.node_transform(anchor_local),
 ## i.e. the anchor is applied after rotation+scale, so `_xforms[id] * anchor_local == record.position`.
+## A grid index over world bounds limits picking and proximity queries to nearby candidates.
 
 const GHOST_VALID := Color(0.30, 0.90, 0.40, 0.45)
 const GHOST_INVALID := Color(0.95, 0.30, 0.25, 0.45)
 const SELECT_COLOR := Color(1.0, 0.85, 0.1)
 const ANCHOR_COLOR := Color(1.0, 0.0, 1.0)
+const PICK_MAX_DISTANCE_M := 100000.0
+const PICK_TIE_M := 1e-9
 
 var _catalog: AssetCatalog
 var _nodes: Dictionary = {}  # id -> Node3D
 var _xforms: Dictionary = {}  # id -> Transform3D
+var _inverses: Dictionary = {}  # id -> affine_inverse of _xforms[id]
+var _index := RenderSpatialIndex.new(32.0)
+var _revision: int = 0
+var _veg_hidden: bool = false
+var _veg_categories: Dictionary = {}
+var _veg_excluded: Dictionary = {}
 var _asset_of: Dictionary = {}  # id -> asset_id
 var _selected: String = ""
 var _ghost: Node3D
@@ -20,12 +29,15 @@ var _ghost_asset: String = ""
 var _ghost_valid: bool = false
 var _ghost_material := StandardMaterial3D.new()
 var _overlay: Node3D
+var _overlay_holder: Node3D
+var _overlay_box: MeshInstance3D
+var _overlay_sphere: MeshInstance3D
+var _wire_meshes: Dictionary = {}  # asset_id -> ImmediateMesh
 var _overlay_material := StandardMaterial3D.new()
 var _show_anchors: bool = false
 var _show_ids: bool = false
-var _markers: Dictionary = {}  # id -> MeshInstance3D
-var _labels: Dictionary = {}  # id -> Label3D
 var _anchor_material := StandardMaterial3D.new()
+var _decor: PresenterDebugDecor
 
 
 func _init() -> void:
@@ -38,10 +50,15 @@ func _init() -> void:
 	_anchor_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	_anchor_material.no_depth_test = true
 	_anchor_material.albedo_color = ANCHOR_COLOR
+	_decor = PresenterDebugDecor.new(self, _anchor_material)
 
 
 func setup(catalog: AssetCatalog) -> void:
 	_catalog = catalog
+
+
+func _process(delta: float) -> void:
+	_decor.tick(delta)
 
 
 func rebuild(doc: WorldDocument) -> void:
@@ -49,6 +66,7 @@ func rebuild(doc: WorldDocument) -> void:
 	for id: String in _nodes.keys():
 		_remove(id)
 	_set_selected_raw("")
+	_revision += 1
 	for id in doc.sorted_object_ids():
 		sync_object(doc, id)
 	if keep != "" and _nodes.has(keep):
@@ -60,6 +78,7 @@ func sync_object(doc: WorldDocument, id: String) -> void:
 	var asset: AssetDefinition = null
 	if record != null:
 		asset = _catalog.get_asset(record.asset_id)
+	_revision += 1
 	if record == null or asset == null:
 		_remove(id)
 		return
@@ -68,8 +87,12 @@ func sync_object(doc: WorldDocument, id: String) -> void:
 			_remove(id)
 			return
 	var xf := record.node_transform(asset.anchor_local)
-	(_nodes[id] as Node3D).transform = xf
+	var node := _nodes[id] as Node3D
+	node.transform = xf
+	node.visible = not _is_hidden(id)
 	_xforms[id] = xf
+	_inverses[id] = xf.affine_inverse()
+	_index.put(id, xf * asset.bounds)
 	_refresh_decor(id)
 
 
@@ -86,6 +109,29 @@ func object_count() -> int:
 	return _nodes.size()
 
 
+## Records currently presented; becomes distinct from node_count in WP03.
+func authored_object_count() -> int:
+	return _nodes.size()
+
+
+func has_object(id: String) -> bool:
+	return _xforms.has(id)
+
+
+func applied_transform(id: String) -> Transform3D:
+	return _xforms.get(id, Transform3D.IDENTITY)
+
+
+func anchor_position(id: String) -> Vector3:
+	if not _xforms.has(id):
+		return Vector3.ZERO
+	return (_xforms[id] as Transform3D) * _catalog.get_asset(_asset_of[id]).anchor_local
+
+
+func presentation_revision() -> int:
+	return _revision
+
+
 func object_ids() -> PackedStringArray:
 	var ids := PackedStringArray(_nodes.keys())
 	ids.sort()
@@ -98,30 +144,70 @@ func pick(origin: Vector3, dir: Vector3) -> Dictionary:
 	if not origin.is_finite() or not dir.is_finite() or dir.length_squared() < 1e-12:
 		return best
 	var dir_len := dir.length()
-	for id: String in _xforms:
-		var asset := _catalog.get_asset(_asset_of[id])
-		var inv := (_xforms[id] as Transform3D).affine_inverse()
+	for id in _index.query_ray(origin, dir, PICK_MAX_DISTANCE_M):
+		if _is_hidden(id):
+			continue
+		var bounds := _catalog.get_asset(_asset_of[id]).bounds
+		var inv: Transform3D = _inverses[id]
 		var lo := inv * origin
 		# Not renormalized: the ray parameter t is identical in local and world space.
 		var ld := inv.basis * dir
 		var t := 0.0
-		if not asset.bounds.has_point(lo):
-			var hit: Variant = asset.bounds.intersects_ray(lo, ld)
+		if not bounds.has_point(lo):
+			var hit: Variant = bounds.intersects_ray(lo, ld)
 			if hit == null:
 				continue
 			t = ((hit as Vector3) - lo).dot(ld) / ld.length_squared()
 			if t < 0.0:
 				continue
 		var dist := t * dir_len
-		if dist < (best["distance"] as float):
+		var best_dist: float = best["distance"]
+		# Candidates arrive sorted by id, so an equal hit never displaces a smaller id.
+		if dist < best_dist - PICK_TIE_M or (best["id"] == "" and dist < best_dist):
 			best = {"id": id, "distance": dist}
 	return best
 
 
+## Objects whose bounds centre is within `radius` of `point`, nearest first. Hidden vegetation is skipped.
+func objects_near(point: Vector3, radius: float, max_count: int) -> PackedStringArray:
+	if not _veg_hidden:
+		return _index.query_near(point, radius, max_count)
+	var out := PackedStringArray()
+	for id in _index.query_near(point, radius, 1 << 30):
+		if out.size() >= max_count:
+			break
+		if not _is_hidden(id):
+			out.append(id)
+	return out
+
+
+func set_vegetation_hidden(hidden: bool, rule: Dictionary) -> void:
+	_veg_hidden = hidden
+	_veg_categories.clear()
+	_veg_excluded.clear()
+	for c: Variant in rule.get("categories", []):
+		_veg_categories[str(c)] = true
+	for a: Variant in rule.get("excluded_asset_ids", []):
+		_veg_excluded[str(a)] = true
+	for id: String in _nodes:
+		(_nodes[id] as Node3D).visible = not _is_hidden(id)
+	_revision += 1
+	_decor.refresh()
+
+
+func vegetation_hidden() -> bool:
+	return _veg_hidden
+
+
+func _is_hidden(id: String) -> bool:
+	if not _veg_hidden:
+		return false
+	var asset := _catalog.get_asset(_asset_of.get(id, ""))
+	return asset != null and _veg_categories.has(asset.category) and not _veg_excluded.has(asset.asset_id)
+
+
 func world_bounds(id: String) -> AABB:
-	if not _xforms.has(id):
-		return AABB()
-	return (_xforms[id] as Transform3D) * _catalog.get_asset(_asset_of[id]).bounds
+	return _index.bounds_of(id)
 
 
 func show_ghost(record: ObjectRecord, valid: bool) -> void:
@@ -167,14 +253,51 @@ func selected_id() -> String:
 
 func set_show_anchors(on: bool) -> void:
 	_show_anchors = on
-	for id: String in _xforms:
-		_refresh_decor(id)
+	_decor.configure(_show_anchors, _show_ids)
 
 
 func set_show_ids(on: bool) -> void:
 	_show_ids = on
-	for id: String in _xforms:
-		_refresh_decor(id)
+	_decor.configure(_show_anchors, _show_ids)
+
+
+func set_debug_limit(n: int) -> void:
+	_decor.set_limit(n)
+
+
+func set_camera(camera: Camera3D) -> void:
+	_decor.set_camera(camera)
+
+
+func debug_marker_count() -> int:
+	return _decor.marker_count()
+
+
+func debug_label_count() -> int:
+	return _decor.label_count()
+
+
+func debug_label_ids() -> PackedStringArray:
+	return _decor.label_ids()
+
+
+func debug_marker_for(id: String) -> Node3D:
+	return _decor.marker_for(id)
+
+
+func debug_label_for(id: String) -> Label3D:
+	return _decor.label_for(id)
+
+
+func selection_overlay_visible() -> bool:
+	return _overlay != null and _overlay.visible
+
+
+func selection_overlay_nodes() -> Array[Node3D]:
+	var nodes: Array[Node3D] = []
+	if _overlay != null:
+		nodes.append_array([_overlay_holder, _overlay_box, _overlay_sphere])
+	return nodes
 
 
 func _instantiate(id: String, asset_id: String) -> bool:
@@ -183,6 +306,7 @@ func _instantiate(id: String, asset_id: String) -> bool:
 	if node == null:
 		return false
 	node.name = "obj_" + id
+	_disable_shadows(node)
 	add_child(node)
 	_nodes[id] = node
 	_asset_of[id] = asset_id
@@ -200,19 +324,12 @@ func _free_node(id: String) -> void:
 func _remove(id: String) -> void:
 	_free_node(id)
 	_xforms.erase(id)
+	_inverses.erase(id)
+	_index.remove(id)
 	_asset_of.erase(id)
-	_free_decor(_markers, id)
-	_free_decor(_labels, id)
 	if _selected == id:
 		_set_selected_raw("")
-
-
-func _free_decor(store: Dictionary, id: String) -> void:
-	var node: Node3D = store.get(id)
-	if node != null:
-		remove_child(node)
-		node.free()
-	store.erase(id)
+	_decor.object_removed(id)
 
 
 func _free_ghost() -> void:
@@ -224,41 +341,59 @@ func _free_ghost() -> void:
 
 
 func _style_ghost(node: Node) -> void:
+	_disable_shadows(node)
 	if node is MeshInstance3D:
-		var mi := node as MeshInstance3D
-		mi.material_override = _ghost_material
-		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		(node as MeshInstance3D).material_override = _ghost_material
 	for child in node.get_children():
 		_style_ghost(child)
 
 
+func _disable_shadows(node: Node) -> void:
+	if node is GeometryInstance3D:
+		(node as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	for child in node.get_children():
+		_disable_shadows(child)
+
+
 func _set_selected_raw(id: String) -> void:
+	var changed := _selected != id
 	_selected = id
-	if _overlay != null:
-		remove_child(_overlay)
-		_overlay.free()
-		_overlay = null
-	if id != "":
-		_build_overlay(id)
+	_update_overlay()
+	if changed:
+		_decor.refresh()
 
 
-func _build_overlay(id: String) -> void:
-	var asset := _catalog.get_asset(_asset_of[id])
-	var xf: Transform3D = _xforms[id]
+## The overlay tree and wire meshes are built once and only re-posed afterwards (EDIT-02).
+func _update_overlay() -> void:
+	if _selected == "":
+		if _overlay != null:
+			_overlay.visible = false
+		return
+	if _overlay == null:
+		_build_overlay()
+	var asset := _catalog.get_asset(_asset_of[_selected])
+	var xf: Transform3D = _xforms[_selected]
+	if not _wire_meshes.has(asset.asset_id):
+		_wire_meshes[asset.asset_id] = _wire_box(asset.bounds.grow(0.1))
+	if _overlay_box.mesh != _wire_meshes[asset.asset_id]:
+		_overlay_box.mesh = _wire_meshes[asset.asset_id]
+	_overlay_holder.transform = xf
+	# Sphere lives outside the scaled holder so its radius stays in metres.
+	_overlay_sphere.position = xf * asset.anchor_local
+	_overlay.visible = true
+
+
+func _build_overlay() -> void:
 	_overlay = Node3D.new()
 	_overlay.name = "selection_overlay"
-	var holder := Node3D.new()
-	holder.transform = xf
-	_overlay.add_child(holder)
-	var box := MeshInstance3D.new()
-	box.mesh = _wire_box(asset.bounds.grow(0.1))
-	box.material_override = _overlay_material
-	box.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	holder.add_child(box)
-	# Sphere lives outside the scaled holder so its radius stays in metres.
-	var sphere := _sphere_marker(0.25, _overlay_material)
-	sphere.position = xf * asset.anchor_local
-	_overlay.add_child(sphere)
+	_overlay_holder = Node3D.new()
+	_overlay.add_child(_overlay_holder)
+	_overlay_box = MeshInstance3D.new()
+	_overlay_box.material_override = _overlay_material
+	_overlay_box.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_overlay_holder.add_child(_overlay_box)
+	_overlay_sphere = _sphere_marker(0.25, _overlay_material)
+	_overlay.add_child(_overlay_sphere)
 	add_child(_overlay)
 
 
@@ -288,32 +423,5 @@ func _sphere_marker(radius: float, material: Material) -> MeshInstance3D:
 
 func _refresh_decor(id: String) -> void:
 	if _selected == id:
-		_set_selected_raw(id)
-	var asset := _catalog.get_asset(_asset_of[id])
-	if _show_anchors:
-		if not _markers.has(id):
-			var marker := _sphere_marker(0.2, _anchor_material)
-			add_child(marker)
-			_markers[id] = marker
-		(_markers[id] as Node3D).position = (_xforms[id] as Transform3D) * asset.anchor_local
-	else:
-		_free_decor(_markers, id)
-	if _show_ids:
-		if not _labels.has(id):
-			_labels[id] = _make_label(id)
-			add_child(_labels[id])
-		var wb := world_bounds(id)
-		(_labels[id] as Node3D).position = Vector3(
-			wb.position.x + wb.size.x * 0.5, wb.end.y + 0.5, wb.position.z + wb.size.z * 0.5)
-	else:
-		_free_decor(_labels, id)
-
-
-func _make_label(id: String) -> Label3D:
-	var label := Label3D.new()
-	label.text = id.left(8)
-	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	label.no_depth_test = true
-	label.pixel_size = 0.01
-	label.font_size = 48
-	return label
+		_update_overlay()
+	_decor.object_changed(id)

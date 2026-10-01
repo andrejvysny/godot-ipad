@@ -35,7 +35,7 @@ func setup(session: EditorSession) -> void:
 		["Height view", _toggle_view.bind("heightmap"), true],
 		["Normals view", _toggle_view.bind("normals"), true],
 		["Region grid", _toggle_grid, true], ["Anchors", _toggle_anchors, true],
-		["Object IDs", _toggle_ids, true], ["3D 50%", _toggle_scale, true],
+		["Object IDs", _toggle_ids, true],
 		["Save trace", func() -> void: _session.save_trace()],
 		["Verify GPU", func() -> void: _session.verify_gpu_terrain()]]))
 	column.add_child(UiKit.label("Development", 14))
@@ -103,10 +103,6 @@ func _toggle_anchors() -> void:
 
 func _toggle_ids() -> void:
 	_session.presenter.set_show_ids((_toggles["Object IDs"] as Button).button_pressed)
-
-
-func _toggle_scale() -> void:
-	_session.set_render_scale(0.5 if (_toggles["3D 50%"] as Button).button_pressed else 1.0)
 
 
 func _start_render_bench() -> void:

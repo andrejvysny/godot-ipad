@@ -233,6 +233,7 @@ func _create_terrain() -> void:
 	t.material = mat
 	t.assets = TerrainMaterials.create_assets()
 	t.collision_mode = Terrain3DCollision.DISABLED
+	t.cast_shadows = RenderingServer.SHADOW_CASTING_SETTING_OFF
 	add_child(t)
 	_terrain = t
 	if _camera != null:

@@ -193,9 +193,10 @@ func test_registration_of_panels_and_non_blocking_overlays() -> void:
 	var s := await _start()
 	var ui := _ui(s)
 	var panels := ui.registered_panels()
-	assert_eq(panels.size(), 11)
+	assert_eq(panels.size(), 13)
 	for c: Control in [ui.world_pill(), ui.world_menu(), ui.history_tiles(), ui.action_pill(), ui.mode_rail(),
-			ui.popover(), ui.chip(), ui.library(), ui.inspector(), ui.diagnostics_overlay(), ui.set_editor()]:
+			ui.popover(), ui.chip(), ui.library(), ui.inspector(), ui.diagnostics_overlay(), ui.set_editor(),
+			ui.perf_indicator(), ui.perf_menu()]:
 		assert_true(panels.has(c), "%s registered" % c)
 	for c: Control in [ui.gesture_hints(), ui.toast(), ui.ghost_label()]:
 		assert_false(panels.has(c), "%s must not be registered" % c)

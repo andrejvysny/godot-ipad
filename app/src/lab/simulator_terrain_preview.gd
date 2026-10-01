@@ -24,6 +24,7 @@ func initialize(doc: WorldDocument) -> String:
 	for loc in document.sorted_region_locations():
 		var instance := MeshInstance3D.new()
 		instance.material_override = _material
+		instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		add_child(instance)
 		_meshes[loc] = instance
 		_dirty[loc] = true

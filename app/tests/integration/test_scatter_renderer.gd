@@ -122,7 +122,7 @@ func test_height_change_redrapes_y_and_nan_is_skipped() -> void:
 	assert_eq(renderer.stats().instances, 1)
 
 
-func test_align_flag_tilts_to_terrain_and_shadows_follow_category() -> void:
+func test_align_flag_tilts_to_terrain_and_nothing_casts_shadows() -> void:
 	var layer := ScatterLayer.new()
 	var v := catalog.get_asset(PEBBLES).version
 	layer.add(PEBBLES, v, 10.0, 10.0, 0.0, 1.0, 0)
@@ -141,8 +141,30 @@ func test_align_flag_tilts_to_terrain_and_shadows_follow_category() -> void:
 	assert_vec_near(up1, doc.sample_normal(16.0, 10.0), 1e-4, "aligned follows the normal")
 	assert_true(up1.distance_to(Vector3.UP) > 1e-3, "the hill is not flat here")
 	assert_eq(renderer.multimesh_for(cell, GRASS).cast_shadow, GeometryInstance3D.SHADOW_CASTING_SETTING_OFF)
-	assert_eq(renderer.multimesh_for(cell, SPRUCE).cast_shadow, GeometryInstance3D.SHADOW_CASTING_SETTING_ON)
-	assert_eq(renderer.multimesh_for(cell, PEBBLES).cast_shadow, GeometryInstance3D.SHADOW_CASTING_SETTING_ON)
+	assert_eq(renderer.multimesh_for(cell, SPRUCE).cast_shadow, GeometryInstance3D.SHADOW_CASTING_SETTING_OFF)
+	assert_eq(renderer.multimesh_for(cell, PEBBLES).cast_shadow, GeometryInstance3D.SHADOW_CASTING_SETTING_OFF)
+
+
+func test_hidden_vegetation_follows_the_rule_including_later_cells() -> void:
+	var rule := RenderConfig.load_from().vegetation_rule()
+	var layer := ScatterLayer.new()
+	for id: String in [GRASS, SPRUCE, PEBBLES, "nature.rock.boulder_a"]:
+		layer.add(id, catalog.get_asset(id).version, 10.0, 10.0, 0.0, 1.0, 0)
+	doc.scatter = layer
+	renderer.rebuild_all(doc)
+	var cell := ScatterRenderer.cell_of(10.0, 10.0)
+	renderer.set_vegetation_hidden(true, rule)
+	assert_false(renderer.multimesh_for(cell, GRASS).visible)
+	assert_false(renderer.multimesh_for(cell, SPRUCE).visible)
+	assert_true(renderer.multimesh_for(cell, PEBBLES).visible, "excluded ground cover stays")
+	assert_true(renderer.multimesh_for(cell, "nature.rock.boulder_a").visible)
+	layer.add(SPRUCE, catalog.get_asset(SPRUCE).version, 100.0, 100.0, 0.0, 1.0, 0)
+	renderer.mark_all()
+	renderer.flush()
+	assert_false(renderer.multimesh_for(ScatterRenderer.cell_of(100.0, 100.0), SPRUCE).visible, "cell built while hidden")
+	renderer.set_vegetation_hidden(false, rule)
+	assert_true(renderer.multimesh_for(cell, GRASS).visible)
+	assert_true(renderer.multimesh_for(ScatterRenderer.cell_of(100.0, 100.0), SPRUCE).visible)
 
 
 func test_world_layers_present_change_marks_scatter_and_height_cells() -> void:
