@@ -174,7 +174,7 @@ func test_control_bits_survive_upload_bit_exactly() -> void:
 	assert_eq(a.verify_matches_document(doc).size(), 0, "verify after control flush")
 
 
-func test_color_map_is_neutral_and_configuration_pinned() -> void:
+func test_color_map_is_document_tint_and_configuration_pinned() -> void:
 	var a := _make(WorldDocument.create_flat(0.5, ControlCodec.grass_value()))
 	var t := a.get_terrain()
 	assert_false(t.material.auto_shader, "auto_shader off")
@@ -182,18 +182,15 @@ func test_color_map_is_neutral_and_configuration_pinned() -> void:
 	assert_eq(t.region_size, 256)
 	assert_near(t.vertex_spacing, 0.5, 0.0)
 	assert_eq(t.global_transform, Transform3D.IDENTITY, "identity terrain transform")
-	assert_eq(t.assets.get_texture_count(), 2, "two materials")
-	assert_eq(t.assets.get_texture(0).name, "grass")
-	assert_eq(t.assets.get_texture(1).name, "dirt")
+	assert_eq(t.assets.get_texture_count(), 4, "four materials")
+	assert_eq([t.assets.get_texture(0).name, t.assets.get_texture(1).name, t.assets.get_texture(2).name, t.assets.get_texture(3).name],
+			["grass", "dirt", "rock", "sand"])
 	var n := 256 * 256 * 4
-	var expected := PackedByteArray()
-	expected.resize(n)
-	for i in range(0, n, 4):
-		expected.encode_u32(i, 0x7FFFFFFF)  # RGBA8 (255, 255, 255, 127) little-endian
+	var expected := RegionBuffers.default_color_bytes()  # FF FF FF 00: tint weight 0
 	for loc in t.data.get_region_locations():
 		var cm: Image = t.data.get_region(loc).get_color_map()
 		assert_eq(cm.get_format(), Image.FORMAT_RGBA8, "color format %s" % loc)
-		assert_true(cm.get_data().slice(0, n) == expected, "neutral white color map %s" % loc)
+		assert_true(cm.get_data().slice(0, n) == expected, "default tint map %s" % loc)
 		assert_eq(t.data.get_region(loc).location, loc)
 
 
@@ -201,7 +198,7 @@ func test_procedural_materials_share_size_format_and_mipmaps() -> void:
 	var assets := TerrainMaterials.create_assets()
 	var first_albedo: Image = assets.get_texture(0).albedo_texture.get_image()
 	var first_normal: Image = assets.get_texture(0).normal_texture.get_image()
-	for id in 2:
+	for id in 4:
 		var ta := assets.get_texture(id)
 		for pair in [[ta.albedo_texture.get_image(), first_albedo], [ta.normal_texture.get_image(), first_normal]]:
 			var img: Image = pair[0]
@@ -213,6 +210,10 @@ func test_procedural_materials_share_size_format_and_mipmaps() -> void:
 	var grass := first_albedo.get_pixel(5, 5)
 	var dirt: Color = assets.get_texture(1).albedo_texture.get_image().get_pixel(5, 5)
 	assert_true(grass.g > grass.r and dirt.r > dirt.g, "grass reads green, dirt reads brown")
+	var rock: Color = assets.get_texture(2).albedo_texture.get_image().get_pixel(5, 5)
+	var sand: Color = assets.get_texture(3).albedo_texture.get_image().get_pixel(5, 5)
+	assert_true(absf(rock.r - rock.b) < 0.15, "rock reads grey")
+	assert_true(sand.r > sand.g and sand.g > sand.b and sand.r > 0.7, "sand reads light yellow")
 
 
 # --- partial uploads -----------------------------------------------------------------------
@@ -360,7 +361,7 @@ func test_verify_reports_unflushed_edits_and_clears_after_flush() -> void:
 
 func test_mark_dirty_rejects_unknown_kind_and_region() -> void:
 	var a := _make(WorldDocument.create_flat(0.0, ControlCodec.grass_value()))
-	assert_error_contains(a.mark_dirty(2, Vector2i(0, 0)), "kind")
+	assert_error_contains(a.mark_dirty(3, Vector2i(0, 0)), "kind")
 	assert_error_contains(a.mark_dirty(TerrainAdapter.MAP_HEIGHT, Vector2i(1, 0)), "not loaded")
 	assert_false(a.has_pending_uploads())
 

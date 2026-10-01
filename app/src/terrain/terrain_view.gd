@@ -7,6 +7,8 @@ extends Node3D
 
 const MAP_HEIGHT := 0
 const MAP_CONTROL := 1
+const MAP_COLOR := 2
+const MAP_KINDS := [MAP_HEIGHT, MAP_CONTROL, MAP_COLOR]
 
 
 ## Builds the projection from `doc`. Returns "" or an error.
@@ -20,6 +22,20 @@ func replace_document(doc: WorldDocument) -> String:
 
 func mark_dirty(_kind: int, _loc: Vector2i) -> String:
 	return "TerrainView.mark_dirty is not implemented"
+
+
+## Auto-paint rules evaluated live by the renderer (docs/world-format.md 1.1).
+func set_rules(_rules: TerrainRules) -> void:
+	pass
+
+
+## Highlights the areas the auto-paint rules currently paint rock/sand on.
+func set_rule_highlight(_on: bool) -> void:
+	pass
+
+
+func get_rule_highlight() -> bool:
+	return false
 
 
 func has_pending_uploads() -> bool:
