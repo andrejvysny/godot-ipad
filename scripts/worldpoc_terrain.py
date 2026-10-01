@@ -9,9 +9,10 @@ import sys
 from worldpoc_constants import (
 	SAMPLE_SPACING,
 	REGION_SAMPLES,
-	GLOBAL_SAMPLE_MAX,
-	WORLD_MIN,
-	WORLD_MAX_SAMPLE,
+	LEGACY_LAYOUT,
+	Layout,
+	layout_extent,
+	layout_sample_range,
 )
 
 # --- Terrain sampling (WorldDocument.sample_height) ------------------------------------
@@ -34,9 +35,11 @@ def height_at_sample(regions: dict[tuple[int, int], array], gx: int, gz: int) ->
 
 
 def sample_height(regions: dict[tuple[int, int], array], x: float, z: float,
-		controls: dict[tuple[int, int], bytes] | None = None) -> float:
-	"""Bilinear, identical to WorldDocument.sample_height; NaN outside [-128, 127.5]."""
-	if not (WORLD_MIN <= x <= WORLD_MAX_SAMPLE and WORLD_MIN <= z <= WORLD_MAX_SAMPLE):
+		controls: dict[tuple[int, int], bytes] | None = None, layout: Layout = LEGACY_LAYOUT) -> float:
+	"""Bilinear, identical to WorldDocument.sample_height; NaN outside the layout's extent
+	(legacy: [-128, 127.5])."""
+	x_min, x_max, z_min, z_max = layout_extent(layout)
+	if not (x_min <= x <= x_max and z_min <= z <= z_max):
 		return math.nan
 	fx = x / SAMPLE_SPACING
 	fz = z / SAMPLE_SPACING
@@ -52,8 +55,9 @@ def sample_height(regions: dict[tuple[int, int], array], x: float, z: float,
 	h00 = height_at_sample(regions, gx, gz)
 	if tx == 0.0 and tz == 0.0:
 		return h00
-	gx1 = min(gx + 1, GLOBAL_SAMPLE_MAX)
-	gz1 = min(gz + 1, GLOBAL_SAMPLE_MAX)
+	(_, gx_max), (_, gz_max) = layout_sample_range(layout)
+	gx1 = min(gx + 1, gx_max)
+	gz1 = min(gz + 1, gz_max)
 	h10 = height_at_sample(regions, gx1, gz)
 	h01 = height_at_sample(regions, gx, gz1)
 	h11 = height_at_sample(regions, gx1, gz1)

@@ -50,8 +50,6 @@
     "max_bytes": 67108864
   },
   "storage": {
-    "keep_generations": 3,
-    "max_package_bytes": 8388608,
-    "max_objects": 2000
+    "keep_generations": 3
   }
 }

@@ -4,7 +4,10 @@ extends RefCounted
 ## nodes or platform objects. Terrain3D images and scene nodes are rebuildable projections.
 ## Tools mutate buffers only inside an EditTransaction that captured the before-values.
 
+## Writers derive the schema from `layout.schema_version()`; this field mirrors it for readers.
 var schema_version: int = WorldConstants.SCHEMA_VERSION
+## Immutable region rectangle; replace the reference, never mutate it.
+var layout: WorldLayout = WorldLayout.legacy()
 var world_id: String = ""
 var document_revision: int = 0
 var catalog_id: String = ""
@@ -22,10 +25,13 @@ var paths: Dictionary = {}  # String path_id -> PathRecord
 var _height_range_cache: Dictionary = {}  # Vector2i -> Vector2(min, max)
 
 
-static func create_flat(height: float, control_value: int) -> WorldDocument:
+static func create_flat(height: float, control_value: int, p_layout: WorldLayout = null) -> WorldDocument:
 	var doc := WorldDocument.new()
+	if p_layout != null:
+		doc.layout = p_layout
+		doc.schema_version = p_layout.schema_version()
 	doc.world_id = ObjectRecord.new_uuid_v4()
-	for loc in WorldConstants.REGION_LOCATIONS:
+	for loc in doc.layout.region_locations():
 		doc.regions[loc] = RegionBuffers.filled(loc, height, control_value)
 	return doc
 
@@ -33,6 +39,7 @@ static func create_flat(height: float, control_value: int) -> WorldDocument:
 func duplicate_deep() -> WorldDocument:
 	var d := WorldDocument.new()
 	d.schema_version = schema_version
+	d.layout = layout
 	d.world_id = world_id
 	d.document_revision = document_revision
 	d.catalog_id = catalog_id
@@ -100,7 +107,7 @@ func get_control_at_sample(gx: int, gz: int) -> int:
 ## Bilinear height matching Terrain3DData.get_height for the pinned revision. NAN outside
 ## the loaded extent or inside a hole cell; callers must treat NAN as "no sample", never as zero.
 func sample_height(x: float, z: float) -> float:
-	if not WorldConstants.is_inside_world(x, z):
+	if not layout.is_inside_world(x, z):
 		return NAN
 	var fx := x / WorldConstants.SAMPLE_SPACING
 	var fz := z / WorldConstants.SAMPLE_SPACING
@@ -115,8 +122,9 @@ func sample_height(x: float, z: float) -> float:
 	if tx == 0.0 and tz == 0.0:
 		return h00
 	# At the max edge the +1 neighbor is missing; its weight is zero there, so clamp the index.
-	var gx1 := mini(gx + 1, WorldConstants.GLOBAL_SAMPLE_MAX)
-	var gz1 := mini(gz + 1, WorldConstants.GLOBAL_SAMPLE_MAX)
+	var sample_max := layout.global_sample_max()
+	var gx1 := mini(gx + 1, sample_max.x)
+	var gz1 := mini(gz + 1, sample_max.y)
 	var h10 := get_height_at_sample(gx1, gz)
 	var h01 := get_height_at_sample(gx, gz1)
 	var h11 := get_height_at_sample(gx1, gz1)

@@ -20,13 +20,19 @@ func _init(loc: Vector2i = Vector2i.ZERO) -> void:
 	color = default_color_bytes()
 
 
+static var _default_color_template := PackedByteArray()
+
+
+## Built once: a 64-region world would otherwise spend seconds filling 16M bytes in script.
 static func default_color_bytes() -> PackedByteArray:
-	var b := PackedByteArray()
-	b.resize(WorldConstants.REGION_MAP_BYTES)
-	for i in WorldConstants.REGION_SAMPLE_COUNT:
-		for c in 4:
-			b[i * 4 + c] = WorldConstants.DEFAULT_COLOR_BYTES[c]
-	return b
+	if _default_color_template.is_empty():
+		var b := PackedByteArray()
+		b.resize(WorldConstants.REGION_MAP_BYTES)
+		for i in WorldConstants.REGION_SAMPLE_COUNT:
+			for c in 4:
+				b[i * 4 + c] = WorldConstants.DEFAULT_COLOR_BYTES[c]
+		_default_color_template = b
+	return _default_color_template.duplicate()
 
 
 static func filled(loc: Vector2i, height: float, control_value: int) -> RegionBuffers:

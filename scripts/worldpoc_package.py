@@ -23,40 +23,58 @@ from typing import Any
 
 from worldpoc_constants import (
 	REGION_MAP_BYTES,
-	MANIFEST_MAX_BYTES,
-	OBJECTS_MAX_BYTES,
-	SCATTER_MAX_BYTES,
-	PATHS_MAX_BYTES,
+	REGION_COORD_MIN,
+	REGION_COORD_MAX,
 	SCATTER_PATH,
 	PATHS_PATH,
-	PACKAGE_MAX_TOTAL_BYTES,
-	PACKAGE_MAX_FILE_BYTES,
-	PACKAGE_MAX_ENTRIES,
-	SCHEMA_VERSION,
-	PAYLOAD_PATHS,
-	GENERATION_FILES,
+	ZIP_ENVELOPE,
+	LEGACY_LAYOUT,
+	Layout,
+	payload_paths,
+	region_stem,
 )
 
+from worldpoc_manifest import _unknown_schema, is_supported_schema, manifest_layout
 from worldpoc_values import (
 	show,
-	is_json_int,
 	parse_json_bytes,
 	FormatError,
 )
 
-# --- .worldpoc package (world-format §9) -----------------------------------------------
+# --- .worldpoc package (world-format §9, §11.3) ----------------------------------------
+# Inspection runs before the manifest is read, so every limit here is the schema 3 envelope.
 PACKAGE_ALLOWED_DIRS = {"regions/"}
+PACKAGE_MAX_TOTAL_BYTES = ZIP_ENVELOPE["max_total_bytes"]
+PACKAGE_MAX_FILE_BYTES = ZIP_ENVELOPE["max_archive_bytes"]
+PACKAGE_MAX_ENTRIES = ZIP_ENVELOPE["max_entries"]
+FIXED_ENTRIES = ("objects.json", PATHS_PATH, SCATTER_PATH, "manifest.json")
+REGION_KINDS = ("height.f32le", "control.u32le", "color.rgba8")
+# Canonical decimal coordinates: no '+', no leading zeros, no "-0".
+REGION_NAME_RE = re.compile(
+	r"^regions/r_(0|-?[1-9][0-9]{0,2})_(0|-?[1-9][0-9]{0,2})\.(height\.f32le|control\.u32le|color\.rgba8)$")
+
+
+def parse_region_name(name: str) -> tuple[tuple[int, int], str] | None | bool:
+	"""((x, z), kind) for a canonical region file name inside [-8, 7]; None when the grammar does not
+	match; False when it matches but a coordinate is out of range."""
+	m = REGION_NAME_RE.fullmatch(name)
+	if m is None:
+		return None
+	loc = (int(m.group(1)), int(m.group(2)))
+	if not all(REGION_COORD_MIN <= c <= REGION_COORD_MAX for c in loc):
+		return False
+	return loc, m.group(3)
 
 
 def _entry_limit(name: str) -> int:
 	if name == "manifest.json":
-		return MANIFEST_MAX_BYTES
+		return ZIP_ENVELOPE["max_manifest_bytes"]
 	if name == "objects.json":
-		return OBJECTS_MAX_BYTES
+		return ZIP_ENVELOPE["max_objects_bytes"]
 	if name == SCATTER_PATH:
-		return SCATTER_MAX_BYTES
+		return ZIP_ENVELOPE["max_scatter_bytes"]
 	if name == PATHS_PATH:
-		return PATHS_MAX_BYTES
+		return ZIP_ENVELOPE["max_paths_bytes"]
 	return REGION_MAP_BYTES
 
 
@@ -133,8 +151,13 @@ def _check_entry_name(info: zipfile.ZipInfo) -> str:
 		return "backslash in entry name %s" % show(name)
 	if ".." in name.split("/"):
 		return "path traversal in entry name %s" % show(name)
-	if name not in GENERATION_FILES and name not in PACKAGE_ALLOWED_DIRS:
+	if name in FIXED_ENTRIES or name in PACKAGE_ALLOWED_DIRS:
+		return ""
+	parsed = parse_region_name(name)
+	if parsed is None:
 		return "unknown entry %s" % show(name)
+	if parsed is False:
+		return "entry %s names a region outside [%d, %d]" % (show(name), REGION_COORD_MIN, REGION_COORD_MAX)
 	return ""
 
 
@@ -151,6 +174,7 @@ def inspect_zip(path: Path) -> tuple[list[zipfile.ZipInfo], list[str]]:
 		return [], ["not a readable ZIP package: %s" % show(str(e), 200)]
 	errors: list[str] = []
 	seen: set[str] = set()
+	regions: dict[tuple[int, int], set[str]] = {}
 	total = 0
 	for info in infos:
 		name = info.filename
@@ -173,6 +197,9 @@ def inspect_zip(path: Path) -> tuple[list[zipfile.ZipInfo], list[str]]:
 			if name.endswith("/") and info.file_size != 0:
 				errors.append("directory entry %s has data" % show(name))
 			continue
+		parsed = parse_region_name(name)
+		if parsed:
+			regions.setdefault(parsed[0], set()).add(parsed[1])
 		limit = _entry_limit(name)
 		if name.startswith("regions/") and info.file_size != REGION_MAP_BYTES:
 			errors.append("entry '%s' is %d bytes, expected %d" % (name, info.file_size, REGION_MAP_BYTES))
@@ -181,8 +208,15 @@ def inspect_zip(path: Path) -> tuple[list[zipfile.ZipInfo], list[str]]:
 		total += info.file_size
 	if total > PACKAGE_MAX_TOTAL_BYTES:
 		errors.append("package expands to %d bytes (limit %d)" % (total, PACKAGE_MAX_TOTAL_BYTES))
-	for name in sorted(GENERATION_FILES - seen):
-		errors.append("missing entry '%s'" % name)
+	for name in FIXED_ENTRIES:
+		if name not in seen:
+			errors.append("missing entry '%s'" % name)
+	if not regions and not any(e.startswith("regions/r_") for e in seen):
+		errors.append("package has no regions")
+	for loc in sorted(regions, key=lambda l: (l[1], l[0])):
+		for kind in REGION_KINDS:
+			if kind not in regions[loc]:
+				errors.append("missing entry '%s.%s'" % (region_stem(loc), kind))
 	return infos, errors
 
 
@@ -221,21 +255,27 @@ def schema_error(path: Path) -> str:
 	try:
 		with zipfile.ZipFile(path) as zf:
 			info = zf.getinfo("manifest.json")
-			if info.file_size > MANIFEST_MAX_BYTES:
+			if info.file_size > ZIP_ENVELOPE["max_manifest_bytes"]:
 				return ""
 			manifest = parse_json_bytes(zf.read(info))
 	except (zipfile.BadZipFile, OSError, KeyError, ValueError, FormatError, EOFError, zlib.error):
 		return ""
 	version = manifest.get("schema_version") if isinstance(manifest, dict) else None
-	if is_json_int(version) and version == SCHEMA_VERSION:
+	if is_supported_schema(version):
 		return ""
-	return "unknown schema_version %s (supported: %d; older schemas are not migrated)" % (show(version), SCHEMA_VERSION)
+	return _unknown_schema(version)
 
 
-def write_package(gen_dir: Path, out_path: Path) -> None:
-	"""Deterministic .worldpoc (deflate, fixed timestamps) from a generation directory."""
+def write_package(gen_dir: Path, out_path: Path, layout: Layout | None = None) -> None:
+	"""Deterministic .worldpoc (deflate, fixed timestamps) from a generation directory. `layout`
+	defaults to the one named by the directory's manifest (legacy when unreadable)."""
+	if layout is None:
+		try:
+			layout = manifest_layout(parse_json_bytes((Path(gen_dir) / "manifest.json").read_bytes()))[0] or LEGACY_LAYOUT
+		except (OSError, FormatError):
+			layout = LEGACY_LAYOUT
 	with zipfile.ZipFile(out_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
-		for name in ["manifest.json"] + PAYLOAD_PATHS:
+		for name in ["manifest.json"] + payload_paths(layout):
 			info = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
 			info.compress_type = zipfile.ZIP_DEFLATED
 			info.external_attr = 0o100644 << 16

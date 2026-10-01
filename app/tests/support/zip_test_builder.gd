@@ -39,6 +39,22 @@ static func valid_layout() -> ZipTestBuilder:
 	return b
 
 
+## The accepted package shape for any layout: regions/ dir, fixed files, 3 region files per region.
+static func layout_package(layout: WorldLayout) -> ZipTestBuilder:
+	var b := ZipTestBuilder.new()
+	b.add("manifest.json", "{}".to_utf8_buffer())
+	b.add("objects.json", "{}".to_utf8_buffer())
+	b.add("scatter.bin", "WPSC".to_utf8_buffer())
+	b.add("paths.bin", "WPPA".to_utf8_buffer())
+	b.add("regions/", PackedByteArray(), {"external_attr": 0x41ED << 16})
+	var region := PackedByteArray()
+	region.resize(WorldConstants.REGION_MAP_BYTES)
+	for path in WorldCodec.payload_paths(layout):
+		if WorldCodec.is_region_path(path):
+			b.add(path, region)
+	return b
+
+
 func build(archive: Dictionary = {}) -> PackedByteArray:
 	var out := PackedByteArray()
 	var central := PackedByteArray()

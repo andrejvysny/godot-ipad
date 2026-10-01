@@ -1,6 +1,6 @@
 class_name CanonicalEncoder
 extends RefCounted
-## Shared canonical byte encoding for the authored-content hash (docs/world-format.md §7).
+## Shared canonical byte encoding for the authored-content hash (docs/world-format.md §7, §11.4).
 ## Python (scripts/worldpoc_format.py) implements the identical stream; tests pin known vectors.
 ## Hashing binary values avoids depending on JSON whitespace or float formatting.
 ## Integers little-endian; str = u32 byte length + UTF-8; -0.0 is written as +0.0.
@@ -8,6 +8,7 @@ extends RefCounted
 ## copy must yield the same authored hash.
 
 const MAGIC := "WPOC-AUTHORED-V2\n"
+const MAGIC_V3 := "WPOC-AUTHORED-V3\n"
 
 var _buf := PackedByteArray()
 
@@ -93,13 +94,19 @@ static func encode_object(e: CanonicalEncoder, r: ObjectRecord) -> void:
 
 static func authored_bytes(doc: WorldDocument) -> PackedByteArray:
 	var e := CanonicalEncoder.new()
-	e.put_raw(MAGIC.to_ascii_buffer())
-	e.put_u32(doc.schema_version)
+	var legacy := doc.layout.is_legacy()
+	e.put_raw((MAGIC if legacy else MAGIC_V3).to_ascii_buffer())
+	e.put_u32(doc.layout.schema_version())
 	e.put_str(doc.catalog_id)
 	e.put_u32(doc.catalog_version)
 	e.put_str(doc.catalog_sha256)
 	e.put_f64(WorldConstants.SAMPLE_SPACING)
 	e.put_u32(WorldConstants.REGION_SAMPLES)
+	if not legacy:
+		e.put_i32(doc.layout.min_region.x)
+		e.put_i32(doc.layout.min_region.y)
+		e.put_u32(doc.layout.region_count.x)
+		e.put_u32(doc.layout.region_count.y)
 	e.put_u8(1 if doc.rules.rock_enabled else 0)
 	e.put_i32(doc.rules.rock_slope_deg)
 	e.put_u8(1 if doc.rules.sand_enabled else 0)

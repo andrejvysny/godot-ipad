@@ -49,7 +49,7 @@ func test_rejects_duplicates_unknown_and_missing() -> void:
 	_expect(ZipTestBuilder.valid_layout().add("manifest.json", "{}".to_utf8_buffer()), "duplicate")
 	_expect(ZipTestBuilder.valid_layout().add("regions/", PackedByteArray()), "duplicate")
 	_expect(ZipTestBuilder.valid_layout().add("payload.gd", "x".to_utf8_buffer()), "unknown archive entry")
-	_expect(ZipTestBuilder.valid_layout().add("regions/r_1_1.height.f32le", _region()), "unknown archive entry")
+	_expect(ZipTestBuilder.valid_layout().add("regions/r_1_1.height.f32le", _region()), "missing 'regions/r_1_1.control.u32le'")
 	_expect(ZipTestBuilder.valid_layout().add("scripts/"), "unexpected archive directory")
 	var missing := ZipTestBuilder.new().add("manifest.json", "{}".to_utf8_buffer()).add("objects.json", "{}".to_utf8_buffer())
 	_expect(missing, "missing 'paths.bin'")
@@ -66,21 +66,21 @@ func test_rejects_symlink() -> void:
 
 func test_rejects_oversize_declared() -> void:
 	_expect(_layout_with(REGION, {"declared_uncompressed": 262145, "method": 8}), "exactly 262144")
-	_expect(_layout_with("manifest.json", {"declared_uncompressed": 64 * 1024 + 1, "method": 8}), "manifest.json declares")
-	_expect(_layout_with("objects.json", {"declared_uncompressed": 4 * 1024 * 1024 + 1, "method": 8}), "objects.json declares")
-	_expect(_layout_with("scatter.bin", {"declared_uncompressed": 512 * 1024 + 1, "method": 8}), "scatter.bin declares")
+	_expect(_layout_with("manifest.json", {"declared_uncompressed": 256 * 1024 + 1, "method": 8}), "manifest.json declares")
+	_expect(_layout_with("objects.json", {"declared_uncompressed": 128 * 1024 * 1024 + 1, "method": 8}), "objects.json declares")
+	_expect(_layout_with("scatter.bin", {"declared_uncompressed": 4 * 1024 * 1024 + 1, "method": 8}), "scatter.bin declares")
 	_expect(_layout_with("paths.bin", {"declared_uncompressed": 640 * 1024 + 1, "method": 8}), "paths.bin declares")
 	var limits := ZipInspector.default_limits()
-	assert_eq(limits.max_total_uncompressed, 12 * 1024 * 1024, "total limit")
-	assert_eq(limits.max_file_bytes, 20 * 1024 * 1024, "archive limit")
-	assert_eq(limits.max_entries, 20, "entry limit")
+	assert_eq(limits.max_total_uncompressed, 256 * 1024 * 1024, "total limit (schema 3 envelope)")
+	assert_eq(limits.max_file_bytes, 264 * 1024 * 1024, "archive limit (schema 3 envelope)")
+	assert_eq(limits.max_entries, 197, "entry limit (schema 3 envelope)")
 	limits.max_total_uncompressed = 1024
 	var r := ZipInspector.inspect_bytes(ZipTestBuilder.valid_layout().build(), limits)
 	assert_error_contains(r.error, "expands to", "total limit")
 	var many := ZipTestBuilder.valid_layout()
-	for i in 6:
+	for i in 198 - 17:
 		many.add("extra_%d" % i)
-	_expect(many, "entries, allowed")
+	_expect(many, "entries, allowed 1..197")
 
 
 func test_rejects_zip64_multidisk_and_encryption() -> void:
@@ -142,7 +142,7 @@ func test_rejects_huge_file_before_reading() -> void:
 	DirAccess.make_dir_recursive_absolute(dir)
 	var path := dir.path_join("big.worldpoc")
 	var f := FileAccess.open(path, FileAccess.WRITE)
-	f.seek(20 * 1024 * 1024 + 1)
+	f.seek(264 * 1024 * 1024 + 1)
 	f.store_8(0)
 	f.close()
 	assert_error_contains(ZipInspector.inspect(path).error, "limit")
@@ -157,3 +157,29 @@ func _layout_with(name: String, overrides: Dictionary) -> ZipTestBuilder:
 		var data := region if WorldCodec.is_region_path(path) else "{}".to_utf8_buffer()
 		b.add(path, data, overrides if path == name else {})
 	return b
+
+
+func test_accepts_km1_layout_and_names_region_grammar() -> void:
+	var r := ZipInspector.inspect_bytes(ZipTestBuilder.layout_package(WorldLayout.km1()).build(), ZipInspector.default_limits())
+	assert_true(r.ok, str(r.error))
+	assert_eq(r.entries.size(), 197, "4 fixed + regions/ + 192 region files")
+	var edge := ZipInspector.inspect_bytes(ZipTestBuilder.layout_package(WorldLayout.new(Vector2i(-8, -8), Vector2i(1, 1))).build(),
+		ZipInspector.default_limits())
+	assert_true(edge.ok, "region (-8, -8) is in range: " + str(edge.error))
+
+
+func test_rejects_bad_region_names() -> void:
+	var out_of_range := ["regions/r_8_0.height.f32le", "regions/r_0_8.control.u32le", "regions/r_-9_0.color.rgba8", "regions/r_0_-9.height.f32le"]
+	for name: String in out_of_range:
+		_expect(ZipTestBuilder.valid_layout().add(name, _region()), "outside [-8, 7]")
+	var non_canonical := ["regions/r_+1_0.height.f32le", "regions/r_01_0.height.f32le", "regions/r_-0_0.height.f32le",
+		"regions/r_1_00.height.f32le", "regions/r_ 1_0.height.f32le", "regions/r_1_0.height.f32le.bak", "regions/R_1_0.height.f32le",
+		"regions/r_1.height.f32le", "regions/r_1_0_0.height.f32le", "regions/r_1_0.height.f64le"]
+	for name: String in non_canonical:
+		_expect(ZipTestBuilder.valid_layout().add(name, _region()), "unknown archive entry")
+
+
+func test_region_size_is_exact_for_any_region() -> void:
+	var b := ZipTestBuilder.layout_package(WorldLayout.new(Vector2i(3, 3), Vector2i(1, 1)))
+	b.add("regions/r_5_5.height.f32le", PackedByteArray([1]))
+	_expect(b, "exactly 262144")

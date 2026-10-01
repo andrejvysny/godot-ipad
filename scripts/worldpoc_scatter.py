@@ -11,8 +11,9 @@ import struct
 from typing import Any
 
 from worldpoc_constants import (
-	WORLD_MIN,
-	WORLD_MAX_SAMPLE,
+	LEGACY_LAYOUT,
+	Layout,
+	layout_extent,
 	UUID_RE,
 	SCATTER_MAGIC,
 	PATHS_MAGIC,
@@ -70,8 +71,9 @@ def _header(r: _Reader, magic: bytes, version: int, name: str) -> None:
 		raise ValueError("%s version %d is not supported (expected %d)" % (name, v, version))
 
 
-def _in_extent(v: float) -> bool:
-	return WORLD_MIN <= v <= WORLD_MAX_SAMPLE
+def _in_extent(x: float, z: float, layout: Layout) -> bool:
+	x_min, x_max, z_min, z_max = layout_extent(layout)
+	return x_min <= x <= x_max and z_min <= z <= z_max
 
 
 def _pack_str(s: str) -> bytes:
@@ -80,15 +82,17 @@ def _pack_str(s: str) -> bytes:
 
 
 # --- scatter.bin (§5) ------------------------------------------------------------------
-def parse_scatter(data: bytes) -> tuple[dict[str, Any] | None, str]:
-	"""Returns ({"assets": [(asset_id, version)], "instances": [instance dict]}, "")."""
+def parse_scatter(data: bytes, max_instances: int = SCATTER_MAX_INSTANCES,
+		layout: Layout = LEGACY_LAYOUT) -> tuple[dict[str, Any] | None, str]:
+	"""Returns ({"assets": [(asset_id, version)], "instances": [instance dict]}, ""). `max_instances`
+	is the schema's limit (limits_for_schema); defaults are the schema 2 limit and legacy extent."""
 	try:
-		return _parse_scatter(data), ""
+		return _parse_scatter(data, max_instances, layout), ""
 	except ValueError as e:
 		return None, "scatter.bin: %s" % e
 
 
-def _parse_scatter(data: bytes) -> dict[str, Any]:
+def _parse_scatter(data: bytes, max_instances: int, layout: Layout) -> dict[str, Any]:
 	r = _Reader(data)
 	_header(r, SCATTER_MAGIC, SCATTER_VERSION, "scatter.bin")
 	asset_count = r.u32()
@@ -106,8 +110,8 @@ def _parse_scatter(data: bytes) -> dict[str, Any]:
 		prev = key
 		assets.append((asset_id, r.u32()))
 	count = r.u32()
-	if count > SCATTER_MAX_INSTANCES:
-		raise ValueError("%d instances exceed the limit of %d" % (count, SCATTER_MAX_INSTANCES))
+	if count > max_instances:
+		raise ValueError("%d instances exceed the limit of %d" % (count, max_instances))
 	if r.remaining() < count * SCATTER_INSTANCE_BYTES:
 		raise ValueError("truncated data: %d instances need %d bytes, %d remain"
 			% (count, count * SCATTER_INSTANCE_BYTES, r.remaining()))
@@ -124,7 +128,7 @@ def _parse_scatter(data: bytes) -> dict[str, Any]:
 			raise ValueError("%s has unknown flag bits 0x%04x" % (tag, flags))
 		if not all(math.isfinite(v) for v in (x, z, yaw, scale)):
 			raise ValueError("%s has a non-finite value" % tag)
-		if not (_in_extent(x) and _in_extent(z)):
+		if not _in_extent(x, z, layout):
 			raise ValueError("%s position (%r, %r) is outside the world extent" % (tag, x, z))
 		if abs(yaw) > YAW_MAX:
 			raise ValueError("%s yaw %r is outside +-%r" % (tag, yaw, YAW_MAX))
@@ -181,15 +185,15 @@ def write_scatter(instances: list[dict[str, Any]]) -> bytes:
 
 
 # --- paths.bin (§6) --------------------------------------------------------------------
-def parse_paths(data: bytes) -> tuple[list[dict[str, Any]] | None, str]:
+def parse_paths(data: bytes, layout: Layout = LEGACY_LAYOUT) -> tuple[list[dict[str, Any]] | None, str]:
 	"""Returns ([{"path_id", "width_m", "points": [(x, z)]}], "")."""
 	try:
-		return _parse_paths(data), ""
+		return _parse_paths(data, layout), ""
 	except ValueError as e:
 		return None, "paths.bin: %s" % e
 
 
-def _parse_paths(data: bytes) -> list[dict[str, Any]]:
+def _parse_paths(data: bytes, layout: Layout) -> list[dict[str, Any]]:
 	r = _Reader(data)
 	_header(r, PATHS_MAGIC, PATHS_VERSION, "paths.bin")
 	count = r.u32()
@@ -218,7 +222,7 @@ def _parse_paths(data: bytes) -> list[dict[str, Any]]:
 			x, z = struct.unpack("<ff", r.take(8))
 			if not (math.isfinite(x) and math.isfinite(z)):
 				raise ValueError("path %s point %d is not finite" % (path_id, j))
-			if not (_in_extent(x) and _in_extent(z)):
+			if not _in_extent(x, z, layout):
 				raise ValueError("path %s point %d (%r, %r) is outside the world extent" % (path_id, j, x, z))
 			points.append((x, z))
 		paths.append({"path_id": path_id, "width_m": width, "points": points})

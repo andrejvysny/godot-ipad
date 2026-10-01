@@ -130,6 +130,39 @@ def build_doc(name: str, catalog: dict[str, Any]) -> dict[str, Any]:
 	}
 
 
+FLAT_LAYOUT_WORLD_ID = "0f1a7000-0000-4000-8000-0000000000f1"
+
+
+def flat_layout_doc(layout: wf.Layout, catalog: dict[str, Any], world_id: str = FLAT_LAYOUT_WORLD_ID) -> dict[str, Any]:
+	"""Document for a flat world (height 0, default control and tint, no content) on any layout.
+	All regions share the same bytes objects, so a 64-region world costs three 256 KiB buffers."""
+	height = struct.pack("<f", 0.0) * wf.REGION_SAMPLE_COUNT
+	control = struct.pack("<I", wf.DEFAULT_CONTROL) * wf.REGION_SAMPLE_COUNT
+	color = wf.DEFAULT_COLOR * wf.REGION_SAMPLE_COUNT
+	locs = wf.layout_regions(*layout)
+	return {
+		"world_id": world_id,
+		"document_revision": 0,
+		"created_with": CREATED_WITH,
+		"catalog": {"id": catalog["id"], "version": catalog["version"], "sha256": catalog["sha256"]},
+		"layout": layout,
+		"heights": {loc: height for loc in locs},
+		"controls": {loc: control for loc in locs},
+		"colors": {loc: color for loc in locs},
+		"rules": dict(wf.DEFAULT_RULES),
+		"scatter": [],
+		"paths": [],
+		"objects": [],
+	}
+
+
+def write_flat_world(out_dir: Path, layout: wf.Layout = wf.LEGACY_LAYOUT, world_id: str = FLAT_LAYOUT_WORLD_ID) -> dict[str, Any]:
+	"""Writes a flat world for `layout` as a generation directory (tests only: a km1 world is 48 MiB
+	of region files, so it is never committed). Returns the manifest."""
+	out_dir.mkdir(parents=True, exist_ok=True)
+	return wf.write_generation(out_dir, flat_layout_doc(layout, wf.load_trusted_catalog(), world_id))
+
+
 def generate(out_dir: Path) -> dict[str, dict[str, Any]]:
 	catalog = wf.load_trusted_catalog()
 	manifests = {}

@@ -19,7 +19,7 @@ tool = Godot headless devtools + Python descriptor validator; no automatic decim
 - [x] WP01 profiles (config + controller, Performance startup, deferred switch), shadows off everywhere,
   status/diagnostics cache, RenderSpatialIndex (pick broad phase, inspector neighbours), overlay reuse,
   bounded debug decor, hide vegetation, perf indicator + profile menu, input alignment at 0.65/0.75/1.0
-- [ ] WP04a WorldLayout + schema 3 format/limits/hash V3, GDScript + Python, legacy byte-stable
+- [x] WP04a WorldLayout + schema 3 format/limits/hash V3, GDScript + Python, legacy byte-stable
 - [ ] WP04b consumers layout-aware (terrain, picker, brushes, scatter, paths, tools, camera framing),
   New 1 km world, 50k-object round trip, snapshot/checkpoint main-thread cost bounded
 - [ ] WP02 render registry/descriptor (GD + Python), prep devtool, bench catalog + geometry-heavy and

@@ -206,7 +206,7 @@ func test_rejects_manifest_tampering() -> void:
 		"unknown format": func(m: Dictionary) -> void: m.format = "other",
 		"unknown format ": func(m: Dictionary) -> void: m.format = 5,
 		"unsupported schema_version 1": func(m: Dictionary) -> void: m.schema_version = 1,
-		"unsupported schema_version 3": func(m: Dictionary) -> void: m.schema_version = 3,
+		"unsupported schema_version 4": func(m: Dictionary) -> void: m.schema_version = 4,
 		"unsupported schema_version 1.5": func(m: Dictionary) -> void: m.schema_version = 1.5,
 		"missing field 'created_with'": func(m: Dictionary) -> void: m.erase("created_with"),
 		"unknown field 'extra'": func(m: Dictionary) -> void: m["extra"] = 1,

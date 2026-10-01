@@ -8,24 +8,24 @@ const FORMAT := "world-painter-poc"
 const MANIFEST_FILE := "manifest.json"
 const OBJECTS_FILE := "objects.json"
 const TERRAIN3D_VERSION := "1.0.2-stable@0077405b"
-const MAX_MANIFEST_BYTES := 64 * 1024
-const MAX_OBJECTS_BYTES := 4 * 1024 * 1024
-const MAX_SCATTER_BYTES := 512 * 1024
-const MAX_PATHS_BYTES := 640 * 1024
 const MANIFEST_KEYS := ["format", "schema_version", "world_id", "document_revision", "created_with",
 	"catalog", "terrain", "payload_files", "authored_content_hash"]
 const CREATED_WITH_KEYS := ["godot", "terrain3d", "world_painter"]
 const CATALOG_KEYS := ["id", "version", "sha256"]
 const TERRAIN_KEYS := ["sample_spacing_m", "region_samples", "region_locations", "height_encoding",
 	"control_encoding", "control_schema", "color_encoding", "material_slots", "rules"]
+const TERRAIN_KEYS_V3 := ["sample_spacing_m", "region_samples", "region_locations", "height_encoding",
+	"control_encoding", "control_schema", "color_encoding", "material_slots", "rules", "layout"]
 const PAYLOAD_KEYS := ["path", "bytes", "sha256"]
 const MAX_JSON_INT := 9007199254740992.0  # 2^53: larger JSON numbers are not exact integers
 
 
-## The 15 payload paths, sorted byte-wise (the order payload_files must use).
-static func payload_paths() -> PackedStringArray:
+## The payload paths (3 + 3 per region), sorted byte-wise (the order payload_files must use).
+## A null layout means the legacy 2x2 layout (15 paths).
+static func payload_paths(layout: WorldLayout = null) -> PackedStringArray:
 	var out := PackedStringArray([OBJECTS_FILE, WorldConstants.SCATTER_FILE, WorldConstants.PATHS_FILE])
-	for loc in WorldConstants.REGION_LOCATIONS:
+	var locs := layout.region_locations() if layout != null else WorldConstants.REGION_LOCATIONS
+	for loc in locs:
 		var stem := WorldConstants.region_file_stem(loc)
 		out.append(stem + ".height.f32le")
 		out.append(stem + ".control.u32le")
@@ -34,17 +34,18 @@ static func payload_paths() -> PackedStringArray:
 	return out
 
 
-## Largest allowed byte length of a payload file.
-static func payload_limit(path: String) -> int:
+## Largest allowed byte length of a payload file under the schema's limits (WorldLimits).
+static func payload_limit(path: String, schema: int = WorldConstants.SCHEMA_VERSION) -> int:
 	if is_region_path(path):
 		return WorldConstants.REGION_MAP_BYTES
+	var limits := WorldLimits.for_schema(schema)
 	match path:
 		OBJECTS_FILE:
-			return MAX_OBJECTS_BYTES
+			return int(limits.get("max_objects_bytes", 0))
 		WorldConstants.SCATTER_FILE:
-			return MAX_SCATTER_BYTES
+			return int(limits.get("max_scatter_bytes", 0))
 		WorldConstants.PATHS_FILE:
-			return MAX_PATHS_BYTES
+			return int(limits.get("max_paths_bytes", 0))
 	return 0
 
 
@@ -66,7 +67,7 @@ static func objects_json_bytes(doc: WorldDocument) -> PackedByteArray:
 	var records: Array = []
 	for id in doc.sorted_object_ids():
 		records.append(doc.get_object(id).to_dict())
-	var data := {"schema_version": WorldConstants.SCHEMA_VERSION, "objects": records}
+	var data := {"schema_version": doc.layout.schema_version(), "objects": records}
 	return JSON.stringify(data, "  ", true, true).to_utf8_buffer()
 
 
@@ -77,7 +78,7 @@ static func snapshot(doc: WorldDocument, created_with: Dictionary) -> Dictionary
 		WorldConstants.SCATTER_FILE: doc.scatter.encode(),
 		WorldConstants.PATHS_FILE: PathRecord.encode_all(doc.paths),
 	}
-	for loc in WorldConstants.REGION_LOCATIONS:
+	for loc in doc.layout.region_locations():
 		var r := doc.get_region(loc)
 		var stem := WorldConstants.region_file_stem(loc)
 		files[stem + ".height.f32le"] = r.height_bytes() if r != null else PackedByteArray()
@@ -86,6 +87,8 @@ static func snapshot(doc: WorldDocument, created_with: Dictionary) -> Dictionary
 	return {
 		"world_id": doc.world_id,
 		"document_revision": doc.document_revision,
+		"layout_min": doc.layout.min_region,
+		"layout_count": doc.layout.region_count,
 		"created_with": created_with.duplicate(true),
 		"catalog": {"id": doc.catalog_id, "version": doc.catalog_version, "sha256": doc.catalog_sha256},
 		"rules": doc.rules.to_dict(),
@@ -102,16 +105,20 @@ static func write_generation(dir: String, doc: WorldDocument, created_with: Dict
 
 ## Payloads first, manifest last. `fail_on_file` is fault injection for tests (IO-04).
 static func write_snapshot(dir: String, snap: Dictionary, fail_on_file: String = "") -> String:
+	var layout := WorldLayout.create(snap.layout_min, snap.layout_count)
+	if layout == null:
+		return "snapshot has an invalid layout"
+	var schema := layout.schema_version()
 	var err := StorageFs.make_dir(dir.path_join("regions"))
 	if err != "":
 		return err
 	var entries: Array = []
-	for path in payload_paths():
+	for path in payload_paths(layout):
 		var data: PackedByteArray = snap.files.get(path, PackedByteArray())
 		if is_region_path(path) and data.size() != WorldConstants.REGION_MAP_BYTES:
 			return "region payload %s has %d bytes, expected %d" % [path, data.size(), WorldConstants.REGION_MAP_BYTES]
-		if data.size() > payload_limit(path):
-			return "payload %s has %d bytes, limit %d" % [path, data.size(), payload_limit(path)]
+		if data.size() > payload_limit(path, schema):
+			return "payload %s has %d bytes, limit %d" % [path, data.size(), payload_limit(path, schema)]
 		if path == fail_on_file:
 			return "write to '%s' failed (injected fault)" % dir.path_join(path)
 		err = StorageFs.write_bytes(dir.path_join(path), data)
@@ -125,27 +132,31 @@ static func write_snapshot(dir: String, snap: Dictionary, fail_on_file: String =
 
 
 static func build_manifest(snap: Dictionary, payload_entries: Array) -> Dictionary:
+	var layout := WorldLayout.new(snap.layout_min, snap.layout_count)
 	var locs: Array = []
-	for loc in WorldConstants.REGION_LOCATIONS:
+	for loc in layout.region_locations():
 		locs.append([loc.x, loc.y])
+	var terrain := {
+		"sample_spacing_m": WorldConstants.SAMPLE_SPACING,
+		"region_samples": WorldConstants.REGION_SAMPLES,
+		"region_locations": locs,
+		"height_encoding": WorldConstants.HEIGHT_ENCODING,
+		"control_encoding": WorldConstants.CONTROL_ENCODING,
+		"control_schema": WorldConstants.CONTROL_SCHEMA,
+		"color_encoding": WorldConstants.COLOR_ENCODING,
+		"material_slots": WorldConstants.MATERIAL_SLOTS.duplicate(),
+		"rules": snap.rules,
+	}
+	if not layout.is_legacy():
+		terrain["layout"] = layout.to_manifest()
 	return {
 		"format": FORMAT,
-		"schema_version": WorldConstants.SCHEMA_VERSION,
+		"schema_version": layout.schema_version(),
 		"world_id": snap.world_id,
 		"document_revision": snap.document_revision,
 		"created_with": snap.created_with,
 		"catalog": snap.catalog,
-		"terrain": {
-			"sample_spacing_m": WorldConstants.SAMPLE_SPACING,
-			"region_samples": WorldConstants.REGION_SAMPLES,
-			"region_locations": locs,
-			"height_encoding": WorldConstants.HEIGHT_ENCODING,
-			"control_encoding": WorldConstants.CONTROL_ENCODING,
-			"control_schema": WorldConstants.CONTROL_SCHEMA,
-			"color_encoding": WorldConstants.COLOR_ENCODING,
-			"material_slots": WorldConstants.MATERIAL_SLOTS.duplicate(),
-			"rules": snap.rules,
-		},
+		"terrain": terrain,
 		"payload_files": payload_entries,
 		"authored_content_hash": snap.authored_content_hash,
 	}
@@ -155,7 +166,7 @@ static func build_manifest(snap: Dictionary, payload_entries: Array) -> Dictiona
 ## write and by pruning). Returns {manifest, files: {path: bytes}, error}.
 static func load_verified(dir: String) -> Dictionary:
 	var out := {"manifest": {}, "files": {}, "error": ""}
-	var read := StorageFs.read_bytes(dir.path_join(MANIFEST_FILE), MAX_MANIFEST_BYTES)
+	var read := StorageFs.read_bytes(dir.path_join(MANIFEST_FILE), int(WorldLimits.zip_envelope().max_manifest_bytes))
 	if read[1] != "":
 		out.error = "manifest: " + read[1]
 		return out
@@ -164,8 +175,9 @@ static func load_verified(dir: String) -> Dictionary:
 		out.error = "manifest: " + parsed[1]
 		return out
 	var manifest: Dictionary = parsed[0]
+	var schema := int(manifest.schema_version)
 	for entry in manifest.payload_files:
-		var payload := StorageFs.read_bytes(dir.path_join(entry.path), payload_limit(entry.path))
+		var payload := StorageFs.read_bytes(dir.path_join(entry.path), payload_limit(entry.path, schema))
 		if payload[1] != "":
 			out.error = "payload %s: %s" % [entry.path, payload[1]]
 			return out
@@ -198,6 +210,7 @@ static func read_generation(dir: String, catalog: AssetCatalog) -> Array:
 			catalog.catalog_id, catalog.catalog_version, catalog.sha256]]
 	var doc := WorldDocument.new()
 	doc.schema_version = int(m.schema_version)
+	doc.layout = WorldManifest.layout_of(m)
 	doc.world_id = m.world_id
 	doc.document_revision = int(m.document_revision)
 	doc.catalog_id = m.catalog.id
@@ -216,7 +229,7 @@ static func read_generation(dir: String, catalog: AssetCatalog) -> Array:
 
 
 static func _read_layers(doc: WorldDocument, files: Dictionary) -> String:
-	for loc in WorldConstants.REGION_LOCATIONS:
+	for loc in doc.layout.region_locations():
 		var stem := WorldConstants.region_file_stem(loc)
 		var r := RegionBuffers.new(loc)
 		var err := r.set_from_bytes(files[stem + ".height.f32le"], files[stem + ".control.u32le"],
@@ -227,7 +240,8 @@ static func _read_layers(doc: WorldDocument, files: Dictionary) -> String:
 	var obj_err := _read_objects(doc, files[OBJECTS_FILE])
 	if obj_err != "":
 		return "objects.json: " + obj_err
-	var scatter := ScatterLayer.decode(files[WorldConstants.SCATTER_FILE])
+	var limits := WorldLimits.for_schema(doc.schema_version)
+	var scatter := ScatterLayer.decode(files[WorldConstants.SCATTER_FILE], int(limits.max_scatter_instances))
 	if scatter[1] != "":
 		return scatter[1]
 	doc.scatter = scatter[0]
@@ -245,12 +259,13 @@ static func _read_objects(doc: WorldDocument, data: PackedByteArray) -> String:
 	var root: Variant = json.data
 	if typeof(root) != TYPE_DICTIONARY or root.size() != 2 or not root.has("schema_version") or not root.has("objects"):
 		return "root must be exactly {schema_version, objects}"
-	if not WorldManifest.is_json_int(root.schema_version) or int(root.schema_version) != WorldConstants.SCHEMA_VERSION:
+	if not WorldManifest.is_json_int(root.schema_version) or int(root.schema_version) != doc.schema_version:
 		return "unsupported schema_version %s" % str(root.schema_version)
 	if typeof(root.objects) != TYPE_ARRAY:
 		return "objects must be an array"
-	if root.objects.size() > WorldValidator.MAX_OBJECTS:
-		return "%d objects exceed the limit of %d" % [root.objects.size(), WorldValidator.MAX_OBJECTS]
+	var max_objects := int(WorldLimits.for_schema(doc.schema_version).max_objects)
+	if root.objects.size() > max_objects:
+		return "%d objects exceed the limit of %d" % [root.objects.size(), max_objects]
 	var prev := ""
 	for d in root.objects:
 		var type_err := _enum_type_error(d)

@@ -26,6 +26,23 @@ from worldpoc_constants import (
 	APP_DIR,
 	FORMAT,
 	SCHEMA_VERSION,
+	SCHEMA_VERSION_LAYOUT,
+	SUPPORTED_SCHEMAS,
+	LEGACY_LAYOUT,
+	KM1_LAYOUT,
+	Layout,
+	validate_layout,
+	layout_regions,
+	layout_schema,
+	layout_sample_range,
+	layout_extent,
+	layout_to_manifest,
+	layout_from_manifest,
+	limits_for_schema,
+	ZIP_ENVELOPE,
+	terrain_block,
+	payload_paths,
+	generation_files,
 	SAMPLE_SPACING,
 	REGION_SAMPLES,
 	REGION_SAMPLE_COUNT,
@@ -64,8 +81,6 @@ from worldpoc_constants import (
 	TERRAIN_BLOCK,
 	MANIFEST_MAX_BYTES,
 	OBJECTS_MAX_BYTES,
-	PACKAGE_MAX_TOTAL_BYTES,
-	PACKAGE_MAX_FILE_BYTES,
 	MAX_OBJECTS,
 	QUAT_TOLERANCE,
 	GROUNDING_TOLERANCE_M,
@@ -126,6 +141,8 @@ from worldpoc_values import (
 
 from worldpoc_manifest import (
 	_unknown_schema,
+	is_supported_schema,
+	manifest_layout,
 	_check_manifest_header,
 	_check_terrain_block,
 	_check_rules,
@@ -150,6 +167,11 @@ from worldpoc_terrain import (
 
 from worldpoc_package import (
 	PACKAGE_ALLOWED_DIRS,
+	PACKAGE_MAX_TOTAL_BYTES,
+	PACKAGE_MAX_FILE_BYTES,
+	FIXED_ENTRIES,
+	REGION_KINDS,
+	parse_region_name,
 	_entry_limit,
 	EOCD_SIZE,
 	EOCD_SEARCH,
@@ -171,6 +193,7 @@ class Generation:
 	"""Parsed generation: manifest, exact object records, raw region bytes."""
 
 	def __init__(self) -> None:
+		self.layout: Layout = LEGACY_LAYOUT
 		self.manifest: dict[str, Any] = {}
 		self.records: list[dict[str, Any]] = []
 		self.heights: dict[tuple[int, int], bytes] = {}
@@ -194,27 +217,49 @@ def read_generation_dir(gen_dir: Path) -> tuple[Generation | None, list[str]]:
 	errors: list[str] = []
 	if not gen_dir.is_dir():
 		return None, ["generation directory '%s' does not exist" % gen_dir]
+	layout, layout_err = _layout_of_dir(gen_dir)
+	if layout is None:
+		return None, [layout_err]
+	gen.layout = layout
+	files = generation_files(layout)
 	present = _list_files(gen_dir)
-	for name in sorted(GENERATION_FILES - present):
+	for name in sorted(files - present):
 		errors.append("missing file '%s'" % name)
-	for name in sorted(present - GENERATION_FILES):
+	for name in sorted(present - files):
 		errors.append("unexpected file %s" % show(name))
-	for name in sorted(present & GENERATION_FILES):
+	for name in sorted(present & files):
 		if (gen_dir / name).is_symlink():
 			errors.append("file '%s' is a symlink" % name)
 	if errors:
 		return None, _schema_first(gen_dir) + errors
+	manifest_path = gen_dir / "manifest.json"
+	if manifest_path.stat().st_size > ZIP_ENVELOPE["max_manifest_bytes"]:
+		return None, ["manifest.json is %d bytes (limit %d)" % (manifest_path.stat().st_size, ZIP_ENVELOPE["max_manifest_bytes"])]
 	try:
-		gen.manifest = parse_json_bytes((gen_dir / "manifest.json").read_bytes())
+		gen.manifest = parse_json_bytes(manifest_path.read_bytes())
 	except FormatError as e:
 		return None, ["manifest.json is not valid JSON: %s" % e]
-	for loc in REGION_LOCATIONS:
+	schema_limit = limits_for_schema(layout_schema(layout))["max_manifest_bytes"]
+	if manifest_path.stat().st_size > schema_limit:
+		return None, ["manifest.json is %d bytes (limit %d)" % (manifest_path.stat().st_size, schema_limit)]
+	for loc in layout_regions(*layout):
 		gen.heights[loc] = (gen_dir / height_path(loc)).read_bytes()
 		gen.controls[loc] = (gen_dir / control_path(loc)).read_bytes()
 		gen.colors[loc] = (gen_dir / color_path(loc)).read_bytes()
 	gen.scatter_bytes = (gen_dir / SCATTER_PATH).read_bytes()
 	gen.paths_bytes = (gen_dir / PATHS_PATH).read_bytes()
 	return gen, []
+
+
+def _layout_of_dir(gen_dir: Path) -> tuple[Layout | None, str]:
+	"""Layout named by the directory's manifest. Legacy when the manifest is missing, unreadable or has
+	an unsupported schema: those fail later with their own diagnostics."""
+	manifest = gen_dir / "manifest.json"
+	try:
+		m = parse_json_bytes(manifest.read_bytes()) if manifest.is_file() and not manifest.is_symlink() else None
+	except (FormatError, OSError):
+		return LEGACY_LAYOUT, ""
+	return manifest_layout(m)
 
 
 def _schema_first(gen_dir: Path) -> list[str]:
@@ -225,14 +270,14 @@ def _schema_first(gen_dir: Path) -> list[str]:
 		m = parse_json_bytes(manifest.read_bytes()) if manifest.is_file() and not manifest.is_symlink() else None
 	except (FormatError, OSError):
 		return []
-	if isinstance(m, dict) and not (is_json_int(m.get("schema_version")) and m["schema_version"] == SCHEMA_VERSION):
+	if isinstance(m, dict) and not is_supported_schema(m.get("schema_version")):
 		return [_unknown_schema(m.get("schema_version"))]
 	return []
 
 
 def _check_region_bytes(gen: Generation) -> list[str]:
 	errors: list[str] = []
-	for loc in REGION_LOCATIONS:
+	for loc in layout_regions(*gen.layout):
 		h, c = gen.heights[loc], gen.controls[loc]
 		if len(h) != REGION_MAP_BYTES:
 			errors.append("%s has %d bytes, expected %d" % (height_path(loc), len(h), REGION_MAP_BYTES))
@@ -261,19 +306,20 @@ def _check_region_bytes(gen: Generation) -> list[str]:
 
 def _check_scatter_and_paths(gen: Generation, trusted: dict[str, Any]) -> list[str]:
 	errors: list[str] = []
-	if len(gen.scatter_bytes) > SCATTER_MAX_BYTES:
-		errors.append("scatter.bin is %d bytes (limit %d)" % (len(gen.scatter_bytes), SCATTER_MAX_BYTES))
+	limits = limits_for_schema(layout_schema(gen.layout))
+	if len(gen.scatter_bytes) > limits["max_scatter_bytes"]:
+		errors.append("scatter.bin is %d bytes (limit %d)" % (len(gen.scatter_bytes), limits["max_scatter_bytes"]))
 	else:
-		scatter, err = parse_scatter(gen.scatter_bytes)
+		scatter, err = parse_scatter(gen.scatter_bytes, limits["max_scatter_instances"], gen.layout)
 		if scatter is None:
 			errors.append(err)
 		else:
 			gen.scatter = scatter
 			errors += check_scatter_catalog(scatter, trusted["assets"])
-	if len(gen.paths_bytes) > PATHS_MAX_BYTES:
-		errors.append("paths.bin is %d bytes (limit %d)" % (len(gen.paths_bytes), PATHS_MAX_BYTES))
+	if len(gen.paths_bytes) > limits["max_paths_bytes"]:
+		errors.append("paths.bin is %d bytes (limit %d)" % (len(gen.paths_bytes), limits["max_paths_bytes"]))
 	else:
-		paths, err = parse_paths(gen.paths_bytes)
+		paths, err = parse_paths(gen.paths_bytes, gen.layout)
 		if paths is None:
 			errors.append(err)
 		else:
@@ -282,17 +328,21 @@ def _check_scatter_and_paths(gen: Generation, trusted: dict[str, Any]) -> list[s
 
 
 def _check_objects(gen_dir: Path, gen: Generation, trusted: dict[str, Any]) -> list[str]:
+	schema = layout_schema(gen.layout)
+	max_objects = limits_for_schema(schema)["max_objects"]
+	if (gen_dir / "objects.json").stat().st_size > limits_for_schema(schema)["max_objects_bytes"]:
+		return ["objects.json is larger than %d bytes" % limits_for_schema(schema)["max_objects_bytes"]]
 	try:
 		doc = parse_json_bytes((gen_dir / "objects.json").read_bytes())
 	except FormatError as e:
 		return ["objects.json is not valid JSON: %s" % e]
-	if not isinstance(doc, dict) or not is_json_int(doc.get("schema_version")) or doc["schema_version"] != SCHEMA_VERSION:
-		return ["objects.json has unknown schema_version (supported: %d)" % SCHEMA_VERSION]
+	if not isinstance(doc, dict) or not is_json_int(doc.get("schema_version")) or doc["schema_version"] != schema:
+		return ["objects.json has unknown schema_version (supported: %d)" % schema]
 	objs = doc.get("objects")
 	if not isinstance(objs, list):
 		return ["objects.json 'objects' must be an array"]
-	if len(objs) > MAX_OBJECTS:
-		return ["objects.json has %d objects (max %d)" % (len(objs), MAX_OBJECTS)]
+	if len(objs) > max_objects:
+		return ["objects.json has %d objects (max %d)" % (len(objs), max_objects)]
 	errors: list[str] = []
 	seen: set[str] = set()
 	prev = b""
@@ -308,7 +358,7 @@ def _check_objects(gen_dir: Path, gen: Generation, trusted: dict[str, Any]) -> l
 			errors.append("objects are not sorted by object_id (%s)" % rec["object_id"])
 		seen.add(rec["object_id"])
 		prev = max(prev, key)
-		errors += check_record_against_catalog(rec, trusted["assets"])
+		errors += check_record_against_catalog(rec, trusted["assets"], gen.layout)
 		gen.records.append(rec)
 	return errors
 
@@ -316,7 +366,7 @@ def _check_objects(gen_dir: Path, gen: Generation, trusted: dict[str, Any]) -> l
 def _region_digests(heights: dict[tuple[int, int], bytes], controls: dict[tuple[int, int], bytes],
 		colors: dict[tuple[int, int], bytes]) -> dict[tuple[int, int], tuple[bytes, bytes, bytes]]:
 	return {loc: (hashlib.sha256(heights[loc]).digest(), hashlib.sha256(controls[loc]).digest(),
-		hashlib.sha256(colors[loc]).digest()) for loc in REGION_LOCATIONS}
+		hashlib.sha256(colors[loc]).digest()) for loc in heights}
 
 
 def validate_generation(gen_dir: Path, app_dir: Path = APP_DIR) -> tuple[Generation | None, list[str]]:
@@ -330,7 +380,7 @@ def validate_generation(gen_dir: Path, app_dir: Path = APP_DIR) -> tuple[Generat
 	fatal = ("manifest is not", "unknown format", "unknown schema_version")
 	if any(e.startswith(fatal) for e in errors):
 		return gen, errors
-	errors += _check_payload_files(gen.manifest, gen_dir)
+	errors += _check_payload_files(gen.manifest, gen_dir, gen.layout)
 	errors += _check_region_bytes(gen)
 	errors += _check_objects(gen_dir, gen, trusted)
 	errors += _check_scatter_and_paths(gen, trusted)
@@ -339,7 +389,8 @@ def validate_generation(gen_dir: Path, app_dir: Path = APP_DIR) -> tuple[Generat
 		cat = gen.manifest["catalog"]
 		gen.authored_hash = authored_hash(
 			{"id": cat["id"], "version": int(cat["version"]), "sha256": cat["sha256"]}, gen.rules,
-			_region_digests(gen.heights, gen.controls, gen.colors), gen.scatter_bytes, gen.paths_bytes, gen.records)
+			_region_digests(gen.heights, gen.controls, gen.colors), gen.scatter_bytes, gen.paths_bytes, gen.records,
+			gen.layout)
 		stored = gen.manifest.get("authored_content_hash")
 		if _is_placeholder_hash(stored):
 			errors.append("authored_content_hash is missing or a placeholder")
@@ -356,7 +407,7 @@ def grounding_report(gen: Generation, tolerance: float = GROUNDING_TOLERANCE_M) 
 		if r["grounding"] != "FOLLOW_TERRAIN":
 			continue
 		x, y, z = r["position"]
-		terrain = sample_height(regions, x, z, gen.controls)
+		terrain = sample_height(regions, x, z, gen.controls, gen.layout)
 		if math.isnan(terrain):
 			warnings.append("object %s: no terrain sample at (%r, %r)" % (r["object_id"], x, z))
 		elif abs(y - (terrain + r["height_offset_m"])) > tolerance:
@@ -368,16 +419,22 @@ def grounding_report(gen: Generation, tolerance: float = GROUNDING_TOLERANCE_M) 
 def write_generation(gen_dir: Path, doc: dict[str, Any]) -> dict[str, Any]:
 	"""Writes a generation; manifest last. `doc` keys: world_id, document_revision, created_with,
 	catalog {id, version, sha256}, heights/controls/colors {loc: bytes}, objects [record dicts];
-	optional rules (default DEFAULT_RULES), scatter (instance dicts) and paths (path dicts)."""
+	optional rules (default DEFAULT_RULES), scatter (instance dicts), paths (path dicts) and layout
+	(default legacy; any other valid layout writes schema 3)."""
 	gen_dir = Path(gen_dir)
+	layout: Layout = doc.get("layout", LEGACY_LAYOUT)
+	layout_error = validate_layout(*layout)
+	if layout_error:
+		raise ValueError("invalid layout: " + layout_error)
+	schema = layout_schema(layout)
 	(gen_dir / "regions").mkdir(parents=True, exist_ok=True)
 	objects = sorted(doc.get("objects", []), key=lambda r: r["object_id"].encode("utf-8"))
 	rules = dict(doc.get("rules", DEFAULT_RULES))
 	scatter_bytes = write_scatter(doc.get("scatter", []))
 	paths_bytes = write_paths(doc.get("paths", []))
-	payload: dict[str, bytes] = {"objects.json": dump_json({"schema_version": SCHEMA_VERSION, "objects": objects}),
+	payload: dict[str, bytes] = {"objects.json": dump_json({"schema_version": schema, "objects": objects}),
 		SCATTER_PATH: scatter_bytes, PATHS_PATH: paths_bytes}
-	for loc in REGION_LOCATIONS:
+	for loc in layout_regions(*layout):
 		payload[height_path(loc)] = doc["heights"][loc]
 		payload[control_path(loc)] = doc["controls"][loc]
 		payload[color_path(loc)] = doc["colors"][loc]
@@ -385,19 +442,19 @@ def write_generation(gen_dir: Path, doc: dict[str, Any]) -> dict[str, Any]:
 		(gen_dir / rel).write_bytes(data)
 	records = [parse_object_record(o)[0] for o in objects]
 	digests = _region_digests(doc["heights"], doc["controls"], doc["colors"])
-	terrain = dict(TERRAIN_BLOCK)
+	terrain = terrain_block(layout)
 	terrain["rules"] = rules
 	manifest = {
 		"format": FORMAT,
-		"schema_version": SCHEMA_VERSION,
+		"schema_version": schema,
 		"world_id": doc["world_id"],
 		"document_revision": doc["document_revision"],
 		"created_with": doc["created_with"],
 		"catalog": doc["catalog"],
 		"terrain": terrain,
-		"payload_files": [{"path": p, "bytes": len(payload[p]), "sha256": sha256_hex(payload[p])} for p in PAYLOAD_PATHS],
+		"payload_files": [{"path": p, "bytes": len(payload[p]), "sha256": sha256_hex(payload[p])} for p in payload_paths(layout)],
 		"authored_content_hash": authored_hash(doc["catalog"], rules, digests, scatter_bytes, paths_bytes,
-			records),  # type: ignore[arg-type]
+			records, layout),  # type: ignore[arg-type]
 	}
 	(gen_dir / "manifest.json").write_bytes(dump_json(manifest))
 	return manifest

@@ -6,6 +6,7 @@ extends RefCounted
 ## sample is at +127.5 m, so bilinear sampling is valid on [WORLD_MIN, WORLD_MAX_SAMPLE].
 
 const SCHEMA_VERSION := 2
+const SCHEMA_VERSION_LAYOUT := 3
 const SAMPLE_SPACING := 0.5
 const REGION_SAMPLES := 256
 const REGION_SHIFT := 8  # log2(REGION_SAMPLES); arithmetic shift == floor division for negatives
@@ -13,11 +14,13 @@ const REGION_MASK := 255
 const REGION_SAMPLE_COUNT := REGION_SAMPLES * REGION_SAMPLES
 const REGION_MAP_BYTES := REGION_SAMPLE_COUNT * 4
 
+## Legacy 2x2 layout only: use WorldDocument.layout (WP04b removes these).
 ## Region locations in canonical order: sorted by Z, then X (row-major).
 const REGION_LOCATIONS: Array[Vector2i] = [
 	Vector2i(-1, -1), Vector2i(0, -1), Vector2i(-1, 0), Vector2i(0, 0),
 ]
 
+## Legacy 2x2 layout only: use WorldDocument.layout (WP04b removes these).
 const GLOBAL_SAMPLE_MIN := -256
 const GLOBAL_SAMPLE_MAX := 255
 const WORLD_MIN := -128.0
@@ -46,6 +49,7 @@ const RULE_ROCK_SLOPE_MAX := 60
 const RULE_SAND_HEIGHT_DM_MIN := -30
 const RULE_SAND_HEIGHT_DM_MAX := 30
 
+## Schema 2 editing limit (scatter_placer, ScatterLayer.add); validation limits live in WorldLimits.
 const MAX_SCATTER_INSTANCES := 20000
 const MAX_PATHS := 256
 const PATH_POINTS_MIN := 2
@@ -74,10 +78,12 @@ static func region_file_stem(loc: Vector2i) -> String:
 	return "regions/r_%d_%d" % [loc.x, loc.y]
 
 
+## Legacy 2x2 layout only: use WorldDocument.layout (WP04b removes these).
 static func is_valid_region(loc: Vector2i) -> bool:
 	return REGION_LOCATIONS.has(loc)
 
 
+## Legacy 2x2 layout only: use WorldDocument.layout (WP04b removes these).
 static func is_valid_sample(gx: int, gz: int) -> bool:
 	return gx >= GLOBAL_SAMPLE_MIN and gx <= GLOBAL_SAMPLE_MAX \
 		and gz >= GLOBAL_SAMPLE_MIN and gz <= GLOBAL_SAMPLE_MAX
@@ -91,7 +97,8 @@ static func sample_local(g: int) -> int:
 	return g & REGION_MASK
 
 
-## True when (x, z) lies inside the bilinear-sampleable extent.
+## True when (x, z) lies inside the legacy 2x2 bilinear-sampleable extent.
+## Legacy 2x2 layout only: use WorldDocument.layout (WP04b removes these).
 static func is_inside_world(x: float, z: float) -> bool:
 	return x >= WORLD_MIN and x <= WORLD_MAX_SAMPLE and z >= WORLD_MIN and z <= WORLD_MAX_SAMPLE
 

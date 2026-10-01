@@ -167,6 +167,33 @@ func test_fixture_authored_hash_matches_manifest_in_godot() -> void:
 		assert_eq(CanonicalEncoder.authored_hash(loaded[0]), manifest.authored_content_hash)
 
 
+## WORLD-01: legacy fixtures keep the hashes recorded in config/toolchain.lock.json, stay schema 2 on
+## the legacy layout, and re-writing them reproduces every binary payload byte for byte.
+func test_legacy_fixtures_keep_recorded_hashes_and_bytes() -> void:
+	var recorded := {
+		"flat": "bedce13a23c1190c8cf01b9c3666a7dc7d2c728c1d85504af34baa84f382279b",
+		"gentle_hills": "133d5013176873deba05b98c45109fed36e6c3ddbe370627043a6e9e77034934",
+	}
+	var catalog: AssetCatalog = AssetCatalog.load_from()[0]
+	var out := "user://wp_storage_tests/legacy_bytes_%s" % StorageFs.random_hex(4)
+	for name in recorded:
+		var path: String = "res://fixtures/" + name
+		var loaded := WorldCodec.read_generation(path, catalog)
+		assert_empty_string(loaded[1], name)
+		var doc: WorldDocument = loaded[0]
+		assert_true(doc.layout.is_legacy() and doc.schema_version == 2, name)
+		assert_eq(CanonicalEncoder.authored_hash(doc), recorded[name], name)
+		assert_eq(CanonicalEncoder.authored_bytes(doc).slice(0, 17).get_string_from_ascii(), "WPOC-AUTHORED-V2\n")
+		var dir := out.path_join(name)
+		assert_empty_string(WorldCodec.write_generation(dir, doc, WorldCodec.default_created_with()), name)
+		for file in WorldCodec.payload_paths():
+			if file == "objects.json":
+				continue  # fixtures are written by Python with other JSON whitespace; the content is hashed above
+			assert_eq(FileAccess.get_file_as_bytes(dir.path_join(file)),
+				FileAccess.get_file_as_bytes(path.path_join(file)), "%s/%s" % [name, file])
+	StorageFs.remove_tree(out)
+
+
 func test_stress_100_fixture_loads_valid_and_grounded() -> void:
 	var catalog: AssetCatalog = AssetCatalog.load_from()[0]
 	var loaded := WorldCodec.read_generation("res://fixtures/stress_100", catalog)

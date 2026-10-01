@@ -155,8 +155,9 @@ func encode() -> PackedByteArray:
 
 
 ## Structure only: returns [ScatterLayer, ""] or [null, error]. Catalog, extent, yaw-limit and
-## scale rules belong to WorldValidator.
-static func decode(bytes: PackedByteArray) -> Array:
+## scale rules belong to WorldValidator. `max_instances` is the schema's limit (WorldLimits);
+## the default is the schema 2 limit.
+static func decode(bytes: PackedByteArray, max_instances: int = WorldLimits.SCHEMA_2.max_scatter_instances) -> Array:
 	var r := BinReader.new(bytes)
 	var err := _decode_header(r)
 	if err != "":
@@ -165,7 +166,7 @@ static func decode(bytes: PackedByteArray) -> Array:
 	err = _decode_table(r, layer)
 	if err != "":
 		return [null, err]
-	err = _decode_instances(r, layer)
+	err = _decode_instances(r, layer, max_instances)
 	if err != "":
 		return [null, err]
 	return [layer, ""]
@@ -200,12 +201,12 @@ static func _decode_table(r: BinReader, layer: ScatterLayer) -> String:
 	return "" if r.error == "" else "scatter.bin: " + r.error
 
 
-static func _decode_instances(r: BinReader, layer: ScatterLayer) -> String:
+static func _decode_instances(r: BinReader, layer: ScatterLayer, max_instances: int) -> String:
 	var n := r.u32("instance_count")
 	if r.error != "":
 		return "scatter.bin: " + r.error
-	if n > WorldConstants.MAX_SCATTER_INSTANCES:
-		return "scatter.bin: %d instances exceed the limit of %d" % [n, WorldConstants.MAX_SCATTER_INSTANCES]
+	if n > max_instances:
+		return "scatter.bin: %d instances exceed the limit of %d" % [n, max_instances]
 	if n * INSTANCE_BYTES > r.remaining():
 		return "scatter.bin: truncated while reading instances"
 	var used := PackedByteArray()

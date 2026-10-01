@@ -8,9 +8,15 @@ from typing import Any
 from worldpoc_constants import (
 	FORMAT,
 	SCHEMA_VERSION,
+	SCHEMA_VERSION_LAYOUT,
+	SUPPORTED_SCHEMAS,
+	LEGACY_LAYOUT,
+	Layout,
+	layout_from_manifest,
+	limits_for_schema,
+	payload_paths,
 	RULE_SPECS,
-	TERRAIN_BLOCK,
-	PAYLOAD_PATHS,
+	terrain_block,
 	SHA256_RE,
 	UUID_RE,
 )
@@ -18,7 +24,30 @@ from worldpoc_values import is_finite_number, is_json_int, sha256_file, show
 
 
 def _unknown_schema(v: Any) -> str:
-	return "unknown schema_version %s (supported: %d; older schemas are not migrated)" % (show(v), SCHEMA_VERSION)
+	return "unknown schema_version %s (supported: %d and %d; older schemas are not migrated)" % (
+		show(v), SCHEMA_VERSION, SCHEMA_VERSION_LAYOUT)
+
+
+def is_supported_schema(v: Any) -> bool:
+	return is_json_int(v) and not isinstance(v, bool) and v in SUPPORTED_SCHEMAS
+
+
+def manifest_layout(m: Any) -> tuple[Layout | None, str]:
+	"""Layout of a manifest with a supported schema: schema 2 is always the legacy layout, schema 3
+	reads terrain.layout and rejects the legacy one. (None, error) when schema 3 has no valid layout."""
+	if not isinstance(m, dict) or not is_supported_schema(m.get("schema_version")):
+		return LEGACY_LAYOUT, ""
+	if m["schema_version"] == SCHEMA_VERSION:
+		return LEGACY_LAYOUT, ""
+	t = m.get("terrain")
+	if not isinstance(t, dict) or "layout" not in t:
+		return None, "terrain missing field 'layout'"
+	layout, err = layout_from_manifest(t["layout"])
+	if layout is None:
+		return None, err
+	if layout == LEGACY_LAYOUT:
+		return None, "schema 3 must not use the legacy 2x2 layout"
+	return layout, ""
 
 
 def _check_manifest_header(m: Any, trusted: dict[str, Any]) -> list[str]:
@@ -26,8 +55,11 @@ def _check_manifest_header(m: Any, trusted: dict[str, Any]) -> list[str]:
 		return ["manifest is not a JSON object"]
 	if m.get("format") != FORMAT:
 		return ["unknown format %s (expected %r)" % (show(m.get("format")), FORMAT)]
-	if not is_json_int(m.get("schema_version")) or m["schema_version"] != SCHEMA_VERSION:
+	if not is_supported_schema(m.get("schema_version")):
 		return [_unknown_schema(m.get("schema_version"))]
+	layout, layout_err = manifest_layout(m)
+	if layout is None:
+		return [layout_err]
 	errors: list[str] = []
 	if not isinstance(m.get("world_id"), str) or not UUID_RE.match(m["world_id"]):
 		errors.append("world_id is not a lowercase UUID")
@@ -46,17 +78,20 @@ def _check_manifest_header(m: Any, trusted: dict[str, Any]) -> list[str]:
 			errors.append("catalog version %s does not match trusted version %d" % (show(cat.get("version")), trusted["version"]))
 		if cat.get("sha256") != trusted["sha256"]:
 			errors.append("catalog sha256 %s does not match trusted catalog %s" % (show(cat.get("sha256")), trusted["sha256"]))
-	errors += _check_terrain_block(m.get("terrain"))
+	errors += _check_terrain_block(m.get("terrain"), layout)
 	return errors
 
 
-def _check_terrain_block(t: Any) -> list[str]:
+def _check_terrain_block(t: Any, layout: Layout = LEGACY_LAYOUT) -> list[str]:
 	if not isinstance(t, dict):
 		return ["terrain block missing"]
 	errors = []
-	for key in sorted(set(t) - set(TERRAIN_BLOCK)):
+	block = terrain_block(layout)
+	for key in sorted(set(t) - set(block)):
 		errors.append("terrain block has unknown field %s" % show(key))
-	for key, expected in TERRAIN_BLOCK.items():
+	for key, expected in block.items():
+		if key == "layout":
+			continue  # parsed and compared by manifest_layout
 		v = t.get(key)
 		if key == "rules":
 			errors += _check_rules(v)
@@ -102,25 +137,31 @@ def _is_placeholder_hash(h: Any) -> bool:
 	return not isinstance(h, str) or not SHA256_RE.match(h) or len(set(h)) == 1
 
 
-def _check_payload_files(m: dict[str, Any], gen_dir: Path) -> list[str]:
+def _check_payload_files(m: dict[str, Any], gen_dir: Path, layout: Layout = LEGACY_LAYOUT) -> list[str]:
 	pf = m.get("payload_files")
 	if not isinstance(pf, list):
 		return ["payload_files missing"]
+	expected_paths = payload_paths(layout)
 	errors: list[str] = []
 	paths = [e.get("path") if isinstance(e, dict) else None for e in pf]
-	if sorted(p for p in paths if isinstance(p, str)) != PAYLOAD_PATHS or len(paths) != len(PAYLOAD_PATHS):
-		errors.append("payload_files must list exactly %s" % PAYLOAD_PATHS)
-	elif paths != PAYLOAD_PATHS:
+	if sorted(p for p in paths if isinstance(p, str)) != expected_paths or len(paths) != len(expected_paths):
+		errors.append("payload_files must list exactly %s" % expected_paths)
+	elif paths != expected_paths:
 		errors.append("payload_files are not sorted by path")
+	total = 0
 	for e in pf:
-		if not isinstance(e, dict) or e.get("path") not in PAYLOAD_PATHS:
+		if not isinstance(e, dict) or e.get("path") not in expected_paths:
 			continue
 		path = gen_dir / e["path"]
 		size = path.stat().st_size
+		total += size
 		if not is_json_int(e.get("bytes")) or int(e["bytes"]) != size:
 			errors.append("payload '%s' bytes %s != actual %d" % (e["path"], show(e.get("bytes")), size))
 		if _is_placeholder_hash(e.get("sha256")):
 			errors.append("payload '%s' has a missing or placeholder sha256 %s" % (e["path"], show(e.get("sha256"))))
 		elif e["sha256"] != sha256_file(path):
 			errors.append("payload '%s' sha256 mismatch" % e["path"])
+	max_total = limits_for_schema(m["schema_version"])["max_total_bytes"]
+	if total > max_total:
+		errors.append("payload files total %d bytes (limit %d)" % (total, max_total))
 	return errors

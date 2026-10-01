@@ -138,22 +138,23 @@ class PackageTests(unittest.TestCase):
 		self.assertInspectRejects(data, "symlink entry 'objects.json'")
 
 	def test_oversize_entries(self) -> None:
-		big = b"{" + b" " * wf.OBJECTS_MAX_BYTES + b"}"
-		self.assertInspectRejects(build_zip(self.good_entries(**{"objects.json": big})), "limit 4194304")
-		big = b" " * (wf.MANIFEST_MAX_BYTES + 1)
-		self.assertInspectRejects(build_zip(self.good_entries(**{"manifest.json": big})), "limit 65536")
+		# Package inspection applies the schema 3 envelope (world-format §11.3).
+		declared = patch_central_size(build_zip(self.good_entries()), "objects.json", 128 * 1024 * 1024 + 1)
+		self.assertInspectRejects(declared, "limit 134217728")
+		big = b" " * (256 * 1024 + 1)
+		self.assertInspectRejects(build_zip(self.good_entries(**{"manifest.json": big})), "limit 262144")
 		short = self.good["regions/r_0_0.height.f32le"][:-4]
 		self.assertInspectRejects(build_zip(self.good_entries(**{"regions/r_0_0.height.f32le": short})), "expected 262144")
 
 	def test_new_payload_names_and_limits(self) -> None:
 		self.assertEqual(len(wf.PAYLOAD_PATHS), 15)
-		self.assertEqual((wf.SCATTER_MAX_BYTES, wf.PATHS_MAX_BYTES), (512 * 1024, 640 * 1024))
+		self.assertEqual((wf.SCATTER_MAX_BYTES, wf.PATHS_MAX_BYTES), (512 * 1024, 640 * 1024), "schema 2 limits")
 		self.assertEqual((wf.PACKAGE_MAX_TOTAL_BYTES, wf.PACKAGE_MAX_FILE_BYTES, wf.PACKAGE_MAX_ENTRIES),
-			(12 * 1024 * 1024, 20 * 1024 * 1024, 20))
+			(256 * 1024 * 1024, 264 * 1024 * 1024, 197), "schema 3 envelope")
 		for name in ("scatter.bin", "paths.bin", "regions/r_0_0.color.rgba8"):
 			self.assertIn(name, self.good)
-		self.assertInspectRejects(build_zip(self.good_entries(**{"scatter.bin": b"\0" * (wf.SCATTER_MAX_BYTES + 1)})),
-			"limit 524288")
+		self.assertInspectRejects(build_zip(self.good_entries(**{"scatter.bin": b"\0" * (4 * 1024 * 1024 + 1)})),
+			"limit 4194304")
 		self.assertInspectRejects(build_zip(self.good_entries(**{"paths.bin": b"\0" * (wf.PATHS_MAX_BYTES + 1)})),
 			"limit 655360")
 		short = self.good["regions/r_0_0.color.rgba8"][:-4]
@@ -166,12 +167,12 @@ class PackageTests(unittest.TestCase):
 		self.assertEqual(errors, [])
 
 	def test_entry_count_limit(self) -> None:
-		# manifest + 15 payload + regions/ is 17; 20 is allowed, 21 is not.
+		# manifest + 15 payload + regions/ is 17; the envelope allows 197 entries, 198 is too many.
 		extras = [("regions/", b"")]
 		self.assertEqual(wf.inspect_zip(self.write(build_zip(extras + self.good_entries())))[1], [])
-		many = self.good_entries() + [("x%d" % i, b"") for i in range(5)]
+		many = self.good_entries() + [("x%d" % i, b"") for i in range(198 - 16)]
 		path = self.write(build_zip(many))
-		self.assertTrue(any("archive has 21 entries" in e for e in wf.inspect_zip(path)[1]))
+		self.assertTrue(any("archive has 198 entries" in e for e in wf.inspect_zip(path)[1]))
 
 	def test_old_schema_1_package_gets_explicit_diagnostic(self) -> None:
 		m = wf.parse_json_bytes(self.good["manifest.json"])
@@ -245,7 +246,12 @@ class PackageTests(unittest.TestCase):
 		self.assertInspectRejects(data, "ZIP64")
 
 	def test_oversize_package_file(self) -> None:
-		self.assertInspectRejects(b"\0" * wf.PACKAGE_MAX_FILE_BYTES + build_zip(self.good_entries()), "package file is")
+		path = self.tmp / "huge.worldpoc"
+		with open(path, "wb") as f:  # sparse: the size check runs before anything is read
+			f.seek(wf.PACKAGE_MAX_FILE_BYTES)
+			f.write(build_zip(self.good_entries()))
+		_, errors = wf.inspect_zip(path)
+		self.assertTrue(any("package file is" in e for e in errors), errors)
 
 	def test_corrupt_deflate_stream(self) -> None:
 		data = bytearray(build_zip(self.good_entries()))

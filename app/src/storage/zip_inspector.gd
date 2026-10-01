@@ -21,18 +21,42 @@ const METHOD_DEFLATE := 8
 const S_IFMT := 0xF000
 const S_IFLNK := 0xA000
 const REGIONS_DIR := "regions/"
+const REGION_KINDS := ["height.f32le", "control.u32le", "color.rgba8"]
+## Canonical decimal region coordinates: no '+', no leading zeros, no "-0".
+const REGION_NAME_PATTERN := "^regions/r_(0|-?[1-9][0-9]{0,2})_(0|-?[1-9][0-9]{0,2})\\.(height\\.f32le|control\\.u32le|color\\.rgba8)\\z"
+
+static var _region_regex: RegEx
 
 
+## Inspection happens before the manifest is read, so the defaults are the schema 3 envelope
+## (WorldLimits.zip_envelope()). The post-extraction generation checks apply the manifest's schema.
 static func default_limits() -> Dictionary:
+	var env := WorldLimits.zip_envelope()
 	return {
-		"max_file_bytes": 20 * 1024 * 1024,
-		"max_total_uncompressed": 12 * 1024 * 1024,
-		"max_entries": 20,
-		"max_manifest_bytes": WorldCodec.MAX_MANIFEST_BYTES,
-		"max_objects_bytes": WorldCodec.MAX_OBJECTS_BYTES,
-		"max_scatter_bytes": WorldCodec.MAX_SCATTER_BYTES,
-		"max_paths_bytes": WorldCodec.MAX_PATHS_BYTES,
+		"max_file_bytes": env.max_archive_bytes,
+		"max_total_uncompressed": env.max_total_bytes,
+		"max_entries": env.max_entries,
+		"max_manifest_bytes": env.max_manifest_bytes,
+		"max_objects_bytes": env.max_objects_bytes,
+		"max_scatter_bytes": env.max_scatter_bytes,
+		"max_paths_bytes": env.max_paths_bytes,
 	}
+
+
+## {loc: Vector2i, kind: String} for a canonical region file name with coordinates inside
+## the region range; {} when the grammar does not match; {"out_of_range": true} when it matches
+## but a coordinate is outside [-8, 7].
+static func parse_region_name(name: String) -> Dictionary:
+	if _region_regex == null:
+		_region_regex = RegEx.create_from_string(REGION_NAME_PATTERN)
+	var m := _region_regex.search(name)
+	if m == null:
+		return {}
+	var loc := Vector2i(m.get_string(1).to_int(), m.get_string(2).to_int())
+	if loc.x < WorldLayout.REGION_MIN or loc.x > WorldLayout.REGION_MAX \
+			or loc.y < WorldLayout.REGION_MIN or loc.y > WorldLayout.REGION_MAX:
+		return {"out_of_range": true}
+	return {"loc": loc, "kind": m.get_string(3)}
 
 
 ## Returns {ok, error, entries: [{name, method, compressed, uncompressed, is_dir}]}.
@@ -227,10 +251,12 @@ static func _has_zip64_extra(extra: PackedByteArray) -> bool:
 	return false
 
 
+## Fixed entries plus any number of complete regions (height, control and color file each);
+## which regions are expected is decided later by the manifest's layout.
 static func _check_layout(entries: Array, lim: Dictionary) -> String:
-	var required := WorldCodec.payload_paths()
-	required.append(WorldCodec.MANIFEST_FILE)
+	var fixed := [WorldCodec.OBJECTS_FILE, WorldConstants.PATHS_FILE, WorldConstants.SCATTER_FILE, WorldCodec.MANIFEST_FILE]
 	var seen := {}
+	var regions := {}  # Vector2i -> {kind: true}
 	var total := 0
 	for e in entries:
 		var name: String = e.name
@@ -241,8 +267,15 @@ static func _check_layout(entries: Array, lim: Dictionary) -> String:
 			if name != REGIONS_DIR or e.uncompressed != 0:
 				return "unexpected archive directory '%s'" % name
 			continue
-		if not required.has(name):
-			return "unknown archive entry '%s'" % name
+		if not fixed.has(name):
+			var parsed := parse_region_name(name)
+			if parsed.is_empty():
+				return "unknown archive entry '%s'" % name
+			if parsed.has("out_of_range"):
+				return "entry '%s' names a region outside [%d, %d]" % [name, WorldLayout.REGION_MIN, WorldLayout.REGION_MAX]
+			if not regions.has(parsed.loc):
+				regions[parsed.loc] = {}
+			regions[parsed.loc][parsed.kind] = true
 		var size: int = e.uncompressed
 		var limit_err := _entry_limit_error(name, size, lim)
 		if limit_err != "":
@@ -250,9 +283,17 @@ static func _check_layout(entries: Array, lim: Dictionary) -> String:
 		total += size
 	if total > int(lim.max_total_uncompressed):
 		return "package expands to %d bytes, limit %d" % [total, int(lim.max_total_uncompressed)]
-	for name in required:
+	for name in fixed:
 		if not seen.has(name):
 			return "package is missing '%s'" % name
+	if regions.is_empty():
+		return "package has no regions"
+	var locs: Array = regions.keys()
+	locs.sort_custom(func(a: Vector2i, b: Vector2i) -> bool: return a.y < b.y or (a.y == b.y and a.x < b.x))
+	for loc: Vector2i in locs:
+		for kind in REGION_KINDS:
+			if not regions[loc].has(kind):
+				return "package is missing '%s.%s'" % [WorldConstants.region_file_stem(loc), kind]
 	return ""
 
 

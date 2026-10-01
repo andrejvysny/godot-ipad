@@ -23,11 +23,12 @@ from typing import Any
 
 from worldpoc_constants import (
 	APP_DIR,
-	SCHEMA_VERSION,
 	SAMPLE_SPACING,
 	REGION_SAMPLES,
-	WORLD_MIN,
-	WORLD_MAX_SAMPLE,
+	LEGACY_LAYOUT,
+	Layout,
+	layout_extent,
+	layout_schema,
 	MATERIAL_GRASS,
 	MATERIAL_DIRT,
 	MATERIAL_SLOTS,
@@ -38,6 +39,7 @@ from worldpoc_constants import (
 	UUID_RE,
 	HEX16_RE,
 	AUTHORED_MAGIC,
+	AUTHORED_MAGIC_V3,
 	CATALOG_MAGIC,
 )
 
@@ -138,18 +140,24 @@ class _Stream:
 
 def authored_hash(catalog: dict[str, Any], rules: dict[str, Any],
 		region_digests: dict[tuple[int, int], tuple[bytes, bytes, bytes]], scatter_bytes: bytes,
-		paths_bytes: bytes, records: list[dict[str, Any]]) -> str:
-	"""world-format §7. `region_digests[loc] = (sha256(height), sha256(control), sha256(color))` as raw
-	32-byte digests; `rules` holds the four manifest rule values; `records` hold exact float64 values
-	(from f64le bits)."""
+		paths_bytes: bytes, records: list[dict[str, Any]], layout: Layout = LEGACY_LAYOUT) -> str:
+	"""world-format §7 (legacy layout, V2 stream) and §11.4 (any other layout, V3 stream).
+	`region_digests[loc] = (sha256(height), sha256(control), sha256(color))` as raw 32-byte digests;
+	`rules` holds the four manifest rule values; `records` hold exact float64 values (from f64le bits)."""
 	s = _Stream()
-	s.raw(AUTHORED_MAGIC)
-	s.u32(SCHEMA_VERSION)
+	legacy = layout == LEGACY_LAYOUT
+	s.raw(AUTHORED_MAGIC if legacy else AUTHORED_MAGIC_V3)
+	s.u32(layout_schema(layout))
 	s.str_(catalog["id"])
 	s.u32(catalog["version"])
 	s.str_(catalog["sha256"])
 	s.f64(SAMPLE_SPACING)
 	s.u32(REGION_SAMPLES)
+	if not legacy:
+		s.i32(layout[0][0])
+		s.i32(layout[0][1])
+		s.u32(layout[1][0])
+		s.u32(layout[1][1])
 	s.u8(1 if rules["rock_enabled"] else 0)
 	s.i32(int(rules["rock_slope_deg"]))
 	s.u8(1 if rules["sand_enabled"] else 0)
@@ -386,7 +394,7 @@ def parse_object_record(d: Any) -> tuple[dict[str, Any] | None, str]:
 	return rec, ""
 
 
-def check_record_against_catalog(rec: dict[str, Any], assets: dict[str, Any]) -> list[str]:
+def check_record_against_catalog(rec: dict[str, Any], assets: dict[str, Any], layout: Layout = LEGACY_LAYOUT) -> list[str]:
 	tag = " (object %s)" % rec["object_id"]
 	asset = assets.get(rec["asset_id"])
 	if asset is None:
@@ -403,6 +411,7 @@ def check_record_against_catalog(rec: dict[str, Any], assets: dict[str, Any]) ->
 		errors.append("height_offset_m %r outside [%r, %r]%s"
 			% (h, asset["height_offset_min_m"], asset["height_offset_max_m"], tag))
 	x, _, z = rec["position"]
-	if not (WORLD_MIN <= x <= WORLD_MAX_SAMPLE and WORLD_MIN <= z <= WORLD_MAX_SAMPLE):
+	x_min, x_max, z_min, z_max = layout_extent(layout)
+	if not (x_min <= x <= x_max and z_min <= z <= z_max):
 		errors.append("position X/Z (%r, %r) outside the world extent%s" % (x, z, tag))
 	return errors

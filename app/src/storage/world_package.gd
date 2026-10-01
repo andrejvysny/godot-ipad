@@ -20,7 +20,7 @@ static func export_package(generation_dir: String, out_path: String, catalog: As
 	if err != "":
 		return err
 	var partial := out_path + GenerationStore.PARTIAL_SUFFIX
-	err = _pack(generation_dir, partial)
+	err = _pack(generation_dir, partial, WorldManifest.layout_of(verified.manifest))
 	if err == "":
 		err = _verify_package(partial, catalog, tmp_root)
 	if err == "" and FileAccess.file_exists(out_path) and DirAccess.remove_absolute(out_path) != OK:
@@ -32,9 +32,9 @@ static func export_package(generation_dir: String, out_path: String, catalog: As
 	return err
 
 
-static func _pack(generation_dir: String, zip_path: String) -> String:
+static func _pack(generation_dir: String, zip_path: String, layout: WorldLayout) -> String:
 	var names := PackedStringArray([WorldCodec.MANIFEST_FILE])
-	names.append_array(WorldCodec.payload_paths())  # objects.json, then regions sorted
+	names.append_array(WorldCodec.payload_paths(layout))  # objects.json, then regions sorted
 	var zp := ZIPPacker.new()
 	if zp.open(zip_path) != OK:
 		return "cannot create package '%s'" % zip_path
