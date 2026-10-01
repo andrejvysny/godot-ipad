@@ -12,10 +12,10 @@ scatter/fill/sets, spline paths). Invert = on-screen button + D key (no Pencil d
 - [x] P1a Format schema 2, GDScript: constants, RegionBuffers color, ScatterLayer, PathLayer, rules,
   WorldDocument, codec/manifest/validator/zip limits, CanonicalEncoder V2, history capture, adapter colour upload
 - [x] P1b Format schema 2, Python mirror (`scripts/worldpoc_*`), tests
-- [ ] P2 Catalog v2 (4 ground-cover assets + scatter meshes + thumbnails), fixtures regenerated, cross-language hash check
-- [ ] P3 Editor v2 behaviour spec (`docs/editor-v2.md`); ToolController v2 (modes/tools/invert/settings)
+- [x] P2 Catalog v2 (4 ground-cover assets + scatter meshes + thumbnails), fixtures regenerated, cross-language hash check
+- [x] P3 Editor v2 behaviour spec (`docs/editor-v2.md`); ToolController v2 (modes/tools/invert/settings)
 - [ ] P4 Brush engine v2: alphas, 4-layer paint/erase, spray, tint, pick; flatten (+pick height), noise/smooth
-- [ ] P5 Terrain shader: 4 textures, auto-paint rules, tint, rule highlight (Mac rendered check)
+- [x] P5 Terrain shader: 4 textures, auto-paint rules, tint, rule highlight (Mac rendered check)
 - [ ] P6 Scatter: MultiMesh renderer, scatter/erase brush, fill/clear lasso, sets store, quick mix
 - [ ] P7 Paths: draw (flatten + record), draped ribbon, handle edit, delete
 - [ ] P8 UI v2: top bar, mode rail + popover, chip + invert, Library (Objects/Sets), set editor, inspector, ghost, hints, toasts

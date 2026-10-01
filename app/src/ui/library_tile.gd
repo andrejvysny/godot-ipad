@@ -41,17 +41,11 @@ func setup(session: EditorSession, asset: AssetDefinition, report: Callable) -> 
 	var name_label := UiKit.bold_label(asset.display_name, 14)
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(name_label)
-	_meta.text = "r %s m · %s–%s×" % [_trim(asset.footprint_radius_m), _trim(asset.scale_min), _trim(asset.scale_max)]
-	_meta.add_theme_font_override("font", UiKit.mono_font())
+	_meta.text = asset.category.capitalize()
 	_meta.add_theme_color_override("font_color", UiKit.TEXT_MUTED)
 	_meta.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(_meta)
 	_apply_style()
-
-
-static func _trim(v: float) -> String:
-	var text := "%.2f" % v
-	return text.rstrip("0").rstrip(".")
 
 
 func meta_text() -> String:
