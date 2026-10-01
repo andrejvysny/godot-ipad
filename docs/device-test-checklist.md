@@ -69,25 +69,37 @@ eviction with memory observed in Xcode's memory gauge.
 Then: `python3 scripts/dev.py validate-world build/from-ipad/…/…worldpoc` and
 `python3 scripts/dev.py open-consumer <same path>`. Record which route worked.
 
-## 4a. Render bench (spec §18.1, §18.3)
+## 4a. Render bench (spec §18.1, §18.3, §19)
 
-Measures frame time, GPU/CPU render time and draw counts over object count (0 / 1000 / 5000) x
-render profile (current, no shadows, lean shadows, 3D scale 0.75 / 0.5) x camera (overview, ground),
-plus terrain-hidden steps and a repeat of the first step (thermal drift). Result: **NOT RUN** until
-a Release build is measured on the iPad. Debug-build or Mac numbers are HOST evidence only (the report
-states `evidence_class`).
+Measures frame pacing (p50/p95/p99/max, missed-target and >50/>100/>250 ms hitch counts), GPU/CPU render
+time with validity, draw counts and settling latency over object count (0 / 1000 / 5000) x profile
+(scale_100, scale_075, scale_065, scale_050, plus the diagnostic legacy_shadows_diagnostic) x camera
+(overview, ground), plus terrain-hidden diagnostic steps and a repeat of the first step (thermal drift).
+The population is a dedicated deterministic "gentle_hills" document with exactly the requested object
+count; your world is never changed. Result: **NOT RUN** until a Release build is measured on the iPad.
+The report never claims acceptance (`evidence.acceptance` is `NOT_ACCEPTANCE_RUN`).
 
 1. Release export: `venv/bin/python scripts/dev.py export-ios --project-only --release`, then `xcodebuild`
    with `-configuration Release` (same signing setup as section 0); install on the iPad.
 2. Cold device: rested, unplugged (or note "charging"), screen brightness fixed, no other apps running.
 3. Start with `xcrun devicectl device process launch --device <device-id> --terminate-existing <bundle id> -- --render-bench`
-   (optional `--bench-counts=0,1000 --bench-frames=300`), or tap Diagnostics -> **Render bench**.
-4. Keep hands off for about 5 minutes ("Render bench running" message). Steps with `"disturbed": true` are void.
+   (optional `--bench-counts=0,1000 --bench-frames=300 --bench-warmup=90 --bench-seed=1234
+   --bench-profiles=scale_100,scale_050 --bench-cameras=overview,ground --bench-quit`), or tap
+   Diagnostics -> **Render bench**.
+4. Keep hands off for about 5 minutes ("Render bench running" message). Edits, undo/redo, save, export and
+   world switches are blocked meanwhile; Diagnostics -> **Abort bench** stops the run. Any touch during a
+   measured step, or leaving the app, aborts the run (`status` `ABORTED`, `abort_reason`
+   `input_disturbance` / `app_deactivated` / `user_abort`) and writes a partial report; the state is restored.
 5. The report `render-bench-<unix time>.json` lands in `user://traces/` = `Documents/traces`. Retrieve it with
    `xcrun devicectl device copy from --device <device-id> --domain-type appDataContainer --domain-identifier <bundle id> --source Documents/traces --destination ./build/from-ipad`
    and store the JSON under `docs/evidence/` (e.g. `docs/evidence/render-bench-ipad-<date>.json`) with an
    evidence record (section 5).
-6. Check: `debug_build` is false, `evidence_class` is `DEVICE`, the repeat step matches the first step.
+6. Check: `status` is `COMPLETED`, `evidence.build` is `release`, `evidence.platform_class` is `DEVICE` and
+   `evidence.is_target_device` is true, `correctness.restored` is true and the authored hash/revision/history
+   values are equal before and after, every step has `"settled": true`, the repeat step matches the first
+   step. GPU/CPU percentiles are `null` unless `gpu_status` is `AVAILABLE` (never 0); `frame_*` values are
+   wall-clock proxies (`frame_interval_source`), not GPU frame time. Steps marked `"diagnostic": true`
+   are ablations, not production profiles.
 
 ## 5. Evidence record template
 

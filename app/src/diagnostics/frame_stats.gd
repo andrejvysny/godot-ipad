@@ -47,6 +47,10 @@ func p95() -> float:
 	return percentile(_frames, 0.95)
 
 
+func p99() -> float:
+	return percentile(_frames, 0.99)
+
+
 func max_ms() -> float:
 	var m := 0.0
 	for v in _frames:
@@ -96,6 +100,6 @@ func snapshot() -> Dictionary:
 	for n: String in _timers:
 		timers[n] = {"count": (_timers[n]["buf"] as PackedFloat64Array).size(), "p95_ms": sample_p95(n)}
 	return {
-		"frames": count(), "p50_ms": p50(), "p95_ms": p95(), "max_ms": max_ms(),
+		"frames": count(), "p50_ms": p50(), "p95_ms": p95(), "p99_ms": p99(), "max_ms": max_ms(),
 		"over_16_7": count_over(16.7), "over_33_4": count_over(33.4), "timers": timers,
 	}

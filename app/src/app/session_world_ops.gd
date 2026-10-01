@@ -20,6 +20,48 @@ static func load_fixture(fixture: String, catalog: AssetCatalog) -> Array:
 	return [doc, ""]
 
 
+## Latest recoverable world, else a fresh copy of `fixture`. Returns {doc, error, message, is_error,
+## checkpoint}; checkpoint is true when the opened world is new and still unsaved.
+static func open_start_world(storage: WorldStorage, catalog: AssetCatalog, fixture: String) -> Dictionary:
+	var id := storage.latest_world_id()
+	var note := ""
+	if ObjectRecord.is_uuid(id):
+		var recovered := storage.recover_latest_valid(id, catalog)
+		note = "Recovery failed: %s. " % recovered.error
+		if recovered.doc != null:
+			var doc: WorldDocument = recovered.doc
+			doc.source_label = "recovered"
+			var skipped: Array = recovered.skipped
+			var text := "Recovered revision %d" % doc.document_revision
+			if not skipped.is_empty():
+				text += ", skipped %d invalid checkpoint(s)" % skipped.size()
+			return {"doc": doc, "error": "", "message": text, "is_error": false, "checkpoint": false}
+	var opened := load_fixture(fixture, catalog)
+	if opened[1] != "":
+		return {"doc": null, "error": str(opened[1]), "message": "", "is_error": true, "checkpoint": false}
+	return {"doc": opened[0], "error": "", "is_error": note != "", "checkpoint": true,
+		"message": note + "Opened %s as a new world" % fixture.capitalize()}
+
+
+## The ToolContext of the session's tools (document, projections, commit and cancel plumbing).
+static func make_tool_context(session: EditorSession) -> ToolContext:
+	var ctx := ToolContext.new()
+	ctx.document = session.document
+	ctx.catalog = session.catalog
+	ctx.camera = session.rig.get_camera()
+	ctx.terrain = session.terrain
+	ctx.presenter = session.presenter
+	ctx.defaults = session.defaults
+	ctx.commit = session.commit
+	ctx.request_cancel = func(reason: String) -> void: session.input.cancel_all(reason)
+	ctx.diagnostic = session.post_message
+	ctx.units_per_point = session.input.mapper.viewport_units_per_point
+	ctx.stats = session.frames
+	ctx.scatter_changed = session.layers.scatter_changed
+	ctx.path_changed = session.layers.path_changed
+	return ctx
+
+
 ## Makes the active revision durable. Returns "" or an error.
 static func ensure_saved(storage: WorldStorage, doc: WorldDocument) -> String:
 	if storage.status_text(doc.document_revision) == "Saved revision %d" % doc.document_revision:
@@ -64,22 +106,76 @@ static func evidence(input: InputSystem, doc: WorldDocument, camera: Camera3D, f
 		"render": render}
 
 
-## {} unless --render-bench is given; else {enabled, counts, frames} (--bench-counts=0,100 --bench-frames=60).
+## {} unless --render-bench is given; else {enabled, counts, frames} plus the optional keys warmup, seed,
+## profiles, cameras (--bench-counts=0,100 --bench-frames=60 --bench-warmup=30 --bench-seed=7
+## --bench-profiles=scale_100,scale_050 --bench-cameras=ground). An invalid value gives {"error": text}.
 static func parse_bench_args(args: PackedStringArray) -> Dictionary:
 	if not args.has("--render-bench"):
 		return {}
 	var out := {"enabled": true, "counts": PackedInt32Array(), "frames": 0}
 	for arg in args:
-		if arg.begins_with("--bench-counts="):
-			for part in arg.trim_prefix("--bench-counts=").split(",", false):
-				out.counts.append(maxi(0, part.to_int()))
-		elif arg.begins_with("--bench-frames="):
-			out.frames = arg.trim_prefix("--bench-frames=").to_int()
+		var parts := arg.split("=", true, 1)
+		if parts.size() < 2 or not parts[0].begins_with("--bench-"):
+			continue
+		var error := _parse_bench_arg(out, parts[0], parts[1])
+		if error != "":
+			return {"error": error}
 	return out
 
 
+static func _parse_bench_arg(out: Dictionary, flag: String, value: String) -> String:
+	match flag:
+		"--bench-counts":
+			for part in value.split(",", false):
+				if not part.is_valid_int() or part.to_int() < 0:
+					return "Invalid %s value '%s': expected non-negative integers." % [flag, part]
+				out.counts.append(part.to_int())
+		"--bench-frames", "--bench-warmup":
+			var minimum := 1 if flag == "--bench-frames" else 0
+			if not value.is_valid_int() or value.to_int() < minimum:
+				return "Invalid %s value '%s': expected an integer >= %d." % [flag, value, minimum]
+			out["frames" if flag == "--bench-frames" else "warmup"] = value.to_int()
+		"--bench-seed":
+			if not value.is_valid_int():
+				return "Invalid %s value '%s': expected an integer." % [flag, value]
+			out["seed"] = value.to_int()
+		"--bench-profiles":
+			return _parse_bench_names(out, "profiles", flag, value, BenchPlan.PROFILES)
+		"--bench-cameras":
+			return _parse_bench_names(out, "cameras", flag, value, BenchPlan.CAMERAS)
+	return ""
+
+
+static func _parse_bench_names(out: Dictionary, key: String, flag: String, value: String, allowed: Array[String]) -> String:
+	var names: Array[String] = []
+	for part in value.split(",", false):
+		if part not in allowed:
+			return "Invalid %s value '%s': expected %s." % [flag, part, ", ".join(allowed)]
+		names.append(part)
+	if names.is_empty():
+		return "Invalid %s: no names given." % flag
+	out[key] = names
+	return ""
+
+
+## Creates, attaches and starts a bench runner; posts and returns the error, "" on success.
+static func start_bench(session: EditorSession, path: String, counts: PackedInt32Array, frames: int,
+		options: Dictionary) -> String:
+	var bench := make_bench(path, counts, frames, options)
+	var error := "Render bench module is missing." if bench == null else ""
+	if bench != null:
+		session.add_child(bench)
+		error = bench.call("start", session)
+		if error != "":
+			bench.queue_free()
+	if error != "":
+		session.post_message(error, true)
+	return error
+
+
 ## Loads the bench runner by path (it is optional tooling) with overrides applied; null if missing.
-static func make_bench(path: String, counts: PackedInt32Array, frames: int) -> Node:
+## options: warmup, seed, profiles, cameras (see parse_bench_args).
+static func make_bench(path: String, counts: PackedInt32Array, frames: int, options := {}) -> Node:
 	if not ResourceLoader.exists(path):
 		return null
 	var bench := load(path).new() as Node
@@ -87,7 +183,52 @@ static func make_bench(path: String, counts: PackedInt32Array, frames: int) -> N
 		bench.set("counts", counts)
 	if frames > 0:
 		bench.set("measure_frames", frames)
+	for key in ["warmup", "seed", "profiles", "cameras"]:
+		if options.has(key):
+			bench.set({"warmup": "warmup_frames", "seed": "rng_seed"}.get(key, key), options[key])
 	return bench
+
+
+## Applies an applied or reverted change to the projections (terrain, objects, layers, selection).
+static func present_change(session: EditorSession, change: WorldChange) -> void:
+	for loc: Vector2i in change.height_regions():
+		session.terrain.mark_dirty(TerrainView.MAP_HEIGHT, loc)
+	for loc: Vector2i in change.control_regions():
+		session.terrain.mark_dirty(TerrainView.MAP_CONTROL, loc)
+	for loc: Vector2i in change.color_regions():
+		session.terrain.mark_dirty(TerrainView.MAP_COLOR, loc)
+	if change.has_rules():
+		session.terrain.set_rules(session.document.rules)
+	session.presenter.sync_objects(session.document, change.object_ids())
+	session.layers.present_change(session.document, change)
+	session.tools.validate_selection()
+
+
+## Writes the input trace and the evidence JSON; returns "" or an error.
+static func save_trace_files(session: EditorSession) -> String:
+	var stamp := str(Time.get_unix_time_from_system()).replace(".", "-")
+	var error := session.input.trace.save("editor-" + stamp + ".json")
+	if error != "":
+		return error
+	var file := FileAccess.open("user://traces/editor-" + stamp + "-evidence.json", FileAccess.WRITE)
+	if file == null:
+		return "Evidence file could not be written."
+	file.store_string(JSON.stringify(evidence(session.input, session.document, session.rig.get_camera(),
+			session.frames, RenderCounters.snapshot(session.get_viewport())), "\t"))
+	return ""
+
+
+static func history_status(history: CommandHistory) -> Dictionary:
+	return {"can_undo": history.can_undo(), "can_redo": history.can_redo(),
+		"undo_label": history.peek_undo_label(), "redo_label": history.peek_redo_label(),
+		"history_size": history.size(), "history_bytes": history.total_bytes(), "evicted": history.evicted_count}
+
+
+static func input_status(input: InputSystem) -> Dictionary:
+	return {"provider_label": input.provider_label(), "banner": input.banner_text(),
+		"editing_enabled": input.editing_enabled(), "development_input": input.is_development_input(),
+		"router_state": input.router.state_name(), "contacts": input.router.contacts().size(),
+		"pressure_available": bool(input.active_provider().capabilities().get("pressure", false))}
 
 
 static func hit_text(hit: TerrainHit) -> String:

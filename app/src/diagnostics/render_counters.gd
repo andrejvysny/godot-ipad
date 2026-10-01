@@ -1,18 +1,49 @@
 class_name RenderCounters
 extends RefCounted
-## Live renderer counters (spec §18.1, §18.3). Values are reported exactly as the renderer returns
-## them: headless and not-yet-measured frames read 0, never a substitute.
+## Live renderer counters (spec §18.1, §18.3, §19.1). Raw values are reported exactly as the renderer
+## returns them (headless and not-yet-measured frames read 0); "gpu_status"/"cpu_status" say whether
+## a raw timing may be used. Statistics must only take AVAILABLE samples.
 
 const MIB := 1048576.0
+const AVAILABLE := "AVAILABLE"
+const WARMING_UP := "WARMING_UP"
+const UNSUPPORTED := "UNSUPPORTED"
+const NOT_RUN := "NOT_RUN"
+const WARMUP_SAMPLES := 4
+
+static var _enabled: Dictionary = {}  # viewport rid -> true once measure_render_time was switched on
+static var _warm: Dictionary = {}  # viewport rid -> snapshots taken since enable / last reset
 
 
 static func enable(viewport: Viewport) -> void:
-	RenderingServer.viewport_set_measure_render_time(viewport.get_viewport_rid(), true)
+	var rid := viewport.get_viewport_rid()
+	RenderingServer.viewport_set_measure_render_time(rid, true)
+	_enabled[rid] = true
+	_warm[rid] = 0
+
+
+## Restarts the warm-up window after a settings or population change.
+static func reset_warmup(viewport: Viewport) -> void:
+	_warm[viewport.get_viewport_rid()] = 0
+
+
+## Validity of the viewport's render-time samples. Each call counts as one warm-up sample.
+static func timing_status(viewport: Viewport) -> String:
+	var rid := viewport.get_viewport_rid()
+	if RenderingServer.get_rendering_device() == null:
+		return UNSUPPORTED
+	if not _enabled.get(rid, false):
+		return NOT_RUN
+	var seen: int = _warm.get(rid, 0) + 1
+	_warm[rid] = seen
+	return WARMING_UP if seen <= WARMUP_SAMPLES else AVAILABLE
 
 
 static func snapshot(viewport: Viewport) -> Dictionary:
 	var rid := viewport.get_viewport_rid()
+	var timing := timing_status(viewport)
 	var out := {
+		"gpu_status": timing, "cpu_status": timing,
 		"gpu_ms": RenderingServer.viewport_get_measured_render_time_gpu(rid),
 		"cpu_ms": RenderingServer.viewport_get_measured_render_time_cpu(rid),
 		"video_mem_mib": _mib(RenderingServer.RENDERING_INFO_VIDEO_MEM_USED),

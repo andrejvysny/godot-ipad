@@ -73,6 +73,11 @@ func rebuild(doc: WorldDocument) -> void:
 		set_selected(keep)
 
 
+## True while scheduled rendering still has work queued; always false until it exists.
+func has_pending_work() -> bool:
+	return false
+
+
 func sync_object(doc: WorldDocument, id: String) -> void:
 	var record := doc.get_object(id)
 	var asset: AssetDefinition = null

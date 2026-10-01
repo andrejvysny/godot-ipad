@@ -3,23 +3,36 @@ extends RefCounted
 ## Pure planning and statistics for RenderBench: step matrix, render-setting profiles, a
 ## deterministic synthetic object set and per-step summaries.
 
-const PROFILES: Array[String] = ["current", "no_shadows", "lean_shadows", "scale_075", "scale_050"]
+## Production profiles never enable shadows; the last entry is a legacy ablation (diagnostic only).
+const PROFILES: Array[String] = ["scale_100", "scale_075", "scale_065", "scale_050", "legacy_shadows_diagnostic"]
 const CAMERAS: Array[String] = ["overview", "ground"]
+const HIDDEN_PROFILE := "terrain_hidden"
+## Workloads: terrain_only (no objects), primitive (primitive catalog assets), empty_scene_diagnostic
+## (terrain hidden). "vegetation" is reserved for the vegetation work package and not produced yet.
+const WORKLOAD_TERRAIN_ONLY := "terrain_only"
+const WORKLOAD_PRIMITIVE := "primitive"
+const WORKLOAD_EMPTY := "empty_scene_diagnostic"
 const SPRUCE := "nature.tree.spruce_a"
 const BOULDER := "nature.rock.boulder_a"
 const LODGE := "built.lodge.cabin_a"
 const MARGIN_M := 4.0
 const MAX_TRIES := 10
+const DEFAULT_TARGET_FPS := 60.0
+const MISSED_TARGET_FACTOR := 1.5
 
 
-static func default_steps(counts: PackedInt32Array) -> Array[Dictionary]:
+## `include_hidden` adds the terrain-hidden empty-scene diagnostics. The first step is repeated at the
+## end so thermal or cache drift shows up.
+static func default_steps(counts: PackedInt32Array, profiles: Array[String] = PROFILES,
+		cameras: Array[String] = CAMERAS, include_hidden := true) -> Array[Dictionary]:
 	var steps: Array[Dictionary] = []
 	for count in counts:
-		for profile in PROFILES:
-			for camera in CAMERAS:
+		for profile in profiles:
+			for camera in cameras:
 				steps.append(_step(count, profile, camera))
-	for camera in CAMERAS:
-		steps.append(_step(0, "terrain_hidden", camera))
+	if include_hidden:
+		for camera in cameras:
+			steps.append(_step(0, HIDDEN_PROFILE, camera))
 	if not steps.is_empty():
 		var again := steps[0].duplicate()
 		again["repeat"] = true
@@ -29,27 +42,41 @@ static func default_steps(counts: PackedInt32Array) -> Array[Dictionary]:
 
 
 static func _step(count: int, profile: String, camera: String) -> Dictionary:
+	var workload := WORKLOAD_PRIMITIVE if count > 0 else WORKLOAD_TERRAIN_ONLY
+	if profile == HIDDEN_PROFILE:
+		workload = WORKLOAD_EMPTY
 	return {"id": "c%d-%s-%s" % [count, profile, camera], "count": count, "profile": profile,
-		"camera": camera, "repeat": false}
+		"camera": camera, "workload": workload,
+		"diagnostic": profile == HIDDEN_PROFILE or profile == PROFILES[PROFILES.size() - 1],
+		"repeat": false}
 
 
 static func profile_settings(profile: String) -> Dictionary:
-	var s := {"shadows": true, "splits": 4, "shadow_distance": 100.0, "terrain_shadows": true,
+	var s := {"shadows": false, "splits": 4, "shadow_distance": 100.0, "terrain_shadows": false,
 		"scale": 1.0, "terrain_visible": true}
 	match profile:
-		"no_shadows":
-			s.shadows = false
-		"lean_shadows":
-			s.splits = 2
-			s.shadow_distance = 60.0
-			s.terrain_shadows = false
 		"scale_075":
 			s.scale = 0.75
+		"scale_065":
+			s.scale = 0.65
 		"scale_050":
 			s.scale = 0.5
-		"terrain_hidden":
+		"legacy_shadows_diagnostic":
+			s.shadows = true
+			s.terrain_shadows = true
+		HIDDEN_PROFILE:
 			s.terrain_visible = false
 	return s
+
+
+## Stable lowercase UUID v4 from sha256("wp-bench:<seed>:<index>"): the same inputs always give the
+## same id, so LOD or density policies that depend on ids behave identically across runs.
+static func bench_object_id(seed: int, index: int) -> String:
+	var b := CanonicalEncoder.sha256(("wp-bench:%d:%d" % [seed, index]).to_utf8_buffer()).slice(0, 16)
+	b[6] = (b[6] & 0x0F) | 0x40
+	b[8] = (b[8] & 0x3F) | 0x80
+	var h := b.hex_encode()
+	return "%s-%s-%s-%s-%s" % [h.substr(0, 8), h.substr(8, 4), h.substr(12, 4), h.substr(16, 4), h.substr(20, 12)]
 
 
 static func synth_objects(doc: WorldDocument, catalog: AssetCatalog, count: int, seed: int) -> Array[ObjectRecord]:
@@ -57,13 +84,13 @@ static func synth_objects(doc: WorldDocument, catalog: AssetCatalog, count: int,
 	rng.seed = seed
 	var out: Array[ObjectRecord] = []
 	for i in count:
-		var rec := _synth_one(doc, catalog, rng)
+		var rec := _synth_one(doc, catalog, rng, bench_object_id(seed, i))
 		if rec != null:
 			out.append(rec)
 	return out
 
 
-static func _synth_one(doc: WorldDocument, catalog: AssetCatalog, rng: RandomNumberGenerator) -> ObjectRecord:
+static func _synth_one(doc: WorldDocument, catalog: AssetCatalog, rng: RandomNumberGenerator, id: String) -> ObjectRecord:
 	var roll := rng.randf()
 	var asset := catalog.get_asset(SPRUCE if roll < 0.7 else (BOULDER if roll < 0.95 else LODGE))
 	if asset == null:
@@ -77,7 +104,7 @@ static func _synth_one(doc: WorldDocument, catalog: AssetCatalog, rng: RandomNum
 		if is_nan(y):
 			continue
 		var rec := ObjectRecord.new()
-		rec.object_id = ObjectRecord.new_uuid_v4()
+		rec.object_id = id
 		rec.asset_id = asset.asset_id
 		rec.asset_version = asset.version
 		rec.set_position(x, y, z)
@@ -91,16 +118,35 @@ static func _synth_one(doc: WorldDocument, catalog: AssetCatalog, rng: RandomNum
 	return null
 
 
-static func summarize(frame_ms: PackedFloat64Array, gpu_ms: PackedFloat64Array, cpu_ms: PackedFloat64Array) -> Dictionary:
+## Percentile of `data`, or null (JSON null) when there is no sample: an empty set is never 0.
+static func percentile_or_null(data: PackedFloat64Array, q: float) -> Variant:
+	return null if data.is_empty() else FrameStats.percentile(data, q)
+
+
+## frame_ms are wall-clock frame intervals. gpu_ms/cpu_ms must already hold only AVAILABLE samples;
+## the statuses say why they may be empty.
+static func summarize(frame_ms: PackedFloat64Array, gpu_ms: PackedFloat64Array, cpu_ms: PackedFloat64Array,
+		gpu_status := RenderCounters.AVAILABLE, cpu_status := RenderCounters.AVAILABLE,
+		target_fps := DEFAULT_TARGET_FPS) -> Dictionary:
+	var target_ms := 1000.0 / target_fps
 	var peak := 0.0
-	var over_16 := 0
-	var over_33 := 0
+	var counts := {"over_16_7": 0, "over_33_4": 0, "missed_target": 0, "hitches_over_50_ms": 0,
+		"over_100_ms": 0, "over_250_ms": 0}
 	for v in frame_ms:
 		peak = maxf(peak, v)
-		over_16 += 1 if v > 16.7 else 0
-		over_33 += 1 if v > 33.4 else 0
-	return {"frames": frame_ms.size(), "frame_p50_ms": FrameStats.percentile(frame_ms, 0.5),
-		"frame_p95_ms": FrameStats.percentile(frame_ms, 0.95), "frame_p99_ms": FrameStats.percentile(frame_ms, 0.99),
-		"frame_max_ms": peak, "over_16_7": over_16, "over_33_4": over_33,
-		"gpu_p50_ms": FrameStats.percentile(gpu_ms, 0.5), "gpu_p95_ms": FrameStats.percentile(gpu_ms, 0.95),
-		"cpu_p50_ms": FrameStats.percentile(cpu_ms, 0.5), "cpu_p95_ms": FrameStats.percentile(cpu_ms, 0.95)}
+		counts.over_16_7 += 1 if v > 16.7 else 0
+		counts.over_33_4 += 1 if v > 33.4 else 0
+		counts.missed_target += 1 if v > MISSED_TARGET_FACTOR * target_ms else 0
+		counts.hitches_over_50_ms += 1 if v > 50.0 else 0
+		counts.over_100_ms += 1 if v > 100.0 else 0
+		counts.over_250_ms += 1 if v > 250.0 else 0
+	var out := {"frames": frame_ms.size(), "frame_interval_source": "wall_clock_proxy",
+		"frame_p50_ms": FrameStats.percentile(frame_ms, 0.5), "frame_p95_ms": FrameStats.percentile(frame_ms, 0.95),
+		"frame_p99_ms": FrameStats.percentile(frame_ms, 0.99), "frame_max_ms": peak, "target_ms": target_ms,
+		"gpu_samples": gpu_ms.size(), "gpu_status": gpu_status,
+		"cpu_samples": cpu_ms.size(), "cpu_status": cpu_status}
+	out.merge(counts)
+	for q in [["p50", 0.5], ["p95", 0.95], ["p99", 0.99]]:
+		out["gpu_%s_ms" % q[0]] = percentile_or_null(gpu_ms, q[1])
+		out["cpu_%s_ms" % q[0]] = percentile_or_null(cpu_ms, q[1])
+	return out

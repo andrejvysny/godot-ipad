@@ -152,6 +152,14 @@ func set_render_probe(visible_now: bool, cast_shadows: bool) -> String:
 	return ""
 
 
+## Real Terrain3D state, not what set_render_probe last asked for.
+func get_render_probe() -> Dictionary:
+	if _terrain == null:
+		return super.get_render_probe()
+	return {"visible": _terrain.render_layers != 0,
+		"cast_shadows": _terrain.cast_shadows == RenderingServer.SHADOW_CASTING_SETTING_ON}
+
+
 ## uploads_* count region layers re-uploaded by partial flushes since initialize.
 func stats() -> Dictionary:
 	return _stats.duplicate()

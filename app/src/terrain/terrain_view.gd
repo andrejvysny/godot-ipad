@@ -68,6 +68,11 @@ func set_render_probe(_visible: bool, _cast_shadows: bool) -> String:
 	return "render probe is not supported by this terrain view"
 
 
+## Current probe state so a caller can restore exactly what it found.
+func get_render_probe() -> Dictionary:
+	return {"visible": true, "cast_shadows": false}
+
+
 func stats() -> Dictionary:
 	return {}
 

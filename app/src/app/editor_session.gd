@@ -10,13 +10,14 @@ signal message_posted(text: String, is_error: bool)
 signal world_replaced()
 
 const BUSY_MESSAGE := "Finish or cancel the current operation first."
+const BENCH_MESSAGE := "Render bench is running. Abort it first."
+const BENCH_RUNNING := "Render bench is already running."
 const SIMULATOR_NOTE := "SIMULATOR preview; no hardware gate. P toggles probe/UI and fingers."
 const SCRIPTED_PROVIDER := "res://src/app/scripted_input_provider.gd"
 const EDITOR_UI := "res://src/ui/editor_ui.gd"
 const SELFTEST := "res://src/app/editor_selftest.gd"
 const RENDER_BENCH := "res://src/diagnostics/render_bench.gd"
 const STATUS_INTERVAL_MSEC := 250
-const MIN_SLOW_STATUS_MSEC := 100
 
 var storage_root := "user://worlds"
 var start_fixture := "gentle_hills"
@@ -47,6 +48,7 @@ var last_message := ""
 var last_message_is_error := false
 
 var _selftest := false
+var _bench: Node = null  # the claimed RenderBench runner
 var _bench_args: Dictionary = {}
 var _fault_armed := false
 var _last_evicted := 0
@@ -55,9 +57,7 @@ var _last_status_msec := 0
 var _tool_ctx: ToolContext
 var _op_max_gap_ms := 0.0
 var _last_cancel_reason := ""
-var _slow_status: Dictionary = {}
-var _slow_status_msec := -1
-var _vegetation_hidden := false
+var _render: SessionRender
 
 
 func _ready() -> void:
@@ -77,45 +77,61 @@ func _ready() -> void:
 		return
 	_build_tools_and_input()
 	storage.save_state_changed.connect(func(_state: Dictionary) -> void: status_changed.emit())
-	if build_ui:
-		_build_ui()
+	ui = _attach_module(EDITOR_UI, "") if build_ui else null
+	if ui != null:
+		ui.call("setup", self)
 	ready_for_input = true
 	print("Editor ready: ", input.provider_label())
-	if _selftest:
-		_start_selftest()
-	if _bench_args.has("enabled"):
-		start_render_bench(_bench_args.counts, _bench_args.frames)
+	var runner := _attach_module(SELFTEST, "Self-test module is missing.") if _selftest else null
+	if runner != null:
+		runner.call("start", self)
+	if _bench_args.has("error"):
+		post_message(str(_bench_args.error), true)
+	elif _bench_args.has("enabled"):
+		start_render_bench(_bench_args.counts, _bench_args.frames, _bench_args)
 
 
-## Loaded by path so the session also boots in tests and tools that run without the UI module.
-func _build_ui() -> void:
-	if not ResourceLoader.exists(EDITOR_UI):
-		return
-	ui = load(EDITOR_UI).new() as Node
-	add_child(ui)
-	ui.call("setup", self)
+## Optional modules load by path so the session also boots in tests and tools without them.
+func _attach_module(path: String, missing_message: String) -> Node:
+	if not ResourceLoader.exists(path):
+		if missing_message != "":
+			post_message(missing_message, true)
+		return null
+	var node := load(path).new() as Node
+	add_child(node)
+	return node
 
 
-func _start_selftest() -> void:
-	if not ResourceLoader.exists(SELFTEST):
-		post_message("Self-test module is missing.", true)
-		return
-	var runner := load(SELFTEST).new() as Node
-	add_child(runner)
-	runner.call("start", self)
+func start_render_bench(counts := PackedInt32Array(), frames := 0, options := {}) -> String:
+	return SessionWorldOps.start_bench(self, RENDER_BENCH, counts, frames, options)
 
 
-func start_render_bench(counts := PackedInt32Array(), frames := 0) -> String:
-	var bench := SessionWorldOps.make_bench(RENDER_BENCH, counts, frames)
-	var error := "Render bench module is missing." if bench == null else ""
-	if bench != null:
-		add_child(bench)
-		error = bench.call("start", self)
-		if error != "":
-			bench.queue_free()
-	if error != "":
-		post_message(error, true)
-	return error
+## Session-level exclusivity of the render bench: one claimed runner at a time.
+func claim_bench(runner: Node) -> String:
+	if bench_active():
+		return BENCH_RUNNING
+	_bench = runner
+	return ""
+
+
+func release_bench(runner: Node) -> void:
+	_bench = null if _bench == runner else _bench
+	status_changed.emit()
+
+
+func bench_active() -> bool:
+	return is_instance_valid(_bench) and bool(_bench.call("is_running"))
+
+
+func abort_render_bench(reason: String) -> void:
+	if bench_active():
+		_bench.call("abort", reason)
+
+
+func _bench_blocks() -> bool:  # true, with BENCH_MESSAGE posted, while a bench owns the session
+	if bench_active():
+		post_message(BENCH_MESSAGE, true)
+	return bench_active()
 
 
 func _apply_user_args(args: PackedStringArray) -> void:
@@ -141,10 +157,9 @@ func _load_config() -> String:
 	if typeof(parsed) != TYPE_DICTIONARY:
 		return "Cannot read config/poc_defaults.json."
 	defaults = parsed
-	render_config = RenderConfig.load_from()
-	render_profiles = RenderProfileController.new(render_config)
-	render_profiles.set_apply_hook(_apply_profile)
-	render_profiles.profile_applied.connect(_on_profile_applied)
+	_render = SessionRender.new(self)
+	render_config = _render.config
+	render_profiles = _render.profiles
 	var loaded := AssetCatalog.load_from()
 	if loaded[1] != "":
 		return str(loaded[1])
@@ -156,26 +171,13 @@ func _load_config() -> String:
 
 
 func _open_world() -> String:
-	var id := storage.latest_world_id()
-	var recovery_note := ""
-	if ObjectRecord.is_uuid(id):
-		var recovered := storage.recover_latest_valid(id, catalog)
-		recovery_note = "Recovery failed: %s. " % recovered.error
-		if recovered.doc != null:
-			document = recovered.doc
-			document.source_label = "recovered"
-			var skipped: Array = recovered.skipped
-			var text := "Recovered revision %d" % document.document_revision
-			if not skipped.is_empty():
-				text += ", skipped %d invalid checkpoint(s)" % skipped.size()
-			post_message(text)
-			return ""
-	var opened := SessionWorldOps.load_fixture(start_fixture, catalog)
-	if opened[1] != "":
-		return str(opened[1])
-	document = opened[0]
-	_request_checkpoint()
-	post_message(recovery_note + "Opened %s as a new world" % start_fixture.capitalize(), recovery_note != "")
+	var opened := SessionWorldOps.open_start_world(storage, catalog, start_fixture)
+	if opened.error != "":
+		return opened.error
+	document = opened.doc
+	if opened.checkpoint:
+		_request_checkpoint()
+	post_message(opened.message, opened.is_error)
 	return ""
 
 
@@ -216,20 +218,7 @@ func _build_scene() -> String:
 
 
 func _build_tools_and_input() -> void:
-	var ctx := ToolContext.new()
-	ctx.document = document
-	ctx.catalog = catalog
-	ctx.camera = rig.get_camera()
-	ctx.terrain = terrain
-	ctx.presenter = presenter
-	ctx.defaults = defaults
-	ctx.commit = commit
-	ctx.request_cancel = func(reason: String) -> void: input.cancel_all(reason)
-	ctx.diagnostic = post_message
-	ctx.units_per_point = input.mapper.viewport_units_per_point
-	ctx.stats = frames
-	ctx.scatter_changed = layers.scatter_changed
-	ctx.path_changed = layers.path_changed
+	var ctx := SessionWorldOps.make_tool_context(self)
 	_tool_ctx = ctx
 	tools.operation_started.connect(func(_tool: String) -> void: _op_max_gap_ms = 0.0)
 	tools.operation_cancelled.connect(func(reason: String) -> void: _last_cancel_reason = reason)
@@ -277,6 +266,8 @@ func _process(_delta: float) -> void:
 
 
 func _on_tool_action(action: Dictionary) -> void:
+	if bench_active():
+		return
 	tools.editing_enabled = input.editing_enabled()
 	tools.handle_tool_action(action)
 
@@ -298,6 +289,7 @@ func _notification(what: int) -> void:
 	if not ready_for_input:
 		return
 	if what in [NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_WM_CLOSE_REQUEST]:
+		abort_render_bench("app_deactivated")
 		input.cancel_all("app_deactivated")
 		tools.cancel_active("app_deactivated")
 		var error := SessionWorldOps.ensure_saved(storage, document)
@@ -326,6 +318,8 @@ func redo() -> String:
 
 
 func _step(forward: bool) -> String:
+	if _bench_blocks():
+		return BENCH_MESSAGE
 	if tools.has_active_operation():
 		post_message(BUSY_MESSAGE, true)
 		return BUSY_MESSAGE
@@ -335,24 +329,10 @@ func _step(forward: bool) -> String:
 		var nothing := "Nothing to redo" if forward else "Nothing to undo"
 		post_message(nothing)
 		return nothing
-	_present_change(change)
+	SessionWorldOps.present_change(self, change)
 	_request_checkpoint()
 	post_message(("Redid " if forward else "Undid ") + label)
 	return ""
-
-
-func _present_change(change: WorldChange) -> void:
-	for loc: Vector2i in change.height_regions():
-		terrain.mark_dirty(TerrainView.MAP_HEIGHT, loc)
-	for loc: Vector2i in change.control_regions():
-		terrain.mark_dirty(TerrainView.MAP_CONTROL, loc)
-	for loc: Vector2i in change.color_regions():
-		terrain.mark_dirty(TerrainView.MAP_COLOR, loc)
-	if change.has_rules():
-		terrain.set_rules(document.rules)
-	presenter.sync_objects(document, change.object_ids())
-	layers.present_change(document, change)
-	tools.validate_selection()
 
 
 func cancel_active() -> void:
@@ -373,6 +353,8 @@ func _request_checkpoint() -> String:
 # --- World lifecycle ---------------------------------------------------------------------
 
 func save_now() -> String:
+	if _bench_blocks():
+		return BENCH_MESSAGE
 	if tools.has_active_operation():
 		post_message(BUSY_MESSAGE, true)
 		return BUSY_MESSAGE
@@ -383,6 +365,8 @@ func save_now() -> String:
 
 
 func export_world() -> Dictionary:
+	if _bench_blocks():
+		return {"path": "", "error": BENCH_MESSAGE}
 	if tools.has_active_operation():
 		post_message(BUSY_MESSAGE, true)
 		return {"path": "", "error": BUSY_MESSAGE}
@@ -396,6 +380,8 @@ func export_world() -> Dictionary:
 
 
 func open_fixture(fixture: String) -> String:
+	if _bench_blocks():
+		return BENCH_MESSAGE
 	var opened := SessionWorldOps.load_fixture(fixture, catalog)
 	if opened[1] != "":
 		post_message(str(opened[1]), true)
@@ -442,62 +428,27 @@ func focus_selection() -> String:
 	return ""
 
 
-## Applies or defers (during an operation) the profile; never automatic. Returns the controller result.
+## Profile and vegetation calls delegate to SessionRender (spec §4.1, §15.4).
 func request_profile(name: String) -> Dictionary:
-	var result := render_profiles.request_profile(name, tools.has_active_operation())
-	if str(result.status) == RenderProfileController.PENDING:
-		post_message("%s applies after the current edit" % _profile_label(name))
-	return result
+	return _render.request_profile(name)
 
 
-func _profile_label(name: String) -> String:
-	return str(render_config.profile(name).get("label", name))
-
-
-## Immediate and deferred applies alike; the silent startup apply happens before ready_for_input.
-func _on_profile_applied(name: String) -> void:
-	if ready_for_input:
-		post_message("Profile: " + _profile_label(name))
-
-
-func _apply_profile(_name: String, p: Dictionary) -> void:
-	var viewport := get_viewport()
-	viewport.scaling_3d_mode = Viewport.SCALING_3D_MODE_BILINEAR
-	viewport.scaling_3d_scale = float(p.scale_3d)
-	viewport.msaa_3d = Viewport.MSAA_DISABLED
-	viewport.screen_space_aa = Viewport.SCREEN_SPACE_AA_DISABLED
-	viewport.use_taa = false
-	viewport.mesh_lod_threshold = float(p.mesh_lod_threshold_px)
-	# Cap only below the display rate (Detailed 30 fps); 0 leaves pacing to vsync.
-	Engine.max_fps = int(p.target_fps) if int(p.target_fps) < 60 else 0
-	status_changed.emit()
-
-
-## Presentation only: never stored in the document or history (spec §15.4).
 func set_vegetation_hidden(on: bool) -> void:
-	_vegetation_hidden = on
-	var rule := render_config.vegetation_rule()
-	layers.set_vegetation_hidden(on, rule)
-	presenter.set_vegetation_hidden(on, rule)
-	status_changed.emit()
+	_render.set_vegetation_hidden(on)
 
 
 func vegetation_hidden() -> bool:
-	return _vegetation_hidden
+	return _render.vegetation_hidden
+
+
+func invalidate_slow_status() -> void:
+	_render.invalidate_slow_status()
 
 
 # --- Diagnostics -------------------------------------------------------------------------
 
 func save_trace() -> String:
-	var stamp := str(Time.get_unix_time_from_system()).replace(".", "-")
-	var error := input.trace.save("editor-" + stamp + ".json")
-	if error == "":
-		var file := FileAccess.open("user://traces/editor-" + stamp + "-evidence.json", FileAccess.WRITE)
-		if file == null:
-			error = "Evidence file could not be written."
-		else:
-			file.store_string(JSON.stringify(
-					SessionWorldOps.evidence(input, document, rig.get_camera(), frames, RenderCounters.snapshot(get_viewport())), "\t"))
+	var error := SessionWorldOps.save_trace_files(self)
 	post_message("Trace and evidence saved in user://traces/." if error == "" else error, error != "")
 	return error
 
@@ -537,38 +488,13 @@ func verify_gpu_terrain() -> String:
 ## query the RenderingServer are cached for 1000 / diagnostics_refresh_hz ms (spec §15.3).
 func status() -> Dictionary:
 	var revision := document.document_revision
-	var slow := _slow_part()
-	var p := render_profiles.active_profile()
-	var p50 := float(slow.frame_p50_ms)
-	return {"stroke_state": tools.stroke_state(), "revision": revision,
+	var slow := _render.slow_status()
+	return {"stroke_state": tools.stroke_state(), "revision": revision, "bench_active": bench_active(),
 		"save_text": storage.status_text(revision), "save_state": storage.get_save_state(),
-		"can_undo": history.can_undo(), "can_redo": history.can_redo(),
-		"undo_label": history.peek_undo_label(), "redo_label": history.peek_redo_label(),
-		"history_size": history.size(), "history_bytes": history.total_bytes(),
-		"evicted": history.evicted_count, "object_count": document.objects.size(),
-		"selected_id": tools.selected_id(), "provider_label": input.provider_label(),
-		"banner": input.banner_text(), "editing_enabled": input.editing_enabled(),
-		"development_input": input.is_development_input(), "router_state": input.router.state_name(),
-		"contacts": input.router.contacts().size(),
-		"pressure_available": bool(input.active_provider().capabilities().get("pressure", false)),
+		"object_count": document.objects.size(), "selected_id": tools.selected_id(),
 		"render_scale": get_viewport().scaling_3d_scale,
 		"world_id": document.world_id, "operation_id": tools.active_operation_id(),
 		"last_hit": SessionWorldOps.hit_text(tools.last_hit()), "last_stroke": SessionWorldOps.with_gap(_tool_ctx.last_stroke, _op_max_gap_ms),
-		"last_cancel": _last_cancel_reason,
-		"profile": render_profiles.active_name(), "profile_label": str(p.get("label", "")),
-		"profile_pending": render_profiles.pending_name(), "profile_target_fps": int(p.get("target_fps", 0)),
-		"vegetation_hidden": _vegetation_hidden, "fps": 1000.0 / p50 if p50 > 0.0 else 0.0,
-	}.merged(slow).merged(SessionWorldOps.tool_status(tools))
-
-
-func _slow_part() -> Dictionary:
-	var interval := maxi(MIN_SLOW_STATUS_MSEC, roundi(1000.0 / float(render_config.section("ui").diagnostics_refresh_hz)))
-	var now := Time.get_ticks_msec()
-	if _slow_status_msec < 0 or now - _slow_status_msec >= interval:
-		_slow_status_msec = now
-		_slow_status = {"renderer": RenderingServer.get_current_rendering_method(),
-			"driver": RenderingServer.get_current_rendering_driver_name(),
-			"frame_p50_ms": frames.p50(), "frame_p95_ms": frames.p95(),
-			"brush_p95_ms": frames.sample_p95("brush"), "terrain_stats": terrain.stats(),
-			"render": RenderCounters.snapshot(get_viewport())}
-	return _slow_status
+		"last_cancel": _last_cancel_reason}.merged(slow).merged(_render.profile_status(float(slow.frame_p50_ms))).merged(
+			SessionWorldOps.tool_status(tools)).merged(SessionWorldOps.history_status(history)).merged(
+			SessionWorldOps.input_status(input))

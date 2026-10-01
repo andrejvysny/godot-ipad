@@ -106,7 +106,11 @@ func _toggle_ids() -> void:
 
 
 func _start_render_bench() -> void:
-	_session.start_render_bench()  # posts its own error
+	if _session.bench_active():
+		_session.abort_render_bench("user_abort")
+	else:
+		_session.start_render_bench()  # posts its own error
+	refresh(true)
 
 
 func text() -> String:
@@ -124,6 +128,7 @@ func refresh(force := false) -> void:
 	(_toggles["Blend view"] as Button).set_pressed_no_signal(view == "control_blend")
 	(_toggles["Height view"] as Button).set_pressed_no_signal(view == "heightmap")
 	(_toggles["Normals view"] as Button).set_pressed_no_signal(view == "normals")
+	(_toggles["Render bench"] as Button).text = "Abort bench" if _session.bench_active() else "Render bench"
 	_text.text = _build_text()
 	_fit_height()
 

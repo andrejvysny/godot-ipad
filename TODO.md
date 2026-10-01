@@ -14,7 +14,7 @@ untouched); trim existing project shader instead of re-basing on Terrain3D light
 tool = Godot headless devtools + Python descriptor validator; no automatic decimation.
 
 - [ ] Device baseline: HEAD `191b2da` Release bench on iPad Air 4 (pre-change reference)
-- [ ] WP00 bench hardening: session guard, input block + abort, dedicated deterministic population,
+- [x] WP00 bench hardening: session guard, input block + abort, dedicated deterministic population,
   full restore on every exit path, metric validity, fingerprints/evidence identity, p99/hitches
 - [x] WP01 profiles (config + controller, Performance startup, deferred switch), shadows off everywhere,
   status/diagnostics cache, RenderSpatialIndex (pick broad phase, inspector neighbours), overlay reuse,
