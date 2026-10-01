@@ -65,11 +65,50 @@ static func individual_role(effective_m: float, profile: Dictionary, current: St
 	return FAR if role == GROUP128 or role == GROUP256 else role
 
 
-## Decorative ground cover is drawn only inside the profile's ground-cover radius (with hysteresis).
-static func ground_cover_visible(effective_m: float, profile: Dictionary, visible_now: bool, hysteresis: float = 0.2) -> bool:
+## Decorative ground cover keeps a representative density while navigating (PREF-08): full profile density
+## inside the ground-cover radius, then halving per band so the on-screen density stays roughly constant
+## (ground area per pixel grows with distance squared), and not drawn beyond GROUND_COVER_BANDS bands.
+## Band k covers effective distances [r * sqrt(2)^(k-1), r * sqrt(2)^k) for k >= 1 (band 0 is inside r);
+## its density factor is 0.5^k. Returns -1 when not drawn.
+const GROUND_COVER_BANDS := 4  # factors 1, 1/2, 1/4, 1/8, 1/16 up to 4 r
+
+
+static func ground_cover_band(effective_m: float, profile: Dictionary, current: int = -2, hysteresis: float = 0.2) -> int:
 	var radius := float(profile.get("ground_cover_radius_m", 25.0))
-	var limit := radius * (1.0 + hysteresis * 0.5) if visible_now else radius * (1.0 - hysteresis * 0.5)
-	return effective_m < limit
+	var raw := _band(effective_m, radius, 1.0)
+	if current < -1 or raw == current:
+		return raw
+	if current == -1:
+		# Not drawn: appear only clearly inside the outer band; the band itself is the raw one, so a cell
+		# that (re)appears gets the same band whatever its history (deterministic subsets after undo/redo).
+		return raw if raw >= 0 and _band(effective_m, radius, 1.0 - hysteresis * 0.5) >= 0 else -1
+	var cur := current
+	var coarser := raw < 0 or raw > cur
+	var shifted := _band(effective_m, radius, 1.0 + hysteresis * 0.5 if coarser else 1.0 - hysteresis * 0.5)
+	if coarser:
+		return current if shifted >= 0 and shifted <= cur else shifted
+	var s := GROUND_COVER_BANDS + 1 if shifted < 0 else shifted
+	return current if s >= cur else shifted
+
+
+static func ground_cover_factor(band: int) -> float:
+	return 0.0 if band < 0 else pow(0.5, band)
+
+
+static func _band(effective_m: float, radius: float, scale: float) -> int:
+	if effective_m < radius * scale:
+		return 0
+	var k := 1
+	while k <= GROUND_COVER_BANDS:
+		if effective_m < radius * pow(sqrt(2.0), k) * scale:
+			return k
+		k += 1
+	return -1
+
+
+## Compatibility: drawn at all (any band) with hysteresis.
+static func ground_cover_visible(effective_m: float, profile: Dictionary, visible_now: bool, hysteresis: float = 0.2) -> bool:
+	return ground_cover_band(effective_m, profile, 0 if visible_now else -1, hysteresis) >= 0
 
 
 static func _index(effective_m: float, limits: PackedFloat64Array, scale: float) -> int:

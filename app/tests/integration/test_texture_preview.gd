@@ -535,6 +535,8 @@ func test_session_refuses_during_bench_and_disables_on_deactivation_and_world_re
 	assert_true(int(s.texture_preview_status().generation) > g)
 	assert_false(s.terrain.preview_uniforms().preview_enabled)
 	assert_true(s.layers.settle_now(), "the new world's scatter loads are not preview work")
+	assert_true(s.presenter.settle_now(), "nor are its object loads")
+	assert_true(s.layers.settle_now())
 	assert_eq(s.render_cache().stats().loading, 0)
 
 

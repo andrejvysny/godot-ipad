@@ -15,7 +15,8 @@ var keys := {}  # asset_id -> PackedInt64Array thinning keys (lazy cache, see Sc
 var batches := {}  # asset_id -> ScatterBatch
 var role := ""  # meaningful cells: current individual role
 var density := -1.0  # decorative cells: density of the current batches
-var wanted := false  # decorative cells: inside the ground-cover band
+var wanted := false  # decorative cells: inside the ground-cover bands (or the active area)
+var band := -1  # decorative cells: LodPolicy ground-cover band, 0 = full density
 var built := false
 var drawn := 0  # instances in the batches (after thinning)
 var total := 0  # instances bucketed here

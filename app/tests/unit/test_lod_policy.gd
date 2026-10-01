@@ -41,8 +41,34 @@ func test_effective_distance_scales_with_fov_and_viewport() -> void:
 	assert_true(LodPolicy.effective_distance(100.0, 90.0, 820.0) > 100.0, "wider FOV: less detail")
 
 
-func test_ground_cover_radius_has_hysteresis() -> void:
+func test_ground_cover_bands_halve_density_with_distance() -> void:
+	assert_eq(LodPolicy.ground_cover_band(10.0, PERF), 0)
+	assert_eq(LodPolicy.ground_cover_band(30.0, PERF), 1, "25..35.4 m")
+	assert_eq(LodPolicy.ground_cover_band(40.0, PERF), 2, "35.4..50 m")
+	assert_eq(LodPolicy.ground_cover_band(60.0, PERF), 3)
+	assert_eq(LodPolicy.ground_cover_band(80.0, PERF), 4, "70.7..100 m")
+	assert_eq(LodPolicy.ground_cover_band(101.0, PERF), -1, "not drawn beyond 4 r")
+	assert_near(LodPolicy.ground_cover_factor(0), 1.0, 1e-9)
+	assert_near(LodPolicy.ground_cover_factor(3), 0.125, 1e-9)
+	assert_eq(LodPolicy.ground_cover_factor(-1), 0.0)
+
+
+func test_ground_cover_bands_have_hysteresis() -> void:
+	var band := LodPolicy.ground_cover_band(24.0, PERF)
+	assert_eq(band, 0)
+	for d: float in [25.5, 24.5, 26.0, 27.0]:
+		band = LodPolicy.ground_cover_band(d, PERF, band)
+		assert_eq(band, 0, "stays dense inside the band at %.1f m" % d)
+	band = LodPolicy.ground_cover_band(28.0, PERF, band)
+	assert_eq(band, 1)
+	band = LodPolicy.ground_cover_band(24.0, PERF, band)
+	assert_eq(band, 1, "needs to clear the band to densify")
+	assert_eq(LodPolicy.ground_cover_band(22.0, PERF, band), 0)
+	band = LodPolicy.ground_cover_band(99.0, PERF, 4)
+	assert_eq(band, 4)
+	assert_eq(LodPolicy.ground_cover_band(104.0, PERF, 4), 4, "stays drawn inside the outer band")
+	assert_eq(LodPolicy.ground_cover_band(111.0, PERF, 4), -1)
+	assert_eq(LodPolicy.ground_cover_band(99.0, PERF, -1), -1, "appears only inside the outer band")
+	assert_eq(LodPolicy.ground_cover_band(89.0, PERF, -1), 4)
 	assert_true(LodPolicy.ground_cover_visible(20.0, PERF, false))
-	assert_false(LodPolicy.ground_cover_visible(24.0, PERF, false), "appears only inside the band")
-	assert_true(LodPolicy.ground_cover_visible(26.0, PERF, true), "inside the band while visible")
-	assert_false(LodPolicy.ground_cover_visible(28.0, PERF, true))
+	assert_false(LodPolicy.ground_cover_visible(150.0, PERF, true))

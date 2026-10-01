@@ -314,6 +314,18 @@ func test_status_has_all_keys() -> void:
 	assert_eq(status.last_hit, "no hit")
 
 
+## Drawn decorative instances once the view has settled: the stroke's pins have released and the active area
+## and distance bands reflect the resting camera (thinning is view-dependent, never history-dependent).
+func _settled_drawn(s: EditorSession) -> int:
+	var t0 := Time.get_ticks_msec()
+	while Time.get_ticks_msec() - t0 < 600 or s.render_state().active_edit.has_pins():
+		await tree.process_frame
+		if Time.get_ticks_msec() - t0 > 3000:
+			break
+	assert_true(s.layers.settle_now())
+	return int(s.layers.stats().instances)
+
+
 func test_scatter_stroke_renders_and_follows_undo_redo() -> void:
 	var s: EditorSession = await _start()
 	assert_eq(s.layers.stats().authored, 0)
@@ -326,7 +338,7 @@ func test_scatter_stroke_renders_and_follows_undo_redo() -> void:
 	await tree.process_frame
 	assert_true(s.layers.settle_now())
 	assert_eq(s.layers.stats().authored, added, "live stroke is bucketed")
-	var drawn := int(s.layers.stats().instances)
+	var drawn := await _settled_drawn(s)
 	assert_true(drawn > 0 and drawn <= added, "live stroke is drawn (decorative cover may be thinned): %d of %d" % [drawn, added])
 	assert_eq(s.undo(), "")
 	await tree.process_frame
@@ -337,7 +349,7 @@ func test_scatter_stroke_renders_and_follows_undo_redo() -> void:
 	await tree.process_frame
 	assert_true(s.layers.settle_now())
 	assert_eq(s.layers.stats().authored, added, "redo redraws")
-	assert_eq(s.layers.stats().instances, drawn, "the same subset after redo")
+	assert_eq(await _settled_drawn(s), drawn, "the same subset after redo")
 	s.tools.set_tool("raise")
 	_act(s, "tool_begin", 0.0, 0.0, 5.0)
 	_act(s, "tool_move", 2.0, 0.0, 5.1)

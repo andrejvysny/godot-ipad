@@ -291,23 +291,33 @@ func _count_authored_in(cells: Dictionary) -> int:
 
 # --- Ground-cover radius ------------------------------------------------------------------------
 
-func test_ground_cover_appears_and_disappears_only_outside_the_hysteresis_band() -> void:
+## PREF-08: ground cover keeps a representative density while navigating: full density inside the radius,
+## halved per distance band (sqrt 2 steps), not drawn beyond 4 radii; band changes need the hysteresis margin.
+func test_ground_cover_density_bands_follow_the_distance_with_hysteresis() -> void:
 	var layer := ScatterLayer.new()
-	layer.add(GRASS, catalog.get_asset(GRASS).version, 40.5, 8.5, 0.0, 1.0, 0)  # cell x 32..48, z 0..16
-	doc.scatter = layer
-	var cam := _camera(Vector3(-200.0, 1.0, 8.0), Vector3(40.0, 1.0, 8.0))
+	for i in 400:
+		layer.add(GRASS, catalog.get_asset(GRASS).version, 32.5 + (i % 20) * 0.75, 0.5 + (i / 20) * 0.75, 0.0, 1.0, 0)
+	doc.scatter = layer  # one 16 m cell: x 32..48, z 0..16
+	var cam := _camera(Vector3(-400.0, 1.0, 8.0), Vector3(40.0, 1.0, 8.0))
 	renderer.set_camera(cam)
 	renderer.set_lod_profile(_profile(1.0, 1.0, 25.0))
 	renderer.rebuild_all(doc)
-	var cell := Vector2i(2, 0)
+	var key := Vector2i(2, 0)
 	var scale_f := LodPolicy.effective_distance(1.0, cam.fov, cam.get_viewport().get_visible_rect().size.y)
-	var radius_m := 25.0 / scale_f  # metric distance of the radius
-	var steps: Array = [  # [metric distance to the cell box, expected drawn]
-		[radius_m * 2.0, false], [radius_m * 1.0, false], [radius_m * 0.5, true], [radius_m * 1.0, true],
-		[radius_m * 1.05, true], [radius_m * 2.0, false], [radius_m * 1.0, false], [radius_m * 0.5, true]]
+	var r := 25.0 / scale_f  # metric distance of the radius
+	var steps: Array = [  # [metric distance to the cell box, expected band]
+		[r * 5.0, -1], [r * 3.9, -1], [r * 3.5, 4], [r * 0.5, 0], [r * 1.05, 0], [r * 1.2, 1],
+		[r * 0.95, 1], [r * 0.85, 0], [r * 4.2, 4], [r * 4.5, -1]]
 	for step: Array in steps:
 		cam.global_position = Vector3(32.0 - float(step[0]), 1.0, 8.0)
 		renderer.flush()
-		assert_eq(renderer.rendered_count(cell, GRASS) == 1, bool(step[1]), "at %.1f m (radius %.1f m)" % [step[0], radius_m])
-	assert_eq(renderer.stats().authored, 1)
-	assert_eq(doc.scatter.count(), 1)
+		var cell: ScatterCell = renderer._engine.buckets.cell(ScatterCell.DECORATIVE, key)
+		var band: int = cell.band if cell.wanted else -1
+		assert_eq(band, int(step[1]), "band at %.1f m (radius %.1f m)" % [step[0], r])
+		if band >= 0:
+			var drawn := renderer.rendered_count(key, GRASS)
+			var expected := 400.0 * LodPolicy.ground_cover_factor(band)
+			assert_true(absf(drawn - expected) <= maxf(expected * 0.35, 6.0), "~%d of 400 drawn at band %d, got %d" % [
+					int(expected), band, drawn])
+	assert_eq(renderer.stats().authored, 400)
+	assert_eq(doc.scatter.count(), 400)

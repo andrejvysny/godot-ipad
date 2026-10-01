@@ -226,9 +226,12 @@ func _eff(cell: ScatterCell) -> float:
 	return view.effective(cell.key, size, cell.y_ref, DECO_Y if cell.kind == DECO else MEAN_Y)
 
 
-func _density_for(key: Vector2i) -> float:
-	var active := view.cell_is_active(key, buckets.sizes[DECO])
-	return float(profile.get("decorative_density_active" if active else "decorative_density_outside", 1.0))
+## Active-area cells use the active density; others the outside density halved per distance band (PREF-08).
+## Both factors are monotone per cell, so every density stays a nested superset of the lower ones.
+func _density_for(cell: ScatterCell) -> float:
+	if view.cell_is_active(cell.key, buckets.sizes[DECO]):
+		return float(profile.get("decorative_density_active", 1.0))
+	return float(profile.get("decorative_density_outside", 1.0)) * LodPolicy.ground_cover_factor(maxi(cell.band, 0))
 
 
 ## The running operation's pins freeze the active area (and keep pinned cells from leaving) until released.
@@ -237,6 +240,7 @@ func _sync_freeze() -> void:
 	if pinned and not view.freezing:
 		view.frozen = view.area.pinned_cells(buckets.sizes[DECO])
 		view.freezing = true
+		_view_force = true
 		_reclassify(true)
 	elif not pinned and view.freezing:
 		view.frozen = {}
@@ -261,9 +265,15 @@ func _refresh_ground_cover() -> void:
 	for key: Vector2i in _wanted.keys():
 		_eval_deco(buckets.cell(DECO, key))
 	var scale_f := maxf(LodPolicy.effective_distance(1.0, view.fov, view.viewport_h), 0.01)
-	var reach := minf(float(profile.get("ground_cover_radius_m", 25.0)) * 1.1 / scale_f, 1000.0)
-	var lo := buckets.key_of(DECO, view.pos.x - reach, view.pos.z - reach)
-	var hi := buckets.key_of(DECO, view.pos.x + reach, view.pos.z + reach)
+	var outer := float(profile.get("ground_cover_radius_m", 25.0)) * pow(sqrt(2.0), LodPolicy.GROUND_COVER_BANDS)
+	_eval_new_cells(view.pos.x, view.pos.z, minf(outer * 1.1 / scale_f, 1000.0))
+	if view.active_valid:
+		_eval_new_cells(view.active_center.x, view.active_center.y, view.active_radius)
+
+
+func _eval_new_cells(cx_m: float, cz_m: float, reach: float) -> void:
+	var lo := buckets.key_of(DECO, cx_m - reach, cz_m - reach)
+	var hi := buckets.key_of(DECO, cx_m + reach, cz_m + reach)
 	for cz in range(lo.y, hi.y + 1):
 		for cx in range(lo.x, hi.x + 1):
 			var cell := buckets.cell(DECO, Vector2i(cx, cz))
@@ -271,12 +281,26 @@ func _refresh_ground_cover() -> void:
 				_eval_deco(cell)
 
 
+## Distance band with hysteresis; the active area is drawn densely while it is within twice the outer band
+## (beyond that, e.g. at whole-world overview distance, ground cover is sub-pixel anyway).
 func _eval_deco(cell: ScatterCell) -> void:
-	var want := true
+	var band := 0
 	if view.has_camera:
-		want = LodPolicy.ground_cover_visible(_eff(cell), profile, cell.wanted, _hyst)
+		var eff := _eff(cell)
+		band = LodPolicy.ground_cover_band(eff, profile, cell.band if cell.wanted else -1, _hyst)
+		var radius := float(profile.get("ground_cover_radius_m", 25.0))
+		if eff < radius * pow(sqrt(2.0), LodPolicy.GROUND_COVER_BANDS) * 2.0 \
+				and view.cell_is_active(cell.key, buckets.sizes[DECO]):
+			band = 0
+	var want := band >= 0
+	if want and cell.wanted and band != cell.band and not view.frozen.has(cell.key):
+		cell.band = band
+		if cell.built and not is_equal_approx(cell.density, _density_for(cell)):
+			_enqueue(DECO, cell.key)
+		return
 	if want == cell.wanted:
 		return
+	cell.band = band
 	if want:
 		cell.wanted = true
 		_wanted[cell.key] = true
@@ -301,6 +325,7 @@ func _refresh_active(now: int) -> void:
 			view.active_center = center
 			view.active_valid = true
 			_reclassify_due = true
+			_view_force = true  # cells newly inside the active area are drawn even beyond the distance bands
 	if _reclassify_due:
 		_reclassify_due = false
 		_reclassify(false)
@@ -309,7 +334,7 @@ func _refresh_active(now: int) -> void:
 func _reclassify(allow_pinned: bool) -> void:
 	for key: Vector2i in (built[DECO] as Dictionary):
 		var cell := buckets.cell(DECO, key)
-		if not is_equal_approx(cell.density, _density_for(key)) and (allow_pinned or not view.frozen.has(key)):
+		if not is_equal_approx(cell.density, _density_for(cell)) and (allow_pinned or not view.frozen.has(key)):
 			_enqueue(DECO, key)
 
 
@@ -458,7 +483,7 @@ func _build_cell(key3: Vector3i) -> void:
 		return
 	if kind == MEAN and cell.role == "":
 		cell.role = LodPolicy.individual_role(_eff(cell) if view.has_camera else 0.0, profile, "", _hyst)
-	builder.build_cell(cell, _density_for(cell.key) if kind == DECO else 1.0, _priority(cell))
+	builder.build_cell(cell, _density_for(cell) if kind == DECO else 1.0, _priority(cell))
 	(built[kind] as Dictionary)[cell.key] = true
 
 
