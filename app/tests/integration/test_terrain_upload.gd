@@ -180,9 +180,9 @@ func test_gpu_color_edit_reaches_the_gpu_layer() -> void:
 
 # --- shader / mesh configuration ----------------------------------------------------------------------
 
-func test_background_is_flat_and_mesh_config_is_validated() -> void:
+func test_no_background_and_mesh_config_is_validated() -> void:
 	var a := _make(WorldDocument.create_flat(0.0, WorldConstants.DEFAULT_CONTROL))
-	assert_eq(a.get_terrain().material.world_background, Terrain3DMaterial.FLAT, "no noise world background")
+	assert_eq(a.get_terrain().material.world_background, Terrain3DMaterial.NONE, "nothing drawn outside the world")
 	var before := a.mesh_config()
 	assert_true(int(before.mesh_size) >= 8 and int(before.lods) >= 1)
 	assert_empty_string(a.set_mesh_config(32, 7))
