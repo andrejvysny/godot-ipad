@@ -1,10 +1,15 @@
-# World format (schema 2)
+# World format (schemas 2 and 3)
 
 Contract shared by the Godot app (`app/src/storage`, `app/src/document`) and the Python
 tools (`scripts/worldpoc_format.py`). Any change here requires a schema bump and matching
 changes and tests on both sides. Schema 2 (ADR 0009) adds four material slots with auto-paint
 rules, a tint map, scatter instances and spline paths. Schema 1 data is rejected as an
 unknown schema; there is no migration.
+
+Schema 3 (ADR 0010, §11) is schema 2 plus a rectangular terrain layout of 1–64 regions (the
+"1 km" preset is 8 × 8 regions) and larger, centralized limits. Sections 1–10 describe schema 2;
+§11 lists every schema 3 difference. Worlds on the legacy 2 × 2 layout are always written as
+schema 2, byte-identical to before; schema 3 is only used for other layouts.
 
 ## 1. Terrain layout
 
@@ -260,3 +265,95 @@ load.
 Files are little-endian. Godot code converts with `to_byte_array()`/`to_float32_array()`,
 which is only correct on little-endian hosts; `WorldConstants.host_is_little_endian()` is
 asserted at startup (all Apple targets are little-endian).
+
+## 11. Schema 3: layout worlds
+
+Schema 3 changes only the items below; everything else (sample spacing, region size and
+buffer order, height/control/tint encodings, rules, object records, scatter and path record
+formats, exact floats, endianness) is identical to schema 2.
+
+### 11.1 Layout
+
+A layout is a rectangle of regions: `min_region = (mx, mz)` and `region_count = (cx, cz)`.
+
+- `cx`, `cz` are integers in `[1, 8]`; `mx`, `mz` integers in `[-8, 7]`; `mx + cx <= 8` and
+  `mz + cz <= 8` (every region coordinate lies in `[-8, 7]`, inside Terrain3D's region map).
+- Regions: every `(x, z)` with `mx <= x < mx + cx` and `mz <= z < mz + cz`; canonical order sorted
+  by Z, then X (row-major), as in schema 2.
+- Valid global samples per axis: `g ∈ [256 * m, 256 * (m + c) - 1]`; bilinear extent
+  `[128 * m, 128 * (m + c) - 0.5]` m. Outside is *no sample* (never 0). There is no duplicated
+  seam row; sampling at the maximum edge clamps the `+1` neighbour index exactly as in schema 2.
+- The legacy layout (`min_region (-1, -1)`, `region_count (2, 2)`) is **schema 2 only**. A
+  schema 3 world with the legacy layout is rejected, so every world has one canonical encoding.
+- Preset `km1` (spec "approximately 1 km"): `min_region (-4, -4)`, `region_count (8, 8)`;
+  regions `[-4, 3] × [-4, 3]` (64); samples `[-1024, 1023]`; extent `[-512.0, 511.5]` m;
+  nominal size 1024 × 1024 m.
+
+### 11.2 manifest.json
+
+- `"schema_version": 3`.
+- `terrain` has exactly the schema 2 keys plus `"layout": {"min_region": [mx, mz], "region_count": [cx, cz]}`
+  (exactly these two keys; integers).
+- `terrain.region_locations` must equal the layout's region list in canonical order exactly.
+- `payload_files` lists exactly `objects.json`, `paths.bin`, `scatter.bin` and the three files of
+  every layout region (`3 + 3 * region_count` entries), sorted by path byte-wise.
+
+`objects.json` carries `"schema_version": 3`; `scatter.bin` and `paths.bin` keep their own
+version 1 headers.
+
+### 11.3 Limits (centralized: `WorldLimits` in GDScript, `limits_for_schema()` in Python)
+
+| Limit | Schema 2 | Schema 3 |
+|---|---:|---:|
+| Regions | 4 (fixed list) | 1–64 (layout rectangle) |
+| Object records (`objects.json`) | ≤ 2,000 | ≤ 50,000 |
+| `objects.json` bytes | ≤ 4 MiB | ≤ 128 MiB |
+| Scatter instances | ≤ 20,000 | ≤ 100,000 |
+| `scatter.bin` bytes | ≤ 512 KiB | ≤ 4 MiB |
+| `paths.bin` bytes | ≤ 640 KiB | ≤ 640 KiB |
+| `manifest.json` bytes | ≤ 64 KiB | ≤ 256 KiB |
+| Total uncompressed package | ≤ 12 MiB | ≤ 256 MiB |
+| Archive file size | ≤ 20 MiB | ≤ 264 MiB |
+| Archive entries | 1–20 | 1–197 |
+
+Object records are the meaningful (manual) placements; scatter instances include scattered
+trees/rocks and decorative ground cover. Paths keep their schema 2 limits.
+
+**Package inspection order.** The central directory is inspected before `manifest.json` is
+read, so ZIP inspection applies the schema 3 envelope: entry count ≤ 197 (including the optional
+`regions/` directory entry), total ≤ 256 MiB, archive ≤ 264 MiB, `manifest.json` ≤ 256 KiB,
+`objects.json` ≤ 128 MiB, `scatter.bin` ≤ 4 MiB, `paths.bin` ≤ 640 KiB, and region files must be
+named `regions/r_<x>_<z>.{height.f32le,control.u32le,color.rgba8}` with integer `x, z ∈ [-8, 7]`
+(decimal, `-` sign only for negatives, no leading zeros or `+`) and exactly 262144 bytes. All other
+schema 2 ZIP rules are unchanged. After extraction, generation validation applies the limits of
+the manifest's schema (a schema 2 package with 2,001 objects still fails) and the exact file set of
+its layout.
+
+Limits are admission limits, not a memory guarantee: loaders reject over-limit inputs before
+allocating per-record structures where the format allows it (declared counts in binary headers,
+byte lengths from the directory listing).
+
+### 11.4 Authored content hash V3
+
+As §7 with magic `"WPOC-AUTHORED-V3\n"`, `u32 schema_version = 3`, and the layout inserted after
+`region_samples`:
+
+```
+"WPOC-AUTHORED-V3\n"
+u32 schema_version
+str catalog.id, u32 catalog.version, str catalog.sha256
+f64 sample_spacing_m, u32 region_samples
+i32 min_region_x, i32 min_region_z, u32 region_count_x, u32 region_count_z
+u8 rock_enabled, i32 rock_slope_deg, u8 sand_enabled, i32 sand_height_dm
+u32 region_count
+... identical to V2 from here (regions in canonical order, scatter/paths hashes, objects)
+```
+
+Schema 2 worlds keep the V2 stream and their existing hashes. The writer chooses the schema from
+the document's layout (legacy → 2, anything else → 3); opening a file never rewrites it.
+
+### 11.5 Cross-language vector
+
+`km1` flat vector (tested in both languages against one hard-coded hash): layout `km1`, every
+height `0.0`, every control `0x00000001`, every tint `FF FF FF 00`, default rules, no objects,
+empty `scatter.bin` and `paths.bin` (§5, §6 empty files), catalog identity of the bundled catalog.

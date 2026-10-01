@@ -2,6 +2,34 @@
 
 Updated: 2026-10-01. Scope: Core PoC WP00–WP06 only (WP07/PoC+ not authorized). Physical iPad Air 4 / Pencil testing confirms the Mobile/Vulkan baseline; full G1 remains INCOMPLETE.
 
+## Rendering performance (2026-10-01, spec `docs/rendering-performance-spec.md`)
+
+Start commit `191b2da` (spec reviewed `762f079`; v2 scatter/paths/shader landed since). Baseline host:
+652 Godot + 160 Python tests, 0 failures. User: local commit per WP, continuous, iPad connected.
+Approved deviations (ADR 0010 at WP08): order WP00→01→04→02→03→05→06→07→08 (layout before new
+renderer); 1 km worlds = schema 3 (legacy 2×2 stays schema 2 byte-identical); decorative = existing
+ScatterLayer, thinning only `ground_cover`; one multi-surface ArrayMesh per tier → one MultiMesh per
+(cell, asset, tier); bench-only complex assets in a separate bench catalog (logical catalog hash
+untouched); trim existing project shader instead of re-basing on Terrain3D lightweight shader; prep
+tool = Godot headless devtools + Python descriptor validator; no automatic decimation.
+
+- [ ] Device baseline: HEAD `191b2da` Release bench on iPad Air 4 (pre-change reference)
+- [ ] WP00 bench hardening: session guard, input block + abort, dedicated deterministic population,
+  full restore on every exit path, metric validity, fingerprints/evidence identity, p99/hitches
+- [ ] WP01 profiles (config + controller, Performance startup, deferred switch), shadows off everywhere,
+  status/diagnostics cache, RenderSpatialIndex (pick broad phase, inspector neighbours), overlay reuse,
+  bounded debug decor, hide vegetation, perf indicator + profile menu, input alignment at 0.65/0.75/1.0
+- [ ] WP04a WorldLayout + schema 3 format/limits/hash V3, GDScript + Python, legacy byte-stable
+- [ ] WP04b consumers layout-aware (terrain, picker, brushes, scatter, paths, tools, camera framing),
+  New 1 km world, 50k-object round trip, snapshot/checkpoint main-thread cost bounded
+- [ ] WP02 render registry/descriptor (GD + Python), prep devtool, bench catalog + geometry-heavy and
+  leaf-card fixtures, RenderAssetCache, readiness gating, prepared ghosts
+- [ ] WP03 ObjectRenderWorld (cells, dense batches, bounds, work queue), promotion pool, active-edit pins
+- [ ] WP05 LOD/hysteresis, HLOD overview + area focus, decorative density, residency/eviction
+- [ ] WP06 shader trim + terrain/object Texture Preview, terrain upload accounting
+- [ ] WP07 telemetry/lifecycle, device Release runs (10k/50k/overview/edit/preview), 30 + 60 min
+- [ ] WP08 docs, ADR 0010, export check, final report
+
 ## World Editor v2 (2026-10-01, ADR 0009) — full redesign incl. PoC+
 
 Source: claude.ai design "World Editor v2" (`World Editor v2.dc.html`, `terrain-engine.js`).
