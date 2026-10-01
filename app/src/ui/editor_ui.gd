@@ -393,7 +393,23 @@ func _place_inspector() -> void:
 	if anchor.position == Vector2.INF:
 		_inspector.position = free.position
 		return
-	_inspector.place(anchor, free, not _left)
+	_inspector.place(anchor, free, not _left, _other_object_points())
+
+
+## Screen centres of every visible object except the selected one.
+func _other_object_points() -> PackedVector2Array:
+	var points := PackedVector2Array()
+	var camera := _session.rig.get_camera()
+	if camera == null:
+		return points
+	var selected := _session.tools.selected_id()
+	for id in _session.presenter.object_ids():
+		if id == selected:
+			continue
+		var centre := _session.presenter.world_bounds(id).get_center()
+		if not camera.is_position_behind(centre):
+			points.append(camera.unproject_position(centre))
+	return points
 
 
 ## Screen rect of the selected object's world bounds, or a rect at INF when it is not visible.

@@ -30,9 +30,12 @@ User report: Sculpt shows the ring but no visible shape change on iPad; Paint pa
 - [x] iPad Debug build installed + launched on iPad Air 4 (source fingerprint `f874ee2f…`)
 - [x] iPad check (user, build `f874ee2f…`): sculpt + paint work as expected. No probe numbers captured.
 - [ ] Optional: record stroke-probe numbers (pressure range, Δh) as evidence before any re-tune
-- [ ] Mac selftest S04 tap-select fails: the anchored inspector opened after placement covers the
-  boulder that S04 taps (UI redesign regression; separate from sculpt)
-- [ ] Faint bright line on terrain visible before any edit (seam or edge artifact?), investigate
+- [x] Mac selftest S04 tap-select failed because the anchored inspector covered the neighbouring boulder.
+  Fixed: the inspector now avoids other objects' screen points (`ObjectInspector.choose_position`).
+  Mac selftest PASS, all steps.
+- [x] Faint bright line on terrain: projection matches the world's west edge (x = -128 m), the crease
+  where the 4 loaded regions meet Terrain3D's flat world background. Not a seam or edit bug.
+- [ ] Optional cosmetic: hide outside-world terrain (`world_background` NONE) or mark the world edge
 
 ## Editor build (started 2026-10-01)
 

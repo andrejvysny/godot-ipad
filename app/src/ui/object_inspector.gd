@@ -6,6 +6,7 @@ extends PanelContainer
 
 const WIDTH := 268.0
 const GAP := 24.0
+const AVOID_MARGIN := 24.0
 
 var _session: EditorSession
 var _tools: ToolController
@@ -16,6 +17,7 @@ var _grounding: Dictionary = {}  # mode -> Button
 var _focus: Button
 var _delete: Button
 var _controls: Array[Control] = []
+var _last_choice := -1
 
 
 func setup(session: EditorSession) -> void:
@@ -175,22 +177,63 @@ func delete_button() -> Button:
 	return _delete
 
 
-## Anchored beside the object rect on the preferred side, else the other, kept inside `free`.
-func place(anchor: Rect2, free: Rect2, prefer_right: bool) -> void:
-	var panel := get_combined_minimum_size()
+## Anchored beside/below/above the object rect, kept inside `free`; avoids the anchor itself and the
+## `avoid` screen points (other objects) when a clear spot exists.
+func place(anchor: Rect2, free: Rect2, prefer_right: bool, avoid: PackedVector2Array = PackedVector2Array()) -> void:
+	var result := choose_position(anchor, free, get_combined_minimum_size(), prefer_right, avoid, _last_choice)
+	position = result[0]
+	_last_choice = result[1]
+
+
+## Candidates: 0 preferred side, 1 other side, 2 below, 3 above, 4/5 the preferred/other side pushed
+## past any avoid point the plain side would cover. Returns [position, choice]; choice -1 when `free`
+## cannot hold the panel. `last_choice` wins ties so the panel does not flicker.
+static func choose_position(anchor: Rect2, free: Rect2, panel: Vector2, prefer_right: bool,
+		avoid: PackedVector2Array, last_choice: int) -> Array:
 	if free.size.x < panel.x or free.size.y < panel.y:
-		position = free.position
-		return
+		return [free.position, -1]
 	var right_x := anchor.end.x + GAP
 	var left_x := anchor.position.x - GAP - panel.x
-	var x := right_x if prefer_right else left_x
-	var other := left_x if prefer_right else right_x
-	if x < free.position.x or x + panel.x > free.end.x:
-		if other >= free.position.x and other + panel.x <= free.end.x:
-			x = other
-	x = clampf(x, free.position.x, free.end.x - panel.x)
-	var y := clampf(anchor.get_center().y - panel.y * 0.5, free.position.y, free.end.y - panel.y)
-	position = Vector2(x, y)
+	var side_y := anchor.get_center().y - panel.y * 0.5
+	var mid_x := anchor.get_center().x - panel.x * 0.5
+	var raw: Array[Vector2] = [
+		Vector2(right_x if prefer_right else left_x, side_y),
+		Vector2(left_x if prefer_right else right_x, side_y),
+		Vector2(mid_x, anchor.end.y + GAP),
+		Vector2(mid_x, anchor.position.y - GAP - panel.y),
+	]
+	raw.append(Vector2(_clear_side_x(raw[0].x, prefer_right, panel, side_y, avoid), side_y))
+	raw.append(Vector2(_clear_side_x(raw[1].x, not prefer_right, panel, side_y, avoid), side_y))
+	var keep_out := anchor.grow(GAP * 0.5)
+	var positions: Array[Vector2] = []
+	var scores: Array[int] = []
+	var best := 1 << 30
+	for p in raw:
+		var pos := Vector2(clampf(p.x, free.position.x, free.end.x - panel.x),
+				clampf(p.y, free.position.y, free.end.y - panel.y))
+		var rect := Rect2(pos, panel)
+		var score := 1000 if rect.intersects(keep_out) else 0
+		var padded := rect.grow(AVOID_MARGIN)
+		for point in avoid:
+			if padded.has_point(point):
+				score += 1
+		positions.append(pos)
+		scores.append(score)
+		best = mini(best, score)
+	var choice := last_choice if last_choice >= 0 and last_choice < scores.size() and scores[last_choice] == best \
+			else scores.find(best)
+	return [positions[choice], choice]
+
+
+## Moves a side candidate outward until the panel (plus margin) no longer covers avoid points.
+static func _clear_side_x(x: float, right: bool, panel: Vector2, y: float, avoid: PackedVector2Array) -> float:
+	var padded := Rect2(Vector2(x, y), panel).grow(AVOID_MARGIN)
+	var out := x
+	for p in avoid:
+		if not padded.has_point(p):
+			continue
+		out = maxf(out, p.x + AVOID_MARGIN + 1.0) if right else minf(out, p.x - AVOID_MARGIN - panel.x - 1.0)
+	return out
 
 
 # --- refresh -------------------------------------------------------------------------------

@@ -320,6 +320,22 @@ func test_library_drag_places_one_object_and_selects_it() -> void:
 	assert_true(tree.root.get_visible_rect().encloses(_rect(ui.inspector())))
 
 
+func test_inspector_avoids_neighbouring_object() -> void:
+	var s := await _start()
+	var ui := _ui(s)
+	var centre := tree.root.get_visible_rect().get_center()
+	var tile := _center(ui.library().tile("nature.rock.boulder_a"))
+	await _drag(s, tile, centre)
+	var first := s.tools.selected_id()
+	await _drag(s, tile, centre + Vector2(60, 0))
+	var second := s.tools.selected_id()
+	assert_ne(first, second, "two distinct objects")
+	await _frames(2)
+	assert_true(ui.inspector().visible)
+	var other := _object_rect(s, first).get_center()
+	assert_false(_rect(ui.inspector()).has_point(other), "inspector does not cover the neighbour")
+
+
 func test_library_drag_released_over_ui_or_cancelled_creates_nothing() -> void:
 	var s := await _start()
 	var ui := _ui(s)
