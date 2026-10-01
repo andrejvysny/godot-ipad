@@ -7,12 +7,14 @@ var total: int = 0
 
 var _host: Node3D
 var _limit: int
+var _prefix: String
 var _free: Array[MeshInstance3D] = []
 
 
-func _init(host: Node3D, limit: int) -> void:
+func _init(host: Node3D, limit: int, prefix: String = "promoted") -> void:
 	_host = host
 	_limit = limit
+	_prefix = prefix
 
 
 ## Null when `limit` nodes are already in use.
@@ -22,7 +24,7 @@ func acquire() -> MeshInstance3D:
 	if total >= _limit:
 		return null
 	var node := MeshInstance3D.new()
-	node.name = "promoted_%d" % total
+	node.name = "%s_%d" % [_prefix, total]
 	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_host.add_child(node)
 	total += 1
@@ -33,3 +35,12 @@ func release(node: MeshInstance3D) -> void:
 	node.mesh = null
 	node.visible = false
 	_free.append(node)
+
+
+## Frees the idle nodes (a preview that ended must not leave hidden nodes behind).
+func free_idle() -> void:
+	for node in _free:
+		_host.remove_child(node)
+		node.free()
+	total -= _free.size()
+	_free.clear()

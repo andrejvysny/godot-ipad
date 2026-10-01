@@ -191,6 +191,15 @@ func node_count() -> int:
 	return int(_world.stats().nodes) + (1 if _ghost.node != null else 0)
 
 
+func registry() -> RenderAssetRegistry:
+	return _registry
+
+
+## Asset id of a presented record ("" when absent).
+func asset_of(id: String) -> String:
+	return str(_asset_of.get(id, ""))
+
+
 func has_object(id: String) -> bool:
 	return _xforms.has(id)
 
@@ -256,6 +265,28 @@ func objects_near(point: Vector3, radius: float, max_count: int) -> PackedString
 			break
 		if not _is_hidden(id):
 			out.append(id)
+	return out
+
+
+## Objects whose world bounds intersect the XZ circle (any height), nearest bounds centre first; ties by id.
+## Hidden vegetation is skipped.
+func objects_in_circle(center: Vector2, radius: float) -> PackedStringArray:
+	var out := PackedStringArray()
+	if not center.is_finite() or not is_finite(radius) or radius < 0.0:
+		return out
+	var tall := 1.0e6
+	var box := AABB(Vector3(center.x - radius, -tall, center.y - radius), Vector3(radius * 2.0, tall * 2.0, radius * 2.0))
+	var items: Array = []
+	for id in _index.query_aabb(box):
+		var b := _index.bounds_of(id)
+		var nearest := Vector2(clampf(center.x, b.position.x, b.end.x), clampf(center.y, b.position.z, b.end.z))
+		if nearest.distance_squared_to(center) > radius * radius or _is_hidden(id):
+			continue
+		var c := b.get_center()
+		items.append([Vector2(c.x, c.z).distance_squared_to(center), id])
+	items.sort_custom(RenderSpatialIndex._near_less)
+	for item: Array in items:
+		out.append(item[1])
 	return out
 
 

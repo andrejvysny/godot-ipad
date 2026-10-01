@@ -304,6 +304,7 @@ func toggle_texture_preview() -> String:
 	if not center.is_finite():
 		return _refuse_preview(TexturePreviewController.NO_AREA)
 	texture_preview.bind(_session.terrain, _session.document)
+	texture_preview.bind_objects(_session.presenter)
 	var result := texture_preview.enable_at(center)
 	_sync_preview()
 	return "" if bool(result.ok) else str(result.message)

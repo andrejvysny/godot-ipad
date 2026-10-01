@@ -26,6 +26,7 @@ func setup(registry: RenderAssetRegistry, cache: RenderAssetCache, cell_size_m: 
 	_lod = ObjectLodDirector.new(_cell_size)
 	_lod.set_profile({})
 	_pool = PromotedNodePool.new(self, POOL_MAX)
+	_preview = ObjectPreviewOwners.new(self)
 	_attaching = true
 
 
@@ -58,6 +59,7 @@ func clear() -> void:
 		for key: String in cell.batches.keys():
 			_retire_batch(cell, key)
 	_release_promoted()
+	_preview.clear()
 	_selected = ""
 	for dict: Dictionary in [_asset, _xf, _cell_of, _owner, _cells, _asset_cells, _wanted, _dirty, _covered, _recheck]:
 		dict.clear()
@@ -137,6 +139,7 @@ func set_selected(id: String) -> void:
 		_release_promoted()
 		_owner[prev] = ""
 		_attach_owner(prev)
+		_preview.restore(prev)
 	if want != "":
 		_promote(want)
 	_flush_dirty()
@@ -148,6 +151,7 @@ func set_vegetation_visibility_changed() -> void:
 			batch.node.visible = _batch_visible(batch)
 	if _promoted != null:
 		_promoted.visible = not _hidden(_selected)
+	_preview.refresh_visibility()
 
 
 ## Applies pending slot updates, then builds queued groups until `budget_ms` is spent (at least one).
@@ -171,9 +175,48 @@ func has_pending_work() -> bool:
 
 func stats() -> Dictionary:
 	var promoted := {"asset": _asset[_selected], "rep": _promoted_rep} if _promoted != null else {}
-	return RenderWorldStats.collect(_cells, _res, {"full_uploads": _retired_full, "partial_uploads": _retired_partial,
+	var out := RenderWorldStats.collect(_cells, _res, {"full_uploads": _retired_full, "partial_uploads": _retired_partial,
 		"batch_builds": _builds, "pending_builds": _queue.size(), "world_epoch": _res.epoch,
-		"covered_cells": _covered.size(), "lod_evaluations": _lod.evaluated, "pooled_nodes": _pool.total}, promoted)
+		"covered_cells": _covered.size(), "lod_evaluations": _lod.evaluated,
+		"pooled_nodes": _pool.total + _preview.pool_total()}, promoted)
+	_preview.add_stats(out)
+	return out
+
+
+## Fixed-area Texture Preview (spec 11.3). `variants`: low material resource path -> replacement Material,
+## shared by every object of one asset. The object leaves its batch slot and shows its current
+## representation on a pooled node with per-surface overrides in the same call; the selected object keeps
+## its promoted node and gets the overrides there. Returns the ids bound; an id whose group is not built
+## yet (or is a placeholder) is not bound and may be offered again.
+func begin_preview_owners(entries: Dictionary) -> PackedStringArray:
+	return _preview.begin(entries)
+
+
+func begin_preview_owner(id: String, variants: Dictionary) -> bool:
+	return _preview.begin({id: variants}).size() == 1
+
+
+## Returns the objects to their batch slots (or clears the promoted node's overrides) in one call.
+func end_preview_owners(ids: PackedStringArray) -> void:
+	_preview.end(ids)
+
+
+func end_preview_owner(id: String) -> void:
+	_preview.end(PackedStringArray([id]))
+
+
+## Objects with preview bindings (preview nodes and the promoted node), sorted.
+func preview_owner_ids() -> PackedStringArray:
+	return _preview.ids()
+
+
+func preview_node(id: String) -> MeshInstance3D:
+	return _preview.node_of(id)
+
+
+## True while the object's 32 m cell is pinned by an active edit.
+func is_object_pinned(id: String) -> bool:
+	return _cell_of.has(id) and _pinned(_cell_of[id])
 
 
 func covered_cell_count() -> int:
@@ -287,9 +330,11 @@ func _build_group(cell: RenderCell, asset_id: String) -> void:
 		return
 	var ids: Array[String] = []
 	for id: String in (cell.members[asset_id] as Dictionary):
-		if _owner[id] != "promoted":
+		if _owner[id] != "promoted" and _owner[id] != ObjectPreviewOwners.OWNER:
 			ids.append(id)
 	if ids.is_empty():
+		if _preview.retarget(cell, asset_id, rep):
+			cell.reps[asset_id] = rep
 		return
 	var batch := _batch_for(cell, asset_id, rep)
 	if batch == null:
@@ -305,6 +350,7 @@ func _build_group(cell: RenderCell, asset_id: String) -> void:
 	if cur != "":
 		_retire_batch(cell, "%s|%s" % [asset_id, cur])
 	cell.reps[asset_id] = rep
+	_preview.retarget(cell, asset_id, rep)
 
 
 func _report_placeholders() -> void:

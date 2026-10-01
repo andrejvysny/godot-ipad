@@ -36,6 +36,7 @@ var _selected: String = ""
 var _promoted: MeshInstance3D
 var _promoted_rep: String = ""
 var _pool: PromotedNodePool
+var _preview: ObjectPreviewOwners
 var _retired_full: int = 0
 var _retired_partial: int = 0
 var _builds: int = 0
@@ -75,6 +76,7 @@ func set_cells_covered(rect: Rect2, covered: bool) -> void:
 			if cell != null:
 				for batch: InstanceBatch in cell.batches.values():
 					batch.node.visible = _batch_visible(batch)
+	_preview.refresh_visibility()
 
 
 func is_object_covered(id: String) -> bool:
@@ -87,7 +89,7 @@ func owner_of(id: String) -> String:
 
 func batch_of(id: String) -> InstanceBatch:
 	var owner := owner_of(id)
-	if owner == "" or owner == "promoted":
+	if owner == "" or owner == "promoted" or owner == ObjectPreviewOwners.OWNER:
 		return null
 	return (_cells[_cell_of[id]] as RenderCell).batches.get(owner)
 
@@ -172,6 +174,8 @@ func _apply_transform(id: String) -> void:
 	var owner := owner_of(id)
 	if owner == "promoted":
 		_promoted.transform = _inst_xf(id, _promoted_rep)
+	elif owner == ObjectPreviewOwners.OWNER:
+		_preview.update_transform(id)
 	elif owner != "":
 		var cell: RenderCell = _cells[_cell_of[id]]
 		var parts := owner.rsplit("|", true, 1)
@@ -190,14 +194,22 @@ func _detach(id: String, keep_promoted: bool) -> void:
 			_drop_membership(cell, id, asset_id)
 			return
 		_release_promoted()
-	elif owner != "":
-		var batch: InstanceBatch = cell.batches[owner]
-		batch.remove(id)
-		_dirty[batch] = true
-		if batch.count == 0:
-			_retire_batch(cell, owner)
+	elif owner != "" and owner != ObjectPreviewOwners.OWNER:
+		_leave_batch(id)
+	_preview.forget(id)
 	_owner[id] = ""
 	_drop_membership(cell, id, asset_id)
+
+
+## Removes `id` from its batch slot (retiring an emptied batch); the caller assigns the new owner.
+func _leave_batch(id: String) -> void:
+	var cell: RenderCell = _cells[_cell_of[id]]
+	var owner := owner_of(id)
+	var batch: InstanceBatch = cell.batches[owner]
+	batch.remove(id)
+	_dirty[batch] = true
+	if batch.count == 0:
+		_retire_batch(cell, owner)
 
 
 func _drop_membership(cell: RenderCell, id: String, asset_id: String) -> void:
@@ -236,12 +248,10 @@ func _retire_batch(cell: RenderCell, key: String) -> void:
 func _promote(id: String) -> void:
 	var cell: RenderCell = _cells[_cell_of[id]]
 	var owner := owner_of(id)
-	if owner != "" and owner != "promoted":
-		var batch: InstanceBatch = cell.batches[owner]
-		batch.remove(id)
-		_dirty[batch] = true
-		if batch.count == 0:
-			_retire_batch(cell, owner)
+	if owner == ObjectPreviewOwners.OWNER:
+		_preview.release_node(id)
+	elif owner != "" and owner != "promoted":
+		_leave_batch(id)
 	var asset_id: String = _asset[id]
 	var rep := SELECTED_ROLE if _res.mesh(asset_id, SELECTED_ROLE, 0) != null \
 			else _res.rep_for(asset_id, cell.role, 0)
@@ -251,6 +261,7 @@ func _promote(id: String) -> void:
 	_promoted_rep = rep
 	_promoted.transform = _inst_xf(id, rep)
 	_promoted.visible = not _hidden(id)
+	_preview.apply(_promoted, id)
 	_owner[id] = "promoted"
 
 
@@ -269,6 +280,7 @@ func _upgrade_promoted() -> void:
 		_promoted.mesh = mesh
 		_promoted_rep = SELECTED_ROLE
 		_promoted.transform = _inst_xf(_selected, SELECTED_ROLE)
+		_preview.apply(_promoted, _selected)
 
 
 func _hidden(id: String) -> bool:

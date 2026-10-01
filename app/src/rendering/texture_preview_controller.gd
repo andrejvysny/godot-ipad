@@ -4,8 +4,8 @@ extends RefCounted
 ## world-space centre and radius captured at enable time; the controller has no camera or selection
 ## input, so nothing can retarget it. `generation` increments on every enable, disable and world change
 ## and tags every cache request, so late results of an older preview are discarded.
-## Only the terrain participant exists today; objects join through the same begin/progress/publish/release
-## calls. Expected failures are returned or put in status(); nothing here logs errors.
+## The terrain participant comes first, the object participant (when a presenter is bound) second; both use the
+## same begin/progress/publish/release calls and state, missing and bytes aggregate both. Expected failures are returned or put in status(); nothing here logs errors.
 
 const OFF := "OFF"
 const LOADING := "LOADING"
@@ -27,6 +27,10 @@ var _sources: Dictionary
 var _terrain: TerrainView
 var _doc: WorldDocument
 var _participant: TerrainPreviewParticipant
+var _presenter: ObjectPresenter
+var _objects: ObjectPreviewParticipant
+var _object_progress: Dictionary = {}
+var _retiring: Array[ObjectPreviewParticipant] = []  # released, still waiting for pinned cells
 var _state := OFF
 var _center := Vector3.ZERO
 var _radius := 0.0
@@ -52,6 +56,10 @@ func bind(terrain: TerrainView, doc: WorldDocument) -> void:
 	_doc = doc
 
 
+func bind_objects(presenter: ObjectPresenter) -> void:
+	_presenter = presenter
+
+
 func state() -> String:
 	return _state
 
@@ -65,7 +73,7 @@ func enable_at(center: Vector3, radius: float = -1.0) -> Dictionary:
 	if _state == ERROR and Engine.get_process_frames() > _busy_frame:
 		_participant = null
 		_state = OFF
-	if _state == RELEASING or _state == ERROR:
+	if _state == RELEASING or _state == ERROR or not _retiring.is_empty():
 		return _refuse("Texture Preview is still releasing.")
 	if _state != OFF:
 		return _refuse("Texture Preview is already on.")
@@ -86,7 +94,10 @@ func enable_at(center: Vector3, radius: float = -1.0) -> Dictionary:
 	if err != "":
 		_fail(err)
 		return _refuse(err)
-	_progress = _participant.progress()
+	if _presenter != null:
+		_objects = ObjectPreviewParticipant.new(_cache, _presenter)
+		_objects.begin(xz, r, _owner(), generation)
+	_progress = _gather()
 	if int(_progress.pending) == 0:
 		_resolve()
 	return {"ok": _state != ERROR, "message": _reason}
@@ -111,6 +122,7 @@ func on_world_replaced() -> void:
 ## Polls the cache while a load or a cancelled load is in flight, publishes when everything resolved and
 ## finishes RELEASING one frame after the release.
 func service(budget_ms: float) -> void:
+	_service_objects()
 	if _state != LOADING and not _draining:
 		if _state == RELEASING and Engine.get_process_frames() > _busy_frame:
 			_state = OFF
@@ -124,7 +136,7 @@ func service(budget_ms: float) -> void:
 			_released_bytes += _cache.retire_unreferenced("preview_texture")
 	if _state != LOADING:
 		return
-	_progress = _participant.progress()
+	_progress = _gather()
 	if int(_progress.pending) == 0:
 		_resolve()
 
@@ -136,6 +148,13 @@ func status() -> Dictionary:
 		"requested": int(p.get("requested", 0)), "ready": int(p.get("ready", 0)),
 		"missing": (p.get("missing", []) as Array).duplicate(), "reasons": (p.get("reasons", {}) as Dictionary).duplicate(),
 		"bytes": int(p.get("bytes", 0)),
+		"objects_previewed": _objects.previewed_count() if _objects != null else 0,
+		"objects_truncated": _objects != null and _objects.truncated(),
+		"objects_build_ms": _objects.build_ms if _objects != null else 0.0,
+		"objects_deferred": int(_object_progress.get("deferred", 0)),
+		"object_textures_requested": int(_object_progress.get("requested", 0)),
+		"object_textures_ready": int(_object_progress.get("ready", 0)),
+		"object_textures_missing": (_object_progress.get("missing", []) as Array).duplicate(),
 		"reason": _reason, "cause": _cause, "released_bytes": _released_bytes,
 		"slots": _participant.slots() if _participant != null else PackedInt32Array(),
 		"build_ms": _participant.build_ms if _participant != null else 0.0,
@@ -162,9 +181,37 @@ func _owner() -> String:
 	return "preview:%d" % _live_generation
 
 
+## Terrain progress plus the object participant's: missing and bytes aggregate, `pending` sums.
+func _gather() -> Dictionary:
+	var p := _participant.progress()
+	if _objects == null:
+		return p
+	var o := _objects.progress()
+	_object_progress = o
+	p.pending = int(p.pending) + int(o.pending)
+	p.missing = (p.missing as Array) + (o.missing as Array)
+	p.reasons = (p.reasons as Dictionary).merged(o.reasons as Dictionary)
+	p.bytes = int(p.bytes) + int(o.bytes)
+	return p
+
+
+## Object bindings that waited for pins, membership changes, and released participants still waiting for pins.
+func _service_objects() -> void:
+	if _objects != null and (_state == ACTIVE or _state == LIMITED):
+		_objects.service()
+		_progress = _gather()
+	for p in _retiring.duplicate():
+		p.service_release()
+		if not p.release_pending():
+			_retiring.erase(p)
+
+
 func _resolve() -> void:
 	var missing := (_progress.missing as Array).size()
 	var err := _participant.publish()
+	if err == "" and _objects != null:
+		err = _objects.publish()
+		_object_progress = _objects.progress()
 	if err != "":
 		_fail(err)
 		return
@@ -192,7 +239,9 @@ func _release(reason: String, cause: String) -> void:
 	_reason = reason
 	_cause = cause
 	_progress = {}
+	_object_progress = {}
 	_participant = null
+	_objects = null
 	_busy_frame = Engine.get_process_frames()
 	_state = RELEASING
 
@@ -202,6 +251,10 @@ func _release(reason: String, cause: String) -> void:
 func _teardown() -> void:
 	if _participant != null:
 		_participant.release()
+	if _objects != null:
+		_objects.release()
+		if _objects.release_pending():
+			_retiring.append(_objects)
 	_draining = _cache.cancel_generation("preview_generation", _live_generation) > 0 or _draining
 	_cache.release(_owner())
 	_released_bytes = _cache.retire_unreferenced("preview_texture")
