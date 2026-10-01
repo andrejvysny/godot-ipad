@@ -2,8 +2,10 @@
 from __future__ import annotations
 
 import filecmp
+import fnmatch
 import io
 import json
+import re
 import shutil
 import struct
 import tempfile
@@ -169,6 +171,19 @@ class DevHelperTests(unittest.TestCase):
 		self.assertEqual(patched.split("[preset.1]")[1], text.split("[preset.1]")[1])
 		with self.assertRaises(ValueError):
 			dev.patch_ios_preset(text, {"application/no_such_option": "1"})
+
+	def test_export_presets_include_every_fixture_file(self) -> None:
+		# Non-resource files reach the export only through include_filter; a missing pattern
+		# leaves a fixture unreadable on the device (startup fails with a grey screen).
+		text = (wf.APP_DIR / "export_presets.cfg").read_text()
+		filters = re.findall(r'^include_filter="([^"]*)"', text, flags=re.M)
+		self.assertTrue(filters)
+		for raw in filters:
+			patterns = [p.strip() for p in raw.split(",") if p.strip()]
+			for path in sorted((wf.APP_DIR / "fixtures").rglob("*")):
+				if path.is_file() and path.suffix not in (".md", ".import", ".uid"):
+					self.assertTrue(any(fnmatch.fnmatch(path.name, p) for p in patterns),
+						"%s is not exported by include_filter %s" % (path.relative_to(wf.APP_DIR), raw))
 
 	def test_export_without_signing_fails_cleanly(self) -> None:
 		preset = wf.APP_DIR / "export_presets.cfg"
