@@ -359,7 +359,8 @@ func _refresh_scrubs() -> void:
 	_config(size_field, "Size", radius.x, radius.y, 0.5, func(v: float) -> String: return "%.1f m" % v)
 	_config(scrub("strength"), "Flow" if mode == "place" else "Strength", ToolSettings.STRENGTH_MIN,
 			ToolSettings.STRENGTH_MAX, 0.05, func(v: float) -> String: return "%d%%" % roundi(v * 100.0))
-	_config(scrub("width"), "Width", WorldConstants.PATH_WIDTH_MIN, WorldConstants.PATH_WIDTH_MAX, 0.1,
+	var width := ToolSettings.width_limits(_session.defaults.brush)
+	_config(scrub("width"), "Width", width.x, width.y, 0.1,
 			func(v: float) -> String: return "%.1f m" % v)
 	_set_field(size_field, float(s.radius))
 	_set_field(scrub("strength"), float(s.strength))

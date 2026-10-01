@@ -12,6 +12,8 @@ const STEP_M := 0.25
 const HANDLE_R := 0.22  # white disc; the accent ring ends at RING_R, so the marker is 0.6 m across
 const RING_R := 0.3
 const DISC_SEGMENTS := 20
+const MIN_SCREEN_PT := 22.0  # smallest on-screen marker diameter
+const MAX_SCALE := 400.0
 const COLOR_ACCENT := Color("f2bf33")
 
 var _line_mesh := ImmediateMesh.new()
@@ -19,6 +21,9 @@ var _handle_mesh := ImmediateMesh.new()
 var _line := MeshInstance3D.new()
 var _handles := MeshInstance3D.new()
 var _handle_positions: Array[Vector3] = []
+var _doc: WorldDocument
+var _points := PackedVector2Array()
+var _scales: Array[float] = []
 
 
 func _init() -> void:
@@ -40,16 +45,49 @@ func show_path(doc: WorldDocument, rec: PathRecord) -> void:
 	_line_mesh.clear_surfaces()
 	_handle_mesh.clear_surfaces()
 	_handle_positions.clear()
+	_scales.clear()
 	if rec == null or rec.points.size() < 2:
 		visible = false
 		return
+	_doc = doc
+	_points = rec.points.duplicate()
 	_build_line(doc, PathSpline.sample(rec.points, STEP_M))
-	_build_handles(doc, rec.points)
+	_build_handles(doc, _points, _wanted_scales())
 	visible = true
 
 
 func hide_overlay() -> void:
 	visible = false
+
+
+## Handle scale that keeps a marker at least MIN_SCREEN_PT across (1 = true size, 0.6 m).
+static func screen_scale(distance: float, fov_deg: float, viewport_h: float) -> float:
+	var px := RING_R * 2.0 * viewport_h / (2.0 * maxf(distance, 0.01) * tan(deg_to_rad(fov_deg) * 0.5))
+	return clampf(MIN_SCREEN_PT / maxf(px, 0.001), 1.0, MAX_SCALE)
+
+
+func _process(_delta: float) -> void:
+	if not visible or _points.is_empty():
+		return
+	var wanted := _wanted_scales()
+	for i in wanted.size():
+		if i >= _scales.size() or absf(wanted[i] - _scales[i]) > 0.02 * _scales[i]:
+			_handle_mesh.clear_surfaces()
+			_handle_positions.clear()
+			_build_handles(_doc, _points, wanted)
+			return
+
+
+func _wanted_scales() -> Array[float]:
+	var out: Array[float] = []
+	var camera := get_viewport().get_camera_3d() if is_inside_tree() else null
+	for p in _points:
+		var factor := 1.0
+		if camera != null:
+			var at := _lifted(_doc, p, HANDLE_LIFT_M)
+			factor = screen_scale(camera.global_position.distance_to(at), camera.fov, get_viewport().get_visible_rect().size.y)
+		out.append(factor)
+	return out
 
 
 ## World positions of the handle markers (lift included), in control-point order.
@@ -78,18 +116,21 @@ func _build_line(doc: WorldDocument, curve: PackedVector2Array) -> void:
 	_line_mesh.surface_end()
 
 
-func _build_handles(doc: WorldDocument, points: PackedVector2Array) -> void:
+func _build_handles(doc: WorldDocument, points: PackedVector2Array, scales: Array[float]) -> void:
+	_scales = scales.duplicate()
 	_handle_mesh.surface_begin(Mesh.PRIMITIVE_TRIANGLES)
-	for p in points:
-		var c := _lifted(doc, p, HANDLE_LIFT_M)
+	for k in points.size():
+		var c := _lifted(doc, points[k], HANDLE_LIFT_M)
+		var disc_r := HANDLE_R * scales[k]
+		var ring_r := RING_R * scales[k]
 		_handle_positions.append(c)
 		for s in DISC_SEGMENTS:
 			var a0 := TAU * float(s) / float(DISC_SEGMENTS)
 			var a1 := TAU * float(s + 1) / float(DISC_SEGMENTS)
 			var d0 := Vector3(cos(a0), 0.0, sin(a0))
 			var d1 := Vector3(cos(a1), 0.0, sin(a1))
-			_tri(c, c + d0 * HANDLE_R, c + d1 * HANDLE_R, Color.WHITE)
-			_quad(c + d0 * HANDLE_R, c + d0 * RING_R, c + d1 * RING_R, c + d1 * HANDLE_R, COLOR_ACCENT)
+			_tri(c, c + d0 * disc_r, c + d1 * disc_r, Color.WHITE)
+			_quad(c + d0 * disc_r, c + d0 * ring_r, c + d1 * ring_r, c + d1 * disc_r, COLOR_ACCENT)
 	_handle_mesh.surface_end()
 
 

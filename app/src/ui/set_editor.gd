@@ -34,7 +34,9 @@ func setup(session: EditorSession, library: AssetLibrary) -> void:
 	visible = false
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	var bg := ColorRect.new()
-	bg.color = Color(12.0 / 255.0, 14.0 / 255.0, 16.0 / 255.0, 0.97)
+	# Design says alpha .97, but the 3 % leak ghosts the bright chrome (pill, Library, chip) over the near-black
+	# backdrop; fully opaque reads as the intended "visually opaque" page.
+	bg.color = Color(12.0 / 255.0, 14.0 / 255.0, 16.0 / 255.0, 1.0)
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(bg)
 	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)

@@ -1,7 +1,7 @@
 class_name ZipInspector
 extends RefCounted
 ## Parses a .worldpoc central directory from raw bytes BEFORE anything is extracted
-## (docs/world-format.md §7). Only the exact generation layout is accepted; anything that
+## (docs/world-format.md §9). Only the exact generation layout is accepted; anything that
 ## could escape the extraction directory, expand unboundedly, or need ZIP64 is rejected.
 
 const SIG_EOCD := 0x06054b50

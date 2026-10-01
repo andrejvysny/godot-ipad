@@ -4,9 +4,12 @@ extends PanelContainer
 ## most four times per second while visible. Fault buttons are testing aids, captioned as such.
 
 const REFRESH_MSEC := 250
+const MAX_HEIGHT := 1000.0
 
 var _session: EditorSession
 var _text := Label.new()
+var _scroll := ScrollContainer.new()
+var _max_height := MAX_HEIGHT
 var _toggles: Dictionary = {}  # caption -> Button
 var _last_sample: PointerSample = null
 var _last_refresh_msec := -REFRESH_MSEC
@@ -18,7 +21,9 @@ func setup(session: EditorSession) -> void:
 	_session = session
 	visible = false
 	var column := VBoxContainer.new()
-	add_child(column)
+	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_scroll.add_child(column)
+	add_child(_scroll)
 	_text.add_theme_font_override("font", UiKit.mono_font())
 	_text.add_theme_font_size_override("font_size", 13)
 	_text.custom_minimum_size.x = 356
@@ -28,6 +33,7 @@ func setup(session: EditorSession) -> void:
 	column.add_child(_grid([
 		["Blend view", _toggle_view.bind("control_blend"), true],
 		["Height view", _toggle_view.bind("heightmap"), true],
+		["Normals view", _toggle_view.bind("normals"), true],
 		["Region grid", _toggle_grid, true], ["Anchors", _toggle_anchors, true],
 		["Object IDs", _toggle_ids, true], ["3D 50%", _toggle_scale, true],
 		["Save trace", func() -> void: _session.save_trace()],
@@ -41,6 +47,19 @@ func setup(session: EditorSession) -> void:
 		["Sim. remap", func() -> void: _session.simulate_cancel("mapping_changed")]]))
 	_session.input.sample_received.connect(func(sample: PointerSample) -> void: _last_sample = sample.clone())
 	_fingerprint = _read_fingerprint()
+
+
+## The overlay never grows taller than `h`; the content scrolls inside it.
+func set_max_height(h: float) -> void:
+	_max_height = minf(h, MAX_HEIGHT)
+	_fit_height()
+
+
+func _fit_height() -> void:
+	var column := _scroll.get_child(0) as Control
+	var pad := get_theme_stylebox("panel").get_minimum_size().y
+	_scroll.custom_minimum_size.y = maxf(minf(column.get_combined_minimum_size().y, _max_height - pad), 80.0)
+	reset_size()
 
 
 func _grid(entries: Array) -> GridContainer:
@@ -108,8 +127,9 @@ func refresh(force := false) -> void:
 	var view := _session.terrain.get_debug_view()
 	(_toggles["Blend view"] as Button).set_pressed_no_signal(view == "control_blend")
 	(_toggles["Height view"] as Button).set_pressed_no_signal(view == "heightmap")
+	(_toggles["Normals view"] as Button).set_pressed_no_signal(view == "normals")
 	_text.text = _build_text()
-	reset_size()
+	_fit_height()
 
 
 func _build_text() -> String:
@@ -123,10 +143,12 @@ func _build_text() -> String:
 		_coordinates(),
 		"Pressure %s · %s" % ["available" if s.pressure_available else "unavailable", _pressure()],
 		"Hit %s" % s.last_hit,
-		"Tool %s · op %s" % [s.tool, s.operation_id if s.operation_id != "" else "none"],
+		"Mode %s · tool %s · invert %s · op %s" % [s.mode, s.tool, "on" if s.inverted else "off",
+				s.operation_id if s.operation_id != "" else "none"],
 		"Revision %d · %s" % [s.revision, s.save_text],
 		"History %d actions · %d bytes · evicted %d" % [s.history_size, s.history_bytes, s.evicted],
-		"Objects %d · scatter: PoC+ (not built)" % s.object_count,
+		_content_line(s.object_count),
+		_rules_line(),
 		"Frame p50 %.1f ms · p95 %.1f ms · brush p95 %.1f ms" % [s.frame_p50_ms, s.frame_p95_ms, s.brush_p95_ms],
 		_stroke_line(s.last_stroke),
 		"Last cancel: %s" % (s.last_cancel if s.last_cancel != "" else "none"),
@@ -136,6 +158,19 @@ func _build_text() -> String:
 		"Save queue %s" % ("busy" if _session.storage.is_busy() else "idle"),
 	]
 	return "\n".join(lines)
+
+
+func _content_line(object_count: int) -> String:
+	var layer := _session.layers.stats()
+	return "Objects %d · scatter %d inst · %d cells / %d multimeshes · paths %d" % [object_count,
+			_session.document.scatter.count(), int(layer.cells), int(layer.multimeshes), _session.document.paths.size()]
+
+
+func _rules_line() -> String:
+	var r := _session.document.rules
+	return "Rules rock %s %d° · sand %s %.1f m · highlight %s" % ["on" if r.rock_enabled else "off", r.rock_slope_deg,
+			"on" if r.sand_enabled else "off", r.sand_height_dm / 10.0,
+			"on" if _session.terrain.get_rule_highlight() else "off"]
 
 
 static func _stroke_line(st: Dictionary) -> String:

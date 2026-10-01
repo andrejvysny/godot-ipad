@@ -1,4 +1,4 @@
-"""Every generation rejection rule (world-format §3, §4, §7; spec IO-07, IO-09)."""
+"""Every generation rejection rule (world-format §3, §4, §9; spec IO-07, IO-09)."""
 from __future__ import annotations
 
 import struct

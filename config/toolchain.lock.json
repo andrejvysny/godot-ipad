@@ -41,13 +41,13 @@
   "fixtures": {
     "flat": {
       "world_id": "0f1a7000-0000-4000-8000-000000000001",
-      "authored_content_hash": "d5072791614659d3ea2f0f9f66b959b2556b95937afc9bb57b84e622b6b05bb3",
-      "manifest_sha256": "1cc93ef0e9723ab45ac5fe4ca2aeb3d4f6db67323ac10dd3c0a47b51afb7309b"
+      "authored_content_hash": "bedce13a23c1190c8cf01b9c3666a7dc7d2c728c1d85504af34baa84f382279b",
+      "manifest_sha256": "f89e626dff43a94162b65576c049e2819d481fbd652714dfb7572f7cb5f8ddfd"
     },
     "gentle_hills": {
       "world_id": "0e111150-0000-4000-8000-000000000002",
-      "authored_content_hash": "6a34a9fbd86e99f6387386f699f101e898a599938e054ef5e267f4033064823f",
-      "manifest_sha256": "220f81fceabe24fcd3790b2ad93d1bfccc15e63eb76cacbf93b8bb84a1c26fce"
+      "authored_content_hash": "133d5013176873deba05b98c45109fed36e6c3ddbe370627043a6e9e77034934",
+      "manifest_sha256": "b660a885d26cfb7d8f49ec27e3b1fe19c78d06b6a71a9a16c25bf308ba1c22b4"
     }
   },
   "device_gate_g1": "INCOMPLETE: Metal failed with fence timeouts; Vulkan rendering, orbit, paint and Pencil buttons verified; formal calibration, palm, interruption and persistence gates remain open",

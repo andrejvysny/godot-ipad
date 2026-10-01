@@ -180,8 +180,8 @@ static func sculpt_segment(doc: WorldDocument, tx: EditTransaction, p_a: Vector2
 
 ## Coverage-max paint of the segment a-b (PaintKernels): see there for the alpha handling.
 static func paint_segment(state: PaintStrokeState, p_a: Vector2, p_b: Vector2, radius: float,
-		strength: float, pf_a: float, pf_b: float, falloff_kind: String) -> Dictionary:
-	return PaintKernels.paint_segment(state, p_a, p_b, radius, strength, pf_a, pf_b, falloff_kind)
+		strength: float, pf_a: float, pf_b: float) -> Dictionary:
+	return PaintKernels.paint_segment(state, p_a, p_b, radius, strength, pf_a, pf_b)
 
 
 ## Tracks changed samples as [gx_min, gx_max, gz_min, gz_max] in `ext` and the dirty region list.

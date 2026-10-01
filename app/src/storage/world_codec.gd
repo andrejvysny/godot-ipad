@@ -1,6 +1,6 @@
 class_name WorldCodec
 extends RefCounted
-## Generation directory reader/writer (docs/world-format.md §2-§4). Writing is split into a
+## Generation directory reader/writer (docs/world-format.md §2-§6). Writing is split into a
 ## main-thread snapshot (plain values only) and write_snapshot(), which the storage worker
 ## runs without ever touching a WorldDocument. Reading always builds a NEW document.
 

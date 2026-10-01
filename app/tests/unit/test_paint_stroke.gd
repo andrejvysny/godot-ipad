@@ -1,6 +1,5 @@
 extends TestCase
-## Coverage-based material paint and the path preset (spec §11.2, §12.3, §15.5; TE-03, TE-05,
-## TE-12, PA-00).
+## Coverage-based material paint (spec §11.2, §12.3; TE-03, TE-05, TE-12).
 
 const OTHER_BITS := 0x00003FFE  # nav, hole, reserved, uv scale, uv rotation
 
@@ -13,7 +12,7 @@ func _doc(control: int = ControlCodec.grass_value()) -> WorldDocument:
 
 func _brush(target: float = 1.0, strength: float = 0.8, radius: float = 4.0, pressure: bool = true) -> Dictionary:
 	return {"radius": radius, "target_blend": target, "strength": strength,
-			"pressure_enabled": pressure, "falloff_kind": PaintStroke.FALLOFF_BRUSH}
+			"pressure_enabled": pressure}
 
 
 func _begin(doc: WorldDocument, settings: Dictionary, pos: Vector2, pf: float = 1.0) -> PaintStroke:
@@ -141,21 +140,20 @@ func _rate_diff(curved: bool, settings: Dictionary) -> int:
 	return maxi(maxi(_max_blend_diff(c30, c60), _max_blend_diff(c60, c120)), _max_blend_diff(c30, c120))
 
 
-## TE-03 for the shipped presets (path widths 2/3/6 m, brush radius 1-16 m), each rate sampling
+## TE-03 for the shipped brush radii (1-16 m), each rate sampling
 ## the straight fixture independently.
 func test_te03_shipped_presets_straight_fixture() -> void:
-	var presets: Array[Dictionary] = [PaintStroke.path_settings(2.0), PaintStroke.path_settings(3.0),
-			PaintStroke.path_settings(6.0), _brush(1.0, 1.0, 1.0), _brush(1.0, 0.8, 16.0)]
+	var presets: Array[Dictionary] = [_brush(1.0, 1.0, 1.0), _brush(1.0, 0.8, 16.0)]
 	for settings: Dictionary in presets:
 		var d := _rate_diff(false, settings)
-		assert_true(d <= 1, "%s %.1f m differs by %d levels" % [settings.falloff_kind, settings.radius, d])
+		assert_true(d <= 1, "%.1f m differs by %d levels" % [settings.radius, d])
 
 
 ## TE-03 curved: one 240 Hz Pencil trace delivered in 30/60/120 Hz callbacks (4/2/... coalesced
 ## samples per callback). Independently sampling a curve at each rate changes the input polyline
 ## itself (chord error), which no kernel can undo; see the stream report.
 func test_te03_curved_trace_batched_into_callback_rates() -> void:
-	for settings: Dictionary in [PaintStroke.path_settings(2.0), _brush(1.0, 1.0, 1.0)]:
+	for settings: Dictionary in [_brush(1.0, 1.0, 1.0)]:
 		var results: Array[Dictionary] = []
 		for hz: float in [30.0, 60.0, 120.0]:
 			var doc := _doc()
@@ -169,14 +167,6 @@ func test_te03_curved_trace_batched_into_callback_rates() -> void:
 			results.append(_controls(doc))
 		assert_eq(_max_blend_diff(results[0], results[1]), 0, "30 vs 60")
 		assert_eq(_max_blend_diff(results[1], results[2]), 0, "60 vs 120")
-
-
-func test_path_falloff_ignores_pressure_even_if_enabled() -> void:
-	var with_pressure := PaintStroke.path_settings(3.0)
-	with_pressure.pressure_enabled = true
-	var a := _paint_fixture(60.0, true, with_pressure)
-	var b := _paint_fixture(60.0, true, PaintStroke.path_settings(3.0))
-	assert_true(a == b, "path paints with factor 1 whatever the pressure")
 
 
 func test_non_finite_pressure_is_full_strength() -> void:
@@ -243,47 +233,6 @@ func test_te05_paint_undo_redo_byte_exact() -> void:
 	assert_true(_controls(doc) == after, "redo exact")
 
 
-func test_pa00_path_preset_width_controlled_dirt() -> void:
-	var doc := _doc()
-	var rec := ObjectRecord.new()
-	rec.object_id = ObjectRecord.new_uuid_v4()
-	rec.asset_id = "nature.tree.spruce_a"
-	rec.asset_version = 1
-	rec.set_position(0.0, 0.0, 5.1)
-	doc.put_object(rec)
-	var before_hash := CanonicalEncoder.authored_hash(doc)
-	var settings := PaintStroke.path_settings(3.0)
-	var a := Vector2(-20.0, 5.1)
-	var b := Vector2(20.0, 5.1)
-	var s := _begin(doc, settings, a, 0.1)  # pressure is ignored by the preset
-	for k in range(1, 41):
-		s.add_sample(k * 0.02, a.lerp(b, k / 40.0), 0.1)
-	assert_empty_string(s.finish(0.8).error)
-	var tx := _last_tx
-	var inner_bad := 0
-	var outer_bad := 0
-	for gz in range(0, 24):
-		for gx in range(-50, 51):
-			var p := Vector2(gx * 0.5, gz * 0.5)
-			var d := _dist_to_segment(p, a, b)
-			var v := doc.get_control_at_sample(gx, gz)
-			if d <= 0.9 and ControlCodec.get_blend(v) != 255:
-				inner_bad += 1
-			if d >= 1.5 and v != ControlCodec.grass_value():
-				outer_bad += 1
-	assert_eq(inner_bad, 0, "within 0.9 m of the centreline is full dirt")
-	assert_eq(outer_bad, 0, "beyond 1.5 m unchanged")
-	assert_true(doc.get_object(rec.object_id).equals(rec), "object untouched")
-	assert_true(tx.captured_object_ids().is_empty(), "no object captured")
-	var change := tx.finish()
-	var hist := CommandHistory.new()
-	doc.bump_revision()
-	hist.push_already_applied(change)
-	assert_eq(hist.size(), 1, "one transaction")
-	hist.undo(doc)
-	assert_eq(CanonicalEncoder.authored_hash(doc), before_hash, "one undo restores paint")
-
-
 func test_timing_paint_segment_via_stroke() -> void:
 	var doc := _doc()
 	var s := _begin(doc, _brush(1.0, 0.8, 16.0), Vector2(0, 0))
@@ -293,8 +242,3 @@ func test_timing_paint_segment_via_stroke() -> void:
 	print("    TIMING r=16m paint piece via PaintStroke %.2f ms" % ((Time.get_ticks_usec() - t0) / 10000.0))
 	assert_empty_string(s.finish(0.1).error)
 
-
-static func _dist_to_segment(p: Vector2, a: Vector2, b: Vector2) -> float:
-	var ab := b - a
-	var u := clampf((p - a).dot(ab) / ab.length_squared(), 0.0, 1.0)
-	return p.distance_to(a + ab * u)

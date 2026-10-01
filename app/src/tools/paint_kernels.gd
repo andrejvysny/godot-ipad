@@ -20,7 +20,6 @@ class Job extends RefCounted:
 	var strength: float
 	var pf_a: float
 	var pf_b: float
-	var use_path: bool
 	var exact: bool
 	var varying_pf: bool
 	var pf_max: float
@@ -30,19 +29,18 @@ class Job extends RefCounted:
 	var dab_pf := PackedFloat32Array()
 
 	func _init(p_state: BrushKernels.PaintStrokeState, a: Vector2, b: Vector2, p_radius: float,
-			p_strength: float, p_pf_a: float, p_pf_b: float, falloff_kind: String) -> void:
+			p_strength: float, p_pf_a: float, p_pf_b: float) -> void:
 		state = p_state
 		radius = p_radius
 		strength = p_strength
 		pf_a = p_pf_a
 		pf_b = p_pf_b
-		use_path = falloff_kind == "path"
 		geo = BrushKernels.Capsule.new(a, b, p_radius)
 		inv_r = 1.0 / p_radius
 		inv_len = 1.0 / geo.length if geo.length >= BrushMath.MIN_SEGMENT_LENGTH else 0.0
 		varying_pf = pf_a != pf_b and geo.length > 0.0
 		pf_max = maxf(pf_a, pf_b)
-		exact = use_path or BrushAlpha.is_exact_soft(state.shape, state.alpha_mode)
+		exact = BrushAlpha.is_exact_soft(state.shape, state.alpha_mode)
 		if not exact:
 			var n := BrushDabs.count(geo.length, radius)
 			dab_pos = BrushDabs.centers(a, b, n)
@@ -79,9 +77,8 @@ class Job extends RefCounted:
 			return 0.0
 		var q := sqrt(d2) * inv_r
 		var s := strength * mult
-		if use_path or not varying_pf:
-			var f := BrushMath.path_falloff(q) if use_path else BrushMath.falloff(q)
-			return s * lerpf(pf_a, pf_b, along * inv_len) * f
+		if not varying_pf:
+			return s * lerpf(pf_a, pf_b, along * inv_len) * BrushMath.falloff(q)
 		# The closest point maximises falloff, so pf_max * falloff bounds the true max.
 		if s * pf_max * BrushMath.falloff(q) <= floor_cov:
 			return 0.0
@@ -89,7 +86,7 @@ class Job extends RefCounted:
 
 
 static func paint_segment(state: BrushKernels.PaintStrokeState, p_a: Vector2, p_b: Vector2, radius: float,
-		strength: float, pf_a: float, pf_b: float, falloff_kind: String) -> Dictionary:
+		strength: float, pf_a: float, pf_b: float) -> Dictionary:
 	var res := BrushKernels.empty_result()
 	if not (is_finite(strength) and is_finite(radius) and is_finite(pf_a) and is_finite(pf_b)
 			and p_a.is_finite() and p_b.is_finite()):
@@ -98,7 +95,7 @@ static func paint_segment(state: BrushKernels.PaintStrokeState, p_a: Vector2, p_
 	if strength <= 0.0 or radius <= 0.0:
 		return res
 	state.angle = BrushDabs.segment_angle(p_a, p_b, state.angle)
-	var job := Job.new(state, p_a, p_b, radius, strength, pf_a, pf_b, falloff_kind)
+	var job := Job.new(state, p_a, p_b, radius, strength, pf_a, pf_b)
 	var bounds := job.geo.row_range()
 	var ext := BrushKernels._new_extent()
 	var sp := WorldConstants.SAMPLE_SPACING

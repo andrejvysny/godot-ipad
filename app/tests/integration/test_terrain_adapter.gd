@@ -432,24 +432,27 @@ func _gpu_layers(rid: RID, count: int) -> Array[PackedByteArray]:
 
 # --- debug views ------------------------------------------------------------------------------
 
-func test_debug_view_and_region_grid_toggles() -> void:
+func test_debug_view_and_region_grid_map_to_shader_uniforms() -> void:
 	var a := _make(WorldDocument.create_flat(0.0, ControlCodec.grass_value()))
-	var t := a.get_terrain()
-	assert_false(t.show_control_blend or t.show_heightmap or t.show_region_grid, "normal by default")
-	assert_empty_string(a.set_debug_view("control_blend"))
-	assert_true(t.material.show_control_blend, "control blend on")
-	assert_false(t.material.show_heightmap)
-	assert_empty_string(a.set_debug_view("heightmap"))
-	assert_true(t.material.show_heightmap, "heightmap on")
-	assert_false(t.material.show_control_blend, "control blend off")
+	var mat := a.get_terrain().material
+	assert_true(mat.shader_override.code.contains("uniform int debug_view"), "project shader has debug_view")
+	assert_eq(a.debug_uniforms(), {"debug_view": 0, "debug_region_grid": false}, "normal by default")
+	var expected := {"control_blend": 1, "heightmap": 2, "normals": 3, "normal": 0}
+	for mode: String in expected:
+		assert_empty_string(a.set_debug_view(mode))
+		assert_eq(a.debug_uniforms().debug_view, expected[mode], mode)
+		var live: Variant = mat.get_shader_param("debug_view")
+		if live != null:
+			assert_eq(live, expected[mode], "material " + mode)
 	assert_error_contains(a.set_debug_view("wireframe"), "unknown debug view")
-	assert_eq(a.get_debug_view(), "heightmap", "rejected mode leaves state")
-	assert_empty_string(a.set_debug_view("normal"))
-	assert_false(t.material.show_heightmap or t.material.show_control_blend, "normal clears both")
+	assert_eq(a.get_debug_view(), "normal", "rejected mode leaves state")
 	a.set_region_grid(true)
-	assert_true(t.material.show_region_grid, "region grid on")
+	assert_true(a.debug_uniforms().debug_region_grid, "region grid on")
+	var grid_live: Variant = mat.get_shader_param("debug_region_grid")
+	if grid_live != null:
+		assert_eq(grid_live, true, "material region grid")
 	a.set_region_grid(false)
-	assert_false(t.material.show_region_grid, "region grid off")
+	assert_false(a.debug_uniforms().debug_region_grid, "region grid off")
 
 
 # --- document replacement -----------------------------------------------------------------------

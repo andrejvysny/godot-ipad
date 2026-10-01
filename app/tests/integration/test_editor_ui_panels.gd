@@ -159,6 +159,34 @@ func test_diagnostics_toggle_shows_text() -> void:
 	var text := ui.diagnostics_overlay().text()
 	assert_true(text.contains("Revision"), text)
 	assert_true(text.contains(str(s.status().renderer)), text)
+	assert_false(text.contains("PoC+"), "no stale scatter placeholder")
+	for part in ["Mode paint · tool paint · invert off", "scatter 0 inst", "paths ", "Rules rock on 30° · sand on -0.4 m · highlight off"]:
+		assert_true(text.contains(part), "%s in %s" % [part, text])
+	var overlay := ui.diagnostics_overlay()
+	ui.layout_override = Vector2(1180, 500)
+	ui.layout()
+	assert_true(overlay.position.y + overlay.size.y <= ui.chip().position.y, "overlay stays above the chip: %s %s" % [overlay.size, ui.chip().position])
+	ui.layout_override = Vector2.ZERO
+
+
+func test_long_toast_wraps_within_the_free_span() -> void:
+	var s := await _start()
+	var ui := _ui(s)
+	ui.layout_override = Vector2(1180, 820)
+	ui.toast().show_message("word ".repeat(80), false)
+	ui.layout()
+	var toast := ui.toast()
+	assert_true(toast.size.x <= 560.0 + 40.0, "capped width %s" % toast.size)
+	assert_true(toast.size.y > 40.0, "wrapped to several lines %s" % toast.size)
+	ui.toast().fit_width(200.0)
+	assert_true(toast.label().custom_minimum_size.x <= 200.0, "narrow span respected %s" % toast.label().custom_minimum_size)
+	ui.layout_override = Vector2.ZERO
+
+
+func test_save_caption_matches_the_spec_wording() -> void:
+	assert_eq(WorldMenu.save_caption("Saved revision 4"), "Saved · revision 4")
+	assert_eq(WorldMenu.save_caption("Saving revision 5"), "Saving revision 5")
+	assert_eq(WorldMenu.save_caption("Unsaved"), "Unsaved")
 
 
 func test_registration_of_panels_and_non_blocking_overlays() -> void:

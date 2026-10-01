@@ -12,6 +12,7 @@ const GAP := 10.0
 const TOP_Y := 62.0
 const RAIL_GAP := 6.0
 const BANNER_MAX_W := 560.0
+const DIAG_BOTTOM_RESERVE := 64.0  # chip gap plus one toast line
 const GHOST_LABEL_OFFSET := Vector2(22, -58)
 
 ## Tests: lay the panels out as if the viewport had this size (zero = the real one).
@@ -324,7 +325,8 @@ func _layout_sides(vp: Vector2) -> void:
 		lo = near.position.x + near.size.x + GAP
 		hi = lib_edge if _library.is_open() else vp.x - M
 	_region = Vector2(lo, hi)
-	var diag_x := hi - _diagnostics.size.x
+	_diagnostics.set_max_height(vp.y - TOP_Y - M - _chip.size.y - DIAG_BOTTOM_RESERVE)
+	var diag_x := maxf(hi - _diagnostics.size.x, M)
 	if _left:
 		diag_x = lib_edge if _library.is_open() else M
 	_diagnostics.position = Vector2(diag_x, TOP_Y)

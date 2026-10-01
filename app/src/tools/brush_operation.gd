@@ -219,7 +219,7 @@ func _paint_settings() -> Dictionary:
 	var op := _paint_op()
 	return {"radius": float(_settings.get("radius", 4.0)), "strength": float(_settings.get("strength", 0.8)),
 			"target_blend": 1.0, "pressure_enabled": bool(_settings.get("pressure_enabled", true)),
-			"falloff_kind": PaintStroke.FALLOFF_BRUSH, "op": op, "layer": int(_settings.get("layer", 1)),
+			"op": op, "layer": int(_settings.get("layer", 1)),
 			"tint": int(_settings.get("tint", 0)), "shape": str(_settings.get("shape", "soft")),
 			"alpha_mode": str(_settings.get("alpha_mode", "circle")),
 			"seed": float(operation_id().hash() & 0xFFFF) * 0.0173}

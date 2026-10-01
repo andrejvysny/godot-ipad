@@ -123,7 +123,13 @@ func snapshot(kind: String) -> Dictionary:
 	var out := {}
 	for loc: Vector2i in session.document.regions:
 		var region := session.document.get_region(loc)
-		out[loc] = region.heights.duplicate() if kind == "heights" else region.control.duplicate()
+		match kind:
+			"heights":
+				out[loc] = region.heights.duplicate()
+			"color":
+				out[loc] = region.color.duplicate()
+			_:
+				out[loc] = region.control.duplicate()
 	return out
 
 

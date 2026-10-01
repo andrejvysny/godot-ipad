@@ -15,7 +15,7 @@ const BOULDER := "nature.rock.boulder_a"
 const SPRUCE := "nature.tree.spruce_a"
 const MAX_ATTEMPTS := 3
 const STEP_DEPENDENCIES := {"S02": "S01", "S03": "S01", "S04": "S03", "S05": "S01", "S06": "S03",
-	"S07": "S01", "S08": "S03", "S09": "S01", "S10": "S01", "S11": "S01"}
+	"S07": "S01", "S08": "S03", "S09": "S01", "S10": "S01", "S11": "S01", "S12": "S01", "S13": "S01", "S14": "S01"}
 
 var output_dir := OUTPUT_DIR
 var report: Dictionary = {}
@@ -62,6 +62,10 @@ func _run() -> void:
 	await _step("S09", _s09_interrupted)
 	await _step("S10", _s10_reopen)
 	await _step("S11", _s11_export)
+	var v2 := SelfTestV2.new(_session, _d, _check, _shot)
+	await _step("S12", v2.s12_tint_flatten)
+	await _step("S13", v2.s13_scatter)
+	await _step("S14", v2.s14_rules)
 	await _final_shot()
 	_finish()
 

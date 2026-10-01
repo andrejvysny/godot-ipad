@@ -11,7 +11,8 @@ extends TerrainView
 ## recompute height ranges, so the adapter does that before uploading heights.
 ## Changing an Image alone never refreshes the GPU texture array.
 
-const DEBUG_VIEWS := ["normal", "control_blend", "heightmap"]
+## Index = value of the shader's debug_view uniform.
+const DEBUG_VIEWS := ["normal", "control_blend", "heightmap", "normals"]
 const UPLOAD_TYPES := [Terrain3DRegion.TYPE_HEIGHT, Terrain3DRegion.TYPE_CONTROL, Terrain3DRegion.TYPE_COLOR]
 const UPLOAD_STATS := ["uploads_height", "uploads_control", "uploads_color"]
 const SHADER_PATH := "res://src/terrain/world_terrain.gdshader"
@@ -296,12 +297,19 @@ func _upload(kind: int) -> void:
 	_stats[UPLOAD_STATS[kind]] += locs.size()
 
 
+## Shader uniforms of the debug views; observable headless like rule_uniforms().
+func debug_uniforms() -> Dictionary:
+	return {"debug_view": DEBUG_VIEWS.find(_debug_view), "debug_region_grid": _region_grid}
+
+
 func _apply_debug_state() -> void:
-	if _terrain == null:
+	if _terrain == null or _terrain.material == null:
 		return
-	_terrain.show_control_blend = _debug_view == "control_blend"
-	_terrain.show_heightmap = _debug_view == "heightmap"
-	_terrain.show_region_grid = _region_grid
+	# Terrain3D's show_* flags are injections into its generated shader and do nothing under the
+	# project shader, so the views are uniforms of world_terrain.gdshader.
+	var uniforms := debug_uniforms()
+	for key: String in uniforms:
+		_terrain.material.set_shader_param(key, uniforms[key])
 
 
 func _validate_document(doc: WorldDocument) -> String:

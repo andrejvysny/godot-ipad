@@ -1,5 +1,5 @@
 extends TestCase
-## Trusted asset catalog: strict loading, content hash (docs/world-format.md §6).
+## Trusted asset catalog: strict loading, content hash (docs/world-format.md §8).
 
 var _dir := ""
 

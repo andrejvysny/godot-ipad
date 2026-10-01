@@ -108,6 +108,16 @@ func test_handles_only_when_selected_and_shown() -> void:
 	assert_false(renderer.overlay().visible)
 
 
+func test_handle_scale_keeps_minimum_screen_size() -> void:
+	var near := PathOverlay.screen_scale(5.0, 60.0, 820.0)
+	assert_eq(near, 1.0, "close camera keeps the true 0.6 m size")
+	for dist in [40.0, 120.0, 400.0]:
+		var s := PathOverlay.screen_scale(dist, 60.0, 820.0)
+		var px: float = 0.6 * s * 820.0 / (2.0 * dist * tan(deg_to_rad(30.0)))
+		assert_near(px, PathOverlay.MIN_SCREEN_PT, 0.05, "marker is 22 pt at %s m" % dist)
+	assert_true(PathOverlay.screen_scale(120.0, 60.0, 820.0) > PathOverlay.screen_scale(40.0, 60.0, 820.0), "grows with distance")
+
+
 func test_world_layers_follow_tool_and_selection_and_history() -> void:
 	var h := ToolHarness.new()
 	assert_empty_string(h.setup(tree))

@@ -1,4 +1,4 @@
-""".worldpoc package rules checked before extraction (world-format §7; spec IO-08) and a round trip."""
+""".worldpoc package rules checked before extraction (world-format §9; spec IO-08) and a round trip."""
 from __future__ import annotations
 
 import io

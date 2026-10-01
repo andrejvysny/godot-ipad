@@ -82,7 +82,7 @@ func test_te09_world_edge_and_beyond_write_nothing_outside() -> void:
 	assert_empty_string(beyond.error)
 	assert_true((beyond.dirty_heights as Array).is_empty(), "nothing inside the extent")
 	var state := BrushKernels.PaintStrokeState.new(doc, tx, 1.0)
-	var paint := BrushKernels.paint_segment(state, Vector2(-128, -128), Vector2(-300, -128), 4.0, 1.0, 1.0, 1.0, "brush")
+	var paint := BrushKernels.paint_segment(state, Vector2(-128, -128), Vector2(-300, -128), 4.0, 1.0, 1.0, 1.0)
 	assert_empty_string(paint.error)
 	assert_eq(paint.dirty_controls, [Vector2i(-1, -1)] as Array[Vector2i])
 	assert_eq(doc.regions.size(), 4, "no new regions")
@@ -163,7 +163,7 @@ func test_result_rect_contains_every_changed_anchor() -> void:
 		assert_eq(outside, 0, "changed anchors outside %s" % rect)
 	var pdoc := _doc()
 	var state := BrushKernels.PaintStrokeState.new(pdoc, _tx(pdoc), 1.0)
-	var pres := BrushKernels.paint_segment(state, Vector2(-3.3, 4.1), Vector2(1.7, 6.2), 2.4, 1.0, 1.0, 1.0, "brush")
+	var pres := BrushKernels.paint_segment(state, Vector2(-3.3, 4.1), Vector2(1.7, 6.2), 2.4, 1.0, 1.0, 1.0)
 	assert_eq(pres.rect, _grown_hull(pdoc, false), "paint rect = changed samples grown by one spacing")
 
 
@@ -189,9 +189,9 @@ func test_non_finite_inputs_are_rejected_without_writing() -> void:
 		BrushKernels.sculpt_segment(doc, tx, Vector2(NAN, 0), Vector2(0, 0), 2.0, 1.0, 1.0, 1.0, 0.1),
 		BrushKernels.sculpt_segment(doc, tx, Vector2(0, 0), Vector2(0, 0), NAN, 1.0, 1.0, 1.0, 0.1),
 		BrushKernels.sculpt_segment(doc, tx, Vector2(0, 0), Vector2(0, 0), 2.0, 1.0, 1.0, NAN, 0.1),
-		BrushKernels.paint_segment(state, Vector2(0, INF), Vector2(0, 0), 2.0, 1.0, 1.0, 1.0, "brush"),
-		BrushKernels.paint_segment(state, Vector2(0, 0), Vector2(0, 0), 2.0, NAN, 1.0, 1.0, "brush"),
-		BrushKernels.paint_segment(state, Vector2(0, 0), Vector2(1, 0), 2.0, 1.0, NAN, 1.0, "brush"),
+		BrushKernels.paint_segment(state, Vector2(0, INF), Vector2(0, 0), 2.0, 1.0, 1.0, 1.0),
+		BrushKernels.paint_segment(state, Vector2(0, 0), Vector2(0, 0), 2.0, NAN, 1.0, 1.0),
+		BrushKernels.paint_segment(state, Vector2(0, 0), Vector2(1, 0), 2.0, 1.0, NAN, 1.0),
 	]
 	for r: Dictionary in results:
 		assert_eq(r.error, BrushKernels.ERROR_INVALID)
@@ -211,7 +211,7 @@ func test_timing_16m_sculpt_step_and_paint_segment() -> void:
 	var state := BrushKernels.PaintStrokeState.new(doc, tx, 1.0)
 	t0 = Time.get_ticks_usec()
 	for i in n:
-		BrushKernels.paint_segment(state, Vector2(i * 0.5, 0), Vector2(i * 0.5 + 0.5, 0), 16.0, 1.0, 1.0, 1.0, "brush")
+		BrushKernels.paint_segment(state, Vector2(i * 0.5, 0), Vector2(i * 0.5 + 0.5, 0), 16.0, 1.0, 1.0, 1.0)
 	var paint_ms := (Time.get_ticks_usec() - t0) / 1000.0 / n
 	print("    TIMING r=16m sculpt_segment %.2f ms/call, paint_segment %.2f ms/call (desktop headless)" % [sculpt_ms, paint_ms])
 	assert_true(sculpt_ms > 0.0 and paint_ms > 0.0)

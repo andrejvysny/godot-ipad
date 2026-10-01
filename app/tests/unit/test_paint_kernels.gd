@@ -11,7 +11,7 @@ func _doc(control: int = ControlCodec.default_value()) -> WorldDocument:
 
 func _settings(op: String, layer: int, radius: float, extra: Dictionary = {}) -> Dictionary:
 	var s := {"radius": radius, "strength": 1.0, "target_blend": 1.0, "pressure_enabled": false,
-			"falloff_kind": PaintStroke.FALLOFF_BRUSH, "op": op, "layer": layer, "tint": 1}
+			"op": op, "layer": layer, "tint": 1}
 	s.merge(extra, true)
 	return s
 
@@ -196,7 +196,7 @@ func test_tint_across_region_seams_is_symmetric_and_undoable() -> void:
 	var state := BrushKernels.PaintStrokeState.new(doc, tx, 1.0)
 	state.op = "tint"
 	state.tint_rgb = RGB_LUSH
-	var res := BrushKernels.paint_segment(state, Vector2(-3.5, -0.25), Vector2(3.0, -0.25), 4.0, 1.0, 1.0, 1.0, "brush")
+	var res := BrushKernels.paint_segment(state, Vector2(-3.5, -0.25), Vector2(3.0, -0.25), 4.0, 1.0, 1.0, 1.0)
 	assert_empty_string(res.error)
 	assert_eq((res.dirty_colors as Array).size(), 4, "all four regions marked")
 	assert_true((res.dirty_controls as Array).is_empty())
@@ -238,6 +238,6 @@ func test_invalid_input_writes_nothing() -> void:
 	tx.begin(doc, "paint", "Paint")
 	var state := BrushKernels.PaintStrokeState.new(doc, tx, 1.0)
 	state.op = "tint"
-	var res := BrushKernels.paint_segment(state, Vector2(0, NAN), Vector2.ZERO, 4.0, 1.0, 1.0, 1.0, "brush")
+	var res := BrushKernels.paint_segment(state, Vector2(0, NAN), Vector2.ZERO, 4.0, 1.0, 1.0, 1.0)
 	assert_eq(res.error, BrushKernels.ERROR_INVALID)
 	assert_true((res.dirty_colors as Array).is_empty())

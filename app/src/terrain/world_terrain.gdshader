@@ -15,7 +15,10 @@ render_mode blend_mix,depth_draw_opaque,cull_back,diffuse_burley,specular_schlic
 //      "white albedo, roughness 0.5", and its alpha no longer drives roughness.
 //   6. Final albedo: tint mixed over the texture albedo by 0.6 * weight, keeping texture
 //      detail; optional rule highlight.
-// Debug views (show_*) are shader injections of the generated shader and do not exist here.
+//   7. Debug views: uniform debug_view (0 none, 1 control blend, 2 heightmap, 3 normals) and
+//      debug_region_grid, drawn as emission over a black albedo. Terrain3D's own show_control_blend /
+//      show_heightmap / show_region_grid are shader injections of the generated shader and are inert
+//      under this override; TerrainAdapter.set_debug_view / set_region_grid drive these uniforms instead.
 
 /* The terrain depends on this shader to function. Don't change most things in vertex() or 
  * terrain normal calculations in fragment(). You probably only want to customize the 
@@ -110,6 +113,9 @@ uniform float rules_rock_slope_deg = 30.0;
 uniform bool rules_sand_enabled = true;
 uniform float rules_sand_height_m = -0.4;
 uniform bool rules_highlight = false;
+// WP: debug views (0 none, 1 control blend, 2 heightmap, 3 normals) and region boundary lines.
+uniform int debug_view = 0;
+uniform bool debug_region_grid = false;
 // WP: mean luminance used to keep texture detail in the tint (a texel of this luminance gets
 // exactly the tint colour); highlight colour is (1.0, 0.77, 0.16) sRGB in linear.
 #define TINT_MEAN_LUM 0.22
@@ -611,10 +617,39 @@ void fragment() {
 	albedo = mix(albedo, tinted, 0.6 * color_map.a);
 	albedo = mix(albedo, HIGHLIGHT_COLOR, 0.55 * mat.highlight);
 
+	// WP: debug views replace the lit albedo by an emissive colour.
+	vec3 emission = vec3(0.0);
+	float grid_line = 0.0;
+	if (debug_region_grid) {
+		vec2 g = v_vertex.xz / (_region_size * _vertex_spacing);
+		vec2 edge = abs(fract(g + 0.5) - 0.5);
+		vec2 fw = max(fwidth(g), vec2(1e-6));
+		grid_line = max(1.0 - smoothstep(0.0, 1.5 * fw.x, edge.x), 1.0 - smoothstep(0.0, 1.5 * fw.y, edge.y));
+		albedo = mix(albedo, vec3(1.0, 0.15, 0.15), grid_line);
+	}
+	if (debug_view != 0) {
+		vec3 dbg = vec3(0.0);
+		if (debug_view == 1) {
+			// Overlay weight as grey; auto-bit samples (rule-driven base) tinted blue.
+			float blend_w = bilerp ? dot(weights_id_1, weights) : weights_id_1[3];
+			float auto_w = bilerp ? dot(vec4(control & uvec4(1u)), weights) : float(control[3] & 1u);
+			dbg = mix(vec3(blend_w), vec3(0.2 * blend_w, 0.5 * blend_w, 0.4 + 0.6 * blend_w), auto_w);
+		} else if (debug_view == 2) {
+			float t = clamp((v_vertex.y + 8.0) / 48.0, 0.0, 1.0);
+			dbg = mix(vec3(0.1, 0.2, 0.6), vec3(0.2, 0.7, 0.3), smoothstep(0.0, 0.5, t));
+			dbg = mix(dbg, vec3(0.95, 0.85, 0.5), smoothstep(0.5, 1.0, t));
+		} else if (debug_view == 3) {
+			dbg = normalize(w_normal) * 0.5 + 0.5;
+		}
+		emission = mix(dbg, vec3(1.0, 0.15, 0.15), grid_line);
+		albedo = vec3(0.0);
+	}
+
 	// Apply PBR
 	ALBEDO = albedo;
+	EMISSION = emission;
 	ROUGHNESS = roughness;
-	SPECULAR = 1. - mat.normal_rough.a;
+	SPECULAR = debug_view != 0 ? 0.0 : 1. - mat.normal_rough.a;
 	// Repack final normal map value.
 	NORMAL_MAP = fma(normalize(mat.normal_rough.xzy), vec3(0.5), vec3(0.5));
 	NORMAL_MAP_DEPTH = mat.normal_map_depth;

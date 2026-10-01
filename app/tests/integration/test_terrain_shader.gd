@@ -247,6 +247,10 @@ func _rendered_available() -> bool:
 	return true
 
 
+static func _color_dist(a: Color, b: Color) -> float:
+	return Vector3(a.r - b.r, a.g - b.g, a.b - b.b).length()
+
+
 static func _is_greenish(c: Color) -> bool:
 	return c.g > c.r * 1.15 and c.g > c.b * 1.4
 
@@ -305,6 +309,36 @@ func test_gpu_rendered_rules_overlay_tint_and_highlight() -> void:
 	assert_true(hl_sand.r > sand.r and hl_sand.b < sand.b, "highlighted sand area shifts yellow: %s vs %s" % [hl_sand, sand])
 	assert_true(_is_greenish(hl_grass), "highlight leaves grass alone: %s" % hl_grass)
 	_save_shot(img, "probe_highlight_on.png")
+
+
+func test_gpu_rendered_debug_views_change_pixels() -> void:
+	if not _rendered_available():
+		return
+	var a := _make(_probe_doc())
+	_aim_top_down()
+	var normal := await _render()
+	var grass_n := _probe(normal, -60, 0)
+	assert_empty_string(a.set_debug_view("control_blend"))
+	var blend := await _render(4)
+	assert_true(normal.get_data() != blend.get_data(), "control blend view changes the picture")
+	var dirt := _probe(blend, -35, 0)
+	var grass := _probe(blend, -60, 0)
+	assert_true(dirt.b > grass.b and dirt.b > dirt.r, "overlay weight 1 on an auto sample: bright blue %s vs %s" % [dirt, grass])
+	assert_true(grass.b > grass.r * 2.0 and grass.g < 0.3, "auto sample without overlay: dark blue %s" % grass)
+	assert_empty_string(a.set_debug_view("heightmap"))
+	var heights := await _render(4)
+	assert_true(blend.get_data() != heights.get_data(), "heightmap view differs from the blend view")
+	assert_true(_color_dist(_probe(heights, 15, 0), _probe(heights, -60, 0)) > 0.05, "ramp and flat ground get different height colours")
+	assert_empty_string(a.set_debug_view("normals"))
+	var normals := await _render(4)
+	var flat := _probe(normals, -60, 0)
+	assert_true(flat.g > flat.r * 1.25 and flat.g > flat.b * 1.25, "flat ground normal points up (green): %s" % flat)
+	assert_empty_string(a.set_debug_view("normal"))
+	var back := await _render(4)
+	assert_true(_color_dist(_probe(back, -60, 0), grass_n) < 0.03, "normal view restores the lit picture")
+	a.set_region_grid(true)
+	var grid := await _render(4)
+	assert_true(grid.get_data() != back.get_data(), "region grid draws lines")
 
 
 func test_gpu_rendered_gentle_hills_evidence() -> void:

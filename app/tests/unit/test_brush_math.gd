@@ -1,5 +1,5 @@
 extends TestCase
-## Brush scalar math and the stroke timeline (spec §12.1, §12.2, §13.1, §15.5).
+## Brush scalar math and the stroke timeline (spec §12.1, §12.2, §13.1).
 
 
 func test_falloff_profile() -> void:
@@ -7,14 +7,6 @@ func test_falloff_profile() -> void:
 	assert_near(BrushMath.falloff(0.5), 0.5625, 1e-12, "(1 - 0.25)^2")
 	assert_eq(BrushMath.falloff(1.0), 0.0, "edge")
 	assert_eq(BrushMath.falloff(1.5), 0.0, "beyond")
-
-
-func test_path_falloff_hard_core() -> void:
-	assert_eq(BrushMath.path_falloff(0.0), 1.0)
-	assert_eq(BrushMath.path_falloff(0.6), 1.0, "core edge")
-	assert_near(BrushMath.path_falloff(0.8), 0.5625, 1e-12, "half-way through the rim")
-	assert_eq(BrushMath.path_falloff(1.0), 0.0)
-	assert_eq(BrushMath.path_falloff(2.0), 0.0)
 
 
 func test_pressure_factor_mapping() -> void:

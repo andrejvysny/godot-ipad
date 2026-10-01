@@ -18,8 +18,8 @@ scatter/fill/sets, spline paths). Invert = on-screen button + D key (no Pencil d
 - [x] P5 Terrain shader: 4 textures, auto-paint rules, tint, rule highlight (Mac rendered check)
 - [x] P6 Scatter: MultiMesh renderer, scatter/erase brush, fill/clear lasso, sets store, quick mix
 - [x] P7 Paths: draw (flatten + record), draped ribbon, handle edit, delete
-- [ ] P8 UI v2: top bar, mode rail + popover, chip + invert, Library (Objects/Sets), set editor, inspector, ghost, hints, toasts
-- [ ] P9 Mac consumer schema 2, selftest, docs (architecture, input contract, checklist), Mac screenshot review
+- [x] P8 UI v2: top bar, mode rail + popover, chip + invert, Library (Objects/Sets), set editor, inspector, ghost, hints, toasts
+- [x] P9 Mac consumer schema 2, selftest, docs (architecture, input contract, checklist), Mac screenshot review
 - [ ] P10 iPad build + user device check (NOT RUN until measured)
 
 ## UI redesign (2026-10-01, ADR 0007)

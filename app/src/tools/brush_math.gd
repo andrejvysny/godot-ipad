@@ -1,15 +1,12 @@
 class_name BrushMath
 extends RefCounted
-## Scalar brush math shared by the kernels (spec §12.1, §12.2, §13.1, §15.5). Distances are
+## Scalar brush math shared by the kernels (spec §12.1, §12.2, §13.1). Distances are
 ## world metres in X/Z. Kernels use the continuous limit of dabs along a segment, so results do
 ## not depend on callback rate or resampling spacing.
 
 const PRESSURE_MIN_FACTOR := 0.2
 ## Segments shorter than this are treated as a point dab.
 const MIN_SEGMENT_LENGTH := 1e-6
-## Fraction of the path radius painted at full strength (hard core keeps the visible width
-## equal to the width setting).
-const PATH_CORE := 0.6
 
 
 ## (1 - q^2)^2 for q in [0, 1], 0 beyond.
@@ -18,17 +15,6 @@ static func falloff(q: float) -> float:
 	if a >= 1.0:
 		return 0.0
 	var s := 1.0 - a * a
-	return s * s
-
-
-static func path_falloff(q: float) -> float:
-	var a := absf(q)
-	if a <= PATH_CORE:
-		return 1.0
-	if a >= 1.0:
-		return 0.0
-	var t := (a - PATH_CORE) / (1.0 - PATH_CORE)
-	var s := 1.0 - t * t
 	return s * s
 
 

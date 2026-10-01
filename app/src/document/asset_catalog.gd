@@ -1,7 +1,7 @@
 class_name AssetCatalog
 extends RefCounted
 ## Trusted bundled asset catalog (spec §3.3, §10.3). Loaded strictly: any malformed entry
-## rejects the whole catalog. `sha256` is the catalog content hash of docs/world-format.md §6,
+## rejects the whole catalog. `sha256` is the catalog content hash of docs/world-format.md §8,
 ## computed over raw file bytes so JSON float parsing never affects it.
 
 const CATALOG_FILE := "catalog.json"
@@ -220,7 +220,7 @@ static func _check_paths(a: AssetDefinition) -> String:
 	return ""
 
 
-## Model scenes must be self-contained text resources (docs/world-format.md §6).
+## Model scenes must be self-contained text resources (docs/world-format.md §8).
 static func self_contained_error(path: String, text: String) -> String:
 	if text.contains("[ext_resource"):
 		return "geometry file '%s' is not self-contained (ext_resource)" % path

@@ -5,6 +5,12 @@ Pencil edits a canonical terrain document, fingers navigate, and checkpoints pre
 bytes. The complete editor and independent Mac consumer remain gated on physical-device G1.
 Desktop input and automated tests do not establish Pencil, palm, rendering, or latency results.
 
+The editor itself is **World Editor v2** (ADR 0009, `docs/editor-v2.md`): Sculpt (Raise, Flatten, Noise),
+Paint (Paint, Spray, Tint, Pick over four materials with live auto-paint rules), and Place (Select,
+Scatter, Erase, Fill, Path) modes, six brush alphas, scatter sets, spline paths, and a
+Library with a set editor. Manual iPad checks for it are in `docs/device-test-checklist-v2.md`
+(all NOT RUN).
+
 The tested iPad configuration is now **Mobile/Vulkan**. Native Metal produced magenta output
 and repeated GPU fence timeouts on iPad Air 4 / iPadOS 26.5. Vulkan restored terrain rendering,
 orbit, painting, and Pencil buttons. See [the device audit](docs/evidence/ipad-audit-2026-10-01.md).
@@ -18,6 +24,8 @@ environment, or create one with `python3 -m venv venv`. Python tooling uses only
 venv/bin/python scripts/dev.py doctor
 venv/bin/python scripts/dev.py test --sandbox host
 venv/bin/python scripts/dev.py run-mac --input-lab --timeout 120
+venv/bin/python scripts/dev.py run-mac --timeout 120        # World Editor v2
+venv/bin/python scripts/dev.py selftest                     # scripted v2 end-to-end run (synthetic input)
 bash native/ios_input/build.sh test
 ```
 
@@ -112,5 +120,6 @@ as device data. `user://input_lab_startup.txt` records readiness or a startup fa
 - Architecture and pinned deviations: `docs/architecture.md`, `docs/decisions/`.
 - Tracking: `TODO.md`, `CURRENT_STATE.md`, `HANDOFF.md`.
 
-Only WP00–WP06 are authorized. WP07, smooth/flatten, scatter, and vegetation clearing are deferred.
+Core PoC is WP00–WP06. ADR 0009 additionally authorizes the v2 editor features (smooth/flatten, scatter,
+paths, four materials, rules, tint) for this project; their device results are reported separately.
 Vendored Terrain3D stays pinned and unmodified. No commit, push, or pull occurs without instruction.

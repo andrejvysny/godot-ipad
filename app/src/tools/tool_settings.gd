@@ -9,7 +9,7 @@ const PLACE_RADIUS_MIN := 1.0
 const PLACE_RADIUS_MAX := 20.0
 const PLACE_RADIUS_DEFAULT := 7.0
 const PLACE_FLOW_DEFAULT := 0.7
-const PATH_WIDTH_DEFAULT := 2.4
+const PATH_WIDTH_DEFAULT := 2.4  # fallback when the config has no path_width_default_m
 const LAYER_MAX := 3
 const TINT_MAX := 2
 const BRUSH_SHAPES: Array[String] = ["soft", "hard", "cloud", "ring", "splat", "streak"]
@@ -18,6 +18,7 @@ const DEFAULT_SOURCE := "set:forest"
 
 var _values: Dictionary = {}
 var _radius_limits: Dictionary = {}  # namespace -> Vector2(min, max)
+var _width_limits := Vector2(WorldConstants.PATH_WIDTH_MIN, WorldConstants.PATH_WIDTH_MAX)
 
 
 func _init(ctx: ToolContext) -> void:
@@ -26,6 +27,7 @@ func _init(ctx: ToolContext) -> void:
 		_radius_limits[ns] = Vector2(float(ctx.default("brush", ns + "_radius_min_m", 1.0)),
 				float(ctx.default("brush", ns + "_radius_max_m", 16.0)))
 	_radius_limits["place"] = Vector2(PLACE_RADIUS_MIN, PLACE_RADIUS_MAX)
+	_width_limits = width_limits(ctx.defaults.get("brush", {}) as Dictionary)
 	_values = {
 		"sculpt": {"radius": _default_radius(ctx, "sculpt", 6.0),
 				"strength": clampf(float(ctx.default("brush", "sculpt_strength_default", 1.0)), STRENGTH_MIN, STRENGTH_MAX)},
@@ -33,7 +35,8 @@ func _init(ctx: ToolContext) -> void:
 		"place": {"radius": PLACE_RADIUS_DEFAULT, "strength": PLACE_FLOW_DEFAULT},
 		"brush": {"shape": "soft", "alpha_mode": "circle", "pressure_enabled": true},
 		"flatten": {"target": NAN},
-		"path": {"width": PATH_WIDTH_DEFAULT},
+		"path": {"width": clampf(float(ctx.default("brush", "path_width_default_m", PATH_WIDTH_DEFAULT)),
+				_width_limits.x, _width_limits.y)},
 		"scatter": {"source": DEFAULT_SOURCE, "avoid_objects": true},
 		"select": {},
 	}
@@ -98,9 +101,18 @@ func _clamp(ns: String, key: String, v: float) -> float:
 	if key == "strength":
 		return clampf(v, STRENGTH_MIN, STRENGTH_MAX)
 	if key == "width":
-		return clampf(v, WorldConstants.PATH_WIDTH_MIN, WorldConstants.PATH_WIDTH_MAX)
+		return clampf(v, _width_limits.x, _width_limits.y)
 	var limits: Vector2 = _radius_limits[ns]
 	return clampf(v, limits.x, limits.y)
+
+
+## Config limits ("brush" section), kept inside the format's [PATH_WIDTH_MIN, PATH_WIDTH_MAX].
+static func width_limits(brush: Dictionary) -> Vector2:
+	var lo := clampf(float(brush.get("path_width_min_m", WorldConstants.PATH_WIDTH_MIN)),
+			WorldConstants.PATH_WIDTH_MIN, WorldConstants.PATH_WIDTH_MAX)
+	var hi := clampf(float(brush.get("path_width_max_m", WorldConstants.PATH_WIDTH_MAX)),
+			lo, WorldConstants.PATH_WIDTH_MAX)
+	return Vector2(lo, hi)
 
 
 func _default_radius(ctx: ToolContext, ns: String, fallback: float) -> float:

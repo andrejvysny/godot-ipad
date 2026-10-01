@@ -143,10 +143,16 @@ static func world_name(source_label: String) -> String:
 	return "Recovered world" if source_label == "recovered" else "World"
 
 
+## Storage text "Saved revision N" shown as "Saved · revision N" (docs/editor-v2.md §9); the rest is as is.
+static func save_caption(storage_text: String) -> String:
+	return "Saved · revision " + storage_text.trim_prefix("Saved revision ") if storage_text.begins_with("Saved revision ") \
+			else storage_text
+
+
 func refresh(status: Dictionary) -> void:
 	if _session == null or _session.document == null:
 		return
-	var text := str(status.save_text)
+	var text := save_caption(str(status.save_text))
 	_save_label.text = text
 	_save_label.tooltip_text = text
 	var editing := _session.input.editing_enabled()

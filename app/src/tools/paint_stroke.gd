@@ -1,16 +1,13 @@
 class_name PaintStroke
 extends RefCounted
-## Coverage-based material paint stroke (spec §12.3, §15.5). Painting is time-independent:
+## Coverage-based material paint stroke (spec §12.3). Painting is time-independent:
 ## each new piece between consecutive samples of a segment is painted immediately, begin and
 ## resume paint a dab, and paused gaps are never bridged. The caller owns the EditTransaction:
 ## it finishes it on success, or cancels the stroke (which rolls it back) on any result error
 ## ("budget", "invalid_input").
 ##
-## Settings: radius, target_blend (0 grass / 1 dirt), strength, pressure_enabled,
-## falloff_kind ("brush" | "path"), optional v2 keys of _configure_state(). The "path" falloff always ignores pressure (spec §15.5).
-
-const FALLOFF_BRUSH := "brush"
-const FALLOFF_PATH := "path"
+## Settings: radius, target_blend (0 grass / 1 dirt), strength, pressure_enabled, optional v2 keys
+## of _configure_state().
 
 var settings: Dictionary = {}
 var error: String = ""
@@ -20,13 +17,6 @@ var _last_pos := Vector2.ZERO
 var _last_pf := 1.0
 var _open := false
 var _finished := false
-
-
-## Path preset (spec §15.5): dirt only, hard-cored falloff, width = diameter, full strength,
-## pressure ignored for width and opacity.
-static func path_settings(width_m: float) -> Dictionary:
-	return {"radius": width_m * 0.5, "target_blend": 1.0, "strength": 1.0,
-			"pressure_enabled": false, "falloff_kind": FALLOFF_PATH}
 
 
 func begin(doc: WorldDocument, tx: EditTransaction, p_settings: Dictionary, pos: Vector2, pf: float) -> Dictionary:
@@ -92,7 +82,7 @@ func _paint(a: Vector2, b: Vector2, pf_a: float, pf_b: float) -> Dictionary:
 		skipped.error = error if error != "" else "finished"
 		return skipped
 	var res := BrushKernels.paint_segment(_state, a, b, float(settings.get("radius", 4.0)),
-			float(settings.get("strength", 1.0)), pf_a, pf_b, str(settings.get("falloff_kind", FALLOFF_BRUSH)))
+			float(settings.get("strength", 1.0)), pf_a, pf_b)
 	error = res.error
 	return res
 
@@ -105,6 +95,4 @@ func _release() -> void:
 
 ## Disabled or non-finite pressure is full strength (as BrushMath.pressure_factor), never NaN.
 func _pf(pf: float) -> float:
-	var enabled := bool(settings.get("pressure_enabled", true)) \
-			and str(settings.get("falloff_kind", FALLOFF_BRUSH)) != FALLOFF_PATH
-	return pf if enabled and is_finite(pf) else 1.0
+	return pf if bool(settings.get("pressure_enabled", true)) and is_finite(pf) else 1.0

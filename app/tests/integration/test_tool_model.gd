@@ -28,6 +28,16 @@ func _tap(x: float, z: float, t: float = 1.0, over_ui: bool = false) -> void:
 
 # --- Modes and tools ---------------------------------------------------------------------
 
+func test_path_width_limits_come_from_config_clamped_to_the_format() -> void:
+	assert_eq(ToolSettings.width_limits({"path_width_min_m": 1.0, "path_width_max_m": 6.0}), Vector2(1.0, 6.0))
+	assert_eq(ToolSettings.width_limits({"path_width_min_m": 2.0, "path_width_max_m": 4.0}), Vector2(2.0, 4.0))
+	assert_eq(ToolSettings.width_limits({"path_width_min_m": 0.1, "path_width_max_m": 9.0}), Vector2(1.0, 6.0), "format range wins")
+	assert_eq(ToolSettings.width_limits({}), Vector2(1.0, 6.0), "fallback to WorldConstants")
+	var h := ToolHarness.new()
+	assert_empty_string(h.setup(tree))
+	assert_eq(h.ctx.defaults.brush.path_width_default_m, 2.4, "shipped config default")
+
+
 func test_startup_state_and_remembered_tools() -> void:
 	assert_eq(h.ctrl.mode(), "paint")
 	assert_eq(h.ctrl.active_tool(), "paint")

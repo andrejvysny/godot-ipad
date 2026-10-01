@@ -1,6 +1,6 @@
 class_name WorldPackage
 extends RefCounted
-## .worldpoc export/import (spec §17.1, §17.5; docs/world-format.md §7). A package holds
+## .worldpoc export/import (spec §17.1, §17.5; docs/world-format.md §9). A package holds
 ## exactly one generation. Import inspects the central directory first, extracts only into a
 ## fresh temporary directory, validates it as a generation, and always deletes that directory.
 

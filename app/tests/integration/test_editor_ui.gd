@@ -16,7 +16,7 @@ func test_required_controls_exist_with_design_sizes() -> void:
 	assert_true(ui.world_pill().world_button().is_visible_in_tree())
 	assert_true(ui.action_pill().export_button().size.y >= 38.0)
 	assert_eq(ui.world_pill().name_text(), "Flat", "fixture name from source_label")
-	assert_true(ui.world_menu().save_label().text.begins_with("Saved revision 0"), ui.world_menu().save_label().text)
+	assert_true(ui.world_menu().save_label().text.begins_with("Saved · revision 0"), ui.world_menu().save_label().text)
 	assert_near(ui.history_tiles().undo_button().modulate.a, 0.4, 0.001, "unavailable undo is dimmed")
 	assert_near(ui.history_tiles().redo_button().modulate.a, 0.4, 0.001)
 	assert_false(ui.history_tiles().cancel_button().visible)
