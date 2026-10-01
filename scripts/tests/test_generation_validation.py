@@ -245,10 +245,10 @@ class ManifestRejectionTests(GenerationTestCase):
 	def test_unknown_catalog_id_and_version(self) -> None:
 		m = self.manifest()
 		m["catalog"]["id"] = "other_catalog"
-		m["catalog"]["version"] = 2
+		m["catalog"]["version"] = 3
 		self.write_manifest(m)
 		errors = self.assertRejected("unknown catalog id")
-		self.assertTrue(any("catalog version 2" in e for e in errors))
+		self.assertTrue(any("catalog version 3" in e for e in errors))
 
 	def test_unknown_schema(self) -> None:
 		m = self.manifest()

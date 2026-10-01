@@ -35,8 +35,9 @@ func test_bundled_catalog_loads() -> void:
 		return
 	var cat: AssetCatalog = r[0]
 	assert_eq(cat.catalog_id, "poc_nature")
-	assert_eq(cat.catalog_version, 1)
-	assert_eq(cat.sorted_ids(), PackedStringArray(["built.lodge.cabin_a", "nature.rock.boulder_a", "nature.tree.spruce_a"]))
+	assert_eq(cat.catalog_version, 2)
+	assert_eq(cat.sorted_ids(), PackedStringArray(["built.lodge.cabin_a", "nature.cover.fern_a", "nature.cover.grass_tuft_a",
+		"nature.cover.wildflowers_a", "nature.rock.boulder_a", "nature.rock.pebbles_a", "nature.tree.spruce_a"]))
 	assert_true(WorldManifest.is_hex64(cat.sha256), "sha256 hex")
 	var boulder := cat.get_asset("nature.rock.boulder_a")
 	assert_eq(boulder.anchor_local, Vector3(0.25, 0.3, -0.15), "nonzero anchor")
@@ -44,6 +45,9 @@ func test_bundled_catalog_loads() -> void:
 	assert_eq(cat.get_asset("built.lodge.cabin_a").default_grounding, WorldConstants.GROUNDING_FIXED)
 	assert_eq(cat.get_asset("built.lodge.cabin_a").scatter_mesh, "", "null scatter mesh")
 	assert_true(cat.get_asset("nature.tree.spruce_a").scatter_allowed)
+	assert_true(cat.get_asset("nature.rock.boulder_a").scatter_allowed)
+	assert_false(cat.get_asset("built.lodge.cabin_a").scatter_allowed)
+	assert_eq(cat.get_asset("nature.cover.fern_a").scatter_mesh, "res://assets/models/fern_a_scatter.tres")
 	assert_true(cat.get_asset("nature.tree.spruce_a").bounds.has_volume(), "bounds")
 	assert_eq(cat.get_asset("unknown"), null)
 	assert_true(cat.has_compatible("nature.tree.spruce_a", 1))
@@ -59,7 +63,12 @@ func test_hash_is_stable_and_matches_documented_stream() -> void:
 	e.put_raw("WPOC-CATALOG-V1\n".to_ascii_buffer())
 	e.put_str("catalog.json")
 	e.put_raw(CanonicalEncoder.sha256(FileAccess.get_file_as_bytes("res://assets/catalog.json")))
-	var paths := ["res://assets/models/boulder_a.tscn", "res://assets/models/cabin_a.tscn", "res://assets/models/spruce_a.tscn"]
+	var paths := ["res://assets/models/boulder_a.tscn", "res://assets/models/boulder_a_scatter.tres",
+		"res://assets/models/cabin_a.tscn", "res://assets/models/fern_a.tscn", "res://assets/models/fern_a_scatter.tres",
+		"res://assets/models/grass_tuft_a.tscn", "res://assets/models/grass_tuft_a_scatter.tres",
+		"res://assets/models/pebbles_a.tscn", "res://assets/models/pebbles_a_scatter.tres",
+		"res://assets/models/spruce_a.tscn", "res://assets/models/spruce_a_scatter.tres",
+		"res://assets/models/wildflowers_a.tscn", "res://assets/models/wildflowers_a_scatter.tres"]
 	e.put_u32(paths.size())
 	for p in paths:
 		e.put_str(p)

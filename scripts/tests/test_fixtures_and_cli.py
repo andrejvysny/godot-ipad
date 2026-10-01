@@ -5,6 +5,7 @@ import filecmp
 import io
 import json
 import shutil
+import struct
 import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
@@ -59,10 +60,13 @@ class FixturePropertyTests(unittest.TestCase):
 		for name in generate_fixtures.WORLD_IDS:
 			m = json.loads((FIXTURES / name / "manifest.json").read_text())
 			self.assertEqual(m["schema_version"], 2)
+			self.assertEqual(m["catalog"]["version"], 2)
 			self.assertEqual(m["terrain"]["rules"], {"rock_enabled": True, "rock_slope_deg": 30,
 				"sand_enabled": True, "sand_height_dm": -4})
 			self.assertEqual(m["terrain"]["color_encoding"], "rgba8-tint-v1")
 			self.assertEqual([e["path"] for e in m["payload_files"]], wf.PAYLOAD_PATHS)
+			if name == "gentle_hills":
+				continue
 			self.assertEqual((FIXTURES / name / "scatter.bin").read_bytes(), b"WPSC" + bytes([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]))
 			self.assertEqual((FIXTURES / name / "paths.bin").read_bytes(), b"WPPA" + bytes([1, 0, 0, 0, 0, 0, 0, 0]))
 			for loc in wf.REGION_LOCATIONS:
@@ -70,6 +74,33 @@ class FixturePropertyTests(unittest.TestCase):
 					b"\x01\x00\x00\x00" * wf.REGION_SAMPLE_COUNT)
 				self.assertEqual((FIXTURES / name / wf.color_path(loc)).read_bytes(),
 					b"\xff\xff\xff\x00" * wf.REGION_SAMPLE_COUNT)
+
+	def test_gentle_hills_authored_content(self) -> None:
+		gen, errors = wf.validate_generation(FIXTURES / "gentle_hills")
+		self.assertEqual(errors, [])
+		cat = wf.load_trusted_catalog()["assets"]
+		insts = gen.scatter["instances"]
+		counts: dict[str, int] = {}
+		for i in insts:
+			counts[i["asset_id"]] = counts.get(i["asset_id"], 0) + 1
+			a = cat[i["asset_id"]]
+			self.assertTrue(a["scale_min"] <= i["scale"] <= a["scale_max"])
+			self.assertTrue(-3.1416 <= i["yaw_rad"] < 3.1416)
+			self.assertIn(i["flags"], (0, 1))
+			self.assertTrue(-128.0 <= i["x"] <= 127.5 and -128.0 <= i["z"] <= 127.5)
+		forest = ("nature.tree.spruce_a", "nature.cover.fern_a", "nature.rock.boulder_a")
+		self.assertEqual(sum(counts[a] for a in forest), 150)
+		self.assertEqual(len(insts), 550)
+		self.assertEqual(len(gen.paths), 1)
+		self.assertAlmostEqual(gen.paths[0]["width_m"], 2.4, places=6)
+		self.assertTrue(6 <= len(gen.paths[0]["points"]) <= 10)
+		controls = [struct.unpack_from("<I", c, i)[0] for c in gen.controls.values() for i in range(0, len(c), 4)]
+		dirt = [v for v in controls if v != wf.DEFAULT_CONTROL]
+		self.assertGreater(len(dirt), 100)
+		self.assertTrue(all(wf.control_decode(v)["overlay_id"] == 1 and wf.control_decode(v)["auto"] for v in dirt))
+		tint = [c[i:i + 4] for c in gen.colors.values() for i in range(0, len(c), 4) if c[i + 3]]
+		self.assertGreater(len(tint), 100)
+		self.assertTrue(all(t[:3] == bytes([192, 110, 48]) for t in tint))
 
 	def test_stress_100_objects(self) -> None:
 		gen, errors = wf.validate_generation(FIXTURES / "stress_100")

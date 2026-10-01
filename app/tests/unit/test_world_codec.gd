@@ -215,7 +215,7 @@ func test_rejects_manifest_tampering() -> void:
 		"document_revision ": func(m: Dictionary) -> void: m.document_revision = -1,
 		"created_with.godot": func(m: Dictionary) -> void: m.created_with.godot = "",
 		"incompatible catalog": func(m: Dictionary) -> void: m.catalog.sha256 = "ab".repeat(32),
-		"incompatible catalog ": func(m: Dictionary) -> void: m.catalog.version = 2,
+		"incompatible catalog ": func(m: Dictionary) -> void: m.catalog.version = 3,
 		"catalog.sha256": func(m: Dictionary) -> void: m.catalog.sha256 = "<catalog content hash>",
 		"sample_spacing_m": func(m: Dictionary) -> void: m.terrain.sample_spacing_m = 1.0,
 		"region_samples": func(m: Dictionary) -> void: m.terrain.region_samples = 257,

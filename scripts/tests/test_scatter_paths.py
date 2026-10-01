@@ -232,7 +232,7 @@ class CatalogChecksTests(unittest.TestCase):
 
 
 def wf_boulder() -> str:
-	return "nature.rock.boulder_a"
+	return "built.lodge.cabin_a"  # the one bundled asset that forbids scatter
 
 
 class GenerationWithScatterTests(unittest.TestCase):
@@ -291,7 +291,7 @@ class GenerationWithScatterTests(unittest.TestCase):
 
 	def test_bundled_catalog_rejects_scatter_for_non_scatter_assets(self) -> None:
 		gen = self.write([], [])
-		(gen / "scatter.bin").write_bytes(wf.write_scatter([scatter_instance("nature.rock.boulder_a", 1)]))
+		(gen / "scatter.bin").write_bytes(wf.write_scatter([scatter_instance("built.lodge.cabin_a", 1)]))
 		m = json.loads((gen / "manifest.json").read_text())
 		for e in m["payload_files"]:
 			data = (gen / e["path"]).read_bytes()

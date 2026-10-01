@@ -1,9 +1,9 @@
 {
-	"authored_content_hash": "be76f01f80f2ae7abbc40272b7030fa9ba2b6da22666e2aa9b9137b5e66fd1dd",
+	"authored_content_hash": "bedce13a23c1190c8cf01b9c3666a7dc7d2c728c1d85504af34baa84f382279b",
 	"catalog": {
 		"id": "poc_nature",
-		"sha256": "a4cfbc629fa7ef9c1d2585cf3881011e385b175993e8d2508b28e5317056e78d",
-		"version": 1
+		"sha256": "3ec750f696154df2ad4cd97d5afb9991a288a07ccd19bb29204c4ad25606cab3",
+		"version": 2
 	},
 	"created_with": {
 		"godot": "4.7.2.stable.official.ed1daf0bf",

@@ -102,7 +102,7 @@ func test_rejects_catalog_identity_and_region_set() -> void:
 	doc.catalog_sha256 = "ab".repeat(32)
 	_expect_rejected(doc, "incompatible catalog content hash")
 	doc = _valid_doc()
-	doc.catalog_version = 2
+	doc.catalog_version = 3
 	_expect_rejected(doc, "incompatible catalog")
 	doc = _valid_doc()
 	doc.catalog_id = "other"

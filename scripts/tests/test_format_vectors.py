@@ -79,10 +79,10 @@ class HashTests(unittest.TestCase):
 			self.assertEqual(gen.authored_hash, m["authored_content_hash"], name)
 
 	def test_fixture_authored_hash_regression_pins(self) -> None:
-		# Pins produced by this implementation (not yet cross-checked against CanonicalEncoder in Godot).
-		pins = {"flat": "be76f01f80f2ae7abbc40272b7030fa9ba2b6da22666e2aa9b9137b5e66fd1dd",
-			"gentle_hills": "6c38b11259c44ec7c0df2380a141d5f4c679bd65ac419761386e3c4b8749ec9a",
-			"stress_100": "13f8636ba6481e89b9c3f5fe19b849fe8a4208fa54c262c9090dfd9534b5acff"}
+		# Pins also verified against the GDScript CanonicalEncoder (test_world_document fixture hashes).
+		pins = {"flat": "bedce13a23c1190c8cf01b9c3666a7dc7d2c728c1d85504af34baa84f382279b",
+			"gentle_hills": "133d5013176873deba05b98c45109fed36e6c3ddbe370627043a6e9e77034934",
+			"stress_100": "5b864eb39d709f51b2d5980f4b5de7ea9246720ce059e9b2c35d1adc6263bade"}
 		for name, expected in pins.items():
 			gen, errors = wf.validate_generation(FIXTURES / name)
 			self.assertEqual(errors, [], name)

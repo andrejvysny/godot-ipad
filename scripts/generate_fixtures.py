@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import fixture_hills_content as hills  # noqa: E402
 import worldpoc_format as wf  # noqa: E402
 
 FIXTURES_DIR = wf.APP_DIR / "fixtures"
@@ -105,17 +106,26 @@ def build_doc(name: str, catalog: dict[str, Any]) -> dict[str, Any]:
 	control = struct.pack("<I", wf.DEFAULT_CONTROL) * wf.REGION_SAMPLE_COUNT
 	color = wf.DEFAULT_COLOR * wf.REGION_SAMPLE_COUNT
 	heights = {loc: region_height_bytes(loc, fn) for loc in wf.REGION_LOCATIONS}
+	controls = {loc: control for loc in wf.REGION_LOCATIONS}
+	colors = {loc: color for loc in wf.REGION_LOCATIONS}
+	scatter: list[dict[str, Any]] = []
+	paths: list[dict[str, Any]] = []
+	if name == "gentle_hills":
+		controls = hills.paint_dirt(controls)
+		colors = hills.tint_autumn(colors)
+		scatter = hills.scatter_instances(hills_height, catalog)
+		paths = hills.path_records()
 	return {
 		"world_id": WORLD_IDS[name],
 		"document_revision": 0,
 		"created_with": CREATED_WITH,
 		"catalog": {"id": catalog["id"], "version": catalog["version"], "sha256": catalog["sha256"]},
 		"heights": heights,
-		"controls": {loc: control for loc in wf.REGION_LOCATIONS},
-		"colors": {loc: color for loc in wf.REGION_LOCATIONS},
+		"controls": controls,
+		"colors": colors,
 		"rules": dict(wf.DEFAULT_RULES),
-		"scatter": [],
-		"paths": [],
+		"scatter": scatter,
+		"paths": paths,
 		"objects": stress_objects(heights, catalog) if name == "stress_100" else [],
 	}
 

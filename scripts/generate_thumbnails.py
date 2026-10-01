@@ -88,11 +88,48 @@ def spruce(c: Canvas | None = None) -> Canvas:
 	return c
 
 
+def grass_tuft() -> Canvas:
+	c = blank()
+	for i, (x, lean, shade) in enumerate([(40, -22, 0), (52, -10, 1), (64, 2, 0), (76, 12, 1), (88, 24, 0)]):
+		col = (86, 158, 56, 255) if shade == 0 else (118, 184, 72, 255)
+		fill(c, col, triangle((x - 7, 112), (x + 7, 112), (x + lean, 34 + 8 * (i % 2) + 16 * (i in (0, 4)))))
+	return c
+
+
+def fern() -> Canvas:
+	c = blank()
+	green = (38, 102, 41, 255)
+	for tip_x, tip_y in [(14, 54), (36, 24), (64, 12), (92, 24), (114, 54)]:
+		fill(c, green, triangle((54, 112), (74, 112), (tip_x, tip_y)))
+	fill(c, (28, 78, 32, 255), ellipse(64, 108, 14, 8))
+	return c
+
+
+def wildflowers() -> Canvas:
+	c = blank()
+	stem = (92, 158, 61, 255)
+	for x, top, col in [(36, 40, (250, 214, 46, 255)), (62, 26, (242, 133, 184, 255)), (90, 44, (248, 248, 240, 255))]:
+		fill(c, stem, triangle((x - 4, 114), (x + 4, 114), (x, top)))
+		fill(c, col, ellipse(x, top, 12, 12))
+		fill(c, (214, 150, 40, 255), ellipse(x, top, 4, 4))
+	fill(c, stem, triangle((20, 114), (110, 114), (64, 86)))
+	return c
+
+
+def pebbles() -> Canvas:
+	c = blank()
+	fill(c, (148, 146, 138, 255), ellipse(48, 86, 34, 22))
+	fill(c, (117, 115, 110, 255), ellipse(90, 94, 26, 16))
+	fill(c, (168, 164, 153, 255), ellipse(66, 66, 18, 11))
+	return c
+
+
 def app_icon() -> Canvas:
 	return spruce(blank(1024, (196, 222, 186, 255)))  # opaque: App Store icons may not have alpha
 
 
-THUMBNAILS = {"cabin_a.png": cabin, "boulder_a.png": boulder, "spruce_a.png": spruce, "app_icon.png": app_icon}
+THUMBNAILS = {"cabin_a.png": cabin, "boulder_a.png": boulder, "spruce_a.png": spruce, "grass_tuft_a.png": grass_tuft,
+	"fern_a.png": fern, "wildflowers_a.png": wildflowers, "pebbles_a.png": pebbles, "app_icon.png": app_icon}
 
 
 def main(argv: list[str] | None = None) -> int:
