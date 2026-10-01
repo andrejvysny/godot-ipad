@@ -1,0 +1,232 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://bench/bench_root.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/valley_terrain.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/valley_forest.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/valley_props.gd" id="props_script"]
+[ext_resource type="Script" path="res://scripts/valley_grass.gd" id="11"]
+[ext_resource type="Script" path="res://scripts/valley_groundcover.gd" id="groundcover_script"]
+[ext_resource type="Script" path="res://scripts/groundcover_layer.gd" id="groundcover_layer"]
+[ext_resource type="Resource" path="res://materials/groundcover/grass_short_A_inner.tres" id="gc_grass_inner"]
+[ext_resource type="Resource" path="res://materials/groundcover/grass_short_A_outer.tres" id="gc_grass_outer"]
+[ext_resource type="Resource" path="res://materials/groundcover/flower_white_A.tres" id="gc_flower_white"]
+[ext_resource type="Resource" path="res://materials/groundcover/grass_short_B_inner.tres" id="gc_grass_b"]
+[ext_resource type="Resource" path="res://materials/groundcover/grass_short_C_inner.tres" id="gc_grass_c"]
+[ext_resource type="Resource" path="res://materials/groundcover/grass_tall_A.tres" id="gc_grass_tall"]
+[ext_resource type="Resource" path="res://materials/groundcover/flower_pink_A.tres" id="gc_flower_pink"]
+[ext_resource type="Script" path="res://scripts/atmosphere.gd" id="6"]
+[ext_resource type="Script" path="res://scripts/lighting_preset.gd" id="10"]
+[ext_resource type="Resource" path="res://presets/valley_dawn.tres" id="7"]
+[ext_resource type="Resource" path="res://presets/midday.tres" id="8"]
+[ext_resource type="Resource" path="res://presets/valley_evening.tres" id="9"]
+[ext_resource type="Script" path="res://scripts/mist.gd" id="14"]
+[ext_resource type="Script" path="res://scripts/valley_water.gd" id="water_script"]
+[ext_resource type="Script" path="res://scripts/valley_falls.gd" id="falls_script"]
+[ext_resource type="Shader" path="res://materials/sky.gdshader" id="sky_shader"]
+
+[sub_resource type="ShaderMaterial" id="sky_mat"]
+shader = ExtResource("sky_shader")
+
+[sub_resource type="Sky" id="sky"]
+sky_material = SubResource("sky_mat")
+
+[sub_resource type="Environment" id="env"]
+background_mode = 2
+sky = SubResource("sky")
+ambient_light_source = 3
+reflected_light_source = 2
+tonemap_mode = 4
+glow_enabled = true
+glow_blend_mode = 1
+glow_intensity = 0.6
+glow_bloom = 0.0
+glow_hdr_threshold = 1.3
+fog_enabled = true
+fog_mode = 1
+fog_density = 0.4
+fog_sky_affect = 0.5
+volumetric_fog_enabled = true
+volumetric_fog_anisotropy = 0.6
+volumetric_fog_length = 96.0
+volumetric_fog_detail_spread = 2.0
+volumetric_fog_sky_affect = 0.0
+adjustment_enabled = true
+adjustment_saturation = 0.82
+
+[sub_resource type="FastNoiseLite" id="mist_noise"]
+frequency = 0.08
+
+[sub_resource type="NoiseTexture3D" id="mist_tex"]
+width = 32
+height = 16
+depth = 32
+seamless = true
+noise = SubResource("mist_noise")
+
+[sub_resource type="FogMaterial" id="fog_mat"]
+density = 0.6
+height_falloff = 0.35
+edge_fade = 0.7
+density_texture = SubResource("mist_tex")
+
+[sub_resource type="ParticleProcessMaterial" id="dust_proc"]
+emission_shape = 3
+emission_box_extents = Vector3(12, 3, 12)
+gravity = Vector3(0, 0, 0)
+initial_velocity_min = 0.1
+initial_velocity_max = 0.3
+direction = Vector3(0, 1, 0)
+spread = 180.0
+turbulence_enabled = true
+turbulence_noise_strength = 0.3
+turbulence_noise_scale = 4.0
+
+[sub_resource type="Gradient" id="soft_disc"]
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.5, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="soft_disc_tex"]
+gradient = SubResource("soft_disc")
+width = 32
+height = 32
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="dust_mat"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(0.847, 0.733, 0.541, 0.5)
+albedo_texture = SubResource("soft_disc_tex")
+billboard_mode = 1
+
+[sub_resource type="QuadMesh" id="dust_mesh"]
+material = SubResource("dust_mat")
+size = Vector2(0.05, 0.05)
+
+[sub_resource type="Gradient" id="fly_ramp"]
+offsets = PackedFloat32Array(0, 0.15, 0.4, 0.55, 0.8, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0.25, 1, 1, 1, 1, 1, 1, 1, 0.3, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="fly_ramp_tex"]
+gradient = SubResource("fly_ramp")
+
+[sub_resource type="ParticleProcessMaterial" id="fly_proc"]
+emission_shape = 3
+emission_box_extents = Vector3(12, 1.5, 12)
+gravity = Vector3(0, 0, 0)
+initial_velocity_min = 0.2
+initial_velocity_max = 0.6
+direction = Vector3(0, 1, 0)
+spread = 180.0
+color_ramp = SubResource("fly_ramp_tex")
+turbulence_enabled = true
+turbulence_noise_strength = 0.6
+turbulence_noise_scale = 3.0
+
+[sub_resource type="StandardMaterial3D" id="fly_mat"]
+transparency = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_color = Color(0.784, 0.878, 0.353, 1)
+albedo_texture = SubResource("soft_disc_tex")
+billboard_mode = 1
+emission_enabled = true
+emission = Color(0.784, 0.878, 0.353, 1)
+emission_energy_multiplier = 6.0
+
+[sub_resource type="QuadMesh" id="fly_mesh"]
+material = SubResource("fly_mat")
+size = Vector2(0.08, 0.08)
+
+[node name="Valley" type="Node3D"]
+script = ExtResource("1")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("env")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-50, 30, 0)
+shadow_enabled = true
+shadow_blur = 1.5
+directional_shadow_mode = 1
+directional_shadow_split_1 = 0.3
+directional_shadow_blend_splits = true
+directional_shadow_max_distance = 60.0
+
+[node name="Mist" type="Node3D" parent="."]
+script = ExtResource("14")
+terrain_path = NodePath("../Terrain")
+material = SubResource("fog_mat")
+count = 40
+area = 480.0
+min_spacing = 45.0
+clear_radius = 0.0
+min_height = 2.0
+
+[node name="Terrain" type="Node3D" parent="."]
+script = ExtResource("2")
+
+[node name="Water" type="Node3D" parent="."]
+script = ExtResource("water_script")
+terrain_path = NodePath("../Terrain")
+
+[node name="Falls" type="Node3D" parent="."]
+script = ExtResource("falls_script")
+terrain_path = NodePath("../Terrain")
+
+[node name="Forest" type="Node3D" parent="."]
+script = ExtResource("3")
+terrain_path = NodePath("../Terrain")
+placement_mode = "generated"
+
+[node name="Props" type="Node3D" parent="."]
+script = ExtResource("props_script")
+terrain_path = NodePath("../Terrain")
+
+[node name="Grass" type="Node3D" parent="."]
+script = ExtResource("11")
+terrain_path = NodePath("../Terrain")
+
+[node name="Groundcover" type="Node3D" parent="."]
+script = ExtResource("groundcover_script")
+terrain_path = NodePath("../Terrain")
+camera_path = NodePath("../BenchCamera")
+layers = Array[ExtResource("groundcover_layer")]([ExtResource("gc_grass_inner"), ExtResource("gc_grass_outer"), ExtResource("gc_grass_b"), ExtResource("gc_grass_c"), ExtResource("gc_grass_tall"), ExtResource("gc_flower_white"), ExtResource("gc_flower_pink")])
+
+[node name="Motes" type="Node3D" parent="."]
+
+[node name="Dust" type="GPUParticles3D" parent="Motes"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+amount = 250
+lifetime = 8.0
+local_coords = false
+visibility_aabb = AABB(-20, -10, -20, 40, 20, 40)
+process_material = SubResource("dust_proc")
+draw_pass_1 = SubResource("dust_mesh")
+
+[node name="Fireflies" type="GPUParticles3D" parent="Motes"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+emitting = false
+amount = 60
+lifetime = 6.0
+local_coords = false
+visibility_aabb = AABB(-20, -10, -20, 40, 20, 40)
+process_material = SubResource("fly_proc")
+draw_pass_1 = SubResource("fly_mesh")
+
+[node name="Atmosphere" type="Node" parent="."]
+script = ExtResource("6")
+start_index = 1
+presets = Array[ExtResource("10")]([ExtResource("7"), ExtResource("8"), ExtResource("9")])
+environment_path = NodePath("../WorldEnvironment")
+sun_path = NodePath("../Sun")
+ground_fog_path = NodePath("../Mist")
+dust_path = NodePath("../Motes/Dust")
+fireflies_path = NodePath("../Motes/Fireflies")
+
+[node name="BenchCamera" type="Camera3D" parent="."]
+current = true
+fov = 50.0
+near = 0.3
+far = 1500.0
