@@ -7,9 +7,10 @@ extends RefCounted
 ## Returns "" or BrushKernels.ERROR_BUDGET (the caller must then roll back).
 static func followers(ctx: ToolContext, tx: EditTransaction, rect: Rect2) -> String:
 	var doc := ctx.document
-	for id in doc.sorted_object_ids():
+	# Spatial candidates only (never a whole-world scan per sculpt step); sorted like the document ids.
+	for id in ctx.presenter.objects_in_rect(rect):
 		var rec := doc.get_object(id)
-		if rec.grounding != WorldConstants.GROUNDING_FOLLOW \
+		if rec == null or rec.grounding != WorldConstants.GROUNDING_FOLLOW \
 				or not rect.has_point(Vector2(rec.position[0], rec.position[2])):
 			continue
 		var h := doc.sample_height(rec.position[0], rec.position[2])

@@ -274,6 +274,21 @@ func objects_near(point: Vector3, radius: float, max_count: int) -> PackedString
 
 ## Objects whose world bounds intersect the XZ circle (any height), nearest bounds centre first; ties by id.
 ## Hidden vegetation is skipped.
+## Ids (sorted) of presented objects whose anchor lies in `rect` (world XZ), hidden ones included: the spatial
+## replacement of a whole-document scan for terrain-following and footprint queries (spec §14.3).
+func objects_in_rect(rect: Rect2) -> PackedStringArray:
+	var out := PackedStringArray()
+	if not rect.position.is_finite() or not rect.size.is_finite():
+		return out
+	var tall := 1.0e6
+	var box := AABB(Vector3(rect.position.x, -tall, rect.position.y), Vector3(rect.size.x, tall * 2.0, rect.size.y))
+	for id in _index.query_aabb(box.grow(0.01)):
+		var a := anchor_position(id)
+		if rect.has_point(Vector2(a.x, a.z)):
+			out.append(id)
+	return out
+
+
 func objects_in_circle(center: Vector2, radius: float) -> PackedStringArray:
 	var out := PackedStringArray()
 	if not center.is_finite() or not is_finite(radius) or radius < 0.0:

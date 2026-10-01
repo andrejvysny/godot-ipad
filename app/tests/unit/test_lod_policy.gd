@@ -6,10 +6,10 @@ const BAL := {"near_min_role": "near", "tree_detail_radius_m": 120.0, "ground_co
 
 func test_roles_follow_the_profile_thresholds() -> void:
 	assert_eq(LodPolicy.roles(PERF), PackedStringArray(["mid", "far", "group128", "group256"]))
-	assert_eq(LodPolicy.thresholds(PERF), PackedFloat64Array([80.0, 200.0, 400.0]))
+	assert_eq(LodPolicy.thresholds(PERF), PackedFloat64Array([80.0, 128.0, 256.0]))
 	assert_eq(LodPolicy.role_for(10.0, PERF), "mid")
 	assert_eq(LodPolicy.role_for(100.0, PERF), "far")
-	assert_eq(LodPolicy.role_for(300.0, PERF), "group128")
+	assert_eq(LodPolicy.role_for(200.0, PERF), "group128")
 	assert_eq(LodPolicy.role_for(900.0, PERF), "group256")
 	assert_eq(LodPolicy.role_for(10.0, BAL), "near")
 	assert_eq(LodPolicy.role_for(60.0, BAL), "mid")

@@ -14,6 +14,7 @@ var _ever_valid := false
 var _valid_now := false
 var _created := ""
 var _over_ui := false
+var _max_other_m := -1.0  # largest footprint x scale_max in the catalog (conflict query radius)
 
 
 func _init(ctx: ToolContext, asset: AssetDefinition, snap: bool) -> void:
@@ -150,12 +151,22 @@ func preview() -> Dictionary:
 ## Name of the first manual object whose footprint overlaps the candidate (distance < 0.8 (r_a s_a + r_b s_b)).
 func _conflict(pos: Vector3) -> String:
 	var mine := _asset.footprint_radius_m * _record.uniform_scale
-	for id in _ctx.document.sorted_object_ids():
+	var reach_max := 0.8 * (mine + _max_other_footprint())
+	for id in _ctx.presenter.objects_in_rect(Rect2(pos.x - reach_max, pos.z - reach_max, reach_max * 2.0, reach_max * 2.0)):
 		var other := _ctx.document.get_object(id)
-		var asset := _ctx.catalog.get_asset(other.asset_id)
-		if other.origin != WorldConstants.ORIGIN_MANUAL or asset == null:
+		var asset := _ctx.catalog.get_asset(other.asset_id) if other != null else null
+		if other == null or other.origin != WorldConstants.ORIGIN_MANUAL or asset == null:
 			continue
 		var reach := 0.8 * (mine + asset.footprint_radius_m * other.uniform_scale)
 		if Vector2(pos.x - other.position[0], pos.z - other.position[2]).length() < reach:
 			return asset.display_name
 	return ""
+
+
+func _max_other_footprint() -> float:
+	if _max_other_m < 0.0:
+		_max_other_m = 0.0
+		for asset_id in _ctx.catalog.sorted_ids():
+			var a := _ctx.catalog.get_asset(asset_id)
+			_max_other_m = maxf(_max_other_m, a.footprint_radius_m * a.scale_max)
+	return _max_other_m

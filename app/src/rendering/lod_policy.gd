@@ -10,7 +10,9 @@ extends RefCounted
 const REFERENCE_FOV_DEG := 60.0
 const REFERENCE_VIEWPORT_H := 820.0
 const NEAR_FRACTION := 0.35
-const GROUP_FACTOR := 2.5  # individual far representations up to R * GROUP_FACTOR
+# Individual far representations up to R * GROUP_FACTOR. 2.5 measured ~2.9 M primitives in a dense 50k-object
+# focus view (HOST); 1.6 hands the outer ring to the overview groups sooner (Performance: 128 m).
+const GROUP_FACTOR := 1.6
 const GROUP256_FACTOR := 2.0  # 128 m groups up to 2 x the group threshold, 256 m groups beyond
 
 const NEAR := "near"
