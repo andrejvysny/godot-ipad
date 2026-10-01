@@ -242,8 +242,14 @@ hints and toasts do not. No Unicode symbol glyphs in text (iPad font): icons onl
 
 - **World pill** top-left (10, 10): save dot + world name + chevron icon; opens the world menu
   (240 wide, below): status text ("Saved · revision N" / "Saving revision N" / failure),
-  "Open template: Flat", "Open template: Gentle Hills" (existing confirmation), "Save checkpoint
-  now", "Reset camera", plus existing Diagnostics and Left-handed layout switches.
+  "Open template: Flat", "Open template: Gentle Hills" (existing confirmation), "New 1 km world
+  (flat)", "New 1 km world (hills)" (same confirmation; the current world is saved first, undo
+  history is cleared; hills is a deterministic gentle relief, flat is height 0), "Save checkpoint
+  now", "Reset camera", plus existing Diagnostics and Left-handed layout switches. Reset camera
+  (and every world replacement) frames a 1 km world whole: the zoom range, pan clamp and far plane
+  follow the world layout, the legacy world keeps its 140 m start and 350 m maximum distance.
+  Placing or duplicating beyond the schema's object limit (2,000 legacy, 50,000 for 1 km) is
+  refused with "Object limit reached (N)."; the scatter limit message shows its schema's number.
 - **History** top-centre: Undo and Redo tiles 52 × 38 (icon + 9 pt caption), 40 % opacity when
   unavailable. After undo/redo a toast "Undid <label>" / "Redid <label>"; nothing to undo →
   "Nothing to undo".

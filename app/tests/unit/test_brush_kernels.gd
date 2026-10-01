@@ -132,7 +132,7 @@ func test_capsule_row_span_covers_exact_disc_set() -> void:
 		var a := Vector2(rng.randf_range(-20, 20), rng.randf_range(-20, 20))
 		var b := a + Vector2(rng.randf_range(-6, 6), rng.randf_range(-6, 6)) * (0.0 if n % 5 == 0 else 1.0)
 		var r := rng.randf_range(0.3, 5.0)
-		var cap := BrushKernels.Capsule.new(a, b, r)
+		var cap := BrushKernels.Capsule.new(a, b, r, WorldLayout.legacy())
 		var rows := cap.row_range()
 		for gz in range(-60, 61):
 			var span := cap.row_span(gz * SP) if gz >= rows.x and gz <= rows.y else Vector2i(1, 0)

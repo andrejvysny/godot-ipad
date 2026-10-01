@@ -73,6 +73,7 @@ static func remove_stale_tmp(root: String) -> PackedStringArray:
 static func write_checkpoint(job: Dictionary, last: Dictionary) -> Dictionary:
 	var snap: Dictionary = job.snap
 	var fault: Dictionary = job.get("fault", {})
+	WorldCodec.finalize_snapshot(snap)
 	var res := {"ok": false, "skipped": false, "durable": false, "world_id": snap.world_id,
 		"revision": int(snap.document_revision), "seq": int(job.get("seq", 0)), "generation": -1,
 		"path": "", "error": ""}

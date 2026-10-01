@@ -23,6 +23,10 @@ var scatter: ScatterLayer = ScatterLayer.new()
 var paths: Dictionary = {}  # String path_id -> PathRecord
 
 var _height_range_cache: Dictionary = {}  # Vector2i -> Vector2(min, max)
+# Object change journal for incremental snapshots (ObjectChunkCache). Only put_object/remove_object
+# write it; a direct write to `objects` is caught by the consumer's count check.
+var _journal_owner := 0
+var _journal: Dictionary = {}  # object_id -> true, since the owner's last take_object_changes()
 
 
 static func create_flat(height: float, control_value: int, p_layout: WorldLayout = null) -> WorldDocument:
@@ -186,17 +190,39 @@ func height_range() -> Vector2:
 
 # --- Objects ---------------------------------------------------------------------------
 
+## Admission limit of the document's schema (WorldLimits).
+func max_objects() -> int:
+	return int(WorldLimits.for_schema(layout.schema_version()).max_objects)
+
+
 func get_object(id: String) -> ObjectRecord:
 	return objects.get(id)
 
 
-## Stores `record` (the caller must not keep mutating it; clone first).
+## Stores `record`. Stored records are replace-only: never mutate one in place (clone, edit, put),
+## because snapshot caches key their encoded bytes on the record instance.
 func put_object(record: ObjectRecord) -> void:
 	objects[record.object_id] = record
+	if _journal_owner != 0:
+		_journal[record.object_id] = true
 
 
 func remove_object(id: String) -> void:
 	objects.erase(id)
+	if _journal_owner != 0:
+		_journal[id] = true
+
+
+## Ids put or removed since `owner` (an object id) last called this. Null when `owner` does not
+## hold the journal yet: it then takes it over and must treat every object as changed.
+func take_object_changes(owner: int) -> Variant:
+	if _journal_owner != owner:
+		_journal_owner = owner
+		_journal = {}
+		return null
+	var changes := _journal
+	_journal = {}
+	return changes
 
 
 # --- Paths -----------------------------------------------------------------------------

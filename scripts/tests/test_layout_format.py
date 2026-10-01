@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import io
+import math
 import re
 import shutil
 import struct
@@ -349,6 +350,71 @@ class PackageEnvelopeTests(unittest.TestCase):
 		result = wf.validate_path(pkg)
 		self.assertTrue(result["valid"], result["errors"][:3])
 		self.assertEqual(result["authored_content_hash"], KM1_FLAT_VECTOR)
+
+
+class FiftyThousandObjectsTests(unittest.TestCase):
+	"""WORLD-04 (Python side): the writer, the generation validator and the package validator accept a
+	km1 world holding exactly the schema 3 object limit, spread over the whole extent."""
+
+	COUNT = 50000
+
+	def setUp(self) -> None:
+		self.tmp = Path(tempfile.mkdtemp(prefix="wp_km1_50k_"))
+
+	def tearDown(self) -> None:
+		shutil.rmtree(self.tmp, ignore_errors=True)
+
+	def objects(self) -> list[dict[str, Any]]:
+		lo, hi, step = -512.0, 511.5, 0.5
+		span = int((hi - lo) / step)  # 2047 steps between the extreme samples
+		assets = ["nature.tree.spruce_a", "nature.rock.boulder_a", "built.lodge.cabin_a"]
+		out = []
+		for i in range(self.COUNT):
+			# Deterministic low-discrepancy spread that includes both extremes and every seam row.
+			x = lo + step * ((i * 7919) % (span + 1))
+			z = lo + step * ((i * 104729) % (span + 1))
+			angle = (i % 360) * 3.141592653589793 / 180.0
+			rot = [0.0, math.sin(angle / 2.0), 0.0, math.cos(angle / 2.0)]
+			out.append(wf.make_object_record("%08x-%04x-4%03x-8%03x-%012x" % (i * 2654435761 & 0xFFFFFFFF, i & 0xFFFF, (i >> 4) & 0xFFF, i & 0xFFF, i),
+				assets[i % 3], 1, [x, 0.0, z], rot, 1.0, "FOLLOW_TERRAIN", 0.0))
+		return out
+
+	def test_package_with_exactly_the_object_limit_validates(self) -> None:
+		cat = wf.load_trusted_catalog()
+		doc = gf.flat_layout_doc(wf.KM1_LAYOUT, cat)
+		doc["objects"] = self.objects()
+		gen = self.tmp / "gen"
+		manifest = wf.write_generation(gen, doc)
+		self.assertEqual(manifest["schema_version"], 3)
+		self.assertNotEqual(manifest["authored_content_hash"], KM1_FLAT_VECTOR, "objects are part of the hash")
+		extent = wf.layout_extent(wf.KM1_LAYOUT)
+		xs = [o["position"][0] for o in doc["objects"]]
+		zs = [o["position"][2] for o in doc["objects"]]
+		self.assertEqual((min(xs), max(xs), min(zs), max(zs)), (extent[0], extent[1], extent[2], extent[3]))
+		result = wf.validate_path(gen)
+		self.assertTrue(result["valid"], result["errors"][:3])
+		self.assertEqual((result["object_count"], result["warnings"]), (self.COUNT, []))
+		pkg = self.tmp / "km1_50k.worldpoc"
+		wf.write_package(gen, pkg)
+		packaged = wf.validate_path(pkg)
+		self.assertTrue(packaged["valid"], packaged["errors"][:3])
+		self.assertEqual(packaged["object_count"], self.COUNT)
+		self.assertEqual(packaged["authored_content_hash"], manifest["authored_content_hash"])
+
+	def test_one_object_past_the_limit_is_rejected(self) -> None:
+		cat = wf.load_trusted_catalog()
+		doc = gf.flat_layout_doc(wf.KM1_LAYOUT, cat)
+		gen = self.tmp / "over"
+		wf.write_generation(gen, doc)
+		objects = wf.dump_json({"schema_version": 3, "objects": [{}] * (self.COUNT + 1)})
+		(gen / "objects.json").write_bytes(objects)
+		m = wf.parse_json_bytes((gen / "manifest.json").read_bytes())
+		for e in m["payload_files"]:
+			if e["path"] == "objects.json":
+				e["bytes"], e["sha256"] = len(objects), hashlib.sha256(objects).hexdigest()
+		(gen / "manifest.json").write_bytes(wf.dump_json(m))
+		errors = wf.validate_generation(gen)[1]
+		self.assertTrue(any("objects.json has 50001 objects (max 50000)" in e for e in errors), errors[:3])
 
 
 if __name__ == "__main__":

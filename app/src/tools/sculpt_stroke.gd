@@ -152,7 +152,7 @@ func _apply_piece(piece: Dictionary, snaps: Dictionary) -> Dictionary:
 		return BrushKernels.sculpt_segment(_doc, _tx, piece.p_a, piece.p_b, radius, _height_rate,
 				strength, pf_avg, dt)
 	_angle = BrushDabs.segment_angle(piece.p_a, piece.p_b, _angle)
-	var p := SculptKernels.Piece.new(kind, piece.p_a, piece.p_b, radius, shape, mode, _angle)
+	var p := SculptKernels.Piece.new(kind, piece.p_a, piece.p_b, radius, shape, mode, _angle, _doc.layout)
 	p.gain = (_height_rate if kind == "raise" else 1.0) * strength * pf_avg * dt
 	p.target = float(settings.get("target", 0.0))
 	return SculptKernels.sculpt_piece(_doc, _tx, p, snaps)

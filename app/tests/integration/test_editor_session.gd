@@ -226,6 +226,33 @@ func test_open_fixture_replaces_world_and_rejects_unknown() -> void:
 	assert_eq(recovered.doc.document_revision, 1)
 
 
+func test_open_new_km1_world_replaces_frames_and_saves_the_world() -> void:
+	var s: EditorSession = await _start()
+	var old_id := s.document.world_id
+	assert_error_contains(s.open_new_world("volcano"), "unknown world kind")
+	assert_eq(s.document.world_id, old_id, "a refused request leaves the world")
+	assert_eq(s.rig.get_camera().far, 2000.0)
+	assert_eq(s.open_new_world("hills"), "")
+	assert_true(s.document.layout.equals(WorldLayout.km1()))
+	assert_eq(s.document.source_label, "new:km1-hills")
+	assert_eq(s.document.document_revision, 0)
+	assert_eq(s.history.size(), 0)
+	assert_eq(s.last_message, "Opened new 1 km world (hills)")
+	assert_true(s.rig.get_camera().far > 2000.0, "far plane covers the larger world")
+	assert_true(s.rig.controller.distance > 350.0, "reset view frames the whole world")
+	assert_eq(s.rig.controller.world_rect(), WorldLayout.km1().world_rect())
+	if s.terrain is TerrainAdapter:
+		assert_eq((s.terrain as TerrainAdapter).verify_matches_document(s.document), PackedStringArray())
+	await _settle(s)
+	var recovered := s.storage.recover_latest_valid(s.document.world_id, s.catalog)
+	assert_true(recovered.doc != null, str(recovered.error))
+	assert_eq(CanonicalEncoder.authored_hash(recovered.doc), s.authored_hash(), "the new world is durable")
+	assert_eq(s.open_fixture("flat"), "")
+	assert_true(s.document.layout.is_legacy())
+	assert_eq(s.rig.get_camera().far, 2000.0, "legacy camera limits are restored")
+	assert_eq(s.rig.controller.distance, 140.0)
+
+
 func test_export_is_verified() -> void:
 	var s: EditorSession = await _start()
 	s.tools.set_tool(ToolController.TOOL_PAINT)

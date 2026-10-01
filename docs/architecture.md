@@ -74,7 +74,9 @@ only, so a placement inserts its record at release. One slider drag is one actio
 restores the exact starting record. Undo/redo, save, export and open are refused while an operation
 owns the viewport. The Input Lab stays available through `--input-lab` (`dev.py run-mac --input-lab`).
 
-Document layers (schema 2, `docs/world-format.md`): terrain regions (height, control, tint maps), rules
+Layout-aware modules (WP04, `docs/world-format.md` §11): every consumer of the world extent (brush kernels, picker, tools, scatter, paths, terrain adapter, camera pan and framing, validator, codec) takes its region rectangle, sample range and limits from `WorldDocument.layout` / `WorldLimits`, so legacy 2 x 2 (schema 2) and 1 km 8 x 8 (schema 3) worlds run through the same code. Checkpoint snapshots stay cheap at 50,000 objects: `ObjectChunkCache` (main thread) re-encodes only the objects the document's put/remove journal reports changed (stored `ObjectRecord`s are replace-only), and the worker assembles `objects.json`, the payload digests and the authored hash from those plain chunks (`WorldCodec.finalize_snapshot`).
+
+Document layers (schema 2 and 3, `docs/world-format.md`): terrain regions (height, control, tint maps), rules
 (manifest integers), manual objects, `ScatterLayer` (compact instances, Y follows the terrain) and
 paths (spline records). Rule edits, scatter and path edits are `EditTransaction` captures like terrain
 strokes, so every action is one history entry with an exact undo. `WorldLayers` and the project shader

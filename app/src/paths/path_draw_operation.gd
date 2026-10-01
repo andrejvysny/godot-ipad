@@ -162,7 +162,7 @@ func _flatten() -> Rect2:
 		var target := _ctx.document.sample_height(_raw[i].x, _raw[i].y)
 		if is_nan(target):
 			continue
-		var piece := SculptKernels.Piece.new("flatten", _raw[i], _raw[i], radius, "soft", "circle", 0.0)
+		var piece := SculptKernels.Piece.new("flatten", _raw[i], _raw[i], radius, "soft", "circle", 0.0, _ctx.document.layout)
 		piece.gain = DAB_STRENGTH
 		piece.target = target
 		var res := SculptKernels.sculpt_piece(_ctx.document, _tx, piece, {})

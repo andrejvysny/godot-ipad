@@ -87,6 +87,25 @@ func test_place_released_over_ui_or_sky_creates_nothing() -> void:
 	assert_eq(h.ctrl.armed_asset(), ToolHarness.BOULDER, "stays armed for another try")
 
 
+func test_place_and_duplicate_are_refused_at_the_object_limit() -> void:
+	var source := _selected_boulder()
+	var limit := h.doc.max_objects()
+	assert_eq(limit, 2000)
+	for i in limit - h.doc.objects.size():
+		var filler := source.clone()
+		filler.object_id = "%08x-0000-4000-8000-%012d" % [i + 1, i]
+		h.doc.put_object(filler)  # not presented: only the document count matters
+	assert_eq(h.doc.objects.size(), limit)
+	assert_eq(h.ctrl.duplicate_selected(), "Object limit reached (2000).")
+	_place_tool()
+	h.act("tool_begin", h.at(40.2, 40.3, 1.0))
+	h.act("tool_end", h.at(40.2, 40.3, 1.04))
+	assert_eq(h.doc.objects.size(), limit, "nothing was added")
+	assert_true(h.commits.is_empty(), "no history entry")
+	assert_true(h.diagnostics.has("Object limit reached (2000)."), str(h.diagnostics))
+	assert_false(h.presenter.has_ghost_visible())
+
+
 func test_place_after_sculpt_uses_the_new_height() -> void:
 	h.ctrl.set_tool(ToolController.TOOL_RAISE)
 	h.act("tool_begin", h.at(40, 40, 1.0))

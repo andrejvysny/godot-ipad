@@ -276,7 +276,7 @@ func _clear() -> void:
 	_payload = 0
 
 
-static func _bounds_of(c: WorldChange) -> Rect2:
+func _bounds_of(c: WorldChange) -> Rect2:
 	var span := WorldConstants.REGION_SAMPLES * WorldConstants.SAMPLE_SPACING
 	var rects: Array[Rect2] = []
 	for loc in c.before_heights.keys() + c.before_controls.keys() + c.before_colors.keys():
@@ -286,8 +286,7 @@ static func _bounds_of(c: WorldChange) -> Rect2:
 			if d[id] != null:
 				rects.append((d[id] as PathRecord).bounds())
 	if c.has_scatter() or c.has_rules():
-		var world := WorldConstants.WORLD_MIN
-		rects.append(Rect2(world, world, 2.0 * -world, 2.0 * -world))
+		rects.append(_doc.layout.extent_rect())
 	var rect := Rect2()
 	for i in rects.size():
 		rect = rects[i] if i == 0 else rect.merge(rects[i])

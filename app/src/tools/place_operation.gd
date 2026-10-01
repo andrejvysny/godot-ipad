@@ -67,6 +67,11 @@ func end(sample: PointerSample, hit: TerrainHit, over_ui: bool) -> WorldChange:
 		_ctx.report("Placement cancelled: lift the Pencil over terrain to place.")
 		return null
 	var doc := _ctx.document
+	var limit := ToolCommands.object_limit_error(doc)
+	if limit != "":
+		cancel()
+		_ctx.report(limit)
+		return null
 	var tx := EditTransaction.new()
 	tx.begin(doc, "place", "Place %s" % _asset.display_name)
 	if not tx.capture_object(_record.object_id):
@@ -115,7 +120,7 @@ func _candidate(hit: TerrainHit) -> Variant:
 		var step := float(_ctx.default("placement", "move_snap_m", 0.5))
 		x = snappedf(x, step)
 		z = snappedf(z, step)
-	if not WorldConstants.is_inside_world(x, z):
+	if not _ctx.document.layout.is_inside_world(x, z):
 		return null
 	var h := _ctx.document.sample_height(x, z)
 	if is_nan(h):

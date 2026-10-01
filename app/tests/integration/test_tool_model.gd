@@ -444,7 +444,7 @@ func test_duplicate_grounding_modes_and_world_edge_clamp() -> void:
 	h.ctrl.select(edge.object_id)
 	assert_empty_string(h.ctrl.duplicate_selected())
 	var clamped := h.ctrl.selected_record()
-	assert_eq([clamped.position[0], clamped.position[2]], [WorldConstants.WORLD_MAX_SAMPLE, WorldConstants.WORLD_MAX_SAMPLE])
+	assert_eq([clamped.position[0], clamped.position[2]], [127.5, 127.5])
 	assert_near(clamped.position[1], h.doc.sample_height(127.5, 127.5), 1e-9)
 
 

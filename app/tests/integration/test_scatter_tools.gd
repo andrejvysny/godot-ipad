@@ -53,7 +53,7 @@ func _inside_square(layer: ScatterLayer, i: int) -> bool:
 
 
 func _limit_messages() -> int:
-	return h.diagnostics.count(ScatterPlacer.LIMIT_MESSAGE)
+	return h.diagnostics.count("Scatter limit reached (20000).")
 
 
 func _prefill(n: int) -> void:

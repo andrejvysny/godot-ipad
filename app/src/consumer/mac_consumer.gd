@@ -79,6 +79,7 @@ func _present(report: Dictionary) -> void:
 	rig = OrbitCameraRig.new()
 	rig.height_sampler = document.sample_height
 	add_child(rig)
+	rig.set_world_rect(document.layout.world_rect())
 	rig.reset_to(rig.controller.fixture_pose(document.sample_height(0.0, 0.0)))
 	adapter = TerrainAdapter.new()
 	adapter.set_camera(rig.get_camera())

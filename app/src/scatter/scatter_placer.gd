@@ -6,11 +6,11 @@ extends RefCounted
 
 enum Result { ADDED, NO_SOURCE, NO_SAMPLE, SLOPE, SPACING, OBJECT, LIMIT, OUTSIDE }
 
-const LIMIT_MESSAGE := "Scatter limit reached (20000)."
 const SCALE_MARGIN := 1e-5  # keeps the float32-rounded scale inside the catalog range
 const OBJECT_PAD_FACTOR := 0.5
 
 var limit_reached := false
+var max_instances := 0  # WorldLimits scatter limit of the document's schema
 var added := 0
 
 var _doc: WorldDocument
@@ -29,6 +29,7 @@ var _avoid: Array[Vector3] = []  # x, z, footprint radius of manual objects
 func _init(doc: WorldDocument, catalog: AssetCatalog, config: Dictionary, avoid: bool,
 		seed_value: int, index: ScatterIndex = null) -> void:
 	_doc = doc
+	max_instances = int(WorldLimits.for_schema(doc.layout.schema_version()).max_scatter_instances)
 	_index = index if index != null else ScatterIndex.new(doc.scatter)
 	_rng.seed = seed_value
 	_slope_min = float(config.get("slope_min", 0.0))
@@ -46,6 +47,10 @@ func _init(doc: WorldDocument, catalog: AssetCatalog, config: Dictionary, avoid:
 		_collect_objects(catalog)
 
 
+func limit_message() -> String:
+	return "Scatter limit reached (%d)." % max_instances
+
+
 func index() -> ScatterIndex:
 	return _index
 
@@ -61,10 +66,10 @@ func has_source() -> bool:
 func try_add(x: float, z: float) -> Result:
 	if _assets.is_empty():
 		return Result.NO_SOURCE
-	if _doc.scatter.count() >= WorldConstants.MAX_SCATTER_INSTANCES:
+	if _doc.scatter.count() >= max_instances:
 		limit_reached = true
 		return Result.LIMIT
-	if not WorldConstants.is_inside_world(x, z):
+	if not _doc.layout.is_inside_world(x, z):
 		return Result.OUTSIDE
 	var normal := _doc.sample_normal(x, z)
 	if not normal.is_finite():
@@ -87,7 +92,7 @@ func _insert(asset: AssetDefinition, x: float, z: float) -> void:
 	scale_value = clampf(scale_value, asset.scale_min + SCALE_MARGIN, asset.scale_max - SCALE_MARGIN)
 	var yaw := _rng.randf_range(-PI, PI)
 	var flags := ScatterLayer.FLAG_TILT if _align else 0
-	if _doc.scatter.add(asset.asset_id, asset.version, x, z, yaw, scale_value, flags):
+	if _doc.scatter.add(asset.asset_id, asset.version, x, z, yaw, scale_value, flags, max_instances):
 		_index.add_last()
 		added += 1
 

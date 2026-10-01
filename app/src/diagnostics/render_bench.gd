@@ -152,6 +152,7 @@ func _restore_documents() -> bool:
 	_session.presenter.rebuild(doc)
 	_session.layers.rebuild(doc)
 	_session.rig.height_sampler = doc.sample_height
+	_session.rig.set_world_rect(doc.layout.world_rect())
 	return error == ""
 
 
@@ -224,6 +225,7 @@ func _apply_settings(s: Dictionary) -> String:
 
 
 func _apply_camera(camera: String) -> void:
+	_session.rig.set_world_rect(_bench_doc.layout.world_rect())
 	var height := _bench_doc.sample_height(0.0, 0.0)
 	var pose := _session.rig.controller.fixture_pose(0.0 if is_nan(height) else height)
 	if camera == "ground":

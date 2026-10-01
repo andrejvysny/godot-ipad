@@ -18,7 +18,7 @@ func test_finish_captures_before_after_and_undo_redo_exact() -> void:
 	var before_hash := CanonicalEncoder.authored_hash(doc)
 	var tx := EditTransaction.new()
 	tx.begin(doc, "sculpt", "Raise")
-	for loc in WorldConstants.REGION_LOCATIONS:
+	for loc in WorldLayout.legacy().region_locations():
 		_raise(doc, tx, loc, 1000, 0.75)
 	var change := tx.finish()
 	assert_true(change != null, "change produced")
@@ -65,7 +65,7 @@ func test_rollback_restores_all_regions_and_objects() -> void:
 	var before_hash := CanonicalEncoder.authored_hash(doc)
 	var tx := EditTransaction.new()
 	tx.begin(doc, "sculpt", "Raise")
-	for loc in WorldConstants.REGION_LOCATIONS:
+	for loc in WorldLayout.legacy().region_locations():
 		_raise(doc, tx, loc, 77, 2.0)
 		tx.capture_controls(loc)
 		doc.get_region(loc).control[77] = ControlCodec.encode_paint(0, 200)

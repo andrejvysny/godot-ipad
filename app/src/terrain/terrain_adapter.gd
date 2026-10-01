@@ -329,8 +329,8 @@ func _validate_document(doc: WorldDocument) -> String:
 	if not WorldConstants.host_is_little_endian():
 		return "host is not little-endian; region bytes cannot be uploaded verbatim"
 	for loc in doc.regions:
-		if not WorldConstants.is_valid_region(loc):
-			return "document region %s is outside the fixed PoC layout" % loc
+		if not doc.layout.is_valid_region(loc):
+			return "document region %s is outside the document layout" % loc
 		var rb: RegionBuffers = doc.regions[loc]
 		if rb.heights.size() != WorldConstants.REGION_SAMPLE_COUNT or rb.control.size() != WorldConstants.REGION_SAMPLE_COUNT:
 			return "region %s buffers must hold %d samples" % [loc, WorldConstants.REGION_SAMPLE_COUNT]

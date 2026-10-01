@@ -91,8 +91,7 @@ func test_synth_objects_deterministic_and_valid() -> void:
 		if not assert_true(asset != null, "known asset " + r.asset_id):
 			continue
 		assert_true(asset.scale_in_range(r.uniform_scale), "scale in range")
-		assert_true(r.position[0] >= WorldConstants.WORLD_MIN and r.position[0] <= WorldConstants.WORLD_MAX_SAMPLE)
-		assert_true(r.position[2] >= WorldConstants.WORLD_MIN and r.position[2] <= WorldConstants.WORLD_MAX_SAMPLE)
+		assert_true(doc.layout.is_inside_world(r.position[0], r.position[2]), "inside the document layout")
 		assert_true(is_finite(r.position[1]), "finite y")
 		assert_eq(r.grounding, WorldConstants.GROUNDING_FOLLOW)
 		assert_eq(r.origin, WorldConstants.ORIGIN_MANUAL)

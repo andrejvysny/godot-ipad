@@ -2,7 +2,7 @@ class_name BrushKernels
 extends RefCounted
 ## Continuous-segment brush kernels operating on WorldDocument through an EditTransaction
 ## (spec §12, §13.1). Only existing global samples inside the capsule around the segment and
-## inside [GLOBAL_SAMPLE_MIN, GLOBAL_SAMPLE_MAX] are visited; regions are never created.
+## inside the document layout's global sample range are visited; regions are never created.
 ## Each region map is captured once, immediately before its first changed sample.
 ## Results: {dirty_heights, dirty_controls, dirty_colors: Array[Vector2i], rect: Rect2,
 ## error: "" | "budget" | "invalid_input"}. `rect` is the world-XZ bounds of the changed samples
@@ -117,7 +117,7 @@ static func sculpt_segment(doc: WorldDocument, tx: EditTransaction, p_a: Vector2
 		return res
 	if amount == 0.0 or radius <= 0.0:
 		return res
-	var geo := Capsule.new(p_a, p_b, radius)
+	var geo := Capsule.new(p_a, p_b, radius, doc.layout)
 	var bounds := geo.row_range()
 	var dirty: Array[Vector2i] = res.dirty_heights
 	var ext := _new_extent()
@@ -213,10 +213,14 @@ class Capsule extends RefCounted:
 	var bz: float
 	var r: float
 	var length: float
+	var sample_min: Vector2i  # layout clip range, global samples (x = X axis, y = Z axis)
+	var sample_max: Vector2i
 	var ux := 1.0  # unit direction a->b; arbitrary (+X) for a point dab, where length == 0
 	var uz := 0.0
 
-	func _init(a: Vector2, b: Vector2, radius: float) -> void:
+	func _init(a: Vector2, b: Vector2, radius: float, layout: WorldLayout) -> void:
+		sample_min = layout.global_sample_min()
+		sample_max = layout.global_sample_max()
 		ax = a.x
 		az = a.y
 		bx = b.x
@@ -234,7 +238,7 @@ class Capsule extends RefCounted:
 		var sp := WorldConstants.SAMPLE_SPACING
 		var lo := ceili((minf(az, bz) - r) / sp - BrushKernels._EDGE_EPS)
 		var hi := floori((maxf(az, bz) + r) / sp + BrushKernels._EDGE_EPS)
-		return Vector2i(maxi(lo, WorldConstants.GLOBAL_SAMPLE_MIN), mini(hi, WorldConstants.GLOBAL_SAMPLE_MAX))
+		return Vector2i(maxi(lo, sample_min.y), mini(hi, sample_max.y))
 
 	## Global sample columns (min, max) of the row at world z, clipped; min > max when empty.
 	## The capsule is convex, so the union of both end discs and the side band is one interval.
@@ -264,8 +268,8 @@ class Capsule extends RefCounted:
 		if lo > hi:
 			return Vector2i(1, 0)
 		var sp := WorldConstants.SAMPLE_SPACING
-		var g0 := maxi(ceili(lo / sp - BrushKernels._EDGE_EPS), WorldConstants.GLOBAL_SAMPLE_MIN)
-		var g1 := mini(floori(hi / sp + BrushKernels._EDGE_EPS), WorldConstants.GLOBAL_SAMPLE_MAX)
+		var g0 := maxi(ceili(lo / sp - BrushKernels._EDGE_EPS), sample_min.x)
+		var g1 := mini(floori(hi / sp + BrushKernels._EDGE_EPS), sample_max.x)
 		return Vector2i(g0, g1)
 
 	## Solutions t of lo <= k * t + c <= hi as [min, max]; [INF, -INF] when none.

@@ -195,27 +195,24 @@ static func _validate_paths(doc: WorldDocument) -> PackedStringArray:
 
 
 ## Returns "" when the path satisfies docs/world-format.md §6.
-## `layout` null means the legacy 2x2 layout.
-static func validate_path(p: PathRecord, layout: WorldLayout = null) -> String:
+static func validate_path(p: PathRecord, layout: WorldLayout) -> String:
 	if p == null:
 		return "path record is null"
 	if not ObjectRecord.is_uuid(p.path_id):
 		return "path_id '%s' is not a lowercase UUID" % p.path_id
-	var extent := layout if layout != null else WorldLayout.legacy()
 	var tag := " (path %s)" % p.path_id
 	if not (p.width_m >= WorldConstants.PATH_WIDTH_MIN and p.width_m <= WorldConstants.PATH_WIDTH_MAX):
 		return "width_m %s outside [%s, %s]%s" % [p.width_m, WorldConstants.PATH_WIDTH_MIN, WorldConstants.PATH_WIDTH_MAX, tag]
 	if p.points.size() < WorldConstants.PATH_POINTS_MIN or p.points.size() > WorldConstants.PATH_POINTS_MAX:
 		return "%d points, allowed %d..%d%s" % [p.points.size(), WorldConstants.PATH_POINTS_MIN, WorldConstants.PATH_POINTS_MAX, tag]
 	for pt in p.points:
-		if not (is_finite(pt.x) and is_finite(pt.y)) or not extent.is_inside_world(pt.x, pt.y):
+		if not (is_finite(pt.x) and is_finite(pt.y)) or not layout.is_inside_world(pt.x, pt.y):
 			return "point (%s, %s) is outside the world extent%s" % [pt.x, pt.y, tag]
 	return ""
 
 
 ## Returns "" when the record is valid for the trusted catalog.
-## `layout` null means the legacy 2x2 layout.
-static func validate_object(r: ObjectRecord, catalog: AssetCatalog, layout: WorldLayout = null) -> String:
+static func validate_object(r: ObjectRecord, catalog: AssetCatalog, layout: WorldLayout) -> String:
 	if r == null:
 		return "object record is null"
 	if not ObjectRecord.is_uuid(r.object_id):
@@ -226,7 +223,7 @@ static func validate_object(r: ObjectRecord, catalog: AssetCatalog, layout: Worl
 		return "unknown asset '%s'%s" % [r.asset_id, tag]
 	if a.version != r.asset_version:
 		return "asset '%s' v%d is incompatible with trusted v%d%s" % [r.asset_id, r.asset_version, a.version, tag]
-	var err := _validate_transform(r, a, layout if layout != null else WorldLayout.legacy())
+	var err := _validate_transform(r, a, layout)
 	if err != "":
 		return err + tag
 	if r.grounding != WorldConstants.GROUNDING_FOLLOW and r.grounding != WorldConstants.GROUNDING_FIXED:

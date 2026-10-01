@@ -40,6 +40,7 @@ var _last_written: Dictionary = {}  # world_id -> {seq, revision, hash} of the n
 
 # Main thread only:
 var _catalog_plain: Dictionary = {}
+var _object_cache := ObjectChunkCache.new()
 var _job_seq := 0
 var _outstanding: Dictionary = {}  # world_id -> jobs whose result has not been applied yet
 var _requested_revision := -1
@@ -102,6 +103,12 @@ func request_checkpoint(doc: WorldDocument) -> String:
 	_semaphore.post()
 	_emit_state()
 	return ""
+
+
+## Encodes `doc`'s objects into the incremental snapshot cache now, so the first checkpoint after a
+## large world is opened does not stall an edit. Main thread.
+func warm_snapshot_cache(doc: WorldDocument) -> void:
+	_object_cache.chunks(doc)
 
 
 ## Synchronous checkpoint on the same write path (tests, app deactivation).
@@ -267,7 +274,7 @@ func _make_job(doc: WorldDocument) -> Dictionary:
 		created_with = WorldCodec.default_created_with()
 	_switch_world(doc.world_id)
 	_job_seq += 1
-	return {"snap": WorldCodec.snapshot(doc, created_with), "root": root, "keep": keep,
+	return {"snap": WorldCodec.snapshot(doc, created_with, _object_cache), "root": root, "keep": keep,
 		"fault": fault_injection.duplicate(true), "seq": _job_seq, "catalog": _catalog_plain.duplicate(true)}
 
 

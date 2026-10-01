@@ -35,7 +35,7 @@ class Job extends RefCounted:
 		strength = p_strength
 		pf_a = p_pf_a
 		pf_b = p_pf_b
-		geo = BrushKernels.Capsule.new(a, b, p_radius)
+		geo = BrushKernels.Capsule.new(a, b, p_radius, p_state.doc.layout)
 		inv_r = 1.0 / p_radius
 		inv_len = 1.0 / geo.length if geo.length >= BrushMath.MIN_SEGMENT_LENGTH else 0.0
 		varying_pf = pf_a != pf_b and geo.length > 0.0

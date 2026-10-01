@@ -24,8 +24,8 @@ func _doc() -> WorldDocument:
 	doc.catalog_version = _catalog.catalog_version
 	doc.catalog_sha256 = _catalog.sha256
 	for i in 20:
-		doc.get_region(WorldConstants.REGION_LOCATIONS[i % 4]).heights[i * 997] = -0.0 if i == 0 else i * 0.013
-		doc.get_region(WorldConstants.REGION_LOCATIONS[i % 4]).control[i * 131] = ControlCodec.encode_paint(0x7C, i * 12)
+		doc.get_region(WorldLayout.legacy().region_locations()[i % 4]).heights[i * 997] = -0.0 if i == 0 else i * 0.013
+		doc.get_region(WorldLayout.legacy().region_locations()[i % 4]).control[i * 131] = ControlCodec.encode_paint(0x7C, i * 12)
 	doc.get_region(Vector2i(0, -1)).color[40] = 99
 	doc.rules.rock_slope_deg = 41
 	for i in 4:
@@ -77,7 +77,7 @@ func test_export_import_round_trip() -> void:
 		if not e.is_dir:
 			names.append(e.name)
 	var expected: Array = ["manifest.json"]
-	expected.append_array(Array(WorldCodec.payload_paths()))
+	expected.append_array(Array(WorldCodec.payload_paths(WorldLayout.legacy())))
 	assert_eq(names, expected, "fixed entry order")
 	var before := _import_tmp_count()
 	var r := WorldPackage.import_package(out, _catalog, _tmp_root())
@@ -95,7 +95,7 @@ func test_export_import_round_trip() -> void:
 			assert_eq(ObjectRecord.f64_hex(b.rotation_xyzw[k]), ObjectRecord.f64_hex(a.rotation_xyzw[k]), "rotation bits")
 		assert_eq(ObjectRecord.f64_hex(b.uniform_scale), ObjectRecord.f64_hex(a.uniform_scale), "scale bits")
 		assert_eq(ObjectRecord.f64_hex(b.height_offset_m), ObjectRecord.f64_hex(a.height_offset_m), "offset bits")
-	for loc in WorldConstants.REGION_LOCATIONS:
+	for loc in WorldLayout.legacy().region_locations():
 		assert_eq(back.get_region(loc).height_bytes(), doc.get_region(loc).height_bytes(), "heights %s" % loc)
 		assert_eq(back.get_region(loc).control_bytes(), doc.get_region(loc).control_bytes(), "control %s" % loc)
 		assert_eq(back.get_region(loc).color_bytes(), doc.get_region(loc).color_bytes(), "color %s" % loc)

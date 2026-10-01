@@ -30,14 +30,14 @@ class Piece extends RefCounted:
 	var dab_pos := PackedVector2Array()
 
 	func _init(p_kind: String, a: Vector2, b: Vector2, p_radius: float, p_shape: String, p_mode: String,
-			p_angle: float) -> void:
+			p_angle: float, layout: WorldLayout) -> void:
 		kind = p_kind
 		radius = p_radius
 		shape = p_shape
 		alpha_mode = p_mode
 		angle = p_angle
 		finite = a.is_finite() and b.is_finite() and is_finite(p_radius)
-		geo = BrushKernels.Capsule.new(a, b, p_radius)
+		geo = BrushKernels.Capsule.new(a, b, p_radius, layout)
 		exact = BrushAlpha.is_exact_soft(shape, alpha_mode)
 		if not exact:
 			dab_pos = BrushDabs.centers(a, b, BrushDabs.count(geo.length, radius))

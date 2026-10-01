@@ -126,7 +126,7 @@ func test_node_transform_applies_anchor_after_rotation_and_scale() -> void:
 
 func test_holes_have_no_surface_without_changing_raw_bytes() -> void:
 	var doc := WorldDocument.create_flat(0.0, ControlCodec.grass_value())
-	for loc in WorldConstants.REGION_LOCATIONS:
+	for loc in WorldLayout.legacy().region_locations():
 		var region := doc.get_region(loc)
 		region.control[255 * 256 + 255] |= ControlCodec.HOLE_BIT
 		var gx: int = loc.x * 256 + 255
@@ -186,7 +186,7 @@ func test_legacy_fixtures_keep_recorded_hashes_and_bytes() -> void:
 		assert_eq(CanonicalEncoder.authored_bytes(doc).slice(0, 17).get_string_from_ascii(), "WPOC-AUTHORED-V2\n")
 		var dir := out.path_join(name)
 		assert_empty_string(WorldCodec.write_generation(dir, doc, WorldCodec.default_created_with()), name)
-		for file in WorldCodec.payload_paths():
+		for file in WorldCodec.payload_paths(WorldLayout.legacy()):
 			if file == "objects.json":
 				continue  # fixtures are written by Python with other JSON whitespace; the content is hashed above
 			assert_eq(FileAccess.get_file_as_bytes(dir.path_join(file)),

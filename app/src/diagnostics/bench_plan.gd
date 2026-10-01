@@ -95,11 +95,11 @@ static func _synth_one(doc: WorldDocument, catalog: AssetCatalog, rng: RandomNum
 	var asset := catalog.get_asset(SPRUCE if roll < 0.7 else (BOULDER if roll < 0.95 else LODGE))
 	if asset == null:
 		return null
-	var low := WorldConstants.WORLD_MIN + MARGIN_M
-	var high := WorldConstants.WORLD_MAX_SAMPLE - MARGIN_M
+	var low := doc.layout.world_min() + Vector2(MARGIN_M, MARGIN_M)
+	var high := doc.layout.world_max_sample() - Vector2(MARGIN_M, MARGIN_M)
 	for _try in MAX_TRIES:
-		var x := rng.randf_range(low, high)
-		var z := rng.randf_range(low, high)
+		var x := rng.randf_range(low.x, high.x)
+		var z := rng.randf_range(low.y, high.y)
 		var y := doc.sample_height(x, z)
 		if is_nan(y):
 			continue

@@ -67,7 +67,7 @@ func test_generation_directory_loads() -> void:
 func test_altered_catalog_hash_is_rejected() -> void:
 	var dir := scratch_dir().path_join("altered")
 	StorageFs.make_dir(dir.path_join("regions"))
-	for name in ["manifest.json", "objects.json"] + Array(WorldCodec.payload_paths().slice(1)):
+	for name in ["manifest.json", "objects.json"] + Array(WorldCodec.payload_paths(WorldLayout.legacy()).slice(1)):
 		var bytes: PackedByteArray = StorageFs.read_bytes(STRESS.path_join(name))[0]
 		if name == "manifest.json":
 			var manifest: Dictionary = JSON.parse_string(bytes.get_string_from_utf8())

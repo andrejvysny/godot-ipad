@@ -81,8 +81,7 @@ func _copy_dir(from: String, to: String) -> void:
 
 
 func test_payload_paths_follow_the_layout() -> void:
-	assert_eq(WorldCodec.payload_paths().size(), 15, "default is the legacy layout")
-	assert_eq(WorldCodec.payload_paths(WorldLayout.legacy()), WorldCodec.payload_paths())
+	assert_eq(WorldCodec.payload_paths(WorldLayout.legacy()).size(), 15, "legacy layout")
 	assert_eq(WorldCodec.payload_paths(_layout).size(), 3 + 3 * 2)
 	assert_eq(WorldCodec.payload_paths(WorldLayout.km1()).size(), 3 + 3 * 64)
 	var sorted := WorldCodec.payload_paths(WorldLayout.km1())

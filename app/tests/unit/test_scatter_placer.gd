@@ -136,7 +136,7 @@ func test_limit_stops_adding_and_flags_once() -> void:
 	assert_eq(p.try_add(50.0, 50.0), ScatterPlacer.Result.LIMIT)
 	assert_true(p.limit_reached)
 	assert_eq(doc.scatter.count(), WorldConstants.MAX_SCATTER_INSTANCES)
-	assert_eq(ScatterPlacer.LIMIT_MESSAGE, "Scatter limit reached (20000).")
+	assert_eq(p.limit_message(), "Scatter limit reached (20000).")
 
 
 func test_empty_source_never_adds() -> void:

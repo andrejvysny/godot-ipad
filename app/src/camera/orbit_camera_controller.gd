@@ -18,6 +18,16 @@ var fov_deg: float = 60.0
 
 var _cfg: Dictionary = {}
 const MAX_HIT_DISTANCE_FACTOR := 4.0  # grazing hits farther than this * distance count as no hit
+## Reset-pose framing slack so the world corners sit inside the viewport, not on its edge.
+const FIT_MARGIN := 1.05
+## Zoom-out headroom beyond the fitted distance.
+const MAX_DISTANCE_HEADROOM := 1.15
+const DEFAULT_VIEWPORT := Vector2(1180, 820)
+
+var _world_rect := WorldLayout.legacy().world_rect()  # XZ extent the pivot may roam (pan clamp)
+var _large_world := false
+var _aspect := DEFAULT_VIEWPORT.x / DEFAULT_VIEWPORT.y
+var _distance_max := 0.0
 
 var _gesture_active := false
 var _anchored := false
@@ -33,6 +43,7 @@ func _init(config: Dictionary = {}) -> void:
 	for key: String in config:
 		_cfg[key] = config[key]
 	fov_deg = _f("fov_deg")
+	_distance_max = _f("distance_max_m")
 	reset_to({})
 
 
@@ -50,14 +61,59 @@ func reset_to(pose: Dictionary) -> void:
 	_clamp_state()
 
 
+## Pose over the world centre. Worlds larger than the legacy one are framed whole.
 func fixture_pose(center_height: float) -> Dictionary:
+	var yaw0 := deg_to_rad(_f("initial_yaw_deg"))
+	var pitch0 := deg_to_rad(_f("initial_pitch_deg"))
 	return {
 		"pivot": Vector3(0.0, center_height, 0.0),
-		"yaw": deg_to_rad(_f("initial_yaw_deg")),
-		"pitch": deg_to_rad(_f("initial_pitch_deg")),
-		"distance": _f("initial_distance_m"),
+		"yaw": yaw0,
+		"pitch": pitch0,
+		"distance": fit_distance(yaw0, pitch0, _aspect) if _large_world else _f("initial_distance_m"),
 		"fov_deg": _f("fov_deg"),
 	}
+
+
+## Sets the XZ extent the pivot may roam. A world larger than the legacy one raises the maximum zoom-out
+## to FIT_MARGIN-framed whole-world distance * MAX_DISTANCE_HEADROOM (worst of landscape/portrait, so
+## rotating the device keeps the whole world reachable); the legacy world keeps the configured range.
+func set_world_rect(rect: Rect2, viewport_size: Vector2 = DEFAULT_VIEWPORT) -> void:
+	_world_rect = rect
+	if _valid_viewport(viewport_size):
+		_aspect = viewport_size.x / viewport_size.y
+	var legacy := WorldLayout.legacy().world_rect()
+	_large_world = rect.size.x > legacy.size.x or rect.size.y > legacy.size.y
+	_distance_max = _f("distance_max_m")
+	if _large_world:
+		var worst := fit_distance(deg_to_rad(_f("initial_yaw_deg")), deg_to_rad(_f("pitch_min_deg")), minf(_aspect, 1.0))
+		_distance_max = maxf(_distance_max, worst * MAX_DISTANCE_HEADROOM)
+	_clamp_state()
+
+
+func world_rect() -> Rect2:
+	return _world_rect
+
+
+## Largest zoom-out distance (config value, or more for a larger world).
+func distance_max() -> float:
+	return _distance_max
+
+
+## Smallest distance at which all four corners of the world rect, seen from a pivot above the world
+## origin, project inside a viewport of `aspect` (width / height) at the given yaw and pitch.
+## Exact per corner: depth = distance - offset . u must cover |x| / (t * aspect) and |y| / t.
+func fit_distance(p_yaw: float, p_pitch: float, aspect: float) -> float:
+	var cp := cos(p_pitch)
+	var u := Vector3(sin(p_yaw) * cp, sin(p_pitch), cos(p_yaw) * cp)
+	var x_axis := Vector3.UP.cross(u).normalized()
+	var y_axis := u.cross(x_axis)
+	var t := tan(deg_to_rad(_f("fov_deg")) * 0.5)
+	var need := 0.0
+	for corner in [_world_rect.position, _world_rect.end, Vector2(_world_rect.position.x, _world_rect.end.y),
+			Vector2(_world_rect.end.x, _world_rect.position.y)]:
+		var w := Vector3(corner.x, 0.0, corner.y)
+		need = maxf(need, w.dot(u) + maxf(absf(w.dot(x_axis)) / (t * aspect), absf(w.dot(y_axis)) / t))
+	return need * FIT_MARGIN
 
 
 func get_pose() -> Dictionary:
@@ -70,7 +126,7 @@ func set_pose(pose: Dictionary) -> void:
 
 func _clamp_state() -> void:
 	pitch = clampf(pitch, deg_to_rad(_f("pitch_min_deg")), deg_to_rad(_f("pitch_max_deg")))
-	distance = clampf(distance, _f("distance_min_m"), _f("distance_max_m"))
+	distance = clampf(distance, _f("distance_min_m"), _distance_max)
 
 
 func camera_position() -> Vector3:
@@ -145,7 +201,7 @@ func pan_zoom_update(centroid: Vector2, span: float, viewport_size: Vector2) -> 
 		return
 	var ratio := _base_span / maxf(span, 1.0)
 	var last_pivot := pivot
-	distance = clampf(_base_distance * ratio, _f("distance_min_m"), _f("distance_max_m"))
+	distance = clampf(_base_distance * ratio, _f("distance_min_m"), _distance_max)
 	if not _anchored:
 		# First hit after a miss: re-baseline here so the pivot never jumps.
 		var first: Variant = _ground_hit(centroid, viewport_size, _plane_y)
@@ -163,9 +219,9 @@ func pan_zoom_update(centroid: Vector2, span: float, viewport_size: Vector2) -> 
 		return
 	var shift: Vector3 = _anchor - (hit as Vector3)
 	pivot = Vector3(
-		clampf(_base_pivot.x + shift.x, WorldConstants.WORLD_MIN, WorldConstants.WORLD_MAX_SAMPLE),
+		clampf(_base_pivot.x + shift.x, _world_rect.position.x, _world_rect.end.x),
 		_base_pivot.y,
-		clampf(_base_pivot.z + shift.z, WorldConstants.WORLD_MIN, WorldConstants.WORLD_MAX_SAMPLE))
+		clampf(_base_pivot.z + shift.z, _world_rect.position.y, _world_rect.end.y))
 
 
 func end() -> void:
@@ -182,7 +238,7 @@ func focus_bounds(box: AABB) -> void:
 	pivot = box.get_center()
 	var radius := box.size.length() * 0.5
 	var half_fov := deg_to_rad(fov_deg) * 0.5
-	distance = clampf(radius / sin(half_fov) * 1.2, _f("distance_min_m"), _f("distance_max_m"))
+	distance = clampf(radius / sin(half_fov) * 1.2, _f("distance_min_m"), _distance_max)
 
 
 ## sampler(x, z) -> ground height, NAN outside the world (no adjustment there).

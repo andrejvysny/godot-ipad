@@ -5,6 +5,7 @@ extends PanelContainer
 ## registers it.
 
 const WORLD_NAMES := {"flat": "Flat", "gentle_hills": "Gentle Hills", "stress_100": "Stress 100"}
+const NEW_WORLD_ITEMS := {"new_km1_flat": "flat", "new_km1_hills": "hills"}  # menu id -> SessionWorldOps kind
 const WIDTH := 240.0
 const ROW_HEIGHT := 40.0
 
@@ -36,6 +37,8 @@ func setup(session: EditorSession, confirm: ConfirmDialog, diagnostics: Diagnost
 	column.add_child(_save_label)
 	for id: String in SessionWorldOps.FIXTURES:
 		_items[id] = _row(column, "Open template: %s" % WORLD_NAMES.get(id, id), _ask_open.bind(id))
+	for id: String in NEW_WORLD_ITEMS:
+		_items[id] = _row(column, "New 1 km world (%s)" % NEW_WORLD_ITEMS[id], _ask_new.bind(NEW_WORLD_ITEMS[id]))
 	_items["save"] = _row(column, "Save checkpoint now", _save)
 	_items["reset_camera"] = _row(column, "Reset camera", _reset_camera)
 	_items["diagnostics"] = _switch_row(column, "Diagnostics", _toggle_diagnostics)
@@ -89,6 +92,14 @@ func _ask_open(id: String) -> void:
 				_session.open_fixture(id))
 
 
+func _ask_new(kind: String) -> void:
+	close()
+	_confirm.ask("Create a new 1 km world (%s)?" % kind,
+			"The current world is saved first, then replaced by a new 1 km world. Undo history is cleared.",
+			"Create", func() -> void:
+				_session.open_new_world(kind))
+
+
 func _save() -> void:
 	close()
 	_session.save_now()
@@ -112,7 +123,7 @@ func _toggle_left_handed(on: bool) -> void:
 
 # --- API -----------------------------------------------------------------------------------
 
-## id: a fixture id, "save", "reset_camera", "diagnostics" or "left_handed"
+## id: a fixture id, "new_km1_flat", "new_km1_hills", "save", "reset_camera", "diagnostics" or "left_handed"
 func item(id: String) -> Button:
 	return _items[id]
 
@@ -140,6 +151,8 @@ func sync_left_handed(on: bool) -> void:
 static func world_name(source_label: String) -> String:
 	if source_label.begins_with("fixture:"):
 		return WORLD_NAMES.get(source_label.trim_prefix("fixture:"), "World")
+	if source_label.begins_with("new:km1-"):
+		return "1 km world"
 	return "Recovered world" if source_label == "recovered" else "World"
 
 
@@ -157,5 +170,5 @@ func refresh(status: Dictionary) -> void:
 	_save_label.tooltip_text = text
 	var editing := _session.input.editing_enabled()
 	var busy := _session.tools.has_active_operation()
-	for id: String in ["save"] + Array(SessionWorldOps.FIXTURES):
+	for id: String in ["save"] + Array(SessionWorldOps.FIXTURES) + NEW_WORLD_ITEMS.keys():
 		(_items[id] as Button).disabled = not editing or busy

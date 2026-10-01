@@ -153,7 +153,7 @@ func test_rejects_huge_file_before_reading() -> void:
 func _layout_with(name: String, overrides: Dictionary) -> ZipTestBuilder:
 	var b := ZipTestBuilder.new()
 	var region := _region()
-	for path in WorldCodec.payload_paths() + PackedStringArray(["manifest.json"]):
+	for path in WorldCodec.payload_paths(WorldLayout.legacy()) + PackedStringArray(["manifest.json"]):
 		var data := region if WorldCodec.is_region_path(path) else "{}".to_utf8_buffer()
 		b.add(path, data, overrides if path == name else {})
 	return b

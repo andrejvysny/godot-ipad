@@ -32,7 +32,8 @@ func hit_for(sample: PointerSample) -> TerrainHit:
 func hit_at(pos: Vector2) -> TerrainHit:
 	if camera == null or document == null:
 		return TerrainHit.miss(TerrainHit.REASON_INVALID_RAY)
-	return TerrainPicker.raycast(document, camera.project_ray_origin(pos), camera.project_ray_normal(pos))
+	return TerrainPicker.raycast(document, camera.project_ray_origin(pos), camera.project_ray_normal(pos),
+			maxf(TerrainPicker.DEFAULT_MAX_DISTANCE, camera.far))
 
 
 func notify_scatter(rect: Rect2, heights_only: bool = false) -> void:
@@ -73,7 +74,7 @@ func mark_result(res: Dictionary) -> void:
 func mark_touched(touched: Dictionary) -> void:
 	_notify_heights(touched.get("heights", []), Rect2())
 	if touched.get("scatter", false):
-		notify_scatter(Rect2(WorldConstants.WORLD_MIN, WorldConstants.WORLD_MIN, 256.0, 256.0))
+		notify_scatter(document.layout.extent_rect())
 	if terrain != null:
 		for loc: Vector2i in touched.get("heights", []):
 			terrain.mark_dirty(TerrainView.MAP_HEIGHT, loc)

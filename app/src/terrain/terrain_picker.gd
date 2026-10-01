@@ -13,6 +13,7 @@ extends RefCounted
 ## 65,536 samples per region in GDScript on every edit-then-pick costs ~15 ms per region.
 ## Canonical heights never leave these limits (WorldValidator rejects, brushes clamp).
 
+const DEFAULT_MAX_DISTANCE := 2000.0
 const STEP := 0.25
 const BISECT_ITERATIONS := 30
 const BOX_Y_MARGIN := 0.5
@@ -20,7 +21,7 @@ const GRAZING_SIN := 0.03489949670250097  # sin(2 degrees)
 const _MIN_DIR_LENGTH_SQ := 1e-12
 
 
-static func raycast(doc: WorldDocument, origin: Vector3, dir: Vector3, max_distance: float = 2000.0) -> TerrainHit:
+static func raycast(doc: WorldDocument, origin: Vector3, dir: Vector3, max_distance: float = DEFAULT_MAX_DISTANCE) -> TerrainHit:
 	if doc == null or not origin.is_finite() or not dir.is_finite() or not (max_distance > 0.0):
 		return TerrainHit.miss(TerrainHit.REASON_INVALID_RAY)
 	var dx: float = dir.x
@@ -37,8 +38,9 @@ static func raycast(doc: WorldDocument, origin: Vector3, dir: Vector3, max_dista
 
 	# 'outside' depends only on the forward XZ path; max_distance cut-offs are 'no_hit'.
 	var span := PackedFloat64Array([0.0, INF])
-	if not _clip_axis(ray[0], ray[3], WorldConstants.WORLD_MIN, WorldConstants.WORLD_MAX_SAMPLE, span) \
-			or not _clip_axis(ray[2], ray[5], WorldConstants.WORLD_MIN, WorldConstants.WORLD_MAX_SAMPLE, span):
+	var lo := doc.layout.world_min()
+	var hi := doc.layout.world_max_sample()
+	if not _clip_axis(ray[0], ray[3], lo.x, hi.x, span) or not _clip_axis(ray[2], ray[5], lo.y, hi.y, span):
 		return TerrainHit.miss(TerrainHit.REASON_OUTSIDE)
 	span[1] = minf(span[1], max_distance)
 	if span[0] > span[1] or not _clip_axis(ray[1], ray[4],
@@ -95,16 +97,17 @@ static func _make_hit(doc: WorldDocument, ray: PackedFloat64Array, t: float) -> 
 	var z: float = ray[2] + ray[5] * t
 	var n := doc.sample_normal(x, z)
 	var cos_incidence := absf(ray[3] * n.x + ray[4] * n.y + ray[5] * n.z)
-	return TerrainHit.surface(Vector3(x, y, z), n, t, region_at(x, z), cos_incidence < GRAZING_SIN)
+	return TerrainHit.surface(Vector3(x, y, z), n, t, region_at(doc.layout, x, z), cos_incidence < GRAZING_SIN)
 
 
 ## Region containing world point (x, z) using the floor-based sample mapping (TE-08).
-## The +127.5 m edge belongs to region 0 because its sample index is 255.
-static func region_at(x: float, z: float) -> Vector2i:
-	if not WorldConstants.is_inside_world(x, z):
+## The last sample edge belongs to the last region because its sample index is the layout maximum.
+static func region_at(layout: WorldLayout, x: float, z: float) -> Vector2i:
+	if not layout.is_inside_world(x, z):
 		return TerrainHit.NO_REGION
-	var gx := mini(floori(x / WorldConstants.SAMPLE_SPACING), WorldConstants.GLOBAL_SAMPLE_MAX)
-	var gz := mini(floori(z / WorldConstants.SAMPLE_SPACING), WorldConstants.GLOBAL_SAMPLE_MAX)
+	var sample_max := layout.global_sample_max()
+	var gx := mini(floori(x / WorldConstants.SAMPLE_SPACING), sample_max.x)
+	var gz := mini(floori(z / WorldConstants.SAMPLE_SPACING), sample_max.y)
 	return Vector2i(WorldConstants.sample_region(gx), WorldConstants.sample_region(gz))
 
 

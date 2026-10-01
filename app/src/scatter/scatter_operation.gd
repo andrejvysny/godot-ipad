@@ -16,7 +16,6 @@ const COLOR_DANGER := Color("ff9a88")
 const DAB_SPACING_FACTOR := 0.5
 const DISC_TRIES_FACTOR := 0.05
 const ERASE_FACTOR := 0.7
-const WORLD_RECT := Rect2(-128.0, -128.0, 256.0, 256.0)
 
 var error := ""
 
@@ -186,7 +185,7 @@ func _dab(pos: Vector2, pf: float) -> void:
 		_ctx.notify_scatter(Rect2(pos - Vector2(_radius, _radius), Vector2(_radius, _radius) * 2.0))
 	if _placer.limit_reached and not _limit_reported:
 		_limit_reported = true
-		_ctx.report(ScatterPlacer.LIMIT_MESSAGE)
+		_ctx.report(_placer.limit_message())
 
 
 func _scatter_dab(pos: Vector2, pf: float) -> bool:

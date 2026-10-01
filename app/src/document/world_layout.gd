@@ -123,6 +123,12 @@ func world_rect() -> Rect2:
 	return Rect2(_world_min, _world_max - _world_min)
 
 
+## Nominal extent (every region fully), including the half-metre past the last sample.
+func extent_rect() -> Rect2:
+	var span := float(WorldConstants.REGION_SAMPLES) * WorldConstants.SAMPLE_SPACING
+	return Rect2(_world_min, Vector2(span * region_count.x, span * region_count.y))
+
+
 func is_valid_region(loc: Vector2i) -> bool:
 	return loc.x >= min_region.x and loc.x < min_region.x + region_count.x \
 		and loc.y >= min_region.y and loc.y < min_region.y + region_count.y

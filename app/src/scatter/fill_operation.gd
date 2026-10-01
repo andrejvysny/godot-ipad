@@ -127,7 +127,7 @@ func _fill_inside() -> int:
 		if placer.limit_reached:
 			break
 	if placer.limit_reached:
-		_ctx.report(ScatterPlacer.LIMIT_MESSAGE)
+		_ctx.report(placer.limit_message())
 	return placer.added
 
 

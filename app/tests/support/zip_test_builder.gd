@@ -33,7 +33,7 @@ static func valid_layout() -> ZipTestBuilder:
 	b.add("regions/", PackedByteArray(), {"external_attr": 0x41ED << 16})
 	var region := PackedByteArray()
 	region.resize(WorldConstants.REGION_MAP_BYTES)
-	for path in WorldCodec.payload_paths():
+	for path in WorldCodec.payload_paths(WorldLayout.legacy()):
 		if WorldCodec.is_region_path(path):
 			b.add(path, region)
 	return b

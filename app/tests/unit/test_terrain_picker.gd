@@ -119,7 +119,7 @@ func test_tilted_plane_matches_analytic() -> void:
 		var t := (a * o.x + b * o.z + c - o.y) / (d.y - a * d.x - b * d.z)
 		var expected := o + d * t
 		var hit := TerrainPicker.raycast(doc, o, d)
-		if not WorldConstants.is_inside_world(expected.x, expected.z):
+		if not doc.layout.is_inside_world(expected.x, expected.z):
 			assert_false(hit.ok, "ray %d leaves world before hitting" % k)
 			continue
 		assert_eq(hit.reason, "hit", "ray %d" % k)

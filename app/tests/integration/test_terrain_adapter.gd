@@ -376,7 +376,7 @@ func test_initialize_errors_are_returned() -> void:
 	assert_error_contains(a.initialize(null), "null")
 	var bad := WorldDocument.create_flat(0.0, 0)
 	bad.regions[Vector2i(3, 3)] = RegionBuffers.filled(Vector2i(3, 3), 0.0, 0)
-	assert_error_contains(a.initialize(bad), "outside the fixed PoC layout")
+	assert_error_contains(a.initialize(bad), "outside the document layout")
 	assert_true(a.get_terrain() == null, "no Terrain3D created for an invalid document")
 
 
@@ -480,6 +480,37 @@ func test_replace_document_twice_releases_old_regions() -> void:
 	assert_near(t.data.get_height(Vector3(50, 0, 50)), -2.0, 1e-6)
 	assert_eq(a.stats().uploads_height, 0, "stats reset on replace")
 	assert_true(a.verify_matches_document(second).size() > 0, "no longer matches the second doc")
+
+
+func test_km1_world_loads_all_64_regions_and_replaces_cleanly() -> void:
+	var catalog: AssetCatalog = AssetCatalog.load_from()[0]
+	var doc: WorldDocument = SessionWorldOps.new_layout_world(WorldLayout.km1(), "hills", catalog)[0]
+	_allow_only_known_warning()
+	var a := TerrainAdapter.new()
+	tree.root.add_child(a)
+	var cam := Camera3D.new()
+	a.add_child(cam)
+	cam.position = Vector3(0, 900, 900)
+	a.set_camera(cam)
+	_adapter = a
+	var t0 := Time.get_ticks_usec()
+	assert_empty_string(a.initialize(doc), "initialize km1")
+	print("    TIMING TerrainAdapter.initialize km1 (64 regions): %.1f ms (desktop headless)" % (float(Time.get_ticks_usec() - t0) / 1000.0))
+	var data := a.get_terrain().data
+	assert_eq(data.get_region_locations().size(), 64, "all 64 regions loaded")
+	for loc in WorldLayout.km1().region_locations():
+		assert_true(data.get_region(loc) != null, "region %s present" % str(loc))
+	assert_eq(a.verify_matches_document(doc).size(), 0, "verify_matches_document is clean")
+	for p: Vector2 in [Vector2(-512, -512), Vector2(511.5, 511.5), Vector2(-512, 511.5), Vector2(0, 0), Vector2(-0.25, 0.25), Vector2(255.75, -256.25)]:
+		assert_near(data.get_height(Vector3(p.x, 0, p.y)), doc.sample_height(p.x, p.y), 1e-5, "height at %s" % str(p))
+	assert_true(is_nan(data.get_height(Vector3(-512.5, 0, 0))) and is_nan(data.get_height(Vector3(0, 0, 512.0))), "no sample beyond the extent")
+	var legacy := WorldDocument.create_flat(1.0, ControlCodec.grass_value())
+	assert_empty_string(a.replace_document(legacy), "back to the legacy layout")
+	assert_eq(data.get_region_locations().size(), 4)
+	assert_eq(a.verify_matches_document(legacy).size(), 0)
+	assert_empty_string(a.replace_document(doc), "and to km1 again")
+	assert_eq(data.get_region_locations().size(), 64)
+	assert_eq(a.verify_matches_document(doc).size(), 0)
 
 
 # --- Terrain3D CPU intersection vs canonical picker (ADR 0004 evidence) -------------------------

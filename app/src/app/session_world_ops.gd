@@ -4,6 +4,7 @@ extends RefCounted
 ## error strings instead of logging; callers post the messages.
 
 const FIXTURES: Array[String] = ["flat", "gentle_hills", "stress_100"]
+const NEW_WORLD_KINDS: Array[String] = ["flat", "hills"]
 
 
 ## Returns [doc, error]. The result is a new working copy: fresh world id, revision 0.
@@ -18,6 +19,52 @@ static func load_fixture(fixture: String, catalog: AssetCatalog) -> Array:
 	doc.document_revision = 0
 	doc.source_label = "fixture:" + fixture
 	return [doc, ""]
+
+
+## Returns [doc, error]: a new empty world on `layout` with the trusted catalog identity, default
+## rules, a fresh world id and revision 0. "flat" is height 0 everywhere; "hills" is HillsTerrain.
+static func new_layout_world(layout: WorldLayout, kind: String, catalog: AssetCatalog,
+		seed_value: int = HillsTerrain.DEFAULT_SEED) -> Array:
+	if kind not in NEW_WORLD_KINDS:
+		return [null, "Unknown world kind '%s'." % kind]
+	if catalog == null:
+		return [null, "No trusted catalog loaded."]
+	var doc := WorldDocument.create_flat(0.0, WorldConstants.DEFAULT_CONTROL, layout)
+	doc.catalog_id = catalog.catalog_id
+	doc.catalog_version = catalog.catalog_version
+	doc.catalog_sha256 = catalog.sha256
+	doc.source_label = "new:%s-%s" % [layout.name(), kind]
+	if kind == "hills":
+		HillsTerrain.fill(doc, seed_value)
+	return [doc, ""]
+
+
+## Replaces the session's world by `make.call()` ([doc, error]) after saving the current one. Returns ""
+## or the message that was posted; the current world is untouched on failure.
+static func open_replacing(session: EditorSession, make: Callable, opened_text: String) -> String:
+	if session.bench_active():
+		session.post_message(EditorSession.BENCH_MESSAGE, true)
+		return EditorSession.BENCH_MESSAGE
+	var opened: Array = make.call()
+	if opened[1] != "":
+		session.post_message(str(opened[1]), true)
+		return str(opened[1])
+	session.cancel_active()
+	var error := ensure_saved(session.storage, session.document)
+	if error != "":
+		error = "Cannot open: saving the current world failed. Your world is unchanged."
+		session.post_message(error, true)
+		return error
+	session._replace_document(opened[0])
+	session.post_message(opened_text)
+	return ""
+
+
+## Reset view: frames the world (a larger one whole) over its centre.
+static func reset_camera(rig: OrbitCameraRig, doc: WorldDocument) -> void:
+	rig.set_world_rect(doc.layout.world_rect())
+	var height := doc.sample_height(0.0, 0.0)
+	rig.reset_to(rig.controller.fixture_pose(0.0 if is_nan(height) else height))
 
 
 ## Latest recoverable world, else a fresh copy of `fixture`. Returns {doc, error, message, is_error,

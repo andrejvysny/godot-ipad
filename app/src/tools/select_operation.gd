@@ -126,7 +126,7 @@ func _try_move(hit: TerrainHit) -> bool:
 		var step := float(_ctx.default("placement", "move_snap_m", 0.5))
 		x = snappedf(x, step)
 		z = snappedf(z, step)
-	if not WorldConstants.is_inside_world(x, z):
+	if not _ctx.document.layout.is_inside_world(x, z):
 		return false
 	var doc := _ctx.document
 	var h := doc.sample_height(x, z)

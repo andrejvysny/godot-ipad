@@ -177,6 +177,8 @@ func _open_world() -> String:
 	document = opened.doc
 	if opened.checkpoint:
 		_request_checkpoint()
+	else:
+		storage.warm_snapshot_cache(document)
 	post_message(opened.message, opened.is_error)
 	return ""
 
@@ -380,21 +382,14 @@ func export_world() -> Dictionary:
 
 
 func open_fixture(fixture: String) -> String:
-	if _bench_blocks():
-		return BENCH_MESSAGE
-	var opened := SessionWorldOps.load_fixture(fixture, catalog)
-	if opened[1] != "":
-		post_message(str(opened[1]), true)
-		return str(opened[1])
-	cancel_active()
-	var error := SessionWorldOps.ensure_saved(storage, document)
-	if error != "":
-		error = "Cannot open: saving the current world failed. Your world is unchanged."
-		post_message(error, true)
-		return error
-	_replace_document(opened[0])
-	post_message("Opened %s as a new world" % fixture.capitalize())
-	return ""
+	return SessionWorldOps.open_replacing(self, SessionWorldOps.load_fixture.bind(fixture, catalog),
+			"Opened %s as a new world" % fixture.capitalize())
+
+
+## kind: "flat" or "hills" (SessionWorldOps.NEW_WORLD_KINDS).
+func open_new_world(kind: String) -> String:
+	return SessionWorldOps.open_replacing(self, SessionWorldOps.new_layout_world.bind(WorldLayout.km1(), kind, catalog),
+			"Opened new 1 km world (%s)" % kind)
 
 
 func _replace_document(doc: WorldDocument) -> void:
@@ -415,8 +410,7 @@ func _replace_document(doc: WorldDocument) -> void:
 
 
 func reset_camera() -> void:
-	var height := document.sample_height(0.0, 0.0)
-	rig.reset_to(rig.controller.fixture_pose(0.0 if is_nan(height) else height))
+	SessionWorldOps.reset_camera(rig, document)
 
 
 func focus_selection() -> String:

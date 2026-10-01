@@ -28,9 +28,11 @@ func count() -> int:
 	return slot.size()
 
 
-## False (nothing added) when the layer is at MAX_SCATTER_INSTANCES.
-func add(asset_id: String, asset_version: int, px: float, pz: float, p_yaw: float, p_scale: float, p_flags: int) -> bool:
-	if count() >= WorldConstants.MAX_SCATTER_INSTANCES:
+## False (nothing added) when the layer already holds `max_count` instances; the default is the
+## schema 2 limit, documents of other schemas pass WorldLimits.for_schema(...).max_scatter_instances.
+func add(asset_id: String, asset_version: int, px: float, pz: float, p_yaw: float, p_scale: float, p_flags: int,
+		max_count: int = WorldConstants.MAX_SCATTER_INSTANCES) -> bool:
+	if count() >= max_count:
 		return false
 	var s := _slot_for(asset_id, asset_version)
 	if s < 0:

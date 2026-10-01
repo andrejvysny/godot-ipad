@@ -136,6 +136,27 @@ func test_confirm_dialog_gates_open_fixture_and_blocks_world_input() -> void:
 	assert_eq(s.history.size(), 0)
 
 
+func test_new_km1_world_entries_use_the_same_confirmation_flow() -> void:
+	var s := await _start()
+	var ui := _ui(s)
+	var world_id := s.document.world_id
+	assert_eq(ui.world_menu().item("new_km1_flat").text, "New 1 km world (flat)")
+	assert_eq(ui.world_menu().item("new_km1_hills").text, "New 1 km world (hills)")
+	await _pencil_click(s, ui.world_pill().world_button())
+	await _pencil_click(s, ui.world_menu().item("new_km1_flat"))
+	var dialog := ui.confirm_dialog()
+	assert_true(dialog.visible and not ui.world_menu().visible, "confirmation shown, menu closed")
+	await _pencil_click(s, dialog.cancel_button())
+	assert_eq(s.document.world_id, world_id, "cancel leaves the world")
+	await _pencil_click(s, ui.world_pill().world_button())
+	await _pencil_click(s, ui.world_menu().item("new_km1_flat"))
+	await _pencil_click(s, dialog.confirm_button())
+	assert_ne(s.document.world_id, world_id, "confirm replaces the world")
+	assert_true(s.document.layout.equals(WorldLayout.km1()))
+	assert_eq(ui.world_pill().name_text(), "1 km world")
+	assert_eq(s.history.size(), 0)
+
+
 func test_world_menu_save_and_reset_camera_close_the_menu() -> void:
 	var s := await _start()
 	var ui := _ui(s)

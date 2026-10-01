@@ -48,6 +48,8 @@ func rebuild_all(doc: WorldDocument) -> void:
 ## Marks every cell overlapping `rect` (world XZ). `heights_only` means instance membership is
 ## unchanged (a height edit), so the cell index stays valid.
 func mark_rect(rect: Rect2, heights_only: bool = false) -> void:
+	if _doc == null:
+		return
 	if not heights_only:
 		_buckets_valid = false
 	var lo := _cell_of(rect.position.x, rect.position.y)
@@ -59,7 +61,8 @@ func mark_rect(rect: Rect2, heights_only: bool = false) -> void:
 
 func mark_all() -> void:
 	_buckets_valid = false
-	mark_rect(Rect2(WorldConstants.WORLD_MIN, WorldConstants.WORLD_MIN, 256.0, 256.0))
+	if _doc != null:
+		mark_rect(_doc.layout.extent_rect())
 
 
 func has_dirty() -> bool:
@@ -109,8 +112,9 @@ static func cell_of(x: float, z: float) -> Vector2i:
 
 
 func _cell_of(x: float, z: float) -> Vector2i:
-	return cell_of(clampf(x, WorldConstants.WORLD_MIN, WorldConstants.WORLD_MAX_SAMPLE),
-			clampf(z, WorldConstants.WORLD_MIN, WorldConstants.WORLD_MAX_SAMPLE))
+	var lo := _doc.layout.world_min()
+	var hi := _doc.layout.world_max_sample()
+	return cell_of(clampf(x, lo.x, hi.x), clampf(z, lo.y, hi.y))
 
 
 func _flush_dirty() -> void:

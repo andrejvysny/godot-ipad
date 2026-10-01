@@ -120,7 +120,7 @@ func test_payload_bytes_round_trip_exactly() -> void:
 	var v := WorldCodec.load_verified(dir)
 	if not assert_empty_string(v.error, "verify"):
 		return
-	for path in WorldCodec.payload_paths():
+	for path in WorldCodec.payload_paths(WorldLayout.legacy()):
 		assert_eq(v.files[path], snap.files[path], "bytes of %s" % path)
 	var back := RegionBuffers.new(Vector2i(0, -1))
 	back.set_from_bytes(v.files["regions/r_0_-1.height.f32le"], v.files["regions/r_0_-1.control.u32le"],
@@ -147,7 +147,7 @@ func test_manifest_shape() -> void:
 		var bytes := FileAccess.get_file_as_bytes(dir.path_join(e.path))
 		assert_eq(int(e.bytes), bytes.size(), "size " + e.path)
 		assert_eq(e.sha256, CanonicalEncoder.sha256_hex(bytes), "hash " + e.path)
-	assert_eq(PackedStringArray(paths), WorldCodec.payload_paths(), "sorted exact set")
+	assert_eq(PackedStringArray(paths), WorldCodec.payload_paths(WorldLayout.legacy()), "sorted exact set")
 	assert_eq(paths.size(), 15)
 	assert_eq(paths[0], "objects.json")
 	assert_eq(paths[1], "paths.bin")
@@ -175,7 +175,7 @@ func test_read_generation_round_trip() -> void:
 	assert_eq(back.sorted_object_ids(), doc.sorted_object_ids())
 	for id in doc.sorted_object_ids():
 		assert_true(back.get_object(id).equals(doc.get_object(id)), "object %s bit-exact" % id)
-	for loc in WorldConstants.REGION_LOCATIONS:
+	for loc in WorldLayout.legacy().region_locations():
 		assert_eq(back.get_region(loc).height_bytes(), doc.get_region(loc).height_bytes(), "heights %s" % loc)
 		assert_eq(back.get_region(loc).control_bytes(), doc.get_region(loc).control_bytes(), "control %s" % loc)
 		assert_eq(back.get_region(loc).color_bytes(), doc.get_region(loc).color_bytes(), "color %s" % loc)
@@ -370,5 +370,5 @@ func test_write_reports_unwritable_directory() -> void:
 
 func _copy_dir(from: String, to: String) -> void:
 	DirAccess.make_dir_recursive_absolute(to.path_join("regions"))
-	for path in WorldCodec.payload_paths() + PackedStringArray(["manifest.json"]):
+	for path in WorldCodec.payload_paths(WorldLayout.legacy()) + PackedStringArray(["manifest.json"]):
 		DirAccess.copy_absolute(from.path_join(path), to.path_join(path))

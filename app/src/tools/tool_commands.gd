@@ -7,12 +7,25 @@ const DUPLICATE_OFFSET := Vector2(3.0, 1.5)
 const EMPTY_SOURCE_MESSAGE := "The scatter source is empty. Pick a set or tick assets."
 
 
+## "" while the document may take one more object, else the refusal message (per-schema limit).
+static func object_limit_error(doc: WorldDocument) -> String:
+	var limit := doc.max_objects()
+	if doc.objects.size() >= limit:
+		return "Object limit reached (%d)." % limit
+	return ""
+
+
 ## {error, id, change}. The copy is a manual object grounded on the terrain at the clamped offset
 ## position, with the source's height offset and grounding mode.
 static func duplicate_object(ctx: ToolContext, source: ObjectRecord) -> Dictionary:
 	var doc := ctx.document
-	var x := clampf(source.position[0] + DUPLICATE_OFFSET.x, WorldConstants.WORLD_MIN, WorldConstants.WORLD_MAX_SAMPLE)
-	var z := clampf(source.position[2] + DUPLICATE_OFFSET.y, WorldConstants.WORLD_MIN, WorldConstants.WORLD_MAX_SAMPLE)
+	var limit := object_limit_error(doc)
+	if limit != "":
+		return {"error": limit, "id": "", "change": null}
+	var lo := doc.layout.world_min()
+	var hi := doc.layout.world_max_sample()
+	var x := clampf(source.position[0] + DUPLICATE_OFFSET.x, lo.x, hi.x)
+	var z := clampf(source.position[2] + DUPLICATE_OFFSET.y, lo.y, hi.y)
 	var h := doc.sample_height(x, z)
 	if is_nan(h):
 		return {"error": "No terrain under the copy.", "id": "", "change": null}

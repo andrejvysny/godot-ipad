@@ -3,6 +3,9 @@ extends Node3D
 ## Scene-side owner of the orbit controller. Consumes router camera actions (spec §7.2, §8).
 ## `frozen` is set while the Pencil owns input; motion actions are then ignored.
 
+const BASE_FAR := 2000.0
+const FAR_PADDING := 100.0
+
 var controller: OrbitCameraController
 var height_sampler := Callable()
 var frozen := false
@@ -14,7 +17,7 @@ func _init(config: Dictionary = {}) -> void:
 	controller = OrbitCameraController.new(config)
 	_camera = Camera3D.new()
 	_camera.keep_aspect = Camera3D.KEEP_HEIGHT
-	_camera.far = 2000.0
+	_camera.far = BASE_FAR
 	add_child(_camera)
 	_camera.current = true
 	_sync()
@@ -27,7 +30,15 @@ func get_camera() -> Camera3D:
 func _viewport_size() -> Vector2:
 	if is_inside_tree():
 		return get_viewport().get_visible_rect().size
-	return Vector2(1180, 820)
+	return OrbitCameraController.DEFAULT_VIEWPORT
+
+
+## Frames a world: pan clamp, maximum zoom-out and a far plane that reaches the farthest corner
+## from the farthest allowed camera position.
+func set_world_rect(rect: Rect2) -> void:
+	controller.set_world_rect(rect, _viewport_size())
+	_camera.far = maxf(BASE_FAR, controller.distance_max() + rect.size.length() + FAR_PADDING)
+	_sync()
 
 
 func handle_camera_action(action: Dictionary) -> void:

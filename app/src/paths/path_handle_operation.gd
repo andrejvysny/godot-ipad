@@ -91,8 +91,9 @@ func _drag_to(hit: TerrainHit) -> void:
 			return
 		_captured = true
 	var edited := rec.clone()
-	edited.points[_index] = Vector2(clampf(hit.position.x, WorldConstants.WORLD_MIN, WorldConstants.WORLD_MAX_SAMPLE),
-			clampf(hit.position.z, WorldConstants.WORLD_MIN, WorldConstants.WORLD_MAX_SAMPLE))
+	var lo := _ctx.document.layout.world_min()
+	var hi := _ctx.document.layout.world_max_sample()
+	edited.points[_index] = Vector2(clampf(hit.position.x, lo.x, hi.x), clampf(hit.position.z, lo.y, hi.y))
 	_moved = true
 	_ctx.document.put_path(edited)
 	_ctx.notify_path([_path_id])

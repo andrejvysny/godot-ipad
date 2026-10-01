@@ -21,11 +21,9 @@ const MAX_JSON_INT := 9007199254740992.0  # 2^53: larger JSON numbers are not ex
 
 
 ## The payload paths (3 + 3 per region), sorted byte-wise (the order payload_files must use).
-## A null layout means the legacy 2x2 layout (15 paths).
-static func payload_paths(layout: WorldLayout = null) -> PackedStringArray:
+static func payload_paths(layout: WorldLayout) -> PackedStringArray:
 	var out := PackedStringArray([OBJECTS_FILE, WorldConstants.SCATTER_FILE, WorldConstants.PATHS_FILE])
-	var locs := layout.region_locations() if layout != null else WorldConstants.REGION_LOCATIONS
-	for loc in locs:
+	for loc in layout.region_locations():
 		var stem := WorldConstants.region_file_stem(loc)
 		out.append(stem + ".height.f32le")
 		out.append(stem + ".control.u32le")
@@ -71,10 +69,30 @@ static func objects_json_bytes(doc: WorldDocument) -> PackedByteArray:
 	return JSON.stringify(data, "  ", true, true).to_utf8_buffer()
 
 
-## Copies everything a checkpoint needs into plain values (no references into `doc`).
-static func snapshot(doc: WorldDocument, created_with: Dictionary) -> Dictionary:
+## objects.json from per-object entry chunks (ObjectChunkCache.json_chunk), byte-identical to
+## objects_json_bytes() of the same objects.
+static func assemble_objects_json(schema: int, json_chunks: Array) -> PackedByteArray:
+	var out := PackedByteArray()
+	out.append_array("{\n  \"objects\": [".to_utf8_buffer())
+	if json_chunks.is_empty():
+		out.append_array("],\n".to_utf8_buffer())
+	else:
+		var separator := ",\n".to_utf8_buffer()
+		out.append_array("\n".to_utf8_buffer())
+		for i in json_chunks.size():
+			if i > 0:
+				out.append_array(separator)
+			out.append_array(json_chunks[i])
+		out.append_array("\n  ],\n".to_utf8_buffer())
+	out.append_array(("  \"schema_version\": %d\n}" % schema).to_utf8_buffer())
+	return out
+
+
+## Copies everything a checkpoint needs into plain values (no references into `doc`). Without a
+## `cache` the snapshot is complete. With one, the object entries and the authored hash are left
+## to finalize_snapshot() (storage worker), so the main thread only re-encodes changed objects.
+static func snapshot(doc: WorldDocument, created_with: Dictionary, cache: ObjectChunkCache = null) -> Dictionary:
 	var files := {
-		OBJECTS_FILE: objects_json_bytes(doc),
 		WorldConstants.SCATTER_FILE: doc.scatter.encode(),
 		WorldConstants.PATHS_FILE: PathRecord.encode_all(doc.paths),
 	}
@@ -84,7 +102,7 @@ static func snapshot(doc: WorldDocument, created_with: Dictionary) -> Dictionary
 		files[stem + ".height.f32le"] = r.height_bytes() if r != null else PackedByteArray()
 		files[stem + ".control.u32le"] = r.control_bytes() if r != null else PackedByteArray()
 		files[stem + ".color.rgba8"] = r.color_bytes() if r != null else PackedByteArray()
-	return {
+	var snap := {
 		"world_id": doc.world_id,
 		"document_revision": doc.document_revision,
 		"layout_min": doc.layout.min_region,
@@ -93,8 +111,32 @@ static func snapshot(doc: WorldDocument, created_with: Dictionary) -> Dictionary
 		"catalog": {"id": doc.catalog_id, "version": doc.catalog_version, "sha256": doc.catalog_sha256},
 		"rules": doc.rules.to_dict(),
 		"files": files,
-		"authored_content_hash": CanonicalEncoder.authored_hash(doc),
 	}
+	if cache == null:
+		files[OBJECTS_FILE] = objects_json_bytes(doc)
+		snap["authored_content_hash"] = CanonicalEncoder.authored_hash(doc)
+	else:
+		snap["object_chunks"] = cache.chunks(doc)
+	return snap
+
+
+## Completes a cache-built snapshot from its plain values: objects.json, payload digests and the
+## authored hash. Runs on the storage worker (or any thread); a complete snapshot is left alone.
+static func finalize_snapshot(snap: Dictionary) -> void:
+	if not snap.has("object_chunks"):
+		return
+	var chunks: Dictionary = snap.object_chunks
+	var layout := WorldLayout.new(snap.layout_min, snap.layout_count)
+	var files: Dictionary = snap.files
+	files[OBJECTS_FILE] = assemble_objects_json(layout.schema_version(), chunks.json)
+	var digests := {}
+	for path: String in files:
+		digests[path] = CanonicalEncoder.sha256(files[path])
+	var rules: TerrainRules = TerrainRules.from_dict(snap.rules)[0]
+	snap["authored_content_hash"] = CanonicalEncoder.authored_hash_of_parts(layout, snap.catalog.id,
+			int(snap.catalog.version), snap.catalog.sha256, rules, digests, chunks.canon)
+	snap["digests"] = digests
+	snap.erase("object_chunks")
 
 
 static func write_generation(dir: String, doc: WorldDocument, created_with: Dictionary) -> String:
@@ -105,6 +147,7 @@ static func write_generation(dir: String, doc: WorldDocument, created_with: Dict
 
 ## Payloads first, manifest last. `fail_on_file` is fault injection for tests (IO-04).
 static func write_snapshot(dir: String, snap: Dictionary, fail_on_file: String = "") -> String:
+	finalize_snapshot(snap)
 	var layout := WorldLayout.create(snap.layout_min, snap.layout_count)
 	if layout == null:
 		return "snapshot has an invalid layout"
@@ -124,7 +167,9 @@ static func write_snapshot(dir: String, snap: Dictionary, fail_on_file: String =
 		err = StorageFs.write_bytes(dir.path_join(path), data)
 		if err != "":
 			return err
-		entries.append({"path": path, "bytes": data.size(), "sha256": CanonicalEncoder.sha256_hex(data)})
+		var digest: PackedByteArray = snap.get("digests", {}).get(path, PackedByteArray())
+		entries.append({"path": path, "bytes": data.size(),
+			"sha256": digest.hex_encode() if not digest.is_empty() else CanonicalEncoder.sha256_hex(data)})
 	if fail_on_file == MANIFEST_FILE:
 		return "write to '%s' failed (injected fault)" % dir.path_join(MANIFEST_FILE)
 	var manifest := build_manifest(snap, entries)
