@@ -81,3 +81,20 @@ Document layers (schema 2 and 3, `docs/world-format.md`): terrain regions (heigh
 paths (spline records). Rule edits, scatter and path edits are `EditTransaction` captures like terrain
 strokes, so every action is one history entry with an exact undo. `WorldLayers` and the project shader
 are projections; changing a rule only updates shader uniforms.
+
+## Rendering (rendering performance spec, ADR 0010)
+
+`app/src/rendering/` holds the render-side modules; none of them mutates the document.
+
+| Module | Role |
+|---|---|
+| `RenderConfig`, `RenderProfileController` | Validated `config/rendering_profiles.json`; manual Performance/Balanced/Detailed, Performance at launch, deferred during operations |
+| `SessionRender` (`app/session_render.gd`) | Session render state: profiles, shared `RenderAssetRegistry` + `RenderAssetCache`, `ActiveEditArea`, `TexturePreviewController`, `OverviewRenderer`, `SessionSafety`, cached slow status; `service_frame()` runs after the tools and before the terrain flush |
+| `RenderAssetRegistry` / `RenderAssetDescriptor` / `RenderAssetCache` | Prepared derivatives (`docs/render-assets.md`), readiness, deduplicated budgeted threaded loading with logical cancellation |
+| `ObjectPresenter` → `ObjectRenderWorld` (`ObjectBatchStore`, `InstanceBatch`, `RenderCell`, `ObjectLodDirector`, `PromotedNodePool`) | Logical state (applied transforms, `RenderSpatialIndex` picking) in the presenter; visuals as per-(32 m cell, asset, tier) MultiMesh batches, per-cell LOD, selected-object promotion, placeholders, ghosts |
+| `LodPolicy`, `LodCameraTracker` | Projected-size tier choice with hysteresis and settle |
+| `OverviewRenderer`, `OverviewClusterBuilder`, `OverviewGroup` | 128 m / 256 m HLOD proxies with a strict non-overlapping cut and area-focus picking; populations: object render world and scatter |
+| `ScatterRenderer` (`scatter/`) | Scatter from registry tiers: decorative ground cover (16 m cells, radius + nested density subset), meaningful scatter (32 m cells, LOD, overview population) |
+| `TexturePreviewController` + terrain/object participants | Fixed-area texture inspection: terrain preview arrays in the project shader, object material variants on pooled nodes |
+| `RenderPlatformTelemetry`, `SessionSafety` | Native thermal/footprint/memory-warning telemetry; normal/warning/restricted safety state that stops optional work without touching the profile |
+| `RenderBench` + `Bench*` (`diagnostics/`) | Exclusive, restoring benchmark with deterministic worlds, scenarios, camera paths, workloads, sustained mode and validity-aware reports |
