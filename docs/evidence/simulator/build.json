@@ -1,0 +1,8 @@
+{
+  "terrain_commit": "0077405b52e353c5e5dc3a094e7ede49833ba6fe",
+  "godot_cpp_commit": "6388e26dd8a42071f65f764a3ef3d9523dda3d6e",
+  "simulator_arch": "x86_64",
+  "terrain_simulator_sha256": "aca04faf7f0b0a4f62d4e33d797fc1b8f34ec93f6e12c927e07af0790086b9c5",
+  "development_preview": true,
+  "hardware_gate": "NOT RUN"
+}

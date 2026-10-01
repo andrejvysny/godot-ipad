@@ -1,0 +1,215 @@
+{
+	"authored_hash": "06b53479723d553b56a80a40344943d36fc2d7170e53062274cac4f043229247",
+	"build": {
+		"godot": "4.7.2.stable.official.ed1daf0bf",
+		"terrain3d": "1.0.2-stable@0077405b",
+		"world_painter": "0.1.0"
+	},
+	"calibration": [
+		{
+			"actual": [
+				64.0,
+				64.0
+			],
+			"error_pt": 0.0,
+			"mapping_generation": 1,
+			"pass": true,
+			"point": 1,
+			"render_scale": 0.5,
+			"source": "MOUSE_DEV",
+			"target": [
+				64.0,
+				64.0
+			]
+		},
+		{
+			"actual": [
+				590.0,
+				64.0
+			],
+			"error_pt": 0.0,
+			"mapping_generation": 1,
+			"pass": true,
+			"point": 2,
+			"render_scale": 0.5,
+			"source": "MOUSE_DEV",
+			"target": [
+				590.0,
+				64.0
+			]
+		},
+		{
+			"actual": [
+				1116.0,
+				64.0
+			],
+			"error_pt": 0.0,
+			"mapping_generation": 1,
+			"pass": true,
+			"point": 3,
+			"render_scale": 0.5,
+			"source": "MOUSE_DEV",
+			"target": [
+				1116.0,
+				64.0
+			]
+		},
+		{
+			"actual": [
+				64.0,
+				410.0
+			],
+			"error_pt": 0.0,
+			"mapping_generation": 1,
+			"pass": true,
+			"point": 4,
+			"render_scale": 0.5,
+			"source": "MOUSE_DEV",
+			"target": [
+				64.0,
+				410.0
+			]
+		},
+		{
+			"actual": [
+				590.0,
+				410.0
+			],
+			"error_pt": 0.0,
+			"mapping_generation": 1,
+			"pass": true,
+			"point": 5,
+			"render_scale": 0.5,
+			"source": "MOUSE_DEV",
+			"target": [
+				590.0,
+				410.0
+			]
+		},
+		{
+			"actual": [
+				1116.0,
+				410.0
+			],
+			"error_pt": 0.0,
+			"mapping_generation": 1,
+			"pass": true,
+			"point": 6,
+			"render_scale": 0.5,
+			"source": "MOUSE_DEV",
+			"target": [
+				1116.0,
+				410.0
+			]
+		},
+		{
+			"actual": [
+				64.0,
+				756.0
+			],
+			"error_pt": 0.0,
+			"mapping_generation": 1,
+			"pass": true,
+			"point": 7,
+			"render_scale": 0.5,
+			"source": "MOUSE_DEV",
+			"target": [
+				64.0,
+				756.0
+			]
+		},
+		{
+			"actual": [
+				590.0,
+				756.0
+			],
+			"error_pt": 0.0,
+			"mapping_generation": 1,
+			"pass": true,
+			"point": 8,
+			"render_scale": 0.5,
+			"source": "MOUSE_DEV",
+			"target": [
+				590.0,
+				756.0
+			]
+		},
+		{
+			"actual": [
+				1116.0,
+				756.0
+			],
+			"error_pt": 0.0,
+			"mapping_generation": 1,
+			"pass": true,
+			"point": 9,
+			"render_scale": 0.5,
+			"source": "MOUSE_DEV",
+			"target": [
+				1116.0,
+				756.0
+			]
+		}
+	],
+	"device_gate": "NOT RUN",
+	"driver": "opengl3",
+	"fingerprint": {
+		"native_artifacts_sha256": "edaea5e1efa0b8b8fea872271e6f4b920e6f161fe84af4b2cee5ffc816d993b4",
+		"source_sha256": "5eb5c8f189473b65541418220e37e1369129301cd22f380387f9b1516001fbea"
+	},
+	"object_ids": [
+		"3f208567-b315-46c3-83cc-ad4da6e93610"
+	],
+	"provider": {
+		"active_contacts": 0,
+		"attach_status": "attached",
+		"decode_errors": 0,
+		"development_input": true,
+		"idiom": "pad",
+		"ignored_contacts": 0,
+		"last_cancel_request": "explicit",
+		"last_decode_error": "",
+		"machine": "x86_64",
+		"model": "iPad",
+		"observed_view_class": "GDTViewIOS",
+		"observer_attached": true,
+		"overflow_count": 0,
+		"provider": "ios_simulator_development",
+		"queued_records": 0,
+		"records_emitted": 70,
+		"simulated_pencil": true,
+		"started": true,
+		"system_name": "iPadOS",
+		"system_version": "18.5"
+	},
+	"renderer": "gl_compatibility",
+	"revision": 6,
+	"stats": {
+		"cancels": 2,
+		"mapping_generation": 1,
+		"provider": "ios_simulator_development",
+		"samples": 70,
+		"state": "IDLE",
+		"swallowed": 70,
+		"synthetic": 42
+	},
+	"terrain_payloads": {
+		"(-1, -1)": {
+			"control": "8bedca7e224352ed408470971a341750531002d69390281ed5b11f9028739a45",
+			"height": "bdad4b2ca68a6f4f7b688c4b608bfd92e5f10571b9c8988decc70c9474cd2c78"
+		},
+		"(-1, 0)": {
+			"control": "ffefa5865cce98fcf6297834b6e644dc5e8729d1d7c8ad04b01b2afecefd1bfe",
+			"height": "91725e0b7d62f3446ad67a96b3d4debc8ac1def37afb5e9991d73efffb13e0cb"
+		},
+		"(0, -1)": {
+			"control": "b2fa846d81325c86e97b4f1f2312b026de2156112123a66bfc86a5c6d4764fb5",
+			"height": "ddf929f269a8e99f0b7cc555387b2530a63802178343147e6648cb997aa587f8"
+		},
+		"(0, 0)": {
+			"control": "938119f602a31f93a3fac3d8eeab1aaa0bc8e5dcaa36655b957faf618102508c",
+			"height": "c7ba34e8609555353fe6a40e6c334fc4c0ef70da9e57c32fbca69f215712807d"
+		}
+	},
+	"trace_dropped": 0
+}

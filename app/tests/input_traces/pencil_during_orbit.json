@@ -1,0 +1,419 @@
+{
+ "format": "worldpoc-input-trace",
+ "version": 1,
+ "description": "One-finger orbit is running when the Pencil lands: camera freezes first, the finger cannot resume until lifted, and a fresh finger orbits normally afterwards.",
+ "spec": "IN-06",
+ "router": {
+  "orbit_threshold": 5.0,
+  "ui_rects": [
+   [
+    0,
+    0,
+    100,
+    820
+   ],
+   [
+    100,
+    700,
+    1080,
+    120
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 40,
+    "phase": "BEGIN",
+    "t": 0.008333333333333333,
+    "raw": [
+     700,
+     400
+    ],
+    "vp": [
+     700,
+     400
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 1,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 40,
+    "phase": "MOVE",
+    "t": 0.016666666666666666,
+    "raw": [
+     703,
+     400
+    ],
+    "vp": [
+     703,
+     400
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 2,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 40,
+    "phase": "MOVE",
+    "t": 0.025,
+    "raw": [
+     710,
+     400
+    ],
+    "vp": [
+     710,
+     400
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 3,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 40,
+    "phase": "MOVE",
+    "t": 0.03333333333333333,
+    "raw": [
+     720,
+     405
+    ],
+    "vp": [
+     720,
+     405
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 4,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "PENCIL",
+    "id": 1,
+    "phase": "BEGIN",
+    "t": 0.041666666666666664,
+    "raw": [
+     300,
+     300
+    ],
+    "vp": [
+     300,
+     300
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 5,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 40,
+    "phase": "MOVE",
+    "t": 0.05,
+    "raw": [
+     760,
+     420
+    ],
+    "vp": [
+     760,
+     420
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 6,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "PENCIL",
+    "id": 1,
+    "phase": "MOVE",
+    "t": 0.058333333333333334,
+    "raw": [
+     320,
+     300
+    ],
+    "vp": [
+     320,
+     300
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 7,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "PENCIL",
+    "id": 1,
+    "phase": "END",
+    "t": 0.06666666666666667,
+    "raw": [
+     320,
+     300
+    ],
+    "vp": [
+     320,
+     300
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 8,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 40,
+    "phase": "MOVE",
+    "t": 0.075,
+    "raw": [
+     800,
+     430
+    ],
+    "vp": [
+     800,
+     430
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 9,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 40,
+    "phase": "END",
+    "t": 0.08333333333333333,
+    "raw": [
+     800,
+     430
+    ],
+    "vp": [
+     800,
+     430
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 10,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 41,
+    "phase": "BEGIN",
+    "t": 0.09166666666666666,
+    "raw": [
+     700,
+     400
+    ],
+    "vp": [
+     700,
+     400
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 11,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 41,
+    "phase": "MOVE",
+    "t": 0.1,
+    "raw": [
+     720,
+     400
+    ],
+    "vp": [
+     720,
+     400
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 12,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 41,
+    "phase": "MOVE",
+    "t": 0.10833333333333334,
+    "raw": [
+     730,
+     402
+    ],
+    "vp": [
+     730,
+     402
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 13,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 41,
+    "phase": "END",
+    "t": 0.11666666666666667,
+    "raw": [
+     730,
+     402
+    ],
+    "vp": [
+     730,
+     402
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 14,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  }
+ ],
+ "expected_actions": [
+  {
+   "type": "camera_orbit_begin",
+   "pos": [
+    710,
+    400
+   ]
+  },
+  {
+   "type": "camera_orbit",
+   "delta": [
+    10,
+    5
+   ]
+  },
+  {
+   "type": "camera_end",
+   "reason": "pencil_took_ownership"
+  },
+  {
+   "type": "tool_begin",
+   "sample": {
+    "id": 1
+   }
+  },
+  {
+   "type": "tool_move",
+   "sample": {
+    "id": 1
+   }
+  },
+  {
+   "type": "tool_end",
+   "sample": {
+    "id": 1
+   },
+   "over_ui": false
+  },
+  {
+   "type": "camera_orbit_begin",
+   "pos": [
+    720,
+    400
+   ]
+  },
+  {
+   "type": "camera_orbit",
+   "delta": [
+    10,
+    2
+   ]
+  },
+  {
+   "type": "camera_end",
+   "reason": "released"
+  }
+ ],
+ "expected_final_state": "IDLE"
+}

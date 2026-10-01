@@ -1,0 +1,49 @@
+{
+  "recorded_at": "2026-10-01",
+  "simulator": "iPad Air 4 / iOS 18.5 / x86_64 Rosetta",
+  "renderer": "gl_compatibility / opengl3",
+  "source_fingerprint": {
+    "native_artifacts_sha256": "edaea5e1efa0b8b8fea872271e6f4b920e6f161fe84af4b2cee5ffc816d993b4",
+    "source_sha256": "aaf7e9b09c6d9d3ff0bdbf38cbdeabf5aef124e0d91a164a7443660728f68b6f"
+  },
+  "native_view": "GDTViewIOS",
+  "content_scale": 2.0,
+  "paint_hash": "06b53479723d553b56a80a40344943d36fc2d7170e53062274cac4f043229247",
+  "undo_hash": "0fd783c6766761d1973d43247a8c011f92e4e3110d2c6eae15b3c30f96c2885c",
+  "recovered_hash": "06b53479723d553b56a80a40344943d36fc2d7170e53062274cac4f043229247",
+  "calibration": [
+    {
+      "scale": 1.0,
+      "points": 9,
+      "max_error_pt": 0.0
+    },
+    {
+      "scale": 0.5,
+      "points": 9,
+      "max_error_pt": 0.0
+    }
+  ],
+  "camera_changed_without_authoring": true,
+  "continuous_native_move": "NOT RUN: Computer Use drag emitted only BEGIN/END",
+  "device_gate_g1": "NOT RUN",
+  "host_tests": {
+    "godot": 320,
+    "python": 102,
+    "native": 10,
+    "failures": 0
+  },
+  "delivery_source_fingerprint": {
+    "source_sha256": "80ecd70c99253660f3906b108858ccd8ab47bb6044ac5687f83d7a5c15f1e37d",
+    "native_artifacts_sha256": "edaea5e1efa0b8b8fea872271e6f4b920e6f161fe84af4b2cee5ffc816d993b4"
+  },
+  "delivery_readiness": {
+    "observed": "2026-10-01",
+    "revision": 6,
+    "saved_revision": 6,
+    "native_view": "GDTViewIOS",
+    "content_scale": 2.0,
+    "render_scale": 1.0,
+    "startup": "ready",
+    "method": "Computer Use screenshot after final build launch"
+  }
+}

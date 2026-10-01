@@ -1,0 +1,97 @@
+{
+  "date": "2026-10-01",
+  "device": "iPad Air 4 / iPadOS 26.5",
+  "rendering_method": "mobile",
+  "failed_driver": "metal",
+  "active_driver": "vulkan",
+  "gate_g1": "INCOMPLETE",
+  "files": {
+    "metal-failure.log": {
+      "sha256": "dd4e6cf17a64a95c986c7e85e5a957e91ad6ed414a36b0f107ae5d424a012cbe",
+      "bytes": 5894
+    },
+    "runtime-ui.json": {
+      "sha256": "57a4b6297e528865bb6855f513fac033f4fda38812868bb16ef19c3e3fff9211",
+      "bytes": 2337
+    },
+    "vulkan-frame.png": {
+      "sha256": "1ab8456a08b78416f7f73e7f002bfbc5f28ae476230a381ee458f2355ae7b311",
+      "bytes": 2390803
+    },
+    "vulkan-initial.log": {
+      "sha256": "d2b064d51df6d5541a46f4601811339d635c6f3d0962ec1f694962a95e61602a",
+      "bytes": 774
+    },
+    "vulkan-rebuilt.log": {
+      "sha256": "b360e1c970bf96bbe77a9a4bd68036981f77eb25e076d1380469a429891ccdf4",
+      "bytes": 774
+    }
+  },
+  "hardware_tested_build": {
+    "native_artifacts_sha256": "edaea5e1efa0b8b8fea872271e6f4b920e6f161fe84af4b2cee5ffc816d993b4",
+    "source_sha256": "4cf84ef645d08cf622771045ff7146ae06a9e7af6f217431e43889fe9eb8e511"
+  },
+  "validation": {
+    "godot": {
+      "tests": 325,
+      "failures": 0
+    },
+    "python": {
+      "tests": 102,
+      "failures": 0
+    },
+    "native": {
+      "tests": 10,
+      "failures": 0,
+      "sanitizers": [
+        "address",
+        "undefined"
+      ],
+      "fuzz_rounds": 200
+    },
+    "doctor": {
+      "OK": 28,
+      "WARN": 1,
+      "PENDING": 1,
+      "NOT_RUN": 0,
+      "FAIL": 0
+    },
+    "final_diagnostic_scheduling_refinement": "Host tested and Xcode project exported; not rebuilt or installed on iPad before handoff",
+    "local_logs": {
+      "build/ipad-handoff-tests.log": {
+        "sha256": "18c1d3d5551b23995e22ff833df8b13ef7709baa3a559ab5ca8d4e627f24de22",
+        "bytes": 29548
+      },
+      "build/ipad-handoff-native-tests.log": {
+        "sha256": "403d5b60f9b6b49f69e1d8385e6fa3be0eb4e90580accc66128a1081eae1615e",
+        "bytes": 467
+      },
+      "build/ipad-handoff-doctor.log": {
+        "sha256": "8520d73c63d79556e937626dadb09eab6a6b9b9696b5d575ef9c362502a9adb5",
+        "bytes": 2307
+      },
+      "build/ipad-audit-final-export.log": {
+        "sha256": "34eaa2e0129e9f0dbca2b1b2fb285482c1ea988a303670f8c85c6ca737b3ceb4",
+        "bytes": 27332
+      }
+    }
+  },
+  "local_raw_traces": {
+    "build/ipad-audit-traces/input-lab-1790830207-78559-evidence.json": {
+      "sha256": "489119f2017932d61b77f6bf5b677a5beda31f9c116c5f52fe31141454e3fd53",
+      "bytes": 2185
+    },
+    "build/ipad-audit-traces/input-lab-1790830207-78559.json": {
+      "sha256": "b598e10992ee587fb10b515d272284915d62feb2d2232fec6929ac3d28c37f75",
+      "bytes": 315574
+    },
+    "build/ipad-audit-traces/input-lab-1790830634-87823-evidence.json": {
+      "sha256": "10fda2190bc88ec0b783885c3c8c98997163669d1ff8da4c32fe0a16cef047df",
+      "bytes": 2189
+    },
+    "build/ipad-audit-traces/input-lab-1790830634-87823.json": {
+      "sha256": "1e752ebd4d67722a7dabb58b979c51d267fdf9f860cedaa896fc429434442dfe",
+      "bytes": 2773629
+    }
+  }
+}

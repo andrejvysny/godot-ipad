@@ -1,0 +1,34 @@
+# Build outputs and generated app containers
+build/
+app/.godot/
+*.ipa
+*.xcarchive
+DerivedData/
+
+# Native build intermediates (xcframeworks under app/addons/wp_native_input/bin are committed)
+native/ios_input/**/*.o
+native/ios_input/**/*.os
+native/ios_input/.sconsign*.dblite
+native/ios_input/godot-cpp/bin/
+native/ios_input/godot-cpp/gen/
+native/ios_input/build/
+
+# Signing secrets and local config — never commit
+*.mobileprovision
+*.p12
+*.cer
+config/local.signing.json
+app/export_credentials.cfg
+app/.godot/export_credentials.cfg
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# OS
+.DS_Store
+
+# Generated build identity (bundled by export; regenerate before building)
+app/config/build_fingerprint.json
+venv/

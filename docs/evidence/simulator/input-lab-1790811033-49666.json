@@ -1,0 +1,275 @@
+{
+	"dropped": 0,
+	"entries": [
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 1,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					510.0
+				],
+				"seq": 1,
+				"source": "MOUSE_DEV",
+				"t": 28231.715616141,
+				"tilt": null,
+				"vp": [
+					174.0,
+					510.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pointer_id": 1,
+				"pos": [
+					174.0,
+					510.0
+				],
+				"type": "ui_press"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 1,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					510.0
+				],
+				"seq": 2,
+				"source": "MOUSE_DEV",
+				"t": 28231.715622267,
+				"tilt": null,
+				"vp": [
+					174.0,
+					510.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pos": [
+					174.0,
+					510.0
+				],
+				"type": "ui_release"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"op": "cancel_all",
+				"reason": "explicit"
+			},
+			"kind": "event"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 1000001,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					885.0,
+					615.0
+				],
+				"seq": 0,
+				"source": "FINGER",
+				"t": 1176326.15796546,
+				"tilt": null,
+				"vp": [
+					885.0,
+					615.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 1000001,
+				"phase": "MOVE",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					945.0,
+					615.0
+				],
+				"seq": 0,
+				"source": "FINGER",
+				"t": 1176326.15797837,
+				"tilt": null,
+				"vp": [
+					945.0,
+					615.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pos": [
+					945.0,
+					615.0
+				],
+				"type": "camera_orbit_begin"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 1000001,
+				"phase": "MOVE",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					1005.0,
+					615.0
+				],
+				"seq": 0,
+				"source": "FINGER",
+				"t": 1176326.1579825,
+				"tilt": null,
+				"vp": [
+					1005.0,
+					615.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"delta": [
+					60.0,
+					0.0
+				],
+				"type": "camera_orbit"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 1000001,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					1005.0,
+					615.0
+				],
+				"seq": 0,
+				"source": "FINGER",
+				"t": 1176326.15798758,
+				"tilt": null,
+				"vp": [
+					1005.0,
+					615.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"reason": "released",
+				"type": "camera_end"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 2,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					510.0
+				],
+				"seq": 3,
+				"source": "MOUSE_DEV",
+				"t": 28234.852574829,
+				"tilt": null,
+				"vp": [
+					174.0,
+					510.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pointer_id": 2,
+				"pos": [
+					174.0,
+					510.0
+				],
+				"type": "ui_press"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 2,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					510.0
+				],
+				"seq": 4,
+				"source": "MOUSE_DEV",
+				"t": 28234.852580442,
+				"tilt": null,
+				"vp": [
+					174.0,
+					510.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pos": [
+					174.0,
+					510.0
+				],
+				"type": "ui_release"
+			},
+			"kind": "action"
+		}
+	],
+	"format": "worldpoc-input-trace",
+	"version": 1
+}

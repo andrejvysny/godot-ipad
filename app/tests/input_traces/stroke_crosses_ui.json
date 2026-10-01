@@ -1,0 +1,390 @@
+{
+ "format": "worldpoc-input-trace",
+ "version": 1,
+ "description": "A stroke passes under the left tool rail and back: pause on entry, occluded samples dropped, resume as a new segment, no UI press. A second stroke ends over the asset strip.",
+ "spec": "IN-08",
+ "router": {
+  "orbit_threshold": 5.0,
+  "ui_rects": [
+   [
+    0,
+    0,
+    100,
+    820
+   ],
+   [
+    100,
+    700,
+    1080,
+    120
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "kind": "sample",
+   "data": {
+    "source": "PENCIL",
+    "id": 1,
+    "phase": "BEGIN",
+    "t": 0.008333333333333333,
+    "raw": [
+     300,
+     400
+    ],
+    "vp": [
+     300,
+     400
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 1,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "PENCIL",
+    "id": 1,
+    "phase": "MOVE",
+    "t": 0.016666666666666666,
+    "raw": [
+     200,
+     400
+    ],
+    "vp": [
+     200,
+     400
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 2,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "PENCIL",
+    "id": 1,
+    "phase": "MOVE",
+    "t": 0.025,
+    "raw": [
+     80,
+     400
+    ],
+    "vp": [
+     80,
+     400
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 3,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "PENCIL",
+    "id": 1,
+    "phase": "MOVE",
+    "t": 0.03333333333333333,
+    "raw": [
+     50,
+     420
+    ],
+    "vp": [
+     50,
+     420
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 4,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "PENCIL",
+    "id": 1,
+    "phase": "MOVE",
+    "t": 0.041666666666666664,
+    "raw": [
+     60,
+     450
+    ],
+    "vp": [
+     60,
+     450
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 5,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "PENCIL",
+    "id": 1,
+    "phase": "MOVE",
+    "t": 0.05,
+    "raw": [
+     150,
+     480
+    ],
+    "vp": [
+     150,
+     480
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 6,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "PENCIL",
+    "id": 1,
+    "phase": "MOVE",
+    "t": 0.058333333333333334,
+    "raw": [
+     200,
+     480
+    ],
+    "vp": [
+     200,
+     480
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 7,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "PENCIL",
+    "id": 1,
+    "phase": "END",
+    "t": 0.06666666666666667,
+    "raw": [
+     200,
+     480
+    ],
+    "vp": [
+     200,
+     480
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 8,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "PENCIL",
+    "id": 2,
+    "phase": "BEGIN",
+    "t": 0.075,
+    "raw": [
+     600,
+     500
+    ],
+    "vp": [
+     600,
+     500
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 9,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "PENCIL",
+    "id": 2,
+    "phase": "MOVE",
+    "t": 0.08333333333333333,
+    "raw": [
+     600,
+     650
+    ],
+    "vp": [
+     600,
+     650
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 10,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "PENCIL",
+    "id": 2,
+    "phase": "MOVE",
+    "t": 0.09166666666666666,
+    "raw": [
+     600,
+     750
+    ],
+    "vp": [
+     600,
+     750
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 11,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "PENCIL",
+    "id": 2,
+    "phase": "END",
+    "t": 0.1,
+    "raw": [
+     600,
+     760
+    ],
+    "vp": [
+     600,
+     760
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 12,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  }
+ ],
+ "expected_actions": [
+  {
+   "type": "tool_begin",
+   "sample": {
+    "id": 1
+   }
+  },
+  {
+   "type": "tool_move",
+   "sample": {
+    "id": 1
+   }
+  },
+  {
+   "type": "tool_pause",
+   "sample": {
+    "id": 1,
+    "vp": [
+     80,
+     400
+    ]
+   }
+  },
+  {
+   "type": "tool_resume",
+   "sample": {
+    "id": 1,
+    "vp": [
+     150,
+     480
+    ]
+   }
+  },
+  {
+   "type": "tool_move",
+   "sample": {
+    "id": 1
+   }
+  },
+  {
+   "type": "tool_end",
+   "sample": {
+    "id": 1
+   },
+   "over_ui": false
+  },
+  {
+   "type": "tool_begin",
+   "sample": {
+    "id": 2
+   }
+  },
+  {
+   "type": "tool_move",
+   "sample": {
+    "id": 2
+   }
+  },
+  {
+   "type": "tool_pause",
+   "sample": {
+    "id": 2,
+    "vp": [
+     600,
+     750
+    ]
+   }
+  },
+  {
+   "type": "tool_end",
+   "sample": {
+    "id": 2
+   },
+   "over_ui": true
+  }
+ ],
+ "expected_final_state": "IDLE"
+}

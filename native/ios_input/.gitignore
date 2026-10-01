@@ -1,0 +1,6 @@
+# Fetched and verified by build.sh (godot-cpp 10.0.0-stable @ 507ed9d8); never committed.
+/godot-cpp/
+/godot-cpp.tmp.*/
+# Static libraries and object files; the shipped artifacts live in app/addons/wp_native_input/bin/.
+/build/
+.sconsign*.dblite

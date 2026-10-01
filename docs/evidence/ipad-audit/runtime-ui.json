@@ -1,0 +1,128 @@
+{
+	"build": {
+		"native_artifacts_sha256": "edaea5e1efa0b8b8fea872271e6f4b920e6f161fe84af4b2cee5ffc816d993b4",
+		"source_sha256": "4cf84ef645d08cf622771045ff7146ae06a9e7af6f217431e43889fe9eb8e511"
+	},
+	"driver": "vulkan",
+	"input": {
+		"cancels": 2,
+		"mapping_generation": 1,
+		"provider": "ios_native_uikit",
+		"samples": 1877,
+		"state": "IDLE",
+		"swallowed": 494,
+		"synthetic": 258
+	},
+	"last_begin": {
+		"cancel_reason": "",
+		"coalesced": false,
+		"gen": 1,
+		"id": 29,
+		"phase": "BEGIN",
+		"predicted": false,
+		"pressure": 0.08,
+		"raw": [
+			1114.0,
+			755.5
+		],
+		"seq": 1845,
+		"source": "PENCIL",
+		"t": 7405.557,
+		"tilt": [
+			-0.652007281780243,
+			0.142674311995506
+		],
+		"vp": [
+			1114.0,
+			755.5
+		]
+	},
+	"last_button": "Nine-point calibration",
+	"last_gui_event": {
+		"button": "Nine-point calibration",
+		"hovered": true,
+		"position": [
+			165.0,
+			19.5
+		],
+		"pressed": false
+	},
+	"last_sample": {
+		"cancel_reason": "",
+		"coalesced": false,
+		"gen": 1,
+		"id": 29,
+		"phase": "END",
+		"predicted": false,
+		"pressure": 0.0,
+		"raw": [
+			1115.0,
+			754.0
+		],
+		"seq": 1877,
+		"source": "PENCIL",
+		"t": 7405.691,
+		"tilt": [
+			-0.652007281780243,
+			0.142674311995506
+		],
+		"vp": [
+			1115.0,
+			754.0
+		]
+	},
+	"last_ui_action": {
+		"pos": [
+			181.0,
+			557.5
+		],
+		"type": "ui_release"
+	},
+	"provider": {
+		"active_contacts": 0,
+		"attach_status": "attached",
+		"decode_errors": 0,
+		"idiom": "pad",
+		"ignored_contacts": 0,
+		"last_cancel_request": "explicit",
+		"last_decode_error": "",
+		"machine": "iPad13,1",
+		"model": "iPad",
+		"observed_view_class": "GDTViewIOS",
+		"observer_attached": true,
+		"overflow_count": 0,
+		"provider": "ios_native_uikit",
+		"queued_records": 0,
+		"records_emitted": 1877,
+		"started": true,
+		"system_name": "iPadOS",
+		"system_version": "26.5"
+	},
+	"render_scale": 1.0,
+	"renderer": "mobile",
+	"revision": 38,
+	"save": {
+		"error": "",
+		"saved_revision": 38,
+		"saving_revision": -1,
+		"state": "SAVED"
+	},
+	"terrain_uploads": {
+		"last_flush_ms": 0.071,
+		"uploads_control": 189,
+		"uploads_height": 0
+	},
+	"timing": {
+		"clock": "monotonic wall time",
+		"frame_count": 2150,
+		"frames": 600,
+		"last_interval_ms": 21.7,
+		"max_ms": 24.073,
+		"over_16_7": 600,
+		"over_33_4": 0,
+		"p50_ms": 21.166,
+		"p95_ms": 21.909,
+		"timers": {}
+	},
+	"uptime_ms": 48974
+}

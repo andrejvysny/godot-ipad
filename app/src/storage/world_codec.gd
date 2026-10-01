@@ -1,0 +1,240 @@
+class_name WorldCodec
+extends RefCounted
+## Generation directory reader/writer (docs/world-format.md §2-§4). Writing is split into a
+## main-thread snapshot (plain values only) and write_snapshot(), which the storage worker
+## runs without ever touching a WorldDocument. Reading always builds a NEW document.
+
+const FORMAT := "world-painter-poc"
+const MANIFEST_FILE := "manifest.json"
+const OBJECTS_FILE := "objects.json"
+const TERRAIN3D_VERSION := "1.0.2-stable@0077405b"
+const MAX_MANIFEST_BYTES := 64 * 1024
+const MAX_OBJECTS_BYTES := 4 * 1024 * 1024
+const MANIFEST_KEYS := ["format", "schema_version", "world_id", "document_revision", "created_with",
+	"catalog", "terrain", "payload_files", "authored_content_hash"]
+const CREATED_WITH_KEYS := ["godot", "terrain3d", "world_painter"]
+const CATALOG_KEYS := ["id", "version", "sha256"]
+const TERRAIN_KEYS := ["sample_spacing_m", "region_samples", "region_locations", "height_encoding",
+	"control_encoding", "control_schema", "material_slots"]
+const PAYLOAD_KEYS := ["path", "bytes", "sha256"]
+const MAX_JSON_INT := 9007199254740992.0  # 2^53: larger JSON numbers are not exact integers
+
+
+## The 9 payload paths, sorted byte-wise (the order payload_files must use).
+static func payload_paths() -> PackedStringArray:
+	var out := PackedStringArray([OBJECTS_FILE])
+	for loc in WorldConstants.REGION_LOCATIONS:
+		var stem := WorldConstants.region_file_stem(loc)
+		out.append(stem + ".height.f32le")
+		out.append(stem + ".control.u32le")
+	out.sort()
+	return out
+
+
+static func is_region_path(path: String) -> bool:
+	return path.begins_with("regions/")
+
+
+## Main thread only (reads Engine/ProjectSettings).
+static func default_created_with() -> Dictionary:
+	var v := Engine.get_version_info()
+	return {
+		"godot": "%d.%d.%d.%s.%s.%s" % [v.major, v.minor, v.patch, v.status, v.build, String(v.hash).left(9)],
+		"terrain3d": TERRAIN3D_VERSION,
+		"world_painter": str(ProjectSettings.get_setting("application/config/version", "unknown")),
+	}
+
+
+static func objects_json_bytes(doc: WorldDocument) -> PackedByteArray:
+	var records: Array = []
+	for id in doc.sorted_object_ids():
+		records.append(doc.get_object(id).to_dict())
+	var data := {"schema_version": WorldConstants.SCHEMA_VERSION, "objects": records}
+	return JSON.stringify(data, "  ", true, true).to_utf8_buffer()
+
+
+## Copies everything a checkpoint needs into plain values (no references into `doc`).
+static func snapshot(doc: WorldDocument, created_with: Dictionary) -> Dictionary:
+	var files := {OBJECTS_FILE: objects_json_bytes(doc)}
+	for loc in WorldConstants.REGION_LOCATIONS:
+		var r := doc.get_region(loc)
+		var stem := WorldConstants.region_file_stem(loc)
+		files[stem + ".height.f32le"] = r.height_bytes() if r != null else PackedByteArray()
+		files[stem + ".control.u32le"] = r.control_bytes() if r != null else PackedByteArray()
+	return {
+		"world_id": doc.world_id,
+		"document_revision": doc.document_revision,
+		"created_with": created_with.duplicate(true),
+		"catalog": {"id": doc.catalog_id, "version": doc.catalog_version, "sha256": doc.catalog_sha256},
+		"files": files,
+		"authored_content_hash": CanonicalEncoder.authored_hash(doc),
+	}
+
+
+static func write_generation(dir: String, doc: WorldDocument, created_with: Dictionary) -> String:
+	if not WorldConstants.host_is_little_endian():
+		return "host is not little-endian; world files cannot be written"
+	return write_snapshot(dir, snapshot(doc, created_with))
+
+
+## Payloads first, manifest last. `fail_on_file` is fault injection for tests (IO-04).
+static func write_snapshot(dir: String, snap: Dictionary, fail_on_file: String = "") -> String:
+	var err := StorageFs.make_dir(dir.path_join("regions"))
+	if err != "":
+		return err
+	var entries: Array = []
+	for path in payload_paths():
+		var data: PackedByteArray = snap.files.get(path, PackedByteArray())
+		if is_region_path(path) and data.size() != WorldConstants.REGION_MAP_BYTES:
+			return "region payload %s has %d bytes, expected %d" % [path, data.size(), WorldConstants.REGION_MAP_BYTES]
+		if path == fail_on_file:
+			return "write to '%s' failed (injected fault)" % dir.path_join(path)
+		err = StorageFs.write_bytes(dir.path_join(path), data)
+		if err != "":
+			return err
+		entries.append({"path": path, "bytes": data.size(), "sha256": CanonicalEncoder.sha256_hex(data)})
+	if fail_on_file == MANIFEST_FILE:
+		return "write to '%s' failed (injected fault)" % dir.path_join(MANIFEST_FILE)
+	var manifest := build_manifest(snap, entries)
+	return StorageFs.write_bytes(dir.path_join(MANIFEST_FILE), JSON.stringify(manifest, "  ", true, true).to_utf8_buffer())
+
+
+static func build_manifest(snap: Dictionary, payload_entries: Array) -> Dictionary:
+	var locs: Array = []
+	for loc in WorldConstants.REGION_LOCATIONS:
+		locs.append([loc.x, loc.y])
+	return {
+		"format": FORMAT,
+		"schema_version": WorldConstants.SCHEMA_VERSION,
+		"world_id": snap.world_id,
+		"document_revision": snap.document_revision,
+		"created_with": snap.created_with,
+		"catalog": snap.catalog,
+		"terrain": {
+			"sample_spacing_m": WorldConstants.SAMPLE_SPACING,
+			"region_samples": WorldConstants.REGION_SAMPLES,
+			"region_locations": locs,
+			"height_encoding": WorldConstants.HEIGHT_ENCODING,
+			"control_encoding": WorldConstants.CONTROL_ENCODING,
+			"control_schema": WorldConstants.CONTROL_SCHEMA,
+			"material_slots": WorldConstants.MATERIAL_SLOTS.duplicate(),
+		},
+		"payload_files": payload_entries,
+		"authored_content_hash": snap.authored_content_hash,
+	}
+
+
+## Strict manifest + payload verification without a catalog (used by the worker after a
+## write and by pruning). Returns {manifest, files: {path: bytes}, error}.
+static func load_verified(dir: String) -> Dictionary:
+	var out := {"manifest": {}, "files": {}, "error": ""}
+	var read := StorageFs.read_bytes(dir.path_join(MANIFEST_FILE), MAX_MANIFEST_BYTES)
+	if read[1] != "":
+		out.error = "manifest: " + read[1]
+		return out
+	var parsed := WorldManifest.parse(read[0])
+	if parsed[1] != "":
+		out.error = "manifest: " + parsed[1]
+		return out
+	var manifest: Dictionary = parsed[0]
+	for entry in manifest.payload_files:
+		var limit: int = MAX_OBJECTS_BYTES if entry.path == OBJECTS_FILE else WorldConstants.REGION_MAP_BYTES
+		var payload := StorageFs.read_bytes(dir.path_join(entry.path), limit)
+		if payload[1] != "":
+			out.error = "payload %s: %s" % [entry.path, payload[1]]
+			return out
+		var data: PackedByteArray = payload[0]
+		if data.size() != int(entry.bytes):
+			out.error = "payload %s has %d bytes, manifest says %d" % [entry.path, data.size(), int(entry.bytes)]
+			return out
+		if CanonicalEncoder.sha256_hex(data) != entry.sha256:
+			out.error = "payload %s sha256 does not match the manifest" % entry.path
+			return out
+		out.files[entry.path] = data
+	out.manifest = manifest
+	return out
+
+
+## Returns [WorldDocument, ""] or [null, error]. Never touches any existing document.
+static func read_generation(dir: String, catalog: AssetCatalog) -> Array:
+	if not WorldConstants.host_is_little_endian():
+		return [null, "host is not little-endian; world files cannot be read"]
+	if catalog == null:
+		return [null, "no trusted catalog loaded"]
+	var verified := load_verified(dir)
+	if verified.error != "":
+		return [null, verified.error]
+	var m: Dictionary = verified.manifest
+	if m.catalog.id != catalog.catalog_id or int(m.catalog.version) != catalog.catalog_version \
+			or m.catalog.sha256 != catalog.sha256:
+		return [null, "incompatible catalog '%s' v%d sha256 %s (trusted catalog is '%s' v%d sha256 %s)" % [
+			m.catalog.id, int(m.catalog.version), m.catalog.sha256,
+			catalog.catalog_id, catalog.catalog_version, catalog.sha256]]
+	var doc := WorldDocument.new()
+	doc.schema_version = int(m.schema_version)
+	doc.world_id = m.world_id
+	doc.document_revision = int(m.document_revision)
+	doc.catalog_id = m.catalog.id
+	doc.catalog_version = int(m.catalog.version)
+	doc.catalog_sha256 = m.catalog.sha256
+	for loc in WorldConstants.REGION_LOCATIONS:
+		var stem := WorldConstants.region_file_stem(loc)
+		var r := RegionBuffers.new(loc)
+		var err := r.set_from_bytes(verified.files[stem + ".height.f32le"], verified.files[stem + ".control.u32le"])
+		if err != "":
+			return [null, err]
+		doc.regions[loc] = r
+	var obj_err := _read_objects(doc, verified.files[OBJECTS_FILE])
+	if obj_err != "":
+		return [null, "objects.json: " + obj_err]
+	if CanonicalEncoder.authored_hash(doc) != m.authored_content_hash:
+		return [null, "authored_content_hash does not match the loaded content"]
+	var errors := WorldValidator.validate(doc, catalog)
+	if not errors.is_empty():
+		return [null, "; ".join(errors)]
+	return [doc, ""]
+
+
+static func _read_objects(doc: WorldDocument, data: PackedByteArray) -> String:
+	var json := JSON.new()
+	if json.parse(data.get_string_from_utf8()) != OK:
+		return "invalid JSON (line %d: %s)" % [json.get_error_line(), json.get_error_message()]
+	var root: Variant = json.data
+	if typeof(root) != TYPE_DICTIONARY or root.size() != 2 or not root.has("schema_version") or not root.has("objects"):
+		return "root must be exactly {schema_version, objects}"
+	if not WorldManifest.is_json_int(root.schema_version) or int(root.schema_version) != WorldConstants.SCHEMA_VERSION:
+		return "unsupported schema_version %s" % str(root.schema_version)
+	if typeof(root.objects) != TYPE_ARRAY:
+		return "objects must be an array"
+	if root.objects.size() > WorldValidator.MAX_OBJECTS:
+		return "%d objects exceed the limit of %d" % [root.objects.size(), WorldValidator.MAX_OBJECTS]
+	var prev := ""
+	for d in root.objects:
+		var type_err := _enum_type_error(d)
+		if type_err != "":
+			return type_err
+		var parsed := ObjectRecord.from_dict(d)
+		# A script error inside from_dict returns an empty Array; never treat that as success.
+		if parsed.size() != 2 or typeof(parsed[1]) != TYPE_STRING:
+			return "object record could not be parsed"
+		if parsed[1] != "":
+			return parsed[1]
+		if not (parsed[0] is ObjectRecord):
+			return "object record could not be parsed"
+		var r: ObjectRecord = parsed[0]
+		if prev != "" and not (prev < r.object_id):
+			return "object ids are not sorted and unique at %s" % r.object_id
+		prev = r.object_id
+		doc.put_object(r)
+	return ""
+
+
+## ObjectRecord.from_dict compares these fields with String constants, which is a script
+## error (not a rejection) for any other JSON type, so reject non-strings first.
+static func _enum_type_error(d: Variant) -> String:
+	if typeof(d) != TYPE_DICTIONARY:
+		return ""
+	for key in ["grounding", "origin"]:
+		if d.has(key) and typeof(d[key]) != TYPE_STRING:
+			return "%s must be a string, got %s" % [key, type_string(typeof(d[key]))]
+	return ""

@@ -1,0 +1,291 @@
+{
+	"dropped": 0,
+	"entries": [
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 1,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					510.0
+				],
+				"seq": 1,
+				"source": "MOUSE_DEV",
+				"t": 28200.181051395,
+				"tilt": null,
+				"vp": [
+					174.0,
+					510.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pointer_id": 1,
+				"pos": [
+					174.0,
+					510.0
+				],
+				"type": "ui_press"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 1,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					510.0
+				],
+				"seq": 2,
+				"source": "MOUSE_DEV",
+				"t": 28200.181056502,
+				"tilt": null,
+				"vp": [
+					174.0,
+					510.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pos": [
+					174.0,
+					510.0
+				],
+				"type": "ui_release"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 2,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					510.0
+				],
+				"seq": 3,
+				"source": "MOUSE_DEV",
+				"t": 28200.754450155,
+				"tilt": null,
+				"vp": [
+					174.0,
+					510.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pointer_id": 2,
+				"pos": [
+					174.0,
+					510.0
+				],
+				"type": "ui_press"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 2,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					510.0
+				],
+				"seq": 4,
+				"source": "MOUSE_DEV",
+				"t": 28200.754455264,
+				"tilt": null,
+				"vp": [
+					174.0,
+					510.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pos": [
+					174.0,
+					510.0
+				],
+				"type": "ui_release"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 3,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					705.0,
+					436.0
+				],
+				"seq": 5,
+				"source": "MOUSE_DEV",
+				"t": 28201.302043548,
+				"tilt": null,
+				"vp": [
+					705.0,
+					436.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"sample": {
+					"id": 3,
+					"phase": "BEGIN",
+					"vp": [
+						705.0,
+						436.0
+					]
+				},
+				"type": "tool_begin"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 3,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					900.0,
+					496.0
+				],
+				"seq": 6,
+				"source": "MOUSE_DEV",
+				"t": 28201.302385413,
+				"tilt": null,
+				"vp": [
+					900.0,
+					496.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"over_ui": false,
+				"sample": {
+					"id": 3,
+					"phase": "END",
+					"vp": [
+						900.0,
+						496.0
+					]
+				},
+				"type": "tool_end"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 4,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					484.0
+				],
+				"seq": 7,
+				"source": "MOUSE_DEV",
+				"t": 28201.831737703,
+				"tilt": null,
+				"vp": [
+					174.0,
+					484.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pointer_id": 4,
+				"pos": [
+					174.0,
+					484.0
+				],
+				"type": "ui_press"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 4,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					484.0
+				],
+				"seq": 8,
+				"source": "MOUSE_DEV",
+				"t": 28201.83201574,
+				"tilt": null,
+				"vp": [
+					174.0,
+					484.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pos": [
+					174.0,
+					484.0
+				],
+				"type": "ui_release"
+			},
+			"kind": "action"
+		}
+	],
+	"format": "worldpoc-input-trace",
+	"version": 1
+}

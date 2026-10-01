@@ -1,0 +1,29 @@
+[gd_scene load_steps=5 format=3]
+
+[sub_resource type="StandardMaterial3D" id="bark"]
+albedo_color = Color(0.36, 0.25, 0.16, 1)
+
+[sub_resource type="CylinderMesh" id="trunk"]
+material = SubResource("bark")
+top_radius = 0.18
+bottom_radius = 0.24
+height = 1.6
+
+[sub_resource type="StandardMaterial3D" id="needles"]
+albedo_color = Color(0.13, 0.34, 0.18, 1)
+
+[sub_resource type="CylinderMesh" id="crown"]
+material = SubResource("needles")
+top_radius = 0.0
+bottom_radius = 1.4
+height = 5.6
+
+[node name="SpruceA" type="Node3D"]
+
+[node name="Trunk" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+mesh = SubResource("trunk")
+
+[node name="Crown" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.2, 0)
+mesh = SubResource("crown")

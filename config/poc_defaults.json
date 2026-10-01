@@ -1,0 +1,55 @@
+{
+  "input": {
+    "orbit_activation_threshold_pt": 5.0,
+    "tap_move_threshold_pt": 8.0,
+    "queue_capacity": 4096,
+    "calibration_tolerance_pt": 2.0
+  },
+  "camera": {
+    "pitch_min_deg": 15.0,
+    "pitch_max_deg": 80.0,
+    "distance_min_m": 3.0,
+    "distance_max_m": 350.0,
+    "initial_pitch_deg": 45.0,
+    "initial_yaw_deg": 30.0,
+    "initial_distance_m": 140.0,
+    "fov_deg": 60.0,
+    "ground_clearance_m": 1.0,
+    "orbit_deg_per_viewport_width": 270.0,
+    "precision_distance_m": 30.0,
+    "precision_min_factor": 0.4
+  },
+  "brush": {
+    "sculpt_radius_min_m": 2.0,
+    "sculpt_radius_max_m": 16.0,
+    "sculpt_radius_default_m": 6.0,
+    "paint_radius_min_m": 1.0,
+    "paint_radius_max_m": 16.0,
+    "paint_radius_default_m": 4.0,
+    "path_width_min_m": 2.0,
+    "path_width_max_m": 6.0,
+    "path_width_default_m": 3.0,
+    "strength_default": 0.8,
+    "sculpt_speed_m_per_s": 2.0,
+    "fixed_step_s": 0.016666666666666666,
+    "stall_cancel_s": 0.25,
+    "pressure_min_factor": 0.2,
+    "input_latency_s": 0.05
+  },
+  "placement": {
+    "yaw_snap_deg": 15.0,
+    "move_snap_m": 0.5,
+    "yaw_step_deg": 15.0,
+    "scale_step": 0.1,
+    "height_step_m": 0.1
+  },
+  "history": {
+    "max_actions": 20,
+    "max_bytes": 67108864
+  },
+  "storage": {
+    "keep_generations": 3,
+    "max_package_bytes": 8388608,
+    "max_objects": 2000
+  }
+}

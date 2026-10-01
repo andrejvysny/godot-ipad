@@ -1,0 +1,95 @@
+{
+  "_comment": "Pinned toolchain plus physical-device evidence recorded 2026-10-01. Mobile/Metal failed; Mobile/Vulkan rendering and basic interaction verified. G1 remains incomplete.",
+  "godot_version": "4.7.2.stable.official",
+  "godot_commit": "ed1daf0bf001b61586d9930840f2f1394092c079",
+  "export_template_sha256": {
+    "ios.zip": "fd3280d10dc75356dded006f6f8813f40a5aebd32d128592b781256d8ffbdff4",
+    "macos.zip": "88df5e2e6fee99088699be66e6d42e4da4fb0c5619d054297d755a49558a4792"
+  },
+  "export_templates": {
+    "version_dir": "4.7.2.stable",
+    "tpz_file": "Godot_v4.7.2-stable_export_templates.tpz",
+    "tpz_sha512": "ca4d71c4d7b81dfc15d1a98baa07534aa95b03fdda78a0075b06672e1648d2e5f40980c9adc28d23e1b92e732ee7bf3461997aa804af74ec2fcd7a93ccb84079"
+  },
+  "terrain3d_revision": "v1.0.2-stable",
+  "terrain3d_tag_object": "4b4c4117b4ab099d588e9964551e7a65d333e511",
+  "terrain3d_commit": "0077405b52e353c5e5dc3a094e7ede49833ba6fe",
+  "terrain3d_release_zip": "Terrain3D_v1.0.2-stable.zip",
+  "terrain3d_release_zip_sha256": "a071850250ec5e596aa54da61c01d75768774eb379ee997584d426a45f4884a2",
+  "terrain3d_binary_sha256": {
+    "addons/terrain_3d/bin/libterrain.ios.debug.universal.dylib": "7450c0e2b340ec398650e5d2b60fb4bdb3ab6a3038f7f793761b607e6ebbba60",
+    "addons/terrain_3d/bin/libterrain.ios.release.universal.dylib": "f72ebf6132c09bf8d4e35aeffc05b1e6f2d80a8d72f508b23be610563a0805a8",
+    "addons/terrain_3d/bin/libterrain.macos.debug.framework/libterrain.macos.debug": "12b4822ef56fb4396da974f4efcb2db26fa2d9c93179d353bd30ba647cc28b01",
+    "addons/terrain_3d/bin/libterrain.macos.release.framework/libterrain.macos.release": "63449d6de24051669ea81464b1b6b2ae3dc0d72408845bec60b394867ed9b62a"
+  },
+  "terrain3d_ios_min_os": "18.5",
+  "terrain3d_ios_slices": "arm64 device only (no simulator slice)",
+  "native_bridge_revision": {
+    "godot_cpp": "10.0.0-stable",
+    "godot_cpp_commit": "507ed9d840c01a3c5b2a39af8bb4000bfac30bf5",
+    "api_version": "4.7"
+  },
+  "xcode_version": "26.6 (17F113)",
+  "ios_sdk_version": "26.5",
+  "python_min_version": "3.10",
+  "ipados_version": "26.5 (23F77)",
+  "ipad_model": "iPad Air 4 (iPad13,1)",
+  "pencil_model": "Apple Pencil 2 (model user supplied; physical paint and UI interaction verified; formal input gates incomplete)",
+  "rendering_method": "mobile",
+  "rendering_driver_configured": "vulkan",
+  "rendering_driver_active": "vulkan (Mobile; physical iPad Air 4, 2026-10-01)",
+  "fixtures": {
+    "flat": {
+      "world_id": "0f1a7000-0000-4000-8000-000000000001",
+      "authored_content_hash": "d5072791614659d3ea2f0f9f66b959b2556b95937afc9bb57b84e622b6b05bb3",
+      "manifest_sha256": "1cc93ef0e9723ab45ac5fe4ca2aeb3d4f6db67323ac10dd3c0a47b51afb7309b",
+      "payload_sha256": {
+        "objects.json": "056f6f30e64aa0dd84905b5ae1b4341405e93b8f03517f9057c518adde127819",
+        "regions/r_-1_-1.control.u32le": "8bedca7e224352ed408470971a341750531002d69390281ed5b11f9028739a45",
+        "regions/r_-1_-1.height.f32le": "8a39d2abd3999ab73c34db2476849cddf303ce389b35826850f9a700589b4a90",
+        "regions/r_-1_0.control.u32le": "8bedca7e224352ed408470971a341750531002d69390281ed5b11f9028739a45",
+        "regions/r_-1_0.height.f32le": "8a39d2abd3999ab73c34db2476849cddf303ce389b35826850f9a700589b4a90",
+        "regions/r_0_-1.control.u32le": "8bedca7e224352ed408470971a341750531002d69390281ed5b11f9028739a45",
+        "regions/r_0_-1.height.f32le": "8a39d2abd3999ab73c34db2476849cddf303ce389b35826850f9a700589b4a90",
+        "regions/r_0_0.control.u32le": "8bedca7e224352ed408470971a341750531002d69390281ed5b11f9028739a45",
+        "regions/r_0_0.height.f32le": "8a39d2abd3999ab73c34db2476849cddf303ce389b35826850f9a700589b4a90"
+      }
+    },
+    "gentle_hills": {
+      "world_id": "0e111150-0000-4000-8000-000000000002",
+      "authored_content_hash": "6a34a9fbd86e99f6387386f699f101e898a599938e054ef5e267f4033064823f",
+      "manifest_sha256": "220f81fceabe24fcd3790b2ad93d1bfccc15e63eb76cacbf93b8bb84a1c26fce",
+      "payload_sha256": {
+        "objects.json": "056f6f30e64aa0dd84905b5ae1b4341405e93b8f03517f9057c518adde127819",
+        "regions/r_-1_-1.control.u32le": "8bedca7e224352ed408470971a341750531002d69390281ed5b11f9028739a45",
+        "regions/r_-1_-1.height.f32le": "bdad4b2ca68a6f4f7b688c4b608bfd92e5f10571b9c8988decc70c9474cd2c78",
+        "regions/r_-1_0.control.u32le": "8bedca7e224352ed408470971a341750531002d69390281ed5b11f9028739a45",
+        "regions/r_-1_0.height.f32le": "91725e0b7d62f3446ad67a96b3d4debc8ac1def37afb5e9991d73efffb13e0cb",
+        "regions/r_0_-1.control.u32le": "8bedca7e224352ed408470971a341750531002d69390281ed5b11f9028739a45",
+        "regions/r_0_-1.height.f32le": "ddf929f269a8e99f0b7cc555387b2530a63802178343147e6648cb997aa587f8",
+        "regions/r_0_0.control.u32le": "8bedca7e224352ed408470971a341750531002d69390281ed5b11f9028739a45",
+        "regions/r_0_0.height.f32le": "c7ba34e8609555353fe6a40e6c334fc4c0ef70da9e57c32fbca69f215712807d"
+      }
+    }
+  },
+  "recorded_at": "2026-10-01",
+  "host": {
+    "macos_version": "26.6.2",
+    "macos_build": "25G83",
+    "arch": "arm64",
+    "python": "3.14.7",
+    "godot_binary": "/opt/homebrew/bin/godot",
+    "godot_version_output": "4.7.2.stable.official.ed1daf0bf",
+    "codesigning_identities": 1,
+    "connected_devices": "User disconnected iPad after unsuccessful trial; current work uses local Simulator",
+    "scons": "not on PATH",
+    "uvx": "/opt/homebrew/bin/uvx"
+  },
+  "catalog": {
+    "id": "poc_nature",
+    "version": 1,
+    "sha256": "a4cfbc629fa7ef9c1d2585cf3881011e385b175993e8d2508b28e5317056e78d"
+  },
+  "device_gate_g1": "INCOMPLETE: Metal failed with fence timeouts; Vulkan rendering, orbit, paint and Pencil buttons verified; formal calibration, palm, interruption and persistence gates remain open",
+  "rendering_driver_macos": "metal"
+}

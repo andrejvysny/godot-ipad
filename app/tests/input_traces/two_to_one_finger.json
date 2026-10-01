@@ -1,0 +1,283 @@
+{
+ "format": "worldpoc-input-trace",
+ "version": 1,
+ "description": "Orbit becomes pan/zoom when a second finger joins (baselines captured, no transition motion); lifting one finger freezes the camera; the remaining finger never orbits.",
+ "spec": "IN-07, CA-02",
+ "router": {
+  "orbit_threshold": 5.0,
+  "ui_rects": [
+   [
+    0,
+    0,
+    100,
+    820
+   ],
+   [
+    100,
+    700,
+    1080,
+    120
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 50,
+    "phase": "BEGIN",
+    "t": 0.008333333333333333,
+    "raw": [
+     600,
+     400
+    ],
+    "vp": [
+     600,
+     400
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 1,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 50,
+    "phase": "MOVE",
+    "t": 0.016666666666666666,
+    "raw": [
+     620,
+     400
+    ],
+    "vp": [
+     620,
+     400
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 2,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 51,
+    "phase": "BEGIN",
+    "t": 0.025,
+    "raw": [
+     800,
+     400
+    ],
+    "vp": [
+     800,
+     400
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 3,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 51,
+    "phase": "MOVE",
+    "t": 0.03333333333333333,
+    "raw": [
+     820,
+     400
+    ],
+    "vp": [
+     820,
+     400
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 4,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 50,
+    "phase": "MOVE",
+    "t": 0.041666666666666664,
+    "raw": [
+     640,
+     400
+    ],
+    "vp": [
+     640,
+     400
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 5,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 51,
+    "phase": "END",
+    "t": 0.05,
+    "raw": [
+     820,
+     400
+    ],
+    "vp": [
+     820,
+     400
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 6,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 50,
+    "phase": "MOVE",
+    "t": 0.058333333333333334,
+    "raw": [
+     700,
+     450
+    ],
+    "vp": [
+     700,
+     450
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 7,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 50,
+    "phase": "MOVE",
+    "t": 0.06666666666666667,
+    "raw": [
+     760,
+     500
+    ],
+    "vp": [
+     760,
+     500
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 8,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 50,
+    "phase": "END",
+    "t": 0.075,
+    "raw": [
+     760,
+     500
+    ],
+    "vp": [
+     760,
+     500
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 9,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  }
+ ],
+ "expected_actions": [
+  {
+   "type": "camera_orbit_begin",
+   "pos": [
+    620,
+    400
+   ]
+  },
+  {
+   "type": "camera_end",
+   "reason": "second_finger"
+  },
+  {
+   "type": "camera_pan_zoom_begin",
+   "centroid": [
+    710,
+    400
+   ],
+   "span": 180
+  },
+  {
+   "type": "camera_pan_zoom",
+   "centroid": [
+    720,
+    400
+   ],
+   "span": 200
+  },
+  {
+   "type": "camera_pan_zoom",
+   "centroid": [
+    730,
+    400
+   ],
+   "span": 180
+  },
+  {
+   "type": "camera_end",
+   "reason": "finger_lifted"
+  }
+ ],
+ "expected_final_state": "IDLE"
+}

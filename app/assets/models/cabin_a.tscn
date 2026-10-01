@@ -1,0 +1,47 @@
+[gd_scene load_steps=9 format=3]
+
+[sub_resource type="StandardMaterial3D" id="stone"]
+albedo_color = Color(0.42, 0.41, 0.39, 1)
+
+[sub_resource type="BoxMesh" id="foundation"]
+material = SubResource("stone")
+size = Vector3(8.4, 0.8, 6.4)
+
+[sub_resource type="StandardMaterial3D" id="timber"]
+albedo_color = Color(0.55, 0.38, 0.22, 1)
+
+[sub_resource type="BoxMesh" id="walls"]
+material = SubResource("timber")
+size = Vector3(8, 3.2, 6)
+
+[sub_resource type="StandardMaterial3D" id="shingles"]
+albedo_color = Color(0.3, 0.12, 0.1, 1)
+
+[sub_resource type="PrismMesh" id="roof"]
+material = SubResource("shingles")
+size = Vector3(6.6, 3.3, 8.6)
+
+[sub_resource type="StandardMaterial3D" id="door_mat"]
+albedo_color = Color(0.18, 0.11, 0.06, 1)
+
+[sub_resource type="BoxMesh" id="door"]
+material = SubResource("door_mat")
+size = Vector3(1.2, 2.2, 0.1)
+
+[node name="CabinA" type="Node3D"]
+
+[node name="Foundation" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0)
+mesh = SubResource("foundation")
+
+[node name="Walls" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.4, 0)
+mesh = SubResource("walls")
+
+[node name="Roof" type="MeshInstance3D" parent="."]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 0, 5.65, 0)
+mesh = SubResource("roof")
+
+[node name="Door" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9, 3.03)
+mesh = SubResource("door")

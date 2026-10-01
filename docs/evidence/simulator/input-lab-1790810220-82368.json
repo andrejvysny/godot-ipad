@@ -1,0 +1,2546 @@
+{
+	"dropped": 0,
+	"entries": [
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 1,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					510.0
+				],
+				"seq": 1,
+				"source": "MOUSE_DEV",
+				"t": 28200.181051395,
+				"tilt": null,
+				"vp": [
+					174.0,
+					510.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pointer_id": 1,
+				"pos": [
+					174.0,
+					510.0
+				],
+				"type": "ui_press"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 1,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					510.0
+				],
+				"seq": 2,
+				"source": "MOUSE_DEV",
+				"t": 28200.181056502,
+				"tilt": null,
+				"vp": [
+					174.0,
+					510.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pos": [
+					174.0,
+					510.0
+				],
+				"type": "ui_release"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 2,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					510.0
+				],
+				"seq": 3,
+				"source": "MOUSE_DEV",
+				"t": 28200.754450155,
+				"tilt": null,
+				"vp": [
+					174.0,
+					510.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pointer_id": 2,
+				"pos": [
+					174.0,
+					510.0
+				],
+				"type": "ui_press"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 2,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					510.0
+				],
+				"seq": 4,
+				"source": "MOUSE_DEV",
+				"t": 28200.754455264,
+				"tilt": null,
+				"vp": [
+					174.0,
+					510.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pos": [
+					174.0,
+					510.0
+				],
+				"type": "ui_release"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 3,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					705.0,
+					436.0
+				],
+				"seq": 5,
+				"source": "MOUSE_DEV",
+				"t": 28201.302043548,
+				"tilt": null,
+				"vp": [
+					705.0,
+					436.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"sample": {
+					"id": 3,
+					"phase": "BEGIN",
+					"vp": [
+						705.0,
+						436.0
+					]
+				},
+				"type": "tool_begin"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 3,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					900.0,
+					496.0
+				],
+				"seq": 6,
+				"source": "MOUSE_DEV",
+				"t": 28201.302385413,
+				"tilt": null,
+				"vp": [
+					900.0,
+					496.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"over_ui": false,
+				"sample": {
+					"id": 3,
+					"phase": "END",
+					"vp": [
+						900.0,
+						496.0
+					]
+				},
+				"type": "tool_end"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 4,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					484.0
+				],
+				"seq": 7,
+				"source": "MOUSE_DEV",
+				"t": 28201.831737703,
+				"tilt": null,
+				"vp": [
+					174.0,
+					484.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pointer_id": 4,
+				"pos": [
+					174.0,
+					484.0
+				],
+				"type": "ui_press"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 4,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					484.0
+				],
+				"seq": 8,
+				"source": "MOUSE_DEV",
+				"t": 28201.83201574,
+				"tilt": null,
+				"vp": [
+					174.0,
+					484.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pos": [
+					174.0,
+					484.0
+				],
+				"type": "ui_release"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 5,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					406.0
+				],
+				"seq": 9,
+				"source": "MOUSE_DEV",
+				"t": 28202.192872069,
+				"tilt": null,
+				"vp": [
+					174.0,
+					406.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pointer_id": 5,
+				"pos": [
+					174.0,
+					406.0
+				],
+				"type": "ui_press"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 5,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					406.0
+				],
+				"seq": 10,
+				"source": "MOUSE_DEV",
+				"t": 28202.193113142,
+				"tilt": null,
+				"vp": [
+					174.0,
+					406.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pos": [
+					174.0,
+					406.0
+				],
+				"type": "ui_release"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 6,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					484.0
+				],
+				"seq": 11,
+				"source": "MOUSE_DEV",
+				"t": 28202.586642658,
+				"tilt": null,
+				"vp": [
+					174.0,
+					484.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pointer_id": 6,
+				"pos": [
+					174.0,
+					484.0
+				],
+				"type": "ui_press"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 6,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					484.0
+				],
+				"seq": 12,
+				"source": "MOUSE_DEV",
+				"t": 28202.587040611,
+				"tilt": null,
+				"vp": [
+					174.0,
+					484.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pos": [
+					174.0,
+					484.0
+				],
+				"type": "ui_release"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 7,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					173.0,
+					458.0
+				],
+				"seq": 13,
+				"source": "MOUSE_DEV",
+				"t": 28204.128404337,
+				"tilt": null,
+				"vp": [
+					173.0,
+					458.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pointer_id": 7,
+				"pos": [
+					173.0,
+					458.0
+				],
+				"type": "ui_press"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 7,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					173.0,
+					458.0
+				],
+				"seq": 14,
+				"source": "MOUSE_DEV",
+				"t": 28204.128719094,
+				"tilt": null,
+				"vp": [
+					173.0,
+					458.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pos": [
+					173.0,
+					458.0
+				],
+				"type": "ui_release"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"op": "cancel_all",
+				"reason": "explicit"
+			},
+			"kind": "event"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 8,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					380.0
+				],
+				"seq": 15,
+				"source": "FINGER",
+				"t": 28204.895355288,
+				"tilt": null,
+				"vp": [
+					174.0,
+					380.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 8,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					380.0
+				],
+				"seq": 16,
+				"source": "FINGER",
+				"t": 28204.895359762,
+				"tilt": null,
+				"vp": [
+					174.0,
+					380.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 9,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					725.0,
+					371.0
+				],
+				"seq": 17,
+				"source": "FINGER",
+				"t": 28205.256911367,
+				"tilt": null,
+				"vp": [
+					725.0,
+					371.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 9,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					895.0,
+					461.0
+				],
+				"seq": 18,
+				"source": "FINGER",
+				"t": 28205.257258185,
+				"tilt": null,
+				"vp": [
+					895.0,
+					461.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"op": "cancel_all",
+				"reason": "explicit"
+			},
+			"kind": "event"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 10,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					484.0
+				],
+				"seq": 19,
+				"source": "MOUSE_DEV",
+				"t": 28206.371843163,
+				"tilt": null,
+				"vp": [
+					174.0,
+					484.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pointer_id": 10,
+				"pos": [
+					174.0,
+					484.0
+				],
+				"type": "ui_press"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 10,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					484.0
+				],
+				"seq": 20,
+				"source": "MOUSE_DEV",
+				"t": 28206.37217598,
+				"tilt": null,
+				"vp": [
+					174.0,
+					484.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pos": [
+					174.0,
+					484.0
+				],
+				"type": "ui_release"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 11,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					562.0
+				],
+				"seq": 21,
+				"source": "MOUSE_DEV",
+				"t": 28208.863522995,
+				"tilt": null,
+				"vp": [
+					174.0,
+					562.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pointer_id": 11,
+				"pos": [
+					174.0,
+					562.0
+				],
+				"type": "ui_press"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 11,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					562.0
+				],
+				"seq": 22,
+				"source": "MOUSE_DEV",
+				"t": 28208.863840519,
+				"tilt": null,
+				"vp": [
+					174.0,
+					562.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pos": [
+					174.0,
+					562.0
+				],
+				"type": "ui_release"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 12,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					64.0,
+					64.0
+				],
+				"seq": 23,
+				"source": "MOUSE_DEV",
+				"t": 28209.858665487,
+				"tilt": null,
+				"vp": [
+					64.0,
+					64.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"sample": {
+					"id": 12,
+					"phase": "BEGIN",
+					"vp": [
+						64.0,
+						64.0
+					]
+				},
+				"type": "tool_begin"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 12,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					64.0,
+					64.0
+				],
+				"seq": 24,
+				"source": "MOUSE_DEV",
+				"t": 28209.858669675,
+				"tilt": null,
+				"vp": [
+					64.0,
+					64.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"over_ui": false,
+				"sample": {
+					"id": 12,
+					"phase": "END",
+					"vp": [
+						64.0,
+						64.0
+					]
+				},
+				"type": "tool_end"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 13,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					590.0,
+					64.0
+				],
+				"seq": 25,
+				"source": "MOUSE_DEV",
+				"t": 28209.959950483,
+				"tilt": null,
+				"vp": [
+					590.0,
+					64.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"sample": {
+					"id": 13,
+					"phase": "BEGIN",
+					"vp": [
+						590.0,
+						64.0
+					]
+				},
+				"type": "tool_begin"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 13,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					590.0,
+					64.0
+				],
+				"seq": 26,
+				"source": "MOUSE_DEV",
+				"t": 28209.959954724,
+				"tilt": null,
+				"vp": [
+					590.0,
+					64.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"over_ui": false,
+				"sample": {
+					"id": 13,
+					"phase": "END",
+					"vp": [
+						590.0,
+						64.0
+					]
+				},
+				"type": "tool_end"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 14,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					1116.0,
+					64.0
+				],
+				"seq": 27,
+				"source": "MOUSE_DEV",
+				"t": 28210.056591421,
+				"tilt": null,
+				"vp": [
+					1116.0,
+					64.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"sample": {
+					"id": 14,
+					"phase": "BEGIN",
+					"vp": [
+						1116.0,
+						64.0
+					]
+				},
+				"type": "tool_begin"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 14,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					1116.0,
+					64.0
+				],
+				"seq": 28,
+				"source": "MOUSE_DEV",
+				"t": 28210.056827934,
+				"tilt": null,
+				"vp": [
+					1116.0,
+					64.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"over_ui": false,
+				"sample": {
+					"id": 14,
+					"phase": "END",
+					"vp": [
+						1116.0,
+						64.0
+					]
+				},
+				"type": "tool_end"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 15,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					64.0,
+					410.0
+				],
+				"seq": 29,
+				"source": "MOUSE_DEV",
+				"t": 28210.198629478,
+				"tilt": null,
+				"vp": [
+					64.0,
+					410.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"sample": {
+					"id": 15,
+					"phase": "BEGIN",
+					"vp": [
+						64.0,
+						410.0
+					]
+				},
+				"type": "tool_begin"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 15,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					64.0,
+					410.0
+				],
+				"seq": 30,
+				"source": "MOUSE_DEV",
+				"t": 28210.19894533,
+				"tilt": null,
+				"vp": [
+					64.0,
+					410.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"over_ui": false,
+				"sample": {
+					"id": 15,
+					"phase": "END",
+					"vp": [
+						64.0,
+						410.0
+					]
+				},
+				"type": "tool_end"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 16,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					590.0,
+					410.0
+				],
+				"seq": 31,
+				"source": "MOUSE_DEV",
+				"t": 28210.345870989,
+				"tilt": null,
+				"vp": [
+					590.0,
+					410.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"sample": {
+					"id": 16,
+					"phase": "BEGIN",
+					"vp": [
+						590.0,
+						410.0
+					]
+				},
+				"type": "tool_begin"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 16,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					590.0,
+					410.0
+				],
+				"seq": 32,
+				"source": "MOUSE_DEV",
+				"t": 28210.345876312,
+				"tilt": null,
+				"vp": [
+					590.0,
+					410.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"over_ui": false,
+				"sample": {
+					"id": 16,
+					"phase": "END",
+					"vp": [
+						590.0,
+						410.0
+					]
+				},
+				"type": "tool_end"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 17,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					1116.0,
+					410.0
+				],
+				"seq": 33,
+				"source": "MOUSE_DEV",
+				"t": 28210.490548999,
+				"tilt": null,
+				"vp": [
+					1116.0,
+					410.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"sample": {
+					"id": 17,
+					"phase": "BEGIN",
+					"vp": [
+						1116.0,
+						410.0
+					]
+				},
+				"type": "tool_begin"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 17,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					1116.0,
+					410.0
+				],
+				"seq": 34,
+				"source": "MOUSE_DEV",
+				"t": 28210.490790021,
+				"tilt": null,
+				"vp": [
+					1116.0,
+					410.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"over_ui": false,
+				"sample": {
+					"id": 17,
+					"phase": "END",
+					"vp": [
+						1116.0,
+						410.0
+					]
+				},
+				"type": "tool_end"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 18,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					64.0,
+					756.0
+				],
+				"seq": 35,
+				"source": "MOUSE_DEV",
+				"t": 28210.632599478,
+				"tilt": null,
+				"vp": [
+					64.0,
+					756.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"sample": {
+					"id": 18,
+					"phase": "BEGIN",
+					"vp": [
+						64.0,
+						756.0
+					]
+				},
+				"type": "tool_begin"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 18,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					64.0,
+					756.0
+				],
+				"seq": 36,
+				"source": "MOUSE_DEV",
+				"t": 28210.63290465,
+				"tilt": null,
+				"vp": [
+					64.0,
+					756.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"over_ui": false,
+				"sample": {
+					"id": 18,
+					"phase": "END",
+					"vp": [
+						64.0,
+						756.0
+					]
+				},
+				"type": "tool_end"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 19,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					590.0,
+					756.0
+				],
+				"seq": 37,
+				"source": "MOUSE_DEV",
+				"t": 28210.779523449,
+				"tilt": null,
+				"vp": [
+					590.0,
+					756.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"sample": {
+					"id": 19,
+					"phase": "BEGIN",
+					"vp": [
+						590.0,
+						756.0
+					]
+				},
+				"type": "tool_begin"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 19,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					590.0,
+					756.0
+				],
+				"seq": 38,
+				"source": "MOUSE_DEV",
+				"t": 28210.779827428,
+				"tilt": null,
+				"vp": [
+					590.0,
+					756.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"over_ui": false,
+				"sample": {
+					"id": 19,
+					"phase": "END",
+					"vp": [
+						590.0,
+						756.0
+					]
+				},
+				"type": "tool_end"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 20,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					1116.0,
+					756.0
+				],
+				"seq": 39,
+				"source": "MOUSE_DEV",
+				"t": 28210.924009248,
+				"tilt": null,
+				"vp": [
+					1116.0,
+					756.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"sample": {
+					"id": 20,
+					"phase": "BEGIN",
+					"vp": [
+						1116.0,
+						756.0
+					]
+				},
+				"type": "tool_begin"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 20,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					1116.0,
+					756.0
+				],
+				"seq": 40,
+				"source": "MOUSE_DEV",
+				"t": 28210.924348363,
+				"tilt": null,
+				"vp": [
+					1116.0,
+					756.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"over_ui": false,
+				"sample": {
+					"id": 20,
+					"phase": "END",
+					"vp": [
+						1116.0,
+						756.0
+					]
+				},
+				"type": "tool_end"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 21,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					510.0
+				],
+				"seq": 41,
+				"source": "MOUSE_DEV",
+				"t": 28211.386795641,
+				"tilt": null,
+				"vp": [
+					174.0,
+					510.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pointer_id": 21,
+				"pos": [
+					174.0,
+					510.0
+				],
+				"type": "ui_press"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 21,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					510.0
+				],
+				"seq": 42,
+				"source": "MOUSE_DEV",
+				"t": 28211.387133063,
+				"tilt": null,
+				"vp": [
+					174.0,
+					510.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pos": [
+					174.0,
+					510.0
+				],
+				"type": "ui_release"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 22,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					615.0
+				],
+				"seq": 43,
+				"source": "MOUSE_DEV",
+				"t": 28211.525715232,
+				"tilt": null,
+				"vp": [
+					174.0,
+					615.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pointer_id": 22,
+				"pos": [
+					174.0,
+					615.0
+				],
+				"type": "ui_press"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 22,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					615.0
+				],
+				"seq": 44,
+				"source": "MOUSE_DEV",
+				"t": 28211.526044371,
+				"tilt": null,
+				"vp": [
+					174.0,
+					615.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pos": [
+					174.0,
+					615.0
+				],
+				"type": "ui_release"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 23,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					615.0
+				],
+				"seq": 45,
+				"source": "MOUSE_DEV",
+				"t": 28212.227829291,
+				"tilt": null,
+				"vp": [
+					174.0,
+					615.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pointer_id": 23,
+				"pos": [
+					174.0,
+					615.0
+				],
+				"type": "ui_press"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 23,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					615.0
+				],
+				"seq": 46,
+				"source": "MOUSE_DEV",
+				"t": 28212.227833921,
+				"tilt": null,
+				"vp": [
+					174.0,
+					615.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pos": [
+					174.0,
+					615.0
+				],
+				"type": "ui_release"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 24,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					615.0
+				],
+				"seq": 47,
+				"source": "MOUSE_DEV",
+				"t": 28212.877170309,
+				"tilt": null,
+				"vp": [
+					174.0,
+					615.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pointer_id": 24,
+				"pos": [
+					174.0,
+					615.0
+				],
+				"type": "ui_press"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 24,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					615.0
+				],
+				"seq": 48,
+				"source": "MOUSE_DEV",
+				"t": 28212.877176558,
+				"tilt": null,
+				"vp": [
+					174.0,
+					615.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pos": [
+					174.0,
+					615.0
+				],
+				"type": "ui_release"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 25,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					562.0
+				],
+				"seq": 49,
+				"source": "MOUSE_DEV",
+				"t": 28214.172395997,
+				"tilt": null,
+				"vp": [
+					174.0,
+					562.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pointer_id": 25,
+				"pos": [
+					174.0,
+					562.0
+				],
+				"type": "ui_press"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 25,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					562.0
+				],
+				"seq": 50,
+				"source": "MOUSE_DEV",
+				"t": 28214.172401284,
+				"tilt": null,
+				"vp": [
+					174.0,
+					562.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pos": [
+					174.0,
+					562.0
+				],
+				"type": "ui_release"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 26,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					64.0,
+					64.0
+				],
+				"seq": 51,
+				"source": "MOUSE_DEV",
+				"t": 28214.434862853,
+				"tilt": null,
+				"vp": [
+					64.0,
+					64.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"sample": {
+					"id": 26,
+					"phase": "BEGIN",
+					"vp": [
+						64.0,
+						64.0
+					]
+				},
+				"type": "tool_begin"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 26,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					64.0,
+					64.0
+				],
+				"seq": 52,
+				"source": "MOUSE_DEV",
+				"t": 28214.435254917,
+				"tilt": null,
+				"vp": [
+					64.0,
+					64.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"over_ui": false,
+				"sample": {
+					"id": 26,
+					"phase": "END",
+					"vp": [
+						64.0,
+						64.0
+					]
+				},
+				"type": "tool_end"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 27,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					590.0,
+					64.0
+				],
+				"seq": 53,
+				"source": "MOUSE_DEV",
+				"t": 28214.512634502,
+				"tilt": null,
+				"vp": [
+					590.0,
+					64.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"sample": {
+					"id": 27,
+					"phase": "BEGIN",
+					"vp": [
+						590.0,
+						64.0
+					]
+				},
+				"type": "tool_begin"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 27,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					590.0,
+					64.0
+				],
+				"seq": 54,
+				"source": "MOUSE_DEV",
+				"t": 28214.512922064,
+				"tilt": null,
+				"vp": [
+					590.0,
+					64.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"over_ui": false,
+				"sample": {
+					"id": 27,
+					"phase": "END",
+					"vp": [
+						590.0,
+						64.0
+					]
+				},
+				"type": "tool_end"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 28,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					1116.0,
+					64.0
+				],
+				"seq": 55,
+				"source": "MOUSE_DEV",
+				"t": 28214.585389015,
+				"tilt": null,
+				"vp": [
+					1116.0,
+					64.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"sample": {
+					"id": 28,
+					"phase": "BEGIN",
+					"vp": [
+						1116.0,
+						64.0
+					]
+				},
+				"type": "tool_begin"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 28,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					1116.0,
+					64.0
+				],
+				"seq": 56,
+				"source": "MOUSE_DEV",
+				"t": 28214.585391997,
+				"tilt": null,
+				"vp": [
+					1116.0,
+					64.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"over_ui": false,
+				"sample": {
+					"id": 28,
+					"phase": "END",
+					"vp": [
+						1116.0,
+						64.0
+					]
+				},
+				"type": "tool_end"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 29,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					64.0,
+					410.0
+				],
+				"seq": 57,
+				"source": "MOUSE_DEV",
+				"t": 28214.655848796,
+				"tilt": null,
+				"vp": [
+					64.0,
+					410.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"sample": {
+					"id": 29,
+					"phase": "BEGIN",
+					"vp": [
+						64.0,
+						410.0
+					]
+				},
+				"type": "tool_begin"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 29,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					64.0,
+					410.0
+				],
+				"seq": 58,
+				"source": "MOUSE_DEV",
+				"t": 28214.656239333,
+				"tilt": null,
+				"vp": [
+					64.0,
+					410.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"over_ui": false,
+				"sample": {
+					"id": 29,
+					"phase": "END",
+					"vp": [
+						64.0,
+						410.0
+					]
+				},
+				"type": "tool_end"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 30,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					590.0,
+					410.0
+				],
+				"seq": 59,
+				"source": "MOUSE_DEV",
+				"t": 28214.731100878,
+				"tilt": null,
+				"vp": [
+					590.0,
+					410.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"sample": {
+					"id": 30,
+					"phase": "BEGIN",
+					"vp": [
+						590.0,
+						410.0
+					]
+				},
+				"type": "tool_begin"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 30,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					590.0,
+					410.0
+				],
+				"seq": 60,
+				"source": "MOUSE_DEV",
+				"t": 28214.731104435,
+				"tilt": null,
+				"vp": [
+					590.0,
+					410.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"over_ui": false,
+				"sample": {
+					"id": 30,
+					"phase": "END",
+					"vp": [
+						590.0,
+						410.0
+					]
+				},
+				"type": "tool_end"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 31,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					1116.0,
+					410.0
+				],
+				"seq": 61,
+				"source": "MOUSE_DEV",
+				"t": 28214.792357394,
+				"tilt": null,
+				"vp": [
+					1116.0,
+					410.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"sample": {
+					"id": 31,
+					"phase": "BEGIN",
+					"vp": [
+						1116.0,
+						410.0
+					]
+				},
+				"type": "tool_begin"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 31,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					1116.0,
+					410.0
+				],
+				"seq": 62,
+				"source": "MOUSE_DEV",
+				"t": 28214.792365566,
+				"tilt": null,
+				"vp": [
+					1116.0,
+					410.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"over_ui": false,
+				"sample": {
+					"id": 31,
+					"phase": "END",
+					"vp": [
+						1116.0,
+						410.0
+					]
+				},
+				"type": "tool_end"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 32,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					64.0,
+					756.0
+				],
+				"seq": 63,
+				"source": "MOUSE_DEV",
+				"t": 28214.86322257,
+				"tilt": null,
+				"vp": [
+					64.0,
+					756.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"sample": {
+					"id": 32,
+					"phase": "BEGIN",
+					"vp": [
+						64.0,
+						756.0
+					]
+				},
+				"type": "tool_begin"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 32,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					64.0,
+					756.0
+				],
+				"seq": 64,
+				"source": "MOUSE_DEV",
+				"t": 28214.863226343,
+				"tilt": null,
+				"vp": [
+					64.0,
+					756.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"over_ui": false,
+				"sample": {
+					"id": 32,
+					"phase": "END",
+					"vp": [
+						64.0,
+						756.0
+					]
+				},
+				"type": "tool_end"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 33,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					590.0,
+					756.0
+				],
+				"seq": 65,
+				"source": "MOUSE_DEV",
+				"t": 28214.926869687,
+				"tilt": null,
+				"vp": [
+					590.0,
+					756.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"sample": {
+					"id": 33,
+					"phase": "BEGIN",
+					"vp": [
+						590.0,
+						756.0
+					]
+				},
+				"type": "tool_begin"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 33,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					590.0,
+					756.0
+				],
+				"seq": 66,
+				"source": "MOUSE_DEV",
+				"t": 28214.926879305,
+				"tilt": null,
+				"vp": [
+					590.0,
+					756.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"over_ui": false,
+				"sample": {
+					"id": 33,
+					"phase": "END",
+					"vp": [
+						590.0,
+						756.0
+					]
+				},
+				"type": "tool_end"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 34,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					1116.0,
+					756.0
+				],
+				"seq": 67,
+				"source": "MOUSE_DEV",
+				"t": 28214.999725452,
+				"tilt": null,
+				"vp": [
+					1116.0,
+					756.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"sample": {
+					"id": 34,
+					"phase": "BEGIN",
+					"vp": [
+						1116.0,
+						756.0
+					]
+				},
+				"type": "tool_begin"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 34,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					1116.0,
+					756.0
+				],
+				"seq": 68,
+				"source": "MOUSE_DEV",
+				"t": 28214.999729788,
+				"tilt": null,
+				"vp": [
+					1116.0,
+					756.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"over_ui": false,
+				"sample": {
+					"id": 34,
+					"phase": "END",
+					"vp": [
+						1116.0,
+						756.0
+					]
+				},
+				"type": "tool_end"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 35,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					510.0
+				],
+				"seq": 69,
+				"source": "MOUSE_DEV",
+				"t": 28215.360494562,
+				"tilt": null,
+				"vp": [
+					174.0,
+					510.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pointer_id": 35,
+				"pos": [
+					174.0,
+					510.0
+				],
+				"type": "ui_press"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 35,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					510.0
+				],
+				"seq": 70,
+				"source": "MOUSE_DEV",
+				"t": 28215.360821034,
+				"tilt": null,
+				"vp": [
+					174.0,
+					510.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pos": [
+					174.0,
+					510.0
+				],
+				"type": "ui_release"
+			},
+			"kind": "action"
+		}
+	],
+	"format": "worldpoc-input-trace",
+	"version": 1
+}

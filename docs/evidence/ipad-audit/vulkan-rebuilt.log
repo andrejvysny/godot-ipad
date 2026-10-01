@@ -1,0 +1,13 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.2.334 - Forward Mobile - Using Device #0: Apple - Apple A14 GPU
+
+ERROR: Mouse is not supported by this display server.
+   at: mouse_get_position (servers/display/display_server.cpp:536)
+WARNING: instance_reset_physics_interpolation() is deprecated.
+   at: _instance_reset_physics_interpolation_bind_compat_104269 (servers/rendering/rendering_server.compat.inc:62)
+   GDScript backtrace (most recent call first):
+       [0] _create_terrain (res://src/terrain/terrain_adapter.gd:168)
+       [1] initialize (res://src/terrain/terrain_adapter.gd:52)
+       [2] _initialize_terrain (res://src/lab/input_lab.gd:95)
+       [3] _ready (res://src/lab/input_lab.gd:57)
+Input Lab ready: ios_native_uikit

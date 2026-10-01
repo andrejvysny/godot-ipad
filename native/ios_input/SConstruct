@@ -1,0 +1,49 @@
+#!/usr/bin/env python
+# WPNativeInput GDExtension. Invoked by build.sh once per platform/target/arch; see README.md.
+# Outputs: macOS framework straight into app/addons/wp_native_input/bin/, iOS static libraries into
+# build/ (build.sh wraps them into xcframeworks). Object files stay under build/obj/.
+
+# build_profile.json binds only Engine (register_singleton) plus OS/SceneTree, which godot-cpp's own
+# sources include; the full API made each iOS godot-cpp archive 40-93 MB. build.sh regenerates
+# godot-cpp/gen when the profile changes (stale headers there would mask a missing class).
+base_env = Environment(tools=["default"], PLATFORM="")
+base_env["build_profile"] = File("build_profile.json").abspath
+env = SConscript("godot-cpp/SConstruct", {"api_version": "4.7", "env": base_env})
+
+APP_BIN = "../../app/addons/wp_native_input/bin"
+LIB_NAME = "libwp_native_input"
+
+VariantDir("build/obj", "src", duplicate=False)
+env.Append(CPPPATH=["src/"])
+
+objc_env = env.Clone()
+objc_env.Append(CCFLAGS=["-fobjc-arc"])
+
+platform = env["platform"]
+target = env["target"]
+
+if platform == "macos":
+    # godot-cpp only suffixes OBJSUFFIX; keep debug/release shared objects apart as well.
+    env["SHOBJSUFFIX"] = env["suffix"] + env["SHOBJSUFFIX"]
+    objc_env["SHOBJSUFFIX"] = env["SHOBJSUFFIX"]
+    env.Append(LINKFLAGS=["-framework", "QuartzCore"])
+    sources = [env.SharedObject(f) for f in Glob("build/obj/*.cpp")]
+    sources += [objc_env.SharedObject(f) for f in Glob("build/obj/*.mm")]
+    library = env.SharedLibrary(
+        "{0}/{1}.macos.{2}.framework/{1}.macos.{2}".format(APP_BIN, LIB_NAME, target),
+        source=sources,
+    )
+elif platform == "ios":
+    sources = [env.Object(f) for f in Glob("build/obj/*.cpp")]
+    sources += [objc_env.Object(f) for f in Glob("build/obj/*.mm")]
+    simulator = ".simulator" if env["ios_simulator"] else ""
+    library = env.StaticLibrary(
+        "build/{0}.ios.{1}{2}.a".format(LIB_NAME, target, simulator),
+        source=sources,
+    )
+else:
+    print("WPNativeInput supports platform=macos (inert host build) and platform=ios only.")
+    Exit(1)
+
+env.NoCache(library)
+Default(library)

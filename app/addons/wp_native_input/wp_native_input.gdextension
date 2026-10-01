@@ -1,0 +1,21 @@
+[configuration]
+
+entry_symbol = "wp_native_input_init"
+compatibility_minimum = "4.7"
+reloadable = false
+
+[libraries]
+
+macos.debug = "res://addons/wp_native_input/bin/libwp_native_input.macos.template_debug.framework"
+macos.release = "res://addons/wp_native_input/bin/libwp_native_input.macos.template_release.framework"
+ios.debug = "res://addons/wp_native_input/bin/libwp_native_input.ios.template_debug.xcframework"
+ios.release = "res://addons/wp_native_input/bin/libwp_native_input.ios.template_release.xcframework"
+
+[dependencies]
+
+ios.debug = {
+"res://addons/wp_native_input/bin/libgodot-cpp.ios.template_debug.xcframework": ""
+}
+ios.release = {
+"res://addons/wp_native_input/bin/libgodot-cpp.ios.template_release.xcframework": ""
+}

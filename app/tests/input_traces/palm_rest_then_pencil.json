@@ -1,0 +1,432 @@
+{
+ "format": "worldpoc-input-trace",
+ "version": 1,
+ "description": "Palm (classified FINGER) rests before Pencil-down, drifts during and after the stroke, then a second stroke with the palm still down. Zero camera and zero palm tool actions.",
+ "spec": "CA-04, spec 7.3",
+ "router": {
+  "orbit_threshold": 5.0,
+  "ui_rects": [
+   [
+    0,
+    0,
+    100,
+    820
+   ],
+   [
+    100,
+    700,
+    1080,
+    120
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 20,
+    "phase": "BEGIN",
+    "t": 0.008333333333333333,
+    "raw": [
+     900,
+     600
+    ],
+    "vp": [
+     900,
+     600
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 1,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 20,
+    "phase": "MOVE",
+    "t": 0.016666666666666666,
+    "raw": [
+     902,
+     601
+    ],
+    "vp": [
+     902,
+     601
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 2,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 20,
+    "phase": "MOVE",
+    "t": 0.025,
+    "raw": [
+     903,
+     603
+    ],
+    "vp": [
+     903,
+     603
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 3,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "PENCIL",
+    "id": 1,
+    "phase": "BEGIN",
+    "t": 0.03333333333333333,
+    "raw": [
+     500,
+     300
+    ],
+    "vp": [
+     500,
+     300
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 4,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 20,
+    "phase": "MOVE",
+    "t": 0.041666666666666664,
+    "raw": [
+     930,
+     640
+    ],
+    "vp": [
+     930,
+     640
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 5,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "PENCIL",
+    "id": 1,
+    "phase": "MOVE",
+    "t": 0.05,
+    "raw": [
+     520,
+     310
+    ],
+    "vp": [
+     520,
+     310
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 6,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "PENCIL",
+    "id": 1,
+    "phase": "MOVE",
+    "t": 0.058333333333333334,
+    "raw": [
+     540,
+     320
+    ],
+    "vp": [
+     540,
+     320
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 7,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "PENCIL",
+    "id": 1,
+    "phase": "END",
+    "t": 0.06666666666666667,
+    "raw": [
+     540,
+     320
+    ],
+    "vp": [
+     540,
+     320
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 8,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 20,
+    "phase": "MOVE",
+    "t": 0.075,
+    "raw": [
+     950,
+     650
+    ],
+    "vp": [
+     950,
+     650
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 9,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 20,
+    "phase": "MOVE",
+    "t": 0.08333333333333333,
+    "raw": [
+     1000,
+     660
+    ],
+    "vp": [
+     1000,
+     660
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 10,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "PENCIL",
+    "id": 2,
+    "phase": "BEGIN",
+    "t": 0.09166666666666666,
+    "raw": [
+     600,
+     300
+    ],
+    "vp": [
+     600,
+     300
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 11,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "PENCIL",
+    "id": 2,
+    "phase": "MOVE",
+    "t": 0.1,
+    "raw": [
+     610,
+     300
+    ],
+    "vp": [
+     610,
+     300
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 12,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "PENCIL",
+    "id": 2,
+    "phase": "END",
+    "t": 0.10833333333333334,
+    "raw": [
+     610,
+     300
+    ],
+    "vp": [
+     610,
+     300
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 13,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 20,
+    "phase": "MOVE",
+    "t": 0.11666666666666667,
+    "raw": [
+     1020,
+     670
+    ],
+    "vp": [
+     1020,
+     670
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 14,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 20,
+    "phase": "END",
+    "t": 0.125,
+    "raw": [
+     1020,
+     670
+    ],
+    "vp": [
+     1020,
+     670
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 15,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  }
+ ],
+ "expected_actions": [
+  {
+   "type": "tool_begin",
+   "sample": {
+    "id": 1
+   }
+  },
+  {
+   "type": "tool_move",
+   "sample": {
+    "id": 1
+   }
+  },
+  {
+   "type": "tool_move",
+   "sample": {
+    "id": 1
+   }
+  },
+  {
+   "type": "tool_end",
+   "sample": {
+    "id": 1
+   },
+   "over_ui": false
+  },
+  {
+   "type": "tool_begin",
+   "sample": {
+    "id": 2
+   }
+  },
+  {
+   "type": "tool_move",
+   "sample": {
+    "id": 2
+   }
+  },
+  {
+   "type": "tool_end",
+   "sample": {
+    "id": 2
+   },
+   "over_ui": false
+  }
+ ],
+ "expected_final_state": "IDLE"
+}

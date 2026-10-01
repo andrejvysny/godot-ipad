@@ -1,0 +1,42 @@
+; Engine configuration file.
+; Hand-maintained; see docs/decisions/0001-platform-baseline.md for the rationale of each setting.
+
+config_version=5
+
+[application]
+
+config/name="World Painter PoC"
+config/version="0.1.0"
+config/icon="res://assets/icon.svg"
+run/main_scene="res://scenes/input_lab.tscn"
+config/features=PackedStringArray("4.7", "Mobile")
+
+[display]
+
+window/size/viewport_width=1180
+window/size/viewport_height=820
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/handheld/orientation=0
+window/ios/hide_home_indicator=true
+
+[editor]
+
+export/convert_text_resources_to_binary=false
+
+[debug]
+
+file_logging/enable_file_logging.debug=true
+file_logging/max_log_files=3
+
+[input_devices]
+
+pointing/emulate_touch_from_mouse=false
+pointing/emulate_mouse_from_touch=false
+
+[rendering]
+
+renderer/rendering_method="mobile"
+rendering_device/driver.ios="vulkan"
+rendering_device/driver.macos="metal"
+textures/vram_compression/import_etc2_astc=true

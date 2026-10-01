@@ -1,0 +1,293 @@
+{
+ "format": "worldpoc-input-trace",
+ "version": 1,
+ "description": "A finger lands and drags while the Pencil stroke is active; the camera never moves and the finger stays suppressed after Pencil-up until lifted.",
+ "spec": "IN-05",
+ "router": {
+  "orbit_threshold": 5.0,
+  "ui_rects": [
+   [
+    0,
+    0,
+    100,
+    820
+   ],
+   [
+    100,
+    700,
+    1080,
+    120
+   ]
+  ]
+ },
+ "entries": [
+  {
+   "kind": "sample",
+   "data": {
+    "source": "PENCIL",
+    "id": 1,
+    "phase": "BEGIN",
+    "t": 0.008333333333333333,
+    "raw": [
+     400,
+     400
+    ],
+    "vp": [
+     400,
+     400
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 1,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "PENCIL",
+    "id": 1,
+    "phase": "MOVE",
+    "t": 0.016666666666666666,
+    "raw": [
+     420,
+     400
+    ],
+    "vp": [
+     420,
+     400
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 2,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 30,
+    "phase": "BEGIN",
+    "t": 0.025,
+    "raw": [
+     800,
+     500
+    ],
+    "vp": [
+     800,
+     500
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 3,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 30,
+    "phase": "MOVE",
+    "t": 0.03333333333333333,
+    "raw": [
+     850,
+     520
+    ],
+    "vp": [
+     850,
+     520
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 4,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "PENCIL",
+    "id": 1,
+    "phase": "MOVE",
+    "t": 0.041666666666666664,
+    "raw": [
+     440,
+     400
+    ],
+    "vp": [
+     440,
+     400
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 5,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 30,
+    "phase": "MOVE",
+    "t": 0.05,
+    "raw": [
+     900,
+     540
+    ],
+    "vp": [
+     900,
+     540
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 6,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "PENCIL",
+    "id": 1,
+    "phase": "END",
+    "t": 0.058333333333333334,
+    "raw": [
+     460,
+     400
+    ],
+    "vp": [
+     460,
+     400
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 7,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 30,
+    "phase": "MOVE",
+    "t": 0.06666666666666667,
+    "raw": [
+     950,
+     560
+    ],
+    "vp": [
+     950,
+     560
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 8,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 30,
+    "phase": "MOVE",
+    "t": 0.075,
+    "raw": [
+     990,
+     580
+    ],
+    "vp": [
+     990,
+     580
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 9,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  },
+  {
+   "kind": "sample",
+   "data": {
+    "source": "FINGER",
+    "id": 30,
+    "phase": "END",
+    "t": 0.08333333333333333,
+    "raw": [
+     990,
+     580
+    ],
+    "vp": [
+     990,
+     580
+    ],
+    "pressure": null,
+    "tilt": null,
+    "predicted": false,
+    "coalesced": false,
+    "seq": 10,
+    "gen": 1,
+    "cancel_reason": ""
+   }
+  }
+ ],
+ "expected_actions": [
+  {
+   "type": "tool_begin",
+   "sample": {
+    "id": 1
+   }
+  },
+  {
+   "type": "tool_move",
+   "sample": {
+    "id": 1
+   }
+  },
+  {
+   "type": "tool_move",
+   "sample": {
+    "id": 1
+   }
+  },
+  {
+   "type": "tool_end",
+   "sample": {
+    "id": 1
+   },
+   "over_ui": false
+  }
+ ],
+ "expected_final_state": "IDLE"
+}

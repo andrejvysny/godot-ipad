@@ -1,0 +1,76 @@
+{
+	"dropped": 0,
+	"entries": [
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 1,
+				"phase": "BEGIN",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					510.0
+				],
+				"seq": 1,
+				"source": "MOUSE_DEV",
+				"t": 28200.181051395,
+				"tilt": null,
+				"vp": [
+					174.0,
+					510.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pointer_id": 1,
+				"pos": [
+					174.0,
+					510.0
+				],
+				"type": "ui_press"
+			},
+			"kind": "action"
+		},
+		{
+			"data": {
+				"cancel_reason": "",
+				"coalesced": false,
+				"gen": 1,
+				"id": 1,
+				"phase": "END",
+				"predicted": false,
+				"pressure": null,
+				"raw": [
+					174.0,
+					510.0
+				],
+				"seq": 2,
+				"source": "MOUSE_DEV",
+				"t": 28200.181056502,
+				"tilt": null,
+				"vp": [
+					174.0,
+					510.0
+				]
+			},
+			"kind": "sample"
+		},
+		{
+			"data": {
+				"pos": [
+					174.0,
+					510.0
+				],
+				"type": "ui_release"
+			},
+			"kind": "action"
+		}
+	],
+	"format": "worldpoc-input-trace",
+	"version": 1
+}

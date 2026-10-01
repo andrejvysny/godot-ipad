@@ -1,0 +1,93 @@
+{
+	"authored_content_hash": "d5072791614659d3ea2f0f9f66b959b2556b95937afc9bb57b84e622b6b05bb3",
+	"catalog": {
+		"id": "poc_nature",
+		"sha256": "a4cfbc629fa7ef9c1d2585cf3881011e385b175993e8d2508b28e5317056e78d",
+		"version": 1
+	},
+	"created_with": {
+		"godot": "4.7.2.stable.official.ed1daf0bf",
+		"terrain3d": "1.0.2-stable@0077405b52e353c5e5dc3a094e7ede49833ba6fe",
+		"world_painter": "fixture-generator-v1"
+	},
+	"document_revision": 0,
+	"format": "world-painter-poc",
+	"payload_files": [
+		{
+			"bytes": 41,
+			"path": "objects.json",
+			"sha256": "056f6f30e64aa0dd84905b5ae1b4341405e93b8f03517f9057c518adde127819"
+		},
+		{
+			"bytes": 262144,
+			"path": "regions/r_-1_-1.control.u32le",
+			"sha256": "8bedca7e224352ed408470971a341750531002d69390281ed5b11f9028739a45"
+		},
+		{
+			"bytes": 262144,
+			"path": "regions/r_-1_-1.height.f32le",
+			"sha256": "8a39d2abd3999ab73c34db2476849cddf303ce389b35826850f9a700589b4a90"
+		},
+		{
+			"bytes": 262144,
+			"path": "regions/r_-1_0.control.u32le",
+			"sha256": "8bedca7e224352ed408470971a341750531002d69390281ed5b11f9028739a45"
+		},
+		{
+			"bytes": 262144,
+			"path": "regions/r_-1_0.height.f32le",
+			"sha256": "8a39d2abd3999ab73c34db2476849cddf303ce389b35826850f9a700589b4a90"
+		},
+		{
+			"bytes": 262144,
+			"path": "regions/r_0_-1.control.u32le",
+			"sha256": "8bedca7e224352ed408470971a341750531002d69390281ed5b11f9028739a45"
+		},
+		{
+			"bytes": 262144,
+			"path": "regions/r_0_-1.height.f32le",
+			"sha256": "8a39d2abd3999ab73c34db2476849cddf303ce389b35826850f9a700589b4a90"
+		},
+		{
+			"bytes": 262144,
+			"path": "regions/r_0_0.control.u32le",
+			"sha256": "8bedca7e224352ed408470971a341750531002d69390281ed5b11f9028739a45"
+		},
+		{
+			"bytes": 262144,
+			"path": "regions/r_0_0.height.f32le",
+			"sha256": "8a39d2abd3999ab73c34db2476849cddf303ce389b35826850f9a700589b4a90"
+		}
+	],
+	"schema_version": 1,
+	"terrain": {
+		"control_encoding": "uint32-little-endian",
+		"control_schema": "terrain3d-1.0.2-control-v1",
+		"height_encoding": "float32-little-endian",
+		"material_slots": {
+			"0": "grass",
+			"1": "dirt"
+		},
+		"region_locations": [
+			[
+				-1,
+				-1
+			],
+			[
+				0,
+				-1
+			],
+			[
+				-1,
+				0
+			],
+			[
+				0,
+				0
+			]
+		],
+		"region_samples": 256,
+		"sample_spacing_m": 0.5
+	},
+	"world_id": "0f1a7000-0000-4000-8000-000000000001"
+}

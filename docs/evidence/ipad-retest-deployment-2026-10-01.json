@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-01",
+  "device": "iPad Air 4 / iPadOS 26.5",
+  "build": "Debug-iphoneos",
+  "source_fingerprint": {
+    "source_sha256": "80ecd70c99253660f3906b108858ccd8ab47bb6044ac5687f83d7a5c15f1e37d",
+    "native_artifacts_sha256": "edaea5e1efa0b8b8fea872271e6f4b920e6f161fe84af4b2cee5ffc816d993b4"
+  },
+  "executable_sha256": "62c3959fbf9a351485759c2a4519f41b605dacf77abc3bb511147fca00eeef00",
+  "startup": "Ready: ios_native_uikit",
+  "installed": true,
+  "launch_pid": 709,
+  "simulator": "shutdown; Simulator process stopped",
+  "G1": "NOT RUN: awaiting physical testing"
+}

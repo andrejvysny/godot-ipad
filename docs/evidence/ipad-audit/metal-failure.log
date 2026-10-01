@@ -1,0 +1,115 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Metal 4.0 - Forward Mobile - Using Device #0: Apple - Apple A14 GPU (Apple7)
+
+ERROR: Mouse is not supported by this display server.
+   at: mouse_get_position (servers/display/display_server.cpp:536)
+WARNING: instance_reset_physics_interpolation() is deprecated.
+   at: _instance_reset_physics_interpolation_bind_compat_104269 (servers/rendering/rendering_server.compat.inc:62)
+   GDScript backtrace (most recent call first):
+       [0] _create_terrain (res://src/terrain/terrain_adapter.gd:168)
+       [1] initialize (res://src/terrain/terrain_adapter.gd:52)
+       [2] _initialize_terrain (res://src/lab/input_lab.gd:88)
+       [3] _ready (res://src/lab/input_lab.gd:53)
+Input Lab ready: ios_native_uikit
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+ERROR: timeout waiting for fence
+   at: wait (drivers/metal/rendering_device_driver_metal3.cpp:54)
+   GDScript backtrace (most recent call first):
+       [0] _push (res://src/input/input_system.gd:468)
+       [1] _push_button (res://src/input/input_system.gd:461)
+       [2] _inject_ui (res://src/input/input_system.gd:415)
+       [3] _emit_action (res://src/input/input_system.gd:367)
+       [4] _dispatch (res://src/input/input_system.gd:349)
+       [5] run_frame (res://src/input/input_system.gd:203)
+       [6] _process (res://src/input/input_system.gd:185)
