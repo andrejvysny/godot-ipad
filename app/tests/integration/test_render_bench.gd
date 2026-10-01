@@ -62,7 +62,7 @@ func _state() -> Dictionary:
 		"probe": session.terrain.get_render_probe(), "pose": session.rig.controller.get_pose(),
 		"selected": session.tools.selected_id(), "presenter": session.presenter.authored_object_count(),
 		"hash": session.authored_hash(), "revision": session.document.document_revision,
-		"history": session.history.size()}
+		"history": session.history.size(), "mesh_config": session.terrain.mesh_config()}
 
 
 func _wait_until(cond: Callable) -> bool:

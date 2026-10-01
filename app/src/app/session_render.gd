@@ -21,6 +21,7 @@ var active_edit: ActiveEditArea
 var texture_preview: TexturePreviewController
 var safety: SessionSafety
 var overview: OverviewRenderer
+var warmup := PipelineWarmup.new()
 
 var _presented_rect := Rect2()  # world rect shown when the projections show a bench document
 
@@ -86,6 +87,16 @@ func service_frame(budget_ms: float = -1.0) -> void:
 	_session.presenter.service_frame(budget)
 	_session.layers.service_frame(budget)
 	_service_overview()
+	warmup.tick(_session.bench_active())
+
+
+## Spec §17: skipped when a render bench was requested on the command line (it measures its own warm state).
+func _start_warmup() -> void:
+	if _session.bench_active() or OS.get_cmdline_user_args().has("--render-bench"):
+		warmup.state = "skipped"
+		return
+	warmup.start(_session.rig.get_camera(), registry(), _session.presenter.ghost_material(),
+			_session.presenter.render_world().placeholder_mesh(), overview.material())
 
 
 func _service_overview() -> void:
@@ -134,6 +145,7 @@ func bind_tools(tools: ToolController, ctx: ToolContext) -> void:
 	_tools = tools
 	_build_overview(ctx)
 	_session.presenter.placeholders_reported.connect(_session.post_message)
+	_start_warmup()
 	tools.operation_started.connect(_on_operation_started)
 	tools.operation_finished.connect(func(_change: WorldChange) -> void: _operation_ended("finished"))
 	tools.operation_cancelled.connect(func(reason: String) -> void: _operation_ended(reason))
@@ -261,7 +273,7 @@ func profile_status(frame_p50_ms: float) -> Dictionary:
 	var p := profiles.active_profile()
 	return {"profile": profiles.active_name(), "profile_label": str(p.get("label", "")),
 		"profile_pending": profiles.pending_name(), "profile_target_fps": int(p.get("target_fps", 0)),
-		"vegetation_hidden": vegetation_hidden, "texture_preview": texture_preview.status(), "fps": 1000.0 / frame_p50_ms if frame_p50_ms > 0.0 else 0.0}.merged(safety.status())
+		"vegetation_hidden": vegetation_hidden, "texture_preview": texture_preview.status(), "pipeline_warmup": warmup.status(), "fps": 1000.0 / frame_p50_ms if frame_p50_ms > 0.0 else 0.0}.merged(safety.status())
 
 
 ## Frame percentiles, render counters and stats that sort or query the RenderingServer, refreshed at

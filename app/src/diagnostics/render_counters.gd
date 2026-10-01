@@ -52,7 +52,7 @@ static func snapshot(viewport: Viewport) -> Dictionary:
 		"static_mem_mib": float(OS.get_static_memory_usage()) / MIB,
 		"scale_3d": viewport.scaling_3d_scale,
 		"viewport_size": [viewport.size.x, viewport.size.y],
-		"pipelines": _pipelines(),
+		"pipelines": pipelines(),
 	}
 	out.merge(_view("visible", viewport, Viewport.RENDER_INFO_TYPE_VISIBLE))
 	out.merge(_view("shadow", viewport, Viewport.RENDER_INFO_TYPE_SHADOW))
@@ -71,7 +71,8 @@ static func _mib(info: RenderingServer.RenderingInfo) -> float:
 	return float(RenderingServer.get_rendering_info(info)) / MIB
 
 
-static func _pipelines() -> Dictionary:
+## Cumulative pipeline compilation counters; reading them does not advance the timing warm-up window.
+static func pipelines() -> Dictionary:
 	return {
 		"canvas": RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_PIPELINE_COMPILATIONS_CANVAS),
 		"mesh": RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_PIPELINE_COMPILATIONS_MESH),

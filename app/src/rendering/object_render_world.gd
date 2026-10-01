@@ -53,6 +53,11 @@ func world_epoch() -> int:
 	return _res.epoch
 
 
+## The shared placeholder box (its orange unshaded material).
+func placeholder_mesh() -> Mesh:
+	return _res.box
+
+
 ## World replacement: epoch + 1, outstanding cache work of the old epoch cancelled, every node released.
 func clear() -> void:
 	for cell: RenderCell in _cells.values():

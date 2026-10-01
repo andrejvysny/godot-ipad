@@ -6,6 +6,7 @@
   run-mac                    launch the app windowed on this Mac
   selftest                   windowed scripted end-to-end self-test (SYNTHETIC input) on this Mac
   export-ios                 iOS export (needs config/local.signing.json)
+  verify-export [--pck PATH] check an exported PCK (default build/ios/WorldPainter.pck) holds every required render file
   validate-world PATH        validate a .worldpoc or generation directory
   validate-render-assets     validate the editor and benchmark render-asset registries
   open-consumer PATH         validate, then open in res://scenes/mac_consumer.tscn
@@ -41,6 +42,7 @@ import dev_render_bench  # noqa: E402
 import dev_render_prep  # noqa: E402
 import worldpoc_format as wf  # noqa: E402
 from dev_export import SIGNING_HELP, cmd_export_ios, load_signing, patch_ios_preset
+from dev_verify_export import cmd_verify_export  # noqa: E402
 
 REPO = SCRIPTS.parent
 APP = REPO / "app"
@@ -535,6 +537,10 @@ def build_parser() -> argparse.ArgumentParser:
 	s.add_argument("--signing-config", type=Path, default=SIGNING_PATH)
 	s.add_argument("--sandbox", default="", help="export from an isolated copy of app/")
 	s.set_defaults(fn=cmd_export_ios)
+	s = sub.add_parser("verify-export", help="check that an exported PCK contains every required render/config file")
+	s.add_argument("--pck", default="", help="PCK to check (default build/ios/WorldPainter.pck)")
+	s.set_defaults(fn=cmd_verify_export)
+
 	s = sub.add_parser("validate-world", help="validate a .worldpoc or generation directory")
 	s.add_argument("path", type=Path)
 	s.add_argument("--json", action="store_true")

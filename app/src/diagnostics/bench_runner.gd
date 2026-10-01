@@ -151,6 +151,7 @@ func _apply_profile(profile: String) -> float:
 	if not BenchScenarios.is_real_profile(profile):
 		_host._apply_settings(BenchPlan.profile_settings(profile))
 		return BenchPlan.DEFAULT_TARGET_FPS
+	_host.apply_mesh(0)
 	var render := _session.render_state()
 	render.profiles.request_profile(profile, false)
 	var p := render.profiles.active_profile()
@@ -189,7 +190,7 @@ func _run_step(step: Dictionary, token: int) -> Dictionary:
 	out.merge({"target_fps": target_fps, "target_budget_ms": 1000.0 / target_fps, "prepare_ms": prepare_ms,
 		"first_frame_ms": settle.first_frame_ms, "settle_ms": settle.settle_ms, "settled": settle.settled,
 		"population": _population(), "render_stats": _session.presenter.render_stats(),
-		"cache_start": cache_start, "cache": _session.render_cache().stats(),
+		"cache_start": cache_start, "cache": _session.render_cache().stats(), "terrain_mesh": _session.terrain.mesh_config(),
 		"telemetry": {"start": telemetry_start, "end": _telemetry()},
 		"summary": stats.summary(run.status, run.status), "counters_peak": run.peak, "counters_last": run.last,
 		"nodes": _session.presenter.node_count()})

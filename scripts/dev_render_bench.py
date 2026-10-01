@@ -20,7 +20,8 @@ REPORT_RE = re.compile(r"render-bench-(\d+)\.json$")
 SCENARIOS = ["terrain_only_legacy", "terrain_only_1km", "primitive_1k", "primitive_5k", "geometry_forest_10k",
              "card_forest_10k", "mixed_world_10k", "mixed_world_50k", "grass_50k", "asset_diversity"]
 REAL_PROFILES = ["performance", "balanced", "detailed"]
-LEGACY_PROFILES = ["scale_100", "scale_075", "scale_065", "scale_050", "legacy_shadows_diagnostic"]
+LEGACY_PROFILES = ["scale_100", "scale_075", "scale_065", "scale_050", "legacy_shadows_diagnostic",
+                   "terrain_mesh_24", "terrain_mesh_32"]
 STORAGE_ARG = "--storage-root=user://render_bench_worlds"  # never the user's worlds
 DEFAULT_TIMEOUT_S = 3600
 POLL_S = 30
@@ -188,7 +189,7 @@ def cmd_render_bench(a, launch: Callable[[list[str], list[str], int], int], user
 def add_parser(sub, handler) -> None:
     s = sub.add_parser("render-bench", help="representative render bench on the Mac (HOST evidence only) or device commands")
     s.add_argument("--scenario", default="", help="comma list: " + ", ".join(SCENARIOS))
-    s.add_argument("--profile", default="", help="comma list of performance|balanced|detailed (or legacy scale_* names)")
+    s.add_argument("--profile", default="", help="comma list of performance|balanced|detailed (or legacy scale_* / terrain_mesh_24|32 ablation names)")
     s.add_argument("--seconds", type=float, default=None, help="measure window per step in seconds (app default 10)")
     s.add_argument("--warmup-seconds", type=float, default=None, dest="warmup_seconds")
     s.add_argument("--sustained-minutes", type=float, default=None, dest="sustained_minutes",

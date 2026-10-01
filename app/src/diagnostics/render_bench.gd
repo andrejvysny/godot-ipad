@@ -119,7 +119,7 @@ func _capture() -> Dictionary:
 		"probe": _session.terrain.get_render_probe(), "pose": _session.rig.controller.get_pose(),
 		"selected": _session.tools.selected_id(), "presenter_objects": _session.presenter.authored_object_count(),
 		"profile": _session.render_profiles.active_name(), "vegetation_hidden": _session.vegetation_hidden(),
-		"max_fps": Engine.max_fps, "attach": BenchAttach.state(_session),
+		"max_fps": Engine.max_fps, "attach": BenchAttach.state(_session), "mesh_config": _session.terrain.mesh_config(),
 		"preview_off": _session.render_state().texture_preview.state() in [TexturePreviewController.OFF,
 		TexturePreviewController.RELEASING]}
 
@@ -135,7 +135,7 @@ func _restore(reason: String) -> bool:
 		_session.rig.reset_to(_saved.pose)
 	else:
 		keys = ["shadows", "mode", "distance", "scale", "scaling_mode", "msaa", "probe", "profile",
-			"vegetation_hidden", "max_fps", "attach", "preview_off"]
+			"vegetation_hidden", "max_fps", "attach", "preview_off", "mesh_config"]
 	var now := _capture()
 	for key: String in keys:
 		if not _same(now[key], _saved[key]):
@@ -155,6 +155,7 @@ func _restore_settings() -> void:
 	viewport.scaling_3d_mode = _saved.scaling_mode
 	viewport.msaa_3d = _saved.msaa
 	_session.terrain.set_render_probe(_saved.probe.visible, _saved.probe.cast_shadows)
+	apply_mesh(0)
 	Engine.max_fps = _saved.max_fps
 	_session.set_vegetation_hidden(_saved.vegetation_hidden)
 
@@ -232,7 +233,7 @@ func _run_step(step: Dictionary, token: int) -> Dictionary:
 		"scatter_instances": _bench_doc.scatter.count(), "paths": _bench_doc.paths.size()},
 		"objects_presented": _session.presenter.authored_object_count(), "prepare_ms": prepare_ms,
 		"first_frame_ms": settle.first_frame_ms, "settle_ms": settle.settle_ms, "settled": settle.settled,
-		"terrain_probe_supported": probe_error == "", "settings": settings, "summary": measured.summary,
+		"terrain_probe_supported": probe_error == "", "settings": settings, "terrain_mesh": _session.terrain.mesh_config(), "summary": measured.summary,
 		"counters_peak": measured.peak, "counters_last": measured.last, "render": _session.render_summary()})
 	return out
 
@@ -244,7 +245,18 @@ func _apply_settings(s: Dictionary) -> String:
 			else DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS
 	sun.directional_shadow_max_distance = s.shadow_distance
 	_session.get_viewport().scaling_3d_scale = s.scale
+	apply_mesh(int(s.get("mesh_size", 0)))
 	return _session.terrain.set_render_probe(s.terrain_visible, s.terrain_shadows)
+
+
+## Terrain mesh_size ablation for the step; 0 returns to the captured config. Returns the mesh config now in force.
+func apply_mesh(mesh_size: int) -> Dictionary:
+	var original: Dictionary = _saved.get("mesh_config", {})
+	if original.is_empty():
+		return {}
+	var size := mesh_size if mesh_size > 0 else int(original.mesh_size)
+	_session.terrain.set_mesh_config(size, int(original.lods))
+	return _session.terrain.mesh_config()
 
 
 func _apply_camera(camera: String) -> void:

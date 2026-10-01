@@ -87,6 +87,11 @@ func set_mesh_config(_mesh_size: int, _lods: int) -> String:
 	return "mesh tuning is not supported by this terrain view"
 
 
+## Current mesh tuning ({} when the view has none).
+func mesh_config() -> Dictionary:
+	return {}
+
+
 ## Fixed-area terrain texture preview (spec 11.4). Returns "" or an error; unsupported views error.
 func set_texture_preview(_center: Vector2, _radius: float, _feather: float, _albedo: Texture2DArray,
 		_normal: Texture2DArray, _layer_map: PackedInt32Array) -> String:

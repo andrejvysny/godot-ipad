@@ -44,7 +44,9 @@ static func kinds() -> Array[String]:
 ## Names accepted by --bench-profiles / --bench-cameras / --bench-scenarios (asset_diversity is accepted and
 ## reported NOT_RUN).
 static func profile_names() -> Array[String]:
-	return _joined(BenchPlan.PROFILES, RenderConfig.PROFILE_NAMES)
+	var ablations: Array[String] = []
+	ablations.append_array(BenchPlan.MESH_ABLATIONS.keys())
+	return _joined(_joined(BenchPlan.PROFILES, ablations), RenderConfig.PROFILE_NAMES)
 
 
 static func camera_names() -> Array[String]:

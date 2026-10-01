@@ -65,7 +65,7 @@ func _state() -> Dictionary:
 		"profile": session.render_profiles.active_name(), "max_fps": Engine.max_fps,
 		"attach": BenchAttach.state(session), "preview": session.texture_preview_status().state in [
 		TexturePreviewController.OFF, TexturePreviewController.RELEASING], "vegetation": session.vegetation_hidden(),
-		"objects": session.document.objects.size()}
+		"objects": session.document.objects.size(), "mesh_config": session.terrain.mesh_config()}
 
 
 func _wait_until(cond: Callable) -> bool:
@@ -148,6 +148,24 @@ func _check_step(step: Dictionary) -> void:
 	assert_eq(step.telemetry.start.safety_state, "normal")
 	assert_eq(step.cache.errors, 0)
 	assert_true(step.population.has("presented") and step.population.has("authored_meaningful"))
+
+
+func test_terrain_mesh_ablations_apply_per_step_and_restore() -> void:
+	await _boot()
+	var before := _state()
+	var original: Dictionary = before.mesh_config
+	var bench := _make(["terrain_only_legacy"], ["terrain_mesh_24", "terrain_mesh_32", "performance"], ["focus"])
+	var report := await _run_to_end(bench)
+	if report.is_empty():
+		return
+	var steps: Array = report.steps
+	assert_eq(steps.size(), 3 + 1)
+	if not original.is_empty():
+		assert_eq(steps[0].terrain_mesh, {"mesh_size": 24, "lods": original.lods})
+		assert_eq(steps[1].terrain_mesh, {"mesh_size": 32, "lods": original.lods})
+		assert_eq(steps[2].terrain_mesh, original, "a real profile step returns to the original config")
+	assert_true(report.correctness.restored)
+	await _assert_restored(before)
 
 
 func test_edit_workloads_and_preview_cycles_leave_the_user_document_alone() -> void:

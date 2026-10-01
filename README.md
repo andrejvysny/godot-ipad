@@ -26,6 +26,11 @@ venv/bin/python scripts/dev.py test --sandbox host
 venv/bin/python scripts/dev.py run-mac --input-lab --timeout 120
 venv/bin/python scripts/dev.py run-mac --timeout 120        # World Editor v2
 venv/bin/python scripts/dev.py selftest                     # scripted v2 end-to-end run (synthetic input)
+venv/bin/python scripts/dev.py prepare-render-assets        # [--catalog poc|bench|all] [--check]: bench generator, render derivatives, texture import
+venv/bin/python scripts/dev.py validate-render-assets       # validate the editor and bench render-asset registries
+venv/bin/python scripts/dev.py prepare-terrain-preview      # regenerate app/assets/terrain/preview PNGs (deterministic)
+venv/bin/python scripts/dev.py render-bench --scenario mixed_world_10k --profile performance --output out.json  # windowed Mac run, HOST evidence only; --device prints iPad commands
+venv/bin/python scripts/dev.py export-ios --project-only && venv/bin/python scripts/dev.py verify-export  # [--pck PATH]: the exported PCK holds every required render/config file
 bash native/ios_input/build.sh test
 ```
 

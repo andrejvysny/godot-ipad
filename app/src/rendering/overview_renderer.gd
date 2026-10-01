@@ -50,6 +50,10 @@ func _init() -> void:
 	_material.cull_mode = BaseMaterial3D.CULL_BACK
 
 
+func material() -> Material:
+	return _material
+
+
 func setup(registry: RenderAssetRegistry, cell_m: float = 32.0, levels_m: PackedFloat32Array = PackedFloat32Array()) -> void:
 	_registry = registry
 	_cell_m = cell_m

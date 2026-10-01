@@ -268,3 +268,25 @@ func test_screenshot_state_parser_selects_tool_and_opens_popover() -> void:
 	assert_false(ui.popover().is_open())
 	assert_ne(s.tools.selected_id(), "")
 	assert_ne(UiScreenshot.apply_state(ui, s, "paint:raise"), "", "tool outside its mode")
+
+
+# --- relayout on change only (spec §15.3) ----------------------------------------------------
+
+func test_refresh_relays_out_only_when_a_layout_input_changed() -> void:
+	var s := await _start()
+	var ui := _ui(s)
+	ui.refresh()
+	var count := ui.layout_count
+	ui.refresh()
+	ui.refresh()
+	assert_eq(ui.layout_count, count, "an unchanged refresh does not lay out")
+	ui.world_pill().custom_minimum_size = Vector2(420.0, 44.0)
+	ui.refresh()
+	assert_eq(ui.layout_count, count + 1, "a panel size change lays out")
+	ui.layout_override = Vector2(900.0, 700.0)
+	ui.refresh()
+	assert_eq(ui.layout_count, count + 2, "a viewport resize lays out")
+	ui.refresh()
+	assert_eq(ui.layout_count, count + 2)
+	ui.popover().set_open(true)
+	assert_true(ui.layout_count > count + 2, "opening the popover lays out")

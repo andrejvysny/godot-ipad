@@ -63,6 +63,14 @@ func test_profile_settings_table() -> void:
 	assert_false(BenchPlan.profile_settings("terrain_hidden").shadows)
 
 
+func test_mesh_ablation_profiles() -> void:
+	assert_eq(BenchPlan.profile_settings("terrain_mesh_24").mesh_size, 24)
+	assert_eq(BenchPlan.profile_settings("terrain_mesh_32").mesh_size, 32)
+	assert_false(BenchPlan.profile_settings("scale_100").has("mesh_size"))
+	assert_true(BenchScenarios.profile_names().has("terrain_mesh_24"))
+	assert_true(BenchScenarios.profile_names().has("terrain_mesh_32"))
+
+
 func test_bench_object_id_format_and_determinism() -> void:
 	var id := BenchPlan.bench_object_id(1234, 0)
 	assert_true(ObjectRecord.is_uuid(id), id)

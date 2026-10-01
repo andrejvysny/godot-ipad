@@ -48,6 +48,8 @@ var _registered: Array[Control] = []
 var _avoid_key: Array = []
 var _avoid_points := PackedVector2Array()
 var _avoid_computes: int = 0
+var _layout_key: Array = []
+var layout_count: int = 0  # layout() runs, for tests
 var _region := Vector2(M, 1000.0)  # horizontal span free of the rail, popover and Library
 
 
@@ -276,7 +278,8 @@ func refresh() -> void:
 	_hints.set_development(bool(s.development_input))
 	_inspector.visible = _inspector_wanted()
 	_diagnostics.refresh()
-	layout()
+	if _layout_inputs() != _layout_key:
+		layout()
 
 
 func _refresh_banner(text: String) -> void:
@@ -300,10 +303,20 @@ func _viewport_size() -> Vector2:
 	return layout_override if layout_override != Vector2.ZERO else get_viewport().get_visible_rect().size
 
 
+## Everything layout() reads; refresh() relays out only when it changed (spec §15.3).
+func _layout_inputs() -> Array:
+	var key: Array = [_viewport_size(), _left, _library.is_open(), _popover.is_open(), _set_editor.visible,
+			_menu.visible, _perf_menu.visible, _diagnostics.visible]
+	for c: Control in [_pill, _history, _actions, _perf, _rail, _chip, _popover, _menu, _perf_menu, _diagnostics, _hints]:
+		key.append(c.get_combined_minimum_size())
+	return key
+
+
 ## Explicit positions of every panel; idempotent, so it may run on any change.
 func layout() -> void:
 	if _session == null:
 		return
+	layout_count += 1
 	var vp := _viewport_size()
 	for c: Control in [_pill, _history, _actions, _perf, _rail, _chip]:
 		c.reset_size()
@@ -318,6 +331,7 @@ func layout() -> void:
 	_perf_menu.reset_size()
 	_perf_menu.position = Vector2(_perf.position.x + _perf.size.x - _perf_menu.size.x, _perf.position.y + _perf.size.y + 4.0)
 	_layout_floaters()
+	_layout_key = _layout_inputs()
 
 
 func _layout_top(vp: Vector2) -> void:

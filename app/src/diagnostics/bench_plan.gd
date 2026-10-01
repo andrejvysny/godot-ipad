@@ -7,6 +7,8 @@ extends RefCounted
 const PROFILES: Array[String] = ["scale_100", "scale_075", "scale_065", "scale_050", "legacy_shadows_diagnostic"]
 const CAMERAS: Array[String] = ["overview", "ground"]
 const HIDDEN_PROFILE := "terrain_hidden"
+## Terrain clipmap mesh_size ablations (spec §13.3, §20.5): accepted like the scale_* names, applied and restored by RenderBench.
+const MESH_ABLATIONS := {"terrain_mesh_24": 24, "terrain_mesh_32": 32}
 ## Workloads: terrain_only (no objects), primitive (primitive catalog assets), empty_scene_diagnostic
 ## (terrain hidden). "vegetation" is reserved for the vegetation work package and not produced yet.
 const WORKLOAD_TERRAIN_ONLY := "terrain_only"
@@ -66,6 +68,8 @@ static func profile_settings(profile: String) -> Dictionary:
 			s.terrain_shadows = true
 		HIDDEN_PROFILE:
 			s.terrain_visible = false
+	if MESH_ABLATIONS.has(profile):
+		s["mesh_size"] = int(MESH_ABLATIONS[profile])
 	return s
 
 

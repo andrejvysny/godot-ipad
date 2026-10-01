@@ -143,6 +143,10 @@ func render_world() -> ObjectRenderWorld:
 	return _world
 
 
+func ghost_material() -> Material:
+	return _ghost.material
+
+
 func sync_object(doc: WorldDocument, id: String) -> void:
 	var record := doc.get_object(id)
 	var asset: AssetDefinition = null
