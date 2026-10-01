@@ -55,7 +55,7 @@ func test_paint_dirt_stroke_is_one_change_limited_to_radius_and_undoable() -> vo
 	_drag(40.0, 30.0, 50.0)
 	assert_eq(h.commits.size(), 1, "exactly one commit")
 	assert_eq(h.finished.size(), 1)
-	assert_eq(h.commits[0].label, "Paint dirt")
+	assert_eq(h.commits[0].label, "Paint Dirt")
 	assert_eq(h.history.size(), 1)
 	var changed := _changed_samples(before[LOC], h.doc.get_region(LOC).control)
 	assert_true(changed.size() > 20, "dirt was painted")
@@ -77,8 +77,11 @@ func test_paint_grass_target_reduces_blend() -> void:
 	assert_empty_string(h.ctrl.set_setting("paint", "layer", 0))
 	_drag(40.0, 30.0, 50.0, 5.0)
 	assert_eq(h.commits.size(), 2)
-	assert_eq(h.commits[1].label, "Paint grass")
-	assert_true(_blend(40, 40) < dirt, "grass reduced blend")
+	assert_eq(h.commits[1].label, "Paint Grass")
+	# v2 rule 4: full dirt collapses to a manual base, grass becomes the overlay at the stroke coverage.
+	var v := doc_control(40, 40)
+	assert_eq([ControlCodec.get_base(v), ControlCodec.get_overlay(v), v & ControlCodec.AUTO_BIT], [1, 0, 0], "collapsed")
+	assert_true(ControlCodec.get_blend(v) < 255, "grass overlay is partial")
 
 
 func test_path_paints_inside_half_width_only_and_never_touches_objects() -> void:

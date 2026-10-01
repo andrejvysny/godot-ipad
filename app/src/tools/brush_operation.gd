@@ -8,10 +8,11 @@ extends RefCounted
 const TOOL_PAINT := "paint"
 const TOOL_SCULPT := "sculpt"
 const TOOL_PATH := "path"
-const RING_GRASS := Color(0.35, 0.9, 0.3)
-const RING_DIRT := Color(0.85, 0.6, 0.3)
-const RING_RAISE := Color(0.95, 0.95, 0.4)
-const RING_LOWER := Color(0.4, 0.8, 0.95)
+const RING_ACCENT := Color("f2bf33")
+const RING_DANGER := Color("ff9a88")
+## Paint ring colour per material layer (grass, dirt, rock, sand).
+const RING_LAYERS: Array[Color] = [Color(0.35, 0.9, 0.3), Color(0.85, 0.6, 0.3), Color(0.7, 0.7, 0.72),
+		Color(0.93, 0.84, 0.55)]
 
 var error: String = ""
 
@@ -29,7 +30,8 @@ var _started := false
 var _paused := false
 var _done := false
 var _radius := 1.0
-var _color := RING_DIRT
+var _color := RING_ACCENT
+var _hit_y := 0.0  # surface height at the latest valid hit
 
 
 func _init(ctx: ToolContext, ring: BrushRing, tool_id: String, settings: Dictionary) -> void:
@@ -131,6 +133,7 @@ func advance(now: float) -> void:
 
 func _apply_sample(sample: PointerSample, hit: TerrainHit, force_resume: bool) -> void:
 	var pos := Vector2(hit.position.x, hit.position.z)
+	_hit_y = hit.position.y
 	var pf := 1.0
 	if _tool_id != TOOL_PATH:
 		pf = BrushMath.pressure_factor(sample.pressure_valid, sample.pressure,
@@ -159,14 +162,14 @@ func _start(t: float, pos: Vector2, pf: float) -> Dictionary:
 	if _tool_id == TOOL_SCULPT:
 		var sculpt_settings := _sculpt_settings()
 		_radius = float(sculpt_settings.radius)
-		_color = RING_RAISE if float(sculpt_settings.direction) > 0.0 else RING_LOWER
+		_color = RING_DANGER if bool(_settings.get("inverted", false)) else RING_ACCENT
 		_sculpt = SculptStroke.new()
 		_sculpt.begin(_ctx.document, _tx, sculpt_settings, t, pos, pf)
 		res.error = _sculpt.error
 		return res
 	var paint_settings := _paint_settings()
 	_radius = float(paint_settings.radius)
-	_color = RING_DIRT if float(paint_settings.target_blend) >= 0.5 else RING_GRASS
+	_color = _paint_ring_color()
 	_paint = PaintStroke.new()
 	return _paint.begin(_ctx.document, _tx, paint_settings, pos, pf)
 
@@ -233,15 +236,25 @@ func _reground_followers(rect: Rect2) -> void:
 func _paint_settings() -> Dictionary:
 	if _tool_id == TOOL_PATH:
 		return PaintStroke.path_settings(float(_settings.get("width", 3.0)))
+	var op := _paint_op()
 	return {"radius": float(_settings.get("radius", 4.0)), "strength": float(_settings.get("strength", 0.8)),
-			"target_blend": 1.0 if str(_settings.get("material", "dirt")) == "dirt" else 0.0,
-			"pressure_enabled": bool(_settings.get("pressure_enabled", true)),
-			"falloff_kind": PaintStroke.FALLOFF_BRUSH}
+			"target_blend": 1.0, "pressure_enabled": bool(_settings.get("pressure_enabled", true)),
+			"falloff_kind": PaintStroke.FALLOFF_BRUSH, "op": op, "layer": int(_settings.get("layer", 1)),
+			"tint": int(_settings.get("tint", 0)), "shape": str(_settings.get("shape", "soft")),
+			"alpha_mode": str(_settings.get("alpha_mode", "circle")),
+			"seed": float(operation_id().hash() & 0xFFFF) * 0.0173}
 
 
 func _sculpt_settings() -> Dictionary:
+	var tool := str(_settings.get("tool", "raise"))
+	var inverted := bool(_settings.get("inverted", false))
+	var target := float(_settings.get("target", NAN))
 	return {"radius": float(_settings.get("radius", 6.0)),
-			"direction": 1.0 if str(_settings.get("direction", "raise")) == "raise" else -1.0,
+			"kind": "smooth" if tool == "noise" and inverted else tool,
+			"direction": -1.0 if tool == "raise" and inverted else 1.0,
+			"target": _hit_y if is_nan(target) else target,
+			"shape": str(_settings.get("shape", "soft")),
+			"alpha_mode": str(_settings.get("alpha_mode", "circle")),
 			"speed_m_per_s": float(_brush.get("sculpt_speed_m_per_s", 2.0)),
 			"strength": float(_settings.get("strength", 0.8)),
 			"pressure_enabled": bool(_settings.get("pressure_enabled", true)),
@@ -250,13 +263,52 @@ func _sculpt_settings() -> Dictionary:
 			"input_latency_s": float(_brush.get("input_latency_s", 0.05))}
 
 
+## paint | erase | spray | erase_spray | tint | untint from the tool and the invert state.
+func _paint_op() -> String:
+	var tool := str(_settings.get("tool", "paint"))
+	var inverted := bool(_settings.get("inverted", false))
+	match tool:
+		"spray":
+			return "erase_spray" if inverted else "spray"
+		"tint":
+			return "untint" if inverted else "tint"
+	return "erase" if inverted else "paint"
+
+
+func _paint_ring_color() -> Color:
+	if _tool_id == TOOL_PATH:
+		return RING_LAYERS[WorldConstants.MATERIAL_DIRT]
+	if str(_settings.get("tool", "paint")) == "tint":
+		var rgb := TintCodec.preset_rgb(int(_settings.get("tint", 0)))
+		return Color8(rgb.x, rgb.y, rgb.z)
+	return RING_LAYERS[clampi(int(_settings.get("layer", 1)), 0, RING_LAYERS.size() - 1)]
+
+
 func _label() -> String:
+	var inverted := bool(_settings.get("inverted", false))
 	match _tool_id:
-		TOOL_SCULPT:
-			return "Raise terrain" if str(_settings.get("direction", "raise")) == "raise" else "Lower terrain"
 		TOOL_PATH:
 			return "Path"
-	return "Paint dirt" if str(_settings.get("material", "dirt")) == "dirt" else "Paint grass"
+		TOOL_SCULPT:
+			match str(_settings.get("tool", "raise")):
+				"flatten":
+					return "Flatten terrain"
+				"noise":
+					return "Smooth terrain" if inverted else "Roughen terrain"
+			return "Lower terrain" if inverted else "Raise terrain"
+	var layer := TerrainRules.LAYER_NAMES[clampi(int(_settings.get("layer", 1)), 0, 3)]
+	match _paint_op():
+		"erase":
+			return "Erase paint"
+		"spray":
+			return "Spray " + layer
+		"erase_spray":
+			return "Erase spray"
+		"tint":
+			return "Tint " + TintCodec.preset_name(int(_settings.get("tint", 0)))
+		"untint":
+			return "Remove tint"
+	return "Paint " + layer
 
 
 func _begin_timing() -> void:

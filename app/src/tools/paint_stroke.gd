@@ -7,7 +7,7 @@ extends RefCounted
 ## ("budget", "invalid_input").
 ##
 ## Settings: radius, target_blend (0 grass / 1 dirt), strength, pressure_enabled,
-## falloff_kind ("brush" | "path"). The "path" falloff always ignores pressure (spec §15.5).
+## falloff_kind ("brush" | "path"), optional v2 keys of _configure_state(). The "path" falloff always ignores pressure (spec §15.5).
 
 const FALLOFF_BRUSH := "brush"
 const FALLOFF_PATH := "path"
@@ -32,7 +32,21 @@ static func path_settings(width_m: float) -> Dictionary:
 func begin(doc: WorldDocument, tx: EditTransaction, p_settings: Dictionary, pos: Vector2, pf: float) -> Dictionary:
 	settings = p_settings.duplicate(true)
 	_state = BrushKernels.PaintStrokeState.new(doc, tx, float(settings.get("target_blend", 1.0)))
+	_configure_state()
 	return resume(0.0, pos, pf)
+
+
+## Optional v2 settings (docs/editor-v2.md §3, §4): op (paint | erase | spray | erase_spray | tint |
+## untint), layer 0-3, tint preset 0-2, shape, alpha_mode, seed (spray). Without them the stroke is a
+## legacy target_blend paint (1 = layer 1 dirt, 0 = layer 0 grass).
+func _configure_state() -> void:
+	var op := str(settings.get("op", "paint"))
+	_state.op = op if op in BrushKernels.PaintStrokeState.OPS else "paint"
+	_state.layer = clampi(int(settings.get("layer", _state.layer)), 0, 3)
+	_state.tint_rgb = TintCodec.preset_rgb(int(settings.get("tint", 0)))
+	_state.shape = str(settings.get("shape", "soft"))
+	_state.alpha_mode = str(settings.get("alpha_mode", "circle"))
+	_state.seed = float(settings.get("seed", 0.0))
 
 
 func add_sample(t: float, pos: Vector2, pf: float) -> Dictionary:

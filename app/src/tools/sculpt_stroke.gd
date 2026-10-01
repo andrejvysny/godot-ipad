@@ -13,7 +13,8 @@ extends RefCounted
 ## equal those of the complete recorded timeline, whatever the frame cadence, and a late pause
 ## (invalid hit) is never sculpted with the held position.
 ##
-## Settings: radius, direction (+1 raise / -1 lower), speed_m_per_s, strength,
+## Settings: radius, kind (raise | flatten | noise | smooth; default raise), direction (+1 raise /
+## -1 lower), speed_m_per_s, strength, shape, alpha_mode (docs/editor-v2.md §3), target (flatten),
 ## pressure_enabled, fixed_step_s, stall_cancel_s, input_latency_s.
 
 const ERROR_STALL := "stall"
@@ -35,6 +36,7 @@ var _stall := 0.25
 var _latency := DEFAULT_INPUT_LATENCY_S
 var _last_processed := 0.0
 var _height_rate := 0.0
+var _angle := 0.0  # stamp direction of the latest segment
 var _finished := false
 
 
@@ -129,17 +131,31 @@ func _process_steps(now: float, res: Dictionary) -> void:
 
 
 func _process_interval(t_a: float, t_b: float, res: Dictionary) -> void:
-	var radius := float(settings.get("radius", 6.0))
-	var strength := float(settings.get("strength", 1.0))
+	var snaps := {}  # smooth reads the heights from before this step
 	for piece in timeline.segments_between(t_a, t_b):
-		var dt: float = piece.t_b - piece.t_a
-		var pf_avg: float = 0.5 * (float(piece.pf_a) + float(piece.pf_b))
-		var r := BrushKernels.sculpt_segment(_doc, _tx, piece.p_a, piece.p_b, radius, _height_rate,
-				strength, pf_avg, dt)
+		var r := _apply_piece(piece, snaps)
 		BrushKernels.merge_result(res, r)
 		if res.error != "":
 			error = res.error
 			return
+
+
+func _apply_piece(piece: Dictionary, snaps: Dictionary) -> Dictionary:
+	var radius := float(settings.get("radius", 6.0))
+	var strength := float(settings.get("strength", 1.0))
+	var shape := str(settings.get("shape", "soft"))
+	var mode := str(settings.get("alpha_mode", "circle"))
+	var dt: float = piece.t_b - piece.t_a
+	var pf_avg: float = 0.5 * (float(piece.pf_a) + float(piece.pf_b))
+	var kind := str(settings.get("kind", "raise"))
+	if kind == "raise" and BrushAlpha.is_exact_soft(shape, mode):
+		return BrushKernels.sculpt_segment(_doc, _tx, piece.p_a, piece.p_b, radius, _height_rate,
+				strength, pf_avg, dt)
+	_angle = BrushDabs.segment_angle(piece.p_a, piece.p_b, _angle)
+	var p := SculptKernels.Piece.new(kind, piece.p_a, piece.p_b, radius, shape, mode, _angle)
+	p.gain = (_height_rate if kind == "raise" else 1.0) * strength * pf_avg * dt
+	p.target = float(settings.get("target", 0.0))
+	return SculptKernels.sculpt_piece(_doc, _tx, p, snaps)
 
 
 ## Disabled or non-finite pressure is full strength (as BrushMath.pressure_factor), never NaN.

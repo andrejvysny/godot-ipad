@@ -13,10 +13,9 @@ signal operation_cancelled(reason: String)
 
 const OP_PLACE := "place"  # operation kind of an armed placement or Library drop
 ## Tools with a working operation; every other tool reports "arrives in a later build".
-const IMPLEMENTED: Array[String] = ["raise", "paint", "path", "select"]
+const IMPLEMENTED: Array[String] = ["raise", "flatten", "noise", "paint", "spray", "tint", "pick", "path", "select"]
 const NO_SELECTION := "Select an object first."
 const NO_PATH_SELECTION := "Select a path first."
-const LATER_PAINT_MESSAGE := "Rock and sand painting arrive in a later build."
 
 var _ring: BrushRing
 var _op: RefCounted
@@ -175,22 +174,26 @@ func _make_operation() -> RefCounted:
 			return SelectOperation.new(_ctx, _snap, _selected)
 		TOOL_PATH:
 			return BrushOperation.new(_ctx, _ring, "path", {"width": _values.values("path").width})
-		TOOL_RAISE:
-			return BrushOperation.new(_ctx, _ring, "sculpt", _brush_settings("sculpt"))
-	if _inverted or int(_values.values("paint").layer) > 1:
-		_ctx.report(LATER_PAINT_MESSAGE)
-		return null
-	return BrushOperation.new(_ctx, _ring, "paint", _brush_settings("paint"))
+		"raise", "flatten", "noise":
+			return BrushOperation.new(_ctx, _ring, "sculpt", _brush_settings("sculpt", tool_id))
+		"paint", "spray", "tint":
+			return BrushOperation.new(_ctx, _ring, "paint", _brush_settings("paint", tool_id))
+		"pick":
+			return PickOperation.new(_ctx)
+	return null
 
 
-## Settings in the shape BrushOperation reads (legacy keys: material, direction).
-func _brush_settings(ns: String) -> Dictionary:
+## Mode namespace plus the shared brush alpha, the invert state and the flatten target, in the
+## shape BrushOperation reads.
+func _brush_settings(ns: String, tool_id: String) -> Dictionary:
 	var s := _values.values(ns)
-	s["pressure_enabled"] = _values.values("brush").pressure_enabled
-	if ns == "sculpt":
-		s["direction"] = "lower" if _inverted else "raise"
-	else:
-		s["material"] = "dirt" if int(s.layer) == 1 else "grass"
+	var brush := _values.values("brush")
+	s["tool"] = tool_id
+	s["inverted"] = _inverted
+	s["pressure_enabled"] = brush.pressure_enabled
+	s["shape"] = brush.shape
+	s["alpha_mode"] = brush.alpha_mode
+	s["target"] = _values.values("flatten").target
 	return s
 
 
@@ -236,6 +239,15 @@ func _finish(sample: PointerSample, over_ui: bool) -> void:
 		set_tool(TOOL_SELECT)
 	elif tool_id == TOOL_SELECT and op.tap_selection() != null:
 		select(str(op.tap_selection()))
+	elif tool_id == "pick" and (op as PickOperation).picked_layer() >= 0:
+		_apply_pick((op as PickOperation).picked_layer())
+
+
+func _apply_pick(layer: int) -> void:
+	_values.set_value("paint", "layer", layer)
+	settings_changed.emit("paint")
+	set_tool(TOOL_PAINT)
+	_ctx.report("Picked %s" % TerrainRules.LAYER_NAMES[layer])
 
 
 func _finish_height_pick(sample: PointerSample, over_ui: bool) -> void:

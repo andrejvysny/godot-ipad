@@ -3,6 +3,7 @@ extends RefCounted
 ## Auto-paint rules stored in the manifest (docs/world-format.md §1.1, §3). Integers keep
 ## the values exact without f64le: slope in degrees, sand height in decimetres.
 
+const LAYER_NAMES: Array[String] = ["Grass", "Dirt", "Rock", "Sand"]
 const KEYS := ["rock_enabled", "rock_slope_deg", "sand_enabled", "sand_height_dm"]
 
 var rock_enabled: bool = WorldConstants.RULE_ROCK_ENABLED_DEFAULT
@@ -73,6 +74,22 @@ static func from_dict(v: Variant) -> Array:
 	r.sand_height_dm = int(v.sand_height_dm)
 	var err := r.range_error()
 	return [null, err] if err != "" else [r, ""]
+
+
+## CPU mirror of the shader rule (docs/world-format.md §1.1): grass, sand below the sand height,
+## rock above the slope (rock wins), hard edges. -1 when there is no surface sample.
+static func material_at(doc: WorldDocument, x: float, z: float) -> int:
+	var h := doc.sample_height(x, z)
+	if is_nan(h):
+		return -1
+	var n := doc.sample_normal(x, z)
+	var slope_deg := rad_to_deg(acos(clampf(n.y, 0.0, 1.0)))
+	var r := doc.rules
+	if r.rock_enabled and slope_deg > float(r.rock_slope_deg):
+		return WorldConstants.MATERIAL_ROCK
+	if r.sand_enabled and h < float(r.sand_height_dm) / 10.0:
+		return WorldConstants.MATERIAL_SAND
+	return WorldConstants.MATERIAL_GRASS
 
 
 static func _is_integral(x: Variant) -> bool:

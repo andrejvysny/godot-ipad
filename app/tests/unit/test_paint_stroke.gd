@@ -207,11 +207,12 @@ func test_reserved_and_unrelated_bits_preserved() -> void:
 				bad += 1
 			if ControlCodec.get_blend(v) > 0:
 				painted += 1
-				if ControlCodec.get_base(v) != 0 or ControlCodec.get_overlay(v) != 1 or (v & ControlCodec.AUTO_BIT) != 0:
+				if ControlCodec.get_base(v) != 0 or ControlCodec.get_overlay(v) != 1:
 					bad += 1
 	assert_eq(bad, 0, "unrelated bits preserved and invariant held")
 	assert_true(painted > 100, "painted %d samples" % painted)
-	assert_eq(doc.get_control_at_sample(3, 3), ControlCodec.encode_paint(base, 255), "auto bit cleared where painted")
+	# v2 rules (docs/editor-v2.md §4) keep the auto bit: manual paint sits over the rule layer.
+	assert_eq(doc.get_control_at_sample(3, 3), ControlCodec.encode_paint(base, 255) | ControlCodec.AUTO_BIT, "auto bit kept where painted")
 
 
 func test_te12_cancel_after_touching_four_regions_restores_hash() -> void:

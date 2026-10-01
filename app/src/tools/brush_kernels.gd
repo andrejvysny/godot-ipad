@@ -4,7 +4,7 @@ extends RefCounted
 ## (spec §12, §13.1). Only existing global samples inside the capsule around the segment and
 ## inside [GLOBAL_SAMPLE_MIN, GLOBAL_SAMPLE_MAX] are visited; regions are never created.
 ## Each region map is captured once, immediately before its first changed sample.
-## Results: {dirty_heights: Array[Vector2i], dirty_controls: Array[Vector2i], rect: Rect2,
+## Results: {dirty_heights, dirty_controls, dirty_colors: Array[Vector2i], rect: Rect2,
 ## error: "" | "budget" | "invalid_input"}. `rect` is the world-XZ bounds of the changed samples
 ## grown by one SAMPLE_SPACING, so Rect2.has_point holds for every point whose bilinearly
 ## interpolated value changed (follow-terrain anchors, spec §13.4); empty when nothing changed.
@@ -17,19 +17,35 @@ const _EDGE_EPS := 1e-9
 
 
 ## Per-stroke paint working state. Coverage lives in separate float buffers (never in control
-## bits); `start_control` is the stroke-start map, so painting is a pure function of the
-## maximum coverage and holding still never accumulates.
+## bits); `start_control` / `start_color` are the stroke-start maps, so painting is a pure function
+## of the maximum coverage and holding still never accumulates. `op` is one of OPS.
 class PaintStrokeState extends RefCounted:
+	const OPS: Array[String] = ["paint", "erase", "spray", "erase_spray", "tint", "untint"]
+	const SPRAY_SCALE := 0.35
+	const SPRAY_GAP_SCALE := 0.2
+
 	var doc: WorldDocument
 	var tx: EditTransaction
 	var target_blend: float = 1.0
+	var op := "paint"
+	var layer := 1
+	var tint_rgb := Vector3i(255, 255, 255)
+	var shape := "soft"
+	var alpha_mode := "circle"
+	var seed := 0.0
+	var angle := 0.0  # stamp direction of the latest segment
 	var coverage: Dictionary = {}  # Vector2i -> PackedFloat32Array
 	var start_control: Dictionary = {}  # Vector2i -> PackedInt32Array
+	var start_color: Dictionary = {}  # Vector2i -> PackedByteArray
 
 	func _init(p_doc: WorldDocument, p_tx: EditTransaction, p_target_blend: float) -> void:
 		doc = p_doc
 		tx = p_tx
 		target_blend = clampf(p_target_blend, 0.0, 1.0)
+		layer = 1 if target_blend >= 0.5 else 0
+
+	func is_color() -> bool:
+		return op == "tint" or op == "untint"
 
 	## Lazily snapshots the region on first visit, before this stroke can have written it.
 	func ensure_region(loc: Vector2i) -> void:
@@ -38,17 +54,37 @@ class PaintStrokeState extends RefCounted:
 		var buf := PackedFloat32Array()
 		buf.resize(WorldConstants.REGION_SAMPLE_COUNT)
 		coverage[loc] = buf
-		start_control[loc] = doc.get_region(loc).control.duplicate()
+		if is_color():
+			start_color[loc] = doc.get_region(loc).color.duplicate()
+		else:
+			start_control[loc] = doc.get_region(loc).control.duplicate()
+
+	## Per-sample coverage multiplier: spray breaks coverage up by a per-stroke hash of the sample.
+	func strength_mult(gx: int, gz: int) -> float:
+		if op == "spray":
+			var m := 1.0 if BrushAlpha.hash01(float(gx) + seed, float(gz) - seed) > 0.5 else SPRAY_GAP_SCALE
+			return SPRAY_SCALE * m
+		return SPRAY_SCALE if op == "erase_spray" else 1.0
+
+	func control_value(before: int, cov: float) -> int:
+		if op == "erase" or op == "erase_spray":
+			return ControlCodec.erase_paint(before, cov)
+		return ControlCodec.paint_layer(before, layer, cov)
+
+	func color_value(before: int, cov: float) -> int:
+		return TintCodec.tint(before, tint_rgb, cov) if op == "tint" else TintCodec.untint(before, cov)
 
 	func clear() -> void:
 		coverage = {}
 		start_control = {}
+		start_color = {}
 
 
 static func empty_result() -> Dictionary:
 	var dh: Array[Vector2i] = []
 	var dc: Array[Vector2i] = []
-	return {"dirty_heights": dh, "dirty_controls": dc, "rect": Rect2(), "error": ""}
+	var dcol: Array[Vector2i] = []
+	return {"dirty_heights": dh, "dirty_controls": dc, "dirty_colors": dcol, "rect": Rect2(), "error": ""}
 
 
 ## Merges kernel result `src` into `dst` (union of dirty regions, merged rect, first error).
@@ -56,7 +92,7 @@ static func merge_result(dst: Dictionary, src: Dictionary) -> void:
 	if _has_rect(src):
 		var r: Rect2 = src.rect
 		dst.rect = (dst.rect as Rect2).merge(r) if _has_rect(dst) else r
-	for key in ["dirty_heights", "dirty_controls"]:
+	for key in ["dirty_heights", "dirty_controls", "dirty_colors"]:
 		var into: Array[Vector2i] = dst[key]
 		for loc: Vector2i in src[key]:
 			if not into.has(loc):
@@ -66,7 +102,8 @@ static func merge_result(dst: Dictionary, src: Dictionary) -> void:
 
 
 static func _has_rect(res: Dictionary) -> bool:
-	return not (res.dirty_heights as Array).is_empty() or not (res.dirty_controls as Array).is_empty()
+	return not (res.dirty_heights as Array).is_empty() or not (res.dirty_controls as Array).is_empty() \
+			or not (res.dirty_colors as Array).is_empty()
 
 
 ## Raises (height_rate > 0) or lowers every sample within `radius` of segment a-b by
@@ -141,101 +178,10 @@ static func sculpt_segment(doc: WorldDocument, tx: EditTransaction, p_a: Vector2
 	return res
 
 
-## Coverage-max paint of the segment a-b into the stroke's working buffers: the continuous limit
-## of dabs along the segment with the pressure factor interpolated linearly from pf_a to pf_b.
-## The "path" falloff evaluates the pressure factor at the closest point, which is exact only for
-## a constant factor; PaintStroke always passes a constant one (pressure is off for paths, §15.5).
+## Coverage-max paint of the segment a-b (PaintKernels): see there for the alpha handling.
 static func paint_segment(state: PaintStrokeState, p_a: Vector2, p_b: Vector2, radius: float,
 		strength: float, pf_a: float, pf_b: float, falloff_kind: String) -> Dictionary:
-	var res := empty_result()
-	if not (is_finite(strength) and is_finite(radius) and is_finite(pf_a) and is_finite(pf_b)
-			and p_a.is_finite() and p_b.is_finite()):
-		res.error = ERROR_INVALID
-		return res
-	if strength <= 0.0 or radius <= 0.0:
-		return res
-	var use_path := falloff_kind == "path"
-	var geo := Capsule.new(p_a, p_b, radius)
-	var bounds := geo.row_range()
-	var dirty: Array[Vector2i] = res.dirty_controls
-	var ext := _new_extent()
-	var sp := WorldConstants.SAMPLE_SPACING
-	var r2 := radius * radius
-	var inv_r := 1.0 / radius
-	var target := state.target_blend
-	var ax := geo.ax
-	var az := geo.az
-	var ux := geo.ux
-	var uz := geo.uz
-	var seg_len := geo.length
-	var inv_len := 1.0 / seg_len if seg_len >= BrushMath.MIN_SEGMENT_LENGTH else 0.0
-	var varying_pf := pf_a != pf_b and seg_len > 0.0
-	var pf_max := maxf(pf_a, pf_b)
-	for gz in range(bounds.x, bounds.y + 1):
-		var z := gz * sp
-		var span := geo.row_span(z)
-		var row := (gz & WorldConstants.REGION_MASK) * WorldConstants.REGION_SAMPLES
-		var rz := z - az
-		var gx := span.x
-		while gx <= span.y:
-			var loc := Vector2i(gx >> WorldConstants.REGION_SHIFT, gz >> WorldConstants.REGION_SHIFT)
-			var gx_end := mini(span.y, (loc.x << WorldConstants.REGION_SHIFT) + WorldConstants.REGION_MASK)
-			var region := state.doc.get_region(loc)
-			if region == null:
-				gx = gx_end + 1
-				continue
-			state.ensure_region(loc)
-			var cov_buf: PackedFloat32Array = state.coverage[loc]
-			var start: PackedInt32Array = state.start_control[loc]
-			var ctrl: PackedInt32Array = region.control
-			var ready := state.tx.has_captured_controls(loc)
-			var wrote := false
-			var g_lo := 0
-			var g_hi := 0
-			for g in range(gx, gx_end + 1):
-				var rx := g * sp - ax
-				var along_raw := rx * ux + rz * uz
-				var perp := rz * ux - rx * uz
-				var along := clampf(along_raw, 0.0, seg_len)
-				var d2 := perp * perp + (along_raw - along) * (along_raw - along)
-				if d2 >= r2:
-					continue
-				var q := sqrt(d2) * inv_r
-				var i := row + (g & WorldConstants.REGION_MASK)
-				var cov: float
-				if use_path or not varying_pf:
-					var f := BrushMath.path_falloff(q) if use_path else BrushMath.falloff(q)
-					cov = strength * lerpf(pf_a, pf_b, along * inv_len) * f
-				else:
-					# The closest point maximises falloff, so pf_max * falloff bounds the true max.
-					if strength * pf_max * BrushMath.falloff(q) <= cov_buf[i]:
-						continue
-					cov = strength * BrushMath.max_weighted_falloff(perp * perp, along_raw, seg_len, radius, pf_a, pf_b)
-				if cov <= cov_buf[i]:
-					continue
-				cov_buf[i] = cov
-				cov = cov_buf[i]  # blend is a function of the stored (float32) coverage only
-				var before := start[i] & _U32
-				var bb := ControlCodec.dirt_blend01(before)
-				var nv := ControlCodec.encode_paint(before, ControlCodec.quantize_blend(bb + (target - bb) * cov))
-				if nv == (ctrl[i] & _U32):
-					continue
-				if not ready:
-					if not state.tx.capture_controls(loc):
-						res.error = ERROR_BUDGET
-						res.rect = _extent_rect(ext)
-						return res
-					ready = true
-				ctrl[i] = nv
-				if not wrote:
-					g_lo = g
-				g_hi = g
-				wrote = true
-			if wrote:
-				_mark(dirty, ext, loc, g_lo, g_hi, gz)
-			gx = gx_end + 1
-	res.rect = _extent_rect(ext)
-	return res
+	return PaintKernels.paint_segment(state, p_a, p_b, radius, strength, pf_a, pf_b, falloff_kind)
 
 
 ## Tracks changed samples as [gx_min, gx_max, gz_min, gz_max] in `ext` and the dirty region list.

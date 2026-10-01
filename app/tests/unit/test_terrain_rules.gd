@@ -17,6 +17,27 @@ func test_defaults_and_round_trip() -> void:
 	assert_true((parsed[0] as TerrainRules).equals(d), "float-typed JSON numbers accepted")
 
 
+## material_at is the CPU mirror of the shader rule (hard edges).
+func test_material_at_follows_rules() -> void:
+	var doc := WorldDocument.create_flat(5.0, ControlCodec.default_value())
+	assert_eq(TerrainRules.material_at(doc, 10.0, 10.0), WorldConstants.MATERIAL_GRASS, "flat high ground")
+	assert_eq(TerrainRules.material_at(doc, 500.0, 0.0), -1, "outside the world")
+	doc.get_region(Vector2i(0, 0)).heights.fill(-1.0)
+	assert_eq(TerrainRules.material_at(doc, 10.0, 10.0), WorldConstants.MATERIAL_SAND, "below -0.4 m")
+	doc.rules.sand_enabled = false
+	assert_eq(TerrainRules.material_at(doc, 10.0, 10.0), WorldConstants.MATERIAL_GRASS, "sand rule off")
+	var region := doc.get_region(Vector2i(0, 0))
+	for gz in 256:
+		for gx in 256:
+			region.heights[gz * 256 + gx] = float(gx) * 0.5  # 45 degrees along X
+	assert_eq(TerrainRules.material_at(doc, 20.0, 20.0), WorldConstants.MATERIAL_ROCK, "45 degrees > 30")
+	doc.rules.rock_slope_deg = 60
+	assert_eq(TerrainRules.material_at(doc, 20.0, 20.0), WorldConstants.MATERIAL_GRASS, "45 degrees < 60")
+	doc.rules.rock_slope_deg = 10
+	doc.rules.rock_enabled = false
+	assert_eq(TerrainRules.material_at(doc, 20.0, 20.0), WorldConstants.MATERIAL_GRASS, "rock rule off")
+
+
 func test_clone_is_independent() -> void:
 	var a := TerrainRules.defaults()
 	var b := a.clone()
