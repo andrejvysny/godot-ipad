@@ -287,8 +287,9 @@ func _create_terrain() -> void:
 	# Set the project shader before any parameter: parameters belong to the active shader.
 	mat.shader_override = load(SHADER_PATH) as Shader
 	mat.shader_override_enabled = true
-	# The project shader has no noise background; FLAT is also Terrain3D's default world edge.
-	mat.world_background = Terrain3DMaterial.FLAT
+	# NONE: no terrain outside the authored regions (the shader discards those vertices), so
+	# the world ends at its edge instead of an endless flat ground. Picking is already NaN there.
+	mat.world_background = Terrain3DMaterial.NONE
 	mat.set_shader_param("blend_sharpness", TerrainMaterials.BLEND_SHARPNESS)
 	# set_material/set_assets create the collision manager, so the mode sticks before the
 	# node enters the tree and no collision shapes are ever built.

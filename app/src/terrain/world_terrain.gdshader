@@ -22,8 +22,8 @@ render_mode blend_mix,depth_draw_opaque,cull_back,diffuse_burley,specular_schlic
 //   8. Trim (spec 13.2): removed macro variation (noise_texture, noise1/2_*, macro_variation*), per-texture detiling
 //      (_texture_detile_array), depth blur (depth_blur, bias_distance) and the noise world-background
 //      hooks (u/v derivative offsets). Steep-slope UV projection (enable_projection / projection_threshold)
-//      is KEPT (only the detile position snapping that used its projected position was dropped). The adapter pins the Terrain3D background to FLAT (the default
-//      and the world-edge look before the trim). The 4-corner control blend and the height-blend
+//      is KEPT (only the detile position snapping that used its projected position was dropped). The adapter sets the Terrain3D background to NONE (nothing is
+//      drawn outside the authored regions; was FLAT before 2026-10). The 4-corner control blend and the height-blend
 //      weighting are unchanged; the 0.5 UV offset detiling applied at zero detile is kept.
 //   9. Fixed-area texture preview (spec 11.4): preview_enabled / preview_area / preview_layer and the
 //      preview_albedo_array / preview_normal_array. Inside the area the albedo RGB and the normal/

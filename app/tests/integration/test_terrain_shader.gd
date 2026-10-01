@@ -460,6 +460,10 @@ func test_gpu_rendered_holes_seams_and_overview_extent() -> void:
 		var q := _cam.unproject_position(Vector3(corner.x, 0.0, corner.y))
 		var c := img.get_pixel(clampi(int(q.x), 0, img.get_width() - 1), clampi(int(q.y), 0, img.get_height() - 1))
 		assert_true(_is_greenish(c), "the whole world renders, grass at %s: %s" % [corner, c])
+	for outside: Vector2 in [Vector2(-145, 0), Vector2(145, 0), Vector2(0, -145), Vector2(0, 145)]:
+		var q := _cam.unproject_position(Vector3(outside.x, 0.0, outside.y))
+		var c := img.get_pixel(clampi(int(q.x), 0, img.get_width() - 1), clampi(int(q.y), 0, img.get_height() - 1))
+		assert_true(_color_dist(c, sky) < 0.12, "nothing is drawn outside the world at %s: %s" % [outside, c])
 	for seam: Array in [[Vector3(-0.6, 0, -40), Vector3(0.6, 0, -40)], [Vector3(-40, 0, -0.6), Vector3(-40, 0, 0.6)],
 			[Vector3(-0.6, 0, 60), Vector3(0.6, 0, 60)]]:
 		var q0 := _cam.unproject_position(seam[0])

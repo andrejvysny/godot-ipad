@@ -179,6 +179,7 @@ func test_color_map_is_document_tint_and_configuration_pinned() -> void:
 	var t := a.get_terrain()
 	assert_false(t.material.auto_shader, "auto_shader off")
 	assert_eq(t.collision_mode, Terrain3DCollision.DISABLED, "collision disabled")
+	assert_eq(t.material.world_background, Terrain3DMaterial.NONE, "no terrain outside the world")
 	assert_eq(t.region_size, 256)
 	assert_near(t.vertex_spacing, 0.5, 0.0)
 	assert_eq(t.global_transform, Transform3D.IDENTITY, "identity terrain transform")
