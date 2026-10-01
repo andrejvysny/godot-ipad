@@ -38,7 +38,7 @@ def split_names(value: str, allowed: list[str], what: str) -> list[str]:
 
 
 def build_user_args(scenarios: list[str], profiles: list[str], seconds: float | None, warmup: float | None,
-                    sustained_minutes: float | None) -> list[str]:
+                    sustained_minutes: float | None, screenshots: bool = False) -> list[str]:
     """App user args (after `--`). Sustained mode and scenarios are exclusive (the app enforces it too)."""
     args = ["--render-bench"]
     if sustained_minutes is not None:
@@ -51,6 +51,8 @@ def build_user_args(scenarios: list[str], profiles: list[str], seconds: float | 
         args.append("--bench-seconds=%g" % seconds)
     if warmup is not None:
         args.append("--bench-warmup-seconds=%g" % warmup)
+    if screenshots:
+        args.append("--bench-screenshots")  # one PNG per step after its timed window (visual checks)
     # Host-only: a shared desktop steals focus; the app ignores this flag on iOS.
     return args + [STORAGE_ARG, "--bench-quit", "--bench-ignore-focus"]
 
@@ -176,7 +178,8 @@ def cmd_render_bench(a, launch: Callable[[list[str], list[str], int], int], user
     except ValueError as error:
         print("error: %s" % error, file=sys.stderr)
         return 2
-    user_args = build_user_args(scenarios, profiles, a.seconds, a.warmup_seconds, a.sustained_minutes)
+    user_args = build_user_args(scenarios, profiles, a.seconds, a.warmup_seconds, a.sustained_minutes,
+                                getattr(a, "screenshots", False))
     if a.device:
         return run_device(a, user_args, run)
     return run_host(a, user_args, launch, user_dir)
@@ -191,6 +194,7 @@ def add_parser(sub, handler) -> None:
     s.add_argument("--sustained-minutes", type=float, default=None, dest="sustained_minutes",
                    help="sustained mode (mixed_world_10k x performance) instead of --scenario")
     s.add_argument("--output", type=Path, required=True, help="where the report JSON is copied")
+    s.add_argument("--screenshots", action="store_true", help="save one PNG per step (user://traces/bench-shots)")
     s.add_argument("--timeout", type=int, default=0, help="hard limit in seconds (0 = derived default)")
     s.add_argument("--device", action="store_true", help="print the devicectl launch/pull commands (installed build)")
     s.add_argument("--run", action="store_true", help="with --device: execute them and poll for the report")

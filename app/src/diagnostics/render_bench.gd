@@ -40,6 +40,7 @@ var measure_seconds := 10.0
 var warmup_seconds := 2.0
 var sustained_minutes := 0.0
 var world_overrides: Dictionary = {}  # {"objects": n, "scatter": n}: small variants for tests
+var screenshots := false  # scenario mode: one PNG per step, taken after its timed window (visual checks)
 
 var _runner: BenchRunner
 var _session: EditorSession
@@ -425,6 +426,7 @@ func _prepare_runner(session: EditorSession) -> void:
 	_runner.seconds = measure_seconds
 	_runner.warmup_seconds = warmup_seconds
 	_runner.sustained_minutes = sustained_minutes
+	_runner.screenshots = screenshots
 	_runner.seed_value = rng_seed
 	_runner.overrides = world_overrides
 	_runner.results = _results

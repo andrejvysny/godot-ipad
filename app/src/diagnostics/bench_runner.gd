@@ -17,6 +17,7 @@ var seconds := 10.0
 var warmup_seconds := 2.0
 var sustained_minutes := 0.0
 var seed_value := 1234
+var screenshots := false
 var overrides: Dictionary = {}
 var results: Array[Dictionary] = []
 var populations: Dictionary = {}
@@ -192,14 +193,29 @@ func _run_step(step: Dictionary, token: int) -> Dictionary:
 		"telemetry": {"start": telemetry_start, "end": _telemetry()},
 		"summary": stats.summary(run.status, run.status), "counters_peak": run.peak, "counters_last": run.last,
 		"nodes": _session.presenter.node_count()})
-	if _session.presenter.has_method("overview_stats"):
-		out["overview_stats"] = _session.presenter.call("overview_stats")
+	var overview := _session.render_state().overview
+	if overview != null:
+		out["overview_stats"] = overview.stats()
+	if screenshots:
+		out["screenshot"] = await _screenshot(step)
 	if kind in BenchScenarios.CAMERA_KINDS:
 		out["camera_poses"] = BenchCameraPaths.summary(kind, _camera_ctx, seconds)
 	else:
 		out["workload_result"] = run.workload
 		_world_dirty = kind != "preview_cycles"
 	return out
+
+
+## Visual check (spec §21.3) after the timed window, never inside it. "" when there is no rendering device.
+func _screenshot(step: Dictionary) -> String:
+	if RenderingServer.get_rendering_device() == null:
+		return ""
+	await RenderingServer.frame_post_draw
+	var dir := _host.output_dir.path_join("bench-shots")
+	DirAccess.make_dir_recursive_absolute(dir)
+	var path := dir.path_join("%s-%s-%s.png" % [step.scenario, step.profile, step.camera])
+	var image := _session.get_viewport().get_texture().get_image()
+	return ProjectSettings.globalize_path(path) if image != null and image.save_png(path) == OK else ""
 
 
 func _population() -> Dictionary:

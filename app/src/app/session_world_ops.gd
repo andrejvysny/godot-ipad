@@ -171,6 +171,8 @@ static func parse_bench_args(args: PackedStringArray) -> Dictionary:
 		var error := _parse_bench_arg(out, parts[0], parts[1])
 		if error != "":
 			return {"error": error}
+	if args.has("--bench-screenshots"):
+		out["screenshots"] = true
 	var mode_error := _check_bench_mode(out)
 	return {"error": mode_error} if mode_error != "" else out
 
@@ -271,7 +273,8 @@ static func make_bench(path: String, counts: PackedInt32Array, frames: int, opti
 	var names := {"warmup": "warmup_frames", "seed": "rng_seed", "seconds": "measure_seconds"}
 	if scenario_mode:
 		names.merge({"profiles": "scenario_profiles", "cameras": "scenario_kinds"}, true)
-	for key in ["warmup", "seed", "profiles", "cameras", "scenarios", "seconds", "warmup_seconds", "sustained_minutes"]:
+	for key in ["warmup", "seed", "profiles", "cameras", "scenarios", "seconds", "warmup_seconds", "sustained_minutes",
+			"screenshots"]:
 		if options.has(key):
 			bench.set(names.get(key, key), options[key])
 	return bench
