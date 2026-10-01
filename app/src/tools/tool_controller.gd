@@ -13,12 +13,13 @@ signal operation_cancelled(reason: String)
 
 const OP_PLACE := "place"  # operation kind of an armed placement or Library drop
 ## Tools with a working operation; every other tool reports "arrives in a later build".
-const IMPLEMENTED: Array[String] = ["raise", "paint", "path", "select"]
+const IMPLEMENTED: Array[String] = ["raise", "paint", "path", "select", "scatter", "erase", "fill"]
 const NO_SELECTION := "Select an object first."
 const NO_PATH_SELECTION := "Select a path first."
 const LATER_PAINT_MESSAGE := "Rock and sand painting arrive in a later build."
 
 var _ring: BrushRing
+var _lasso: LassoPreview
 var _op: RefCounted
 var _op_tool := ""
 var _drop := false  # _op is a Library drop, not a router-owned contact
@@ -36,6 +37,9 @@ func setup(ctx: ToolContext) -> void:
 	if _ring == null:
 		_ring = BrushRing.new()
 		add_child(_ring)
+	if _lasso == null:
+		_lasso = LassoPreview.new()
+		add_child(_lasso)
 
 
 func set_document(doc: WorldDocument) -> String:
@@ -106,17 +110,13 @@ func stroke_state() -> String:
 		return "Editing object"
 	if _op == null:
 		return "Idle"
+	if _op.has_method("stroke_state"):
+		return _op.call("stroke_state")
 	match _op_tool:
 		"paint", "spray", "tint":
 			return "Painting"
 		"raise", "flatten", "noise":
 			return "Sculpting"
-		"scatter":
-			return "Scattering"
-		"erase":
-			return "Erasing"
-		"fill":
-			return "Filling"
 		TOOL_PATH:
 			return "Drawing path"
 		OP_PLACE:
@@ -164,6 +164,8 @@ func _make_operation() -> RefCounted:
 	if tool_id not in IMPLEMENTED:
 		_ctx.report("%s arrives in a later build." % TOOL_LABELS[tool_id])
 		return null
+	if ScatterTools.handles(tool_id):
+		return ScatterTools.make(_ctx, _ring, _lasso, tool_id, self)
 	match tool_id:
 		TOOL_SELECT:
 			return SelectOperation.new(_ctx, _snap, _selected)

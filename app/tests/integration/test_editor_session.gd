@@ -285,3 +285,29 @@ func test_status_has_all_keys() -> void:
 		assert_true(status.has(key), "missing status key " + key)
 	assert_false(status.has("authored_hash"))
 	assert_eq(status.last_hit, "no hit")
+
+
+func test_scatter_stroke_renders_and_follows_undo_redo() -> void:
+	var s: EditorSession = await _start()
+	assert_eq(s.layers.stats().instances, 0)
+	s.tools.set_tool("scatter")
+	assert_empty_string(s.tools.set_setting("place", "radius", 20.0))
+	_stroke(s, -10.0, 10.0)
+	var added := s.document.scatter.count()
+	assert_true(added > 5, "scattered %d" % added)
+	assert_eq(s.history.size(), 1)
+	await tree.process_frame
+	assert_eq(s.layers.stats().instances, added, "live stroke is drawn")
+	assert_eq(s.undo(), "")
+	await tree.process_frame
+	assert_eq(s.layers.stats().instances, 0, "undo redraws")
+	assert_eq(s.redo(), "")
+	await tree.process_frame
+	assert_eq(s.layers.stats().instances, added, "redo redraws")
+	s.tools.set_tool("raise")
+	_act(s, "tool_begin", 0.0, 0.0, 5.0)
+	_act(s, "tool_move", 2.0, 0.0, 5.1)
+	s.tools.advance(5.2)
+	assert_true(s.layers.scatter.has_dirty(), "a live height edit marks scatter cells")
+	s.cancel_active()
+

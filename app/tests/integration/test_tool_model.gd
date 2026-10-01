@@ -2,7 +2,7 @@ extends TestCase
 ## Editor v2 tool model on ToolController (docs/editor-v2.md §1, §2): modes, tools, invert,
 ## settings, armed placement, height pick, stubs, scatter source, duplicate, paths.
 
-const STUBS := ["flatten", "noise", "spray", "tint", "pick", "scatter", "erase", "fill"]
+const STUBS := ["flatten", "noise", "spray", "tint", "pick"]
 
 var h: ToolHarness
 var tool_events: Array[String] = []
