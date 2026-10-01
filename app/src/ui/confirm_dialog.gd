@@ -5,10 +5,10 @@ extends Control
 ## told via set_modal so an active tool operation cannot continue underneath.
 
 var _session: EditorSession
-var _title := UiKit.label("", 20)
+var _title := UiKit.bold_label("", 20)
 var _body := UiKit.label("")
-var _confirm := UiKit.button("Open", Callable(), false, 120)
-var _cancel := UiKit.button("Cancel", Callable(), false, 120)
+var _confirm := UiKit.variant_button("Open", "AccentButton", Callable(), false, 120)
+var _cancel := UiKit.variant_button("Cancel", "SurfaceButton", Callable(), false, 120)
 var _on_confirm := Callable()
 
 
@@ -26,17 +26,19 @@ func setup(session: EditorSession) -> void:
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(center)
-	var panel := UiKit.panel()
+	var panel := UiKit.variant_panel("StrongPanel")
 	panel.custom_minimum_size.x = 420
 	center.add_child(panel)
 	var column := VBoxContainer.new()
 	panel.add_child(column)
 	_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_body.custom_minimum_size.x = 400
+	column.add_theme_constant_override("separation", 10)
 	column.add_child(_title)
 	column.add_child(_body)
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_END
+	row.add_theme_constant_override("separation", 8)
 	column.add_child(row)
 	row.add_child(_cancel)
 	row.add_child(_confirm)

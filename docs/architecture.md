@@ -47,7 +47,7 @@ Scene tree, UI and Terrain3D are touched only on the main thread (spec §18.2).
 | `ObjectPresenter` | `app/src/objects/object_presenter.gd` | Nodes from records, oriented-bounds picking, ghost, selection, anchor/ID markers |
 | `ToolController` | `app/src/tools/tool_controller.gd` | Active tool, settings, selection, object edits; one operation per contact |
 | Operations | `brush_operation.gd`, `place_operation.gd`, `select_operation.gd`, `object_edits.gd`, `brush_ring.gd` | Paint/sculpt/path strokes (sculpt re-grounds FOLLOW_TERRAIN objects in the same transaction), placement ghost, tap-select and move, transform edits |
-| `EditorUI` | `app/src/ui/` | Status row, tool rail, tool panel, asset strip, open/confirm dialog, diagnostics overlay |
+| `EditorUI` | `app/src/ui/` | Floating top bar (world menu, history, actions), tool dock, context bar, Library (drag-to-place), anchored object inspector, toasts, confirm dialog, diagnostics overlay |
 | `MacConsumer` / `WorldLoader` | `app/src/consumer/` | Read-only consumer scene and `--verify-only` report |
 | Self-test | `app/src/app/editor_selftest.gd`, `scripted_input_provider.gd` | `--editor-selftest`: synthetic §21.1 sequence, report + screenshots (never device evidence) |
 

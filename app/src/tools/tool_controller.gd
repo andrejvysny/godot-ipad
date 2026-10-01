@@ -32,6 +32,7 @@ var _snap := true
 var _ring: BrushRing
 var _op: RefCounted
 var _op_tool := ""
+var _drop := false  # _op is a Library drop, not a router-owned contact
 var _ignore_contact := false
 var _selected := ""
 var _last_hit := TerrainHit.new()
@@ -121,7 +122,7 @@ func handle_tool_action(action: Dictionary) -> void:
 		if _op != null:
 			_cancel_op(str(action.get("reason", "")))
 		return
-	if not editing_enabled:
+	if not editing_enabled or _drop:
 		return
 	var sample: PointerSample = action.get("sample")
 	match kind:
@@ -201,7 +202,7 @@ func _make_operation() -> RefCounted:
 		TOOL_PLACE:
 			var asset := _ctx.catalog.get_asset(str(_settings[TOOL_PLACE].asset_id))
 			if asset == null:
-				_ctx.report("Choose an asset in the strip first.")
+				_ctx.report("Choose an asset in the Library first.")
 				return null
 			return PlaceOperation.new(_ctx, asset, _snap)
 	return BrushOperation.new(_ctx, _ring, _active_tool, settings(_active_tool))
@@ -223,18 +224,22 @@ func _on_end(sample: PointerSample, over_ui: bool) -> void:
 	if _op == null:
 		return
 	_last_hit = _ctx.hit_for(sample)
+	_finish(sample, over_ui)
+
+
+## Ends the open operation at _last_hit; shared by router-owned contacts and Library drops.
+func _finish(sample: PointerSample, over_ui: bool) -> void:
 	var op := _op
 	var tool_id := _op_tool
 	var change: WorldChange = op.end(sample, _last_hit, over_ui)
 	_op = null
+	_drop = false
 	if op.error != "":
 		op.cancel()
 		_ctx.report(_error_message(op.error))
 		operation_cancelled.emit("tool_error")
 		return
-	if change != null:
-		_ctx.commit.call(change)
-		operation_finished.emit(change)
+	_commit(change)
 	if tool_id == TOOL_PLACE and op.created_id() != "":
 		select(op.created_id())
 		set_active_tool(TOOL_SELECT)
@@ -255,8 +260,48 @@ func _check_error() -> void:
 func _cancel_op(reason: String) -> void:
 	var op := _op
 	_op = null
+	_drop = false
 	op.cancel()
 	operation_cancelled.emit(reason)
+
+
+# --- Library drops: a Pencil drag from a Library tile stays owned by that control (input contract
+# §2), which forwards root-viewport positions here. Router tool actions except tool_cancel are ignored.
+
+func begin_drop(asset_id: String) -> String:
+	if not editing_enabled:
+		return "Editing is disabled."
+	if has_active_operation():
+		return BUSY
+	var err := set_setting(TOOL_PLACE, "asset_id", asset_id)
+	if err != "":
+		return err
+	_op = PlaceOperation.new(_ctx, _ctx.catalog.get_asset(asset_id), _snap)
+	_op_tool = TOOL_PLACE
+	_drop = true
+	operation_started.emit(TOOL_PLACE)
+	return ""
+
+
+func has_drop() -> bool:
+	return _drop
+
+
+func update_drop(pos: Vector2, over_ui: bool) -> void:
+	if not _drop:
+		return
+	if over_ui:
+		_op.pause(null)
+	else:
+		_last_hit = _ctx.hit_at(pos)
+		_op.move(null, _last_hit)  # PlaceOperation sets errors only in end()
+
+
+## Commits at a valid terrain hit outside the interface, otherwise cancels; a no-op once closed.
+func finish_drop(pos: Vector2, over_ui: bool) -> void:
+	if _drop:
+		_last_hit = _ctx.hit_at(pos)
+		_finish(null, over_ui)
 
 
 static func _error_message(err: String) -> String:

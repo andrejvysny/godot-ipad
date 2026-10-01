@@ -18,10 +18,14 @@ var stats: FrameStats
 
 
 func hit_for(sample: PointerSample) -> TerrainHit:
+	return hit_at(sample.position_viewport)
+
+
+## `pos` is in root-viewport coordinates (the space of PointerSample.position_viewport).
+func hit_at(pos: Vector2) -> TerrainHit:
 	if camera == null or document == null:
 		return TerrainHit.miss(TerrainHit.REASON_INVALID_RAY)
-	return TerrainPicker.raycast(document, camera.project_ray_origin(sample.position_viewport),
-			camera.project_ray_normal(sample.position_viewport))
+	return TerrainPicker.raycast(document, camera.project_ray_origin(pos), camera.project_ray_normal(pos))
 
 
 func mark_result(res: Dictionary) -> void:

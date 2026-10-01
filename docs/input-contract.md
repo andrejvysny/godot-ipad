@@ -58,6 +58,14 @@ InputProvider --drain_samples()--> InputSystem --map once--> InputRouter --actio
   off-screen and released there so the button does not fire; other controls (sliders) are released
   in place and keep their current value. The pressed control is looked up in the viewport under
   the press (an embedded window or the root).
+- **Library drops** (ADR 0007). A Pencil contact that begins on a Library tile remains owned by
+  that tile; the router stays in `PENCIL_UI` and emits no tool actions. After a short drag the tile
+  opens `ToolController.begin_drop(asset_id)` and forwards each root-viewport position through
+  `update_drop(pos, over_ui)`. On release it calls `finish_drop(pos, over_ui)`. `over_ui` comes from
+  `UiHitTester.is_over_ui`. Only a valid terrain hit outside every registered panel commits one
+  `Place` transaction; anything else places nothing. `ui_cancelled` cancels the drop before the
+  in-place synthetic release, and that release then does nothing. While a drop is open, the
+  controller ignores router tool actions except `tool_cancel`.
 - Window-based UI (dialogs, popups) is interface without registration (`UiHitTester.root`): a
   visible exclusive or popup window covers the whole screen (a Pencil tap outside it dismisses it
   and never paints; fingers never navigate behind it); any other visible window covers its rect

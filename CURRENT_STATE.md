@@ -21,6 +21,17 @@ Files/iTunes sharing, and the `--editor-selftest` scripted run.
 - Pending: user Pencil test of the editor, formal G1, device checklist editor section, final report.
   PoC+ not started (needs authorization).
 
+## UI redesign (2026-10-01)
+
+The editor UI was rebuilt from the claude.ai design "World Editor" (ADR 0007). It now has a floating
+top bar (world menu with save state, Undo/Redo labelled with the next action plus a contextual
+Cancel, Reset view/Export), an icon tool dock, a context bar with scrub fields and switches, a
+collapsible right-side Library with Pencil drag-to-place, an object inspector anchored next to the
+selection, toasts, an editing-disabled banner, and gesture hints that name the input provider. A
+left-handed layout is available. `ToolController.begin/update/finish_drop` keep the drag owned by
+the tile (input contract "Library drops"). Host: **408 Godot tests, 110 Python tests, zero
+failures**. Only Mac screenshots exist; the iPad layout, glyphs, and Pencil drag are NOT RUN.
+
 ## Working device baseline
 
 Input Lab works on the tested iPad Air 4 / iPadOS 26.5 with **Mobile/Vulkan**. The user confirmed

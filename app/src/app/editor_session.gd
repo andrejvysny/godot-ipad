@@ -130,6 +130,7 @@ func _open_world() -> String:
 		recovery_note = "Recovery failed: %s. " % recovered.error
 		if recovered.doc != null:
 			document = recovered.doc
+			document.source_label = "recovered"
 			var skipped: Array = recovered.skipped
 			var text := "Recovered revision %d" % document.document_revision
 			if not skipped.is_empty():

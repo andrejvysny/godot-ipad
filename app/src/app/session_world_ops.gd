@@ -16,6 +16,7 @@ static func load_fixture(fixture: String, catalog: AssetCatalog) -> Array:
 	var doc: WorldDocument = loaded[0]
 	doc.world_id = ObjectRecord.new_uuid_v4()
 	doc.document_revision = 0
+	doc.source_label = "fixture:" + fixture
 	return [doc, ""]
 
 

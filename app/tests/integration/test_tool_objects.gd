@@ -106,7 +106,7 @@ func test_place_after_sculpt_uses_the_new_height() -> void:
 func test_place_without_asset_is_refused() -> void:
 	h.ctrl.set_active_tool(ToolController.TOOL_PLACE)
 	h.act("tool_begin", h.at(40, 40, 1.0))
-	assert_eq(h.diagnostics, ["Choose an asset in the strip first."])
+	assert_eq(h.diagnostics, ["Choose an asset in the Library first."])
 	assert_false(h.ctrl.has_active_operation())
 	h.act("tool_move", h.at(41, 40, 1.02))
 	h.act("tool_end", h.at(41, 40, 1.04))
@@ -387,3 +387,67 @@ func test_cancel_active_rolls_back_pointer_operation() -> void:
 	h.ctrl.cancel_active("background")
 	assert_eq(CanonicalEncoder.authored_hash(h.doc), before)
 	assert_false(h.ctrl.has_active_operation())
+
+
+# --- Library drops -------------------------------------------------------------------------
+
+func _pos(x: float, z: float) -> Vector2:
+	return h.at(x, z, 0.0).position_viewport
+
+
+func test_library_drop_places_selects_and_ignores_router_actions() -> void:
+	h.ctrl.set_active_tool(ToolController.TOOL_PAINT)
+	assert_empty_string(h.ctrl.begin_drop(ToolHarness.BOULDER))
+	assert_true(h.ctrl.has_drop() and h.ctrl.has_active_operation())
+	assert_eq(h.ctrl.settings("place").asset_id, ToolHarness.BOULDER, "drop remembers the asset")
+	assert_eq(h.ctrl.stroke_state(), "Placing")
+	h.ctrl.update_drop(_pos(40.2, 40.3), false)
+	assert_true(h.presenter.has_ghost_visible() and h.presenter.ghost_valid())
+	h.ctrl.update_drop(_pos(40.2, 40.3), true)
+	assert_false(h.presenter.ghost_valid(), "over a panel the ghost is invalid")
+	h.act("tool_begin", h.at(10, 10, 1.0))
+	h.act("tool_end", h.at(10, 10, 1.02))
+	assert_true(h.ctrl.has_drop(), "router tool actions never touch a drop")
+	assert_eq(h.doc.objects.size(), 0, "document untouched during the drag")
+	h.ctrl.update_drop(_pos(40.2, 40.3), false)
+	h.ctrl.finish_drop(_pos(40.2, 40.3), false)
+	assert_false(h.ctrl.has_drop() or h.ctrl.has_active_operation())
+	assert_eq(h.commits.size(), 1)
+	var rec: ObjectRecord = h.doc.objects.values()[0]
+	assert_eq(rec.position[0], 40.0, "x snapped")
+	assert_eq(rec.position[2], 40.5, "z snapped")
+	assert_eq(h.ctrl.selected_id(), rec.object_id)
+	assert_eq(h.ctrl.active_tool(), ToolController.TOOL_SELECT)
+	assert_false(h.presenter.has_ghost_visible())
+	h.ctrl.finish_drop(_pos(40, 40), false)
+	assert_eq(h.commits.size(), 1, "finish after close is a no-op")
+
+
+func test_library_drop_over_ui_sky_or_cancel_creates_nothing() -> void:
+	assert_empty_string(h.ctrl.begin_drop(ToolHarness.SPRUCE))
+	h.ctrl.update_drop(_pos(40, 40), false)
+	h.ctrl.finish_drop(_pos(40, 40), true)
+	assert_eq(h.doc.objects.size(), 0, "released over a panel")
+	assert_false(h.presenter.has_ghost_visible())
+	assert_empty_string(h.ctrl.begin_drop(ToolHarness.SPRUCE))
+	h.ctrl.finish_drop(h.sky(1.0).position_viewport, false)
+	assert_eq(h.doc.objects.size(), 0, "released over sky without a valid hit")
+	assert_empty_string(h.ctrl.begin_drop(ToolHarness.SPRUCE))
+	h.ctrl.update_drop(_pos(40, 40), false)
+	h.ctrl.cancel_active("ui_cancel")
+	assert_false(h.ctrl.has_drop() or h.presenter.has_ghost_visible())
+	h.ctrl.finish_drop(_pos(40, 40), false)
+	assert_eq(h.doc.objects.size(), 0, "finish after cancel is a no-op")
+	assert_eq(h.commits.size(), 0)
+
+
+func test_library_drop_refused_when_busy_disabled_or_unknown() -> void:
+	assert_ne(h.ctrl.begin_drop("nature.rock.missing"), "")
+	h.ctrl.editing_enabled = false
+	assert_ne(h.ctrl.begin_drop(ToolHarness.BOULDER), "")
+	h.ctrl.editing_enabled = true
+	h.ctrl.set_active_tool(ToolController.TOOL_PAINT)
+	h.act("tool_begin", h.at(40, 40, 1.0))
+	assert_eq(h.ctrl.begin_drop(ToolHarness.BOULDER), ToolController.BUSY)
+	h.act("tool_end", h.at(40, 40, 1.02))
+	assert_false(h.ctrl.has_drop())

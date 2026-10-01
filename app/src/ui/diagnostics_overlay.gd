@@ -17,17 +17,9 @@ var _fingerprint := ""
 func setup(session: EditorSession) -> void:
 	_session = session
 	visible = false
-	set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	grow_horizontal = Control.GROW_DIRECTION_BEGIN
-	offset_left = -380
-	offset_right = -8
-	offset_top = 52
-	offset_bottom = 52
 	var column := VBoxContainer.new()
 	add_child(column)
-	var font := SystemFont.new()
-	font.font_names = PackedStringArray(["Menlo", "Courier New", "monospace"])
-	_text.add_theme_font_override("font", font)
+	_text.add_theme_font_override("font", UiKit.mono_font())
 	_text.add_theme_font_size_override("font_size", 13)
 	_text.custom_minimum_size.x = 356
 	_text.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
@@ -54,6 +46,7 @@ func _grid(entries: Array) -> GridContainer:
 	for entry: Array in entries:
 		var b := UiKit.button(entry[0], entry[1], entry.size() > 2)
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		b.theme_type_variation = "SurfaceButton"
 		grid.add_child(b)
 		_toggles[entry[0]] = b
 	return grid

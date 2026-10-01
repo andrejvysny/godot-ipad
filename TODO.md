@@ -2,6 +2,20 @@
 
 Updated: 2026-10-01. Scope: Core PoC WP00–WP06 only (WP07/PoC+ not authorized). Physical iPad Air 4 / Pencil testing confirms the Mobile/Vulkan baseline; full G1 remains INCOMPLETE.
 
+## UI redesign (2026-10-01, ADR 0007)
+
+Source: claude.ai design "World Editor" proposal 1a. Search field, Unicode glyph icons, and an
+inspector that follows a dragged object were rejected. They respectively require a keyboard,
+fail to render on iPad, and would pause a world-owned Pencil.
+
+- [x] ToolController Library-drop API (`begin/update/finish_drop`) + 3 tests; input contract + ADR 0007
+- [x] UI rewrite: UiKit tokens, icons, ScrubField, ToolDock, ContextBar, ObjectInspector, AssetLibrary
+  (drag-to-place), WorldMenu, HistoryBar, EditorUI layout (handedness), toasts/banner/hints
+- [x] test_editor_ui rewrite + new layout/drop/inspector tests; 408 Godot + 110 Python tests, 0 failures
+- [x] Mac screenshot review (Metal, Mac development input); fixture/recovered world names via `source_label`
+- [ ] iPad build and user Pencil/palm check of the new layout (drag-to-place, inspector, right-side Library)
+- [ ] Cosmetic: scrub accent edge line crosses right-aligned value text at high fill
+
 ## Editor build (started 2026-10-01)
 
 User reported the iPad test environment works and directed building the full editor. Phases 3–5
