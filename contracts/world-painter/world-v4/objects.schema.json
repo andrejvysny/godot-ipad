@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.world-painter.invalid/world-v4/objects.schema.json",
+  "title": "WorldObjectsV4",
+  "description": "DRAFT. objects.json for world schema 4 (INT-SPEC-1.1 §9.2). Identical to schema 3 records except asset_id/asset_version are replaced by binding_id. Semantic checks (docs/world-format.md §4): records sorted by object_id; unique IDs; f64le bits authoritative and within 1e-9 relative of the decimals; rotation unit length within 1e-6; X/Z inside the layout's bilinear extent; uniform_scale and height_offset_m inside the binding's effective policy ranges; binding_id present in asset_locks.json; count and byte limits per §9.4.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "objects"],
+  "properties": {
+    "schema_version": {"const": 4},
+    "objects": {"type": "array", "maxItems": 50000, "items": {"$ref": "#/$defs/record"}}
+  },
+  "$defs": {
+    "uuid": {"type": "string", "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"},
+    "f64hex": {"type": "string", "pattern": "^[0-9a-f]{16}$"},
+    "record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["object_id", "binding_id", "position", "rotation_xyzw", "uniform_scale", "grounding", "height_offset_m", "origin", "scatter_operation_id", "f64le"],
+      "properties": {
+        "object_id": {"$ref": "#/$defs/uuid"},
+        "binding_id": {"type": "string", "pattern": "^b[0-9a-f]{32}$"},
+        "position": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "number"}},
+        "rotation_xyzw": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"type": "number"}},
+        "uniform_scale": {"type": "number", "exclusiveMinimum": 0},
+        "grounding": {"enum": ["FOLLOW_TERRAIN", "WORLD_FIXED"]},
+        "height_offset_m": {"type": "number"},
+        "origin": {"enum": ["MANUAL", "SCATTER"]},
+        "scatter_operation_id": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/uuid"}]},
+        "f64le": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["position", "rotation_xyzw", "uniform_scale", "height_offset_m"],
+          "properties": {
+            "position": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"$ref": "#/$defs/f64hex"}},
+            "rotation_xyzw": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"$ref": "#/$defs/f64hex"}},
+            "uniform_scale": {"$ref": "#/$defs/f64hex"},
+            "height_offset_m": {"$ref": "#/$defs/f64hex"}
+          }
+        }
+      }
+    }
+  }
+}

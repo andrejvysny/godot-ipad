@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.world-painter.invalid/world-v4/asset-locks.schema.json",
+  "title": "WorldAssetLocksV1",
+  "description": "DRAFT. asset_locks.json in a world schema 4 generation (INT-SPEC-1.1 §9.2). Stored as AssetStudio canonical_v1 JSON bytes; readers hash raw bytes and reject non-canonical bytes. Semantic checks not expressible here: bindings sorted by binding_id; binding_id recomputed per binary-formats.md; every binding referenced by an object or scatter instance; policy ranges within descriptor/catalog limits; dependencies equal the transitive closure of assetstudio bindings.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "bindings", "dependencies"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "bindings": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": {"oneOf": [{"$ref": "#/$defs/bundled_binding"}, {"$ref": "#/$defs/assetstudio_binding"}]}
+    },
+    "dependencies": {
+      "$comment": "Same structure as ProjectAssetLockV1.dependencies.",
+      "$ref": "https://schemas.assetstudio.invalid/godot-integration/v1/project-lock.schema.json#/properties/dependencies"
+    }
+  },
+  "$defs": {
+    "binding_id": {"type": "string", "pattern": "^b[0-9a-f]{32}$"},
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scatter_allowed", "scale_range", "height_offset_range_m"],
+      "properties": {
+        "scatter_allowed": {"type": "boolean"},
+        "scale_range": {"$ref": "https://schemas.assetstudio.invalid/godot-integration/v1/asset-ref.schema.json#/$defs/positive_decimal_range"},
+        "height_offset_range_m": {"$ref": "https://schemas.assetstudio.invalid/godot-integration/v1/asset-ref.schema.json#/$defs/decimal_range"}
+      }
+    },
+    "bundled_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["binding_id", "provider", "catalog", "asset_id", "asset_version", "policy"],
+      "properties": {
+        "binding_id": {"$ref": "#/$defs/binding_id"},
+        "provider": {"const": "bundled"},
+        "catalog": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "version", "sha256"],
+          "properties": {
+            "id": {"type": "string", "pattern": "^[a-z0-9_]{1,64}$"},
+            "version": {"type": "integer", "minimum": 1},
+            "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+          }
+        },
+        "asset_id": {"type": "string", "pattern": "^[a-z0-9_]{1,64}$"},
+        "asset_version": {"type": "integer", "minimum": 1},
+        "policy": {"$ref": "#/$defs/policy"}
+      }
+    },
+    "delivery_pin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["delivery_id", "manifest_sha256", "profile_id", "profile_version"],
+      "properties": {
+        "delivery_id": {"$ref": "https://schemas.assetstudio.invalid/godot-integration/v1/asset-ref.schema.json#/$defs/delivery_id"},
+        "manifest_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "profile_id": {"type": "string", "minLength": 1, "maxLength": 128},
+        "profile_version": {"type": "string", "minLength": 1, "maxLength": 64}
+      }
+    },
+    "assetstudio_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["binding_id", "provider", "asset_key", "asset_ref", "descriptor_json", "descriptor_sha256", "deliveries", "policy"],
+      "properties": {
+        "binding_id": {"$ref": "#/$defs/binding_id"},
+        "provider": {"const": "assetstudio"},
+        "asset_key": {"$ref": "https://schemas.assetstudio.invalid/godot-integration/v1/asset-ref.schema.json#/$defs/asset_key"},
+        "asset_ref": {"$ref": "https://schemas.assetstudio.invalid/godot-integration/v1/asset-ref.schema.json#/$defs/asset_ref"},
+        "descriptor_json": {"type": "string", "minLength": 2, "maxLength": 262144, "$comment": "Exact UTF-8 descriptor text; sha256 of its UTF-8 bytes must equal descriptor_sha256."},
+        "descriptor_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "deliveries": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["portable_glb_v1"],
+          "properties": {
+            "portable_glb_v1": {"$ref": "#/$defs/delivery_pin"},
+            "godot_static_source_v1": {"$ref": "#/$defs/delivery_pin"}
+          }
+        },
+        "policy": {"$ref": "#/$defs/policy"}
+      }
+    }
+  }
+}
