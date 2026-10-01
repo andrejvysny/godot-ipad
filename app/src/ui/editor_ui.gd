@@ -89,7 +89,7 @@ func _setup_components(session: EditorSession) -> void:
 func _connect_signals() -> void:
 	var tools := _session.tools
 	for signal_ref: Signal in [_session.status_changed, _session.world_replaced, tools.tool_changed,
-			tools.selection_changed, tools.settings_changed, tools.operation_started,
+			tools.selection_changed, tools.path_selection_changed, tools.settings_changed, tools.operation_started,
 			tools.operation_finished, tools.operation_cancelled]:
 		signal_ref.connect(_on_any_signal)
 	_session.message_posted.connect(_toast.show_message)

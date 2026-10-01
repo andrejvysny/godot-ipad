@@ -132,3 +132,18 @@ func test_visual_mode_renders_gentle_hills_scatter() -> void:
 	var report := WorldLoader.report(consumer.document, catalog)
 	assert_eq(report.scatter_instance_count, 550)
 
+
+
+func test_gentle_hills_path_is_rendered_and_reported() -> void:
+	allow_logged_errors()
+	log_filter = TerrainTests.KnownWarningFilter.new()
+	OS.add_logger(log_filter)
+	consumer = MacConsumer.new()
+	consumer.auto_run = false
+	tree.root.add_child(consumer)
+	assert_eq(consumer.run(PackedStringArray(["--world=res://fixtures/gentle_hills"])), 0)
+	await tree.process_frame
+	assert_eq(consumer.layers.paths.path_count(), 1)
+	assert_true(consumer.info_label.text.contains("paths 1"))
+	var report := WorldLoader.report(consumer.document, catalog)
+	assert_eq(int(report.path_count), 1)

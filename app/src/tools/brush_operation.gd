@@ -1,13 +1,12 @@
 class_name BrushOperation
 extends RefCounted
-## One paint / sculpt / path contact (spec §12, §13). Owns the EditTransaction. The stroke starts
+## One paint / sculpt contact (spec §12, §13). Owns the EditTransaction. The stroke starts
 ## lazily on the first valid terrain hit; an invalid hit pauses it so no interval is ever bridged
 ## (TE-09). A non-empty `error` means the controller must cancel; the transaction is then rolled
 ## back by cancel(). Sculpt also re-grounds FOLLOW_TERRAIN objects in the same transaction (TE-11).
 
 const TOOL_PAINT := "paint"
 const TOOL_SCULPT := "sculpt"
-const TOOL_PATH := "path"
 const RING_ACCENT := Color("f2bf33")
 const RING_DANGER := Color("ff9a88")
 ## Paint ring colour per material layer (grass, dirt, rock, sand).
@@ -134,11 +133,9 @@ func advance(now: float) -> void:
 func _apply_sample(sample: PointerSample, hit: TerrainHit, force_resume: bool) -> void:
 	var pos := Vector2(hit.position.x, hit.position.z)
 	_hit_y = hit.position.y
-	var pf := 1.0
-	if _tool_id != TOOL_PATH:
-		pf = BrushMath.pressure_factor(sample.pressure_valid, sample.pressure,
-				bool(_settings.get("pressure_enabled", true)), float(_brush.get("pressure_min_factor", 0.2)),
-				float(_brush.get("pressure_gamma", 1.0)))
+	var pf := BrushMath.pressure_factor(sample.pressure_valid, sample.pressure,
+			bool(_settings.get("pressure_enabled", true)), float(_brush.get("pressure_min_factor", 0.2)),
+			float(_brush.get("pressure_gamma", 1.0)))
 	var t := sample.timestamp_s
 	_probe.add_sample(sample.pressure_valid, sample.pressure, pf, t)
 	_begin_timing()
@@ -212,30 +209,13 @@ func _take_result(res: Dictionary) -> void:
 		_reground_followers(res.rect)
 
 
-## TE-11: FOLLOW_TERRAIN objects under changed samples follow the ground inside this transaction.
 func _reground_followers(rect: Rect2) -> void:
-	var doc := _ctx.document
-	for id in doc.sorted_object_ids():
-		var rec := doc.get_object(id)
-		if rec.grounding != WorldConstants.GROUNDING_FOLLOW \
-				or not rect.has_point(Vector2(rec.position[0], rec.position[2])):
-			continue
-		var h := doc.sample_height(rec.position[0], rec.position[2])
-		var new_y := h + rec.height_offset_m
-		if not is_finite(new_y) or new_y == rec.position[1]:
-			continue
-		if not _tx.capture_object(id):
-			error = BrushKernels.ERROR_BUDGET
-			return
-		var moved := rec.clone()
-		moved.set_position(rec.position[0], new_y, rec.position[2])
-		doc.put_object(moved)
-		_ctx.presenter.sync_object(doc, id)
+	var failed := Regrounder.followers(_ctx, _tx, rect)
+	if failed != "":
+		error = failed
 
 
 func _paint_settings() -> Dictionary:
-	if _tool_id == TOOL_PATH:
-		return PaintStroke.path_settings(float(_settings.get("width", 3.0)))
 	var op := _paint_op()
 	return {"radius": float(_settings.get("radius", 4.0)), "strength": float(_settings.get("strength", 0.8)),
 			"target_blend": 1.0, "pressure_enabled": bool(_settings.get("pressure_enabled", true)),
@@ -276,8 +256,6 @@ func _paint_op() -> String:
 
 
 func _paint_ring_color() -> Color:
-	if _tool_id == TOOL_PATH:
-		return RING_LAYERS[WorldConstants.MATERIAL_DIRT]
 	if str(_settings.get("tool", "paint")) == "tint":
 		var rgb := TintCodec.preset_rgb(int(_settings.get("tint", 0)))
 		return Color8(rgb.x, rgb.y, rgb.z)
@@ -287,8 +265,6 @@ func _paint_ring_color() -> Color:
 func _label() -> String:
 	var inverted := bool(_settings.get("inverted", false))
 	match _tool_id:
-		TOOL_PATH:
-			return "Path"
 		TOOL_SCULPT:
 			match str(_settings.get("tool", "raise")):
 				"flatten":

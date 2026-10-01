@@ -1,5 +1,6 @@
 extends TestCase
-## Paint / sculpt / path tools through ToolController (spec §12, §13, §15; TE-09..TE-12, IN-08, PA-00).
+## Paint / sculpt tools through ToolController (spec §12, §13; TE-09..TE-12, IN-08). The Path tool is
+## in test_path_tool.gd (the dirt-paint path preset, PA-00, is superseded by ADR 0009).
 
 const LOC := Vector2i(0, 0)
 
@@ -82,28 +83,6 @@ func test_paint_grass_target_reduces_blend() -> void:
 	var v := doc_control(40, 40)
 	assert_eq([ControlCodec.get_base(v), ControlCodec.get_overlay(v), v & ControlCodec.AUTO_BIT], [1, 0, 0], "collapsed")
 	assert_true(ControlCodec.get_blend(v) < 255, "grass overlay is partial")
-
-
-func test_path_paints_inside_half_width_only_and_never_touches_objects() -> void:
-	var rock := h.add_object(ToolHarness.BOULDER, 40.0, 40.0)
-	var lodge := h.add_object(ToolHarness.LODGE, 40.0, 50.0)
-	var before_rock := rock.clone()
-	var before_lodge := lodge.clone()
-	var before := h.control_snapshot()
-	h.ctrl.set_tool(ToolController.TOOL_PATH)
-	_drag(40.0, 30.0, 50.0)
-	assert_eq(h.commits.size(), 1)
-	assert_eq(h.commits[0].label, "Path")
-	assert_true(_blend(40, 40) > 0.9, "centre is dirt")
-	assert_eq(doc_control(40, 43), before[LOC][int(43.0 / 0.5) * 256 + 80] & 0xFFFFFFFF, "3 m away untouched")
-	for p in _changed_samples(before[LOC], h.doc.get_region(LOC).control):
-		assert_true(_dist_to_segment(p, Vector2(30, 40), Vector2(50, 40)) <= 1.55, "inside width/2")
-	assert_eq(h.doc.objects.size(), 2, "PA-00: no object deleted")
-	assert_true(h.doc.get_object(rock.object_id).equals(before_rock), "PA-00: boulder unchanged")
-	assert_true(h.doc.get_object(lodge.object_id).equals(before_lodge), "PA-00: lodge unchanged")
-	assert_true(h.commits[0].before_objects.is_empty())
-	h.history.undo(h.doc)
-	assert_eq(h.doc.get_region(LOC).control, before[LOC])
 
 
 func test_pause_resume_never_bridges_the_gap() -> void:

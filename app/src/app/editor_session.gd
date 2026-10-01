@@ -214,11 +214,13 @@ func _build_tools_and_input() -> void:
 	ctx.units_per_point = input.mapper.viewport_units_per_point
 	ctx.stats = frames
 	ctx.scatter_changed = layers.scatter_changed
+	ctx.path_changed = layers.path_changed
 	_tool_ctx = ctx
 	tools.operation_started.connect(func(_tool: String) -> void: _op_max_gap_ms = 0.0)
 	tools.operation_cancelled.connect(func(reason: String) -> void: _last_cancel_reason = reason)
 	add_child(tools)
 	tools.setup(ctx)
+	layers.bind_tools(tools)
 	input.provider_override = provider_override
 	input.platform_override = platform_override
 	add_child(input)

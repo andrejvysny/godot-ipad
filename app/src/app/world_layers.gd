@@ -1,24 +1,44 @@
 class_name WorldLayers
 extends Node3D
-## Scene layers drawn from document data on top of the terrain (scatter now; the path renderer
-## joins later). The session and the Mac consumer both own one; it never mutates the document.
+## Scene layers drawn from document data on top of the terrain: scatter and paths. The session
+## and the Mac consumer both own one; it never mutates the document.
 
 var scatter := ScatterRenderer.new()
+var paths := PathRenderer.new()
 
 
 func setup(catalog: AssetCatalog) -> void:
 	scatter.setup(catalog)
 	if scatter.get_parent() == null:
 		add_child(scatter)
+	if paths.get_parent() == null:
+		add_child(paths)
+
+
+## Shows the selected path's handles while the Path tool is active (editor session only).
+func bind_tools(tools: ToolController) -> void:
+	var update := func() -> void: set_path_selection(tools.selected_path_id(), tools.active_tool() == "path")
+	tools.path_selection_changed.connect(func(_id: String) -> void: update.call())
+	tools.tool_changed.connect(func(_id: String) -> void: update.call())
+	update.call()
+
+
+func set_path_selection(id: String, show_handles: bool) -> void:
+	paths.set_selection(id, show_handles)
 
 
 ## Draws `doc` from scratch (world open or replaced).
 func rebuild(doc: WorldDocument) -> void:
 	scatter.rebuild_all(doc)
+	paths.rebuild(doc)
 
 
 ## An applied or reverted change (commit, undo, redo): redraw what it touched.
-func present_change(_doc: WorldDocument, change: WorldChange) -> void:
+func present_change(doc: WorldDocument, change: WorldChange) -> void:
+	if not change.path_ids().is_empty():
+		paths.sync(doc, change.path_ids())
+	if not change.height_regions().is_empty():
+		paths.mark_rect(change.affected_world_bounds)
 	if change.has_scatter():
 		scatter.mark_all()
 	elif not change.height_regions().is_empty():
@@ -28,11 +48,19 @@ func present_change(_doc: WorldDocument, change: WorldChange) -> void:
 ## Live stroke terrain edit: instances under `rect` re-drape.
 func heights_changed(rect: Rect2) -> void:
 	scatter.mark_rect(rect, true)
+	paths.mark_rect(rect)
 
 
 ## ToolContext.scatter_changed target.
 func scatter_changed(rect: Rect2, heights_only: bool) -> void:
 	scatter.mark_rect(rect, heights_only)
+	if heights_only:
+		paths.mark_rect(rect)
+
+
+## ToolContext.path_changed target: paths edited live by a tool (draw, handle drag).
+func path_changed(ids: Array) -> void:
+	paths.resync(ids)
 
 
 func stats() -> Dictionary:

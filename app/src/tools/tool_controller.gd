@@ -14,6 +14,7 @@ const IMPLEMENTED: Array[String] = ["raise", "flatten", "noise", "paint", "spray
 
 var _ring: BrushRing
 var _lasso: LassoPreview
+var _path_preview: PathPreview
 var _op: RefCounted
 var _op_tool := ""
 var _drop := false  # _op is a Library drop, not a router-owned contact
@@ -29,6 +30,9 @@ func setup(ctx: ToolContext) -> void:
 	if _lasso == null:
 		_lasso = LassoPreview.new()
 		add_child(_lasso)
+	if _path_preview == null:
+		_path_preview = PathPreview.new()
+		add_child(_path_preview)
 
 
 func set_document(doc: WorldDocument) -> String:
@@ -111,8 +115,6 @@ func stroke_state() -> String:
 			return "Painting"
 		"raise", "flatten", "noise":
 			return "Sculpting"
-		TOOL_PATH:
-			return "Drawing path"
 		OP_PLACE:
 			return "Placing"
 	return "Moving" if _op.is_moving() else "Idle"
@@ -165,7 +167,7 @@ func _make_operation() -> RefCounted:
 		TOOL_SELECT:
 			return SelectOperation.new(_ctx, _snap, _selected)
 		TOOL_PATH:
-			return BrushOperation.new(_ctx, _ring, "path", {"width": _values.values("path").width})
+			return PathTools.make(_ctx, _path_preview, _selected_path, _last_hit, float(_values.values("path").width))
 		"raise", "flatten", "noise":
 			return BrushOperation.new(_ctx, _ring, "sculpt", _brush_settings("sculpt", tool_id))
 		"paint", "spray", "tint":
@@ -231,8 +233,18 @@ func _finish(sample: PointerSample, over_ui: bool) -> void:
 		set_tool(TOOL_SELECT)
 	elif tool_id == TOOL_SELECT and op.tap_selection() != null:
 		select(str(op.tap_selection()))
+	elif op is PathDrawOperation:
+		_finish_path_draw(op as PathDrawOperation)
 	elif tool_id == "pick" and (op as PickOperation).picked_layer() >= 0:
 		_apply_pick((op as PickOperation).picked_layer())
+
+
+## A drawn path becomes the selection; a tap selects the nearest path or clears the selection.
+func _finish_path_draw(op: PathDrawOperation) -> void:
+	if op.created_id() != "":
+		select_path(op.created_id())
+	elif op.tap_selection() != null:
+		select_path(str(op.tap_selection()))
 
 
 func _apply_pick(layer: int) -> void:

@@ -18,6 +18,8 @@ var stats: FrameStats
 ## `scatter_changed(rect: Rect2, heights_only: bool)`: world-XZ rect whose scatter instances need
 ## redrawing; heights_only when only terrain heights changed (instance membership is unchanged).
 var scatter_changed: Callable = Callable()
+## `path_changed(ids: Array)`: paths edited live by a tool whose ribbons need redrawing.
+var path_changed: Callable = Callable()
 ## StrokeProbe.finish() of the most recent paint/sculpt/path stroke; {} before the first.
 var last_stroke: Dictionary = {}
 
@@ -36,6 +38,11 @@ func hit_at(pos: Vector2) -> TerrainHit:
 func notify_scatter(rect: Rect2, heights_only: bool = false) -> void:
 	if scatter_changed.is_valid():
 		scatter_changed.call(rect, heights_only)
+
+
+func notify_path(ids: Array) -> void:
+	if path_changed.is_valid():
+		path_changed.call(ids)
 
 
 ## Height results re-drape scatter: the kernel rect when it has one, else every dirty region.

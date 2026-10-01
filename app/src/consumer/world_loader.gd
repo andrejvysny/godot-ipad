@@ -31,6 +31,7 @@ static func report(doc: WorldDocument, catalog: AssetCatalog) -> Dictionary:
 		"catalog": {"id": catalog.catalog_id, "version": catalog.catalog_version, "sha256": catalog.sha256},
 		"object_count": ids.size(),
 		"scatter_instance_count": doc.scatter.count(),
+		"path_count": doc.paths.size(),
 		"object_ids": ids,
 		"regions": regions,
 		"grounding_mismatches": WorldValidator.grounding_report(doc, catalog).size(),

@@ -2,7 +2,7 @@ class_name UiScreenshot
 extends RefCounted
 ## Visual verification aid. `--ui-screenshot=<abs.png>` saves the window after 2 s and quits;
 ## `--ui-screenshot-state=<mode>:<tool>[:closed][:select][:ticked][:sets][:editor]` first sets that tool,
-## opens its popover (unless `closed`) and, with `select`, selects the first object of the world;
+## opens its popover (unless `closed`) and, with `select`, selects the first object of the world (tool `path` always selects the first path);
 ## `ticked` ticks two Library assets, `sets` shows the Sets tab, `editor` opens the "forest" set editor.
 
 
@@ -38,6 +38,8 @@ static func apply_state(ui: EditorUI, session: EditorSession, state: String) -> 
 	var ids := session.document.sorted_object_ids()
 	if parts.has("select") and not ids.is_empty():
 		session.tools.select(ids[0])
+	if parts[1] == "path" and not session.document.paths.is_empty():
+		session.tools.select_path(session.document.sorted_path_ids()[0])
 	if parts.has("ticked"):
 		for id in ["nature.tree.spruce_a", "nature.cover.fern_a"]:
 			ui.library().tile(id).tick_button().button_pressed = true

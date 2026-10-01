@@ -96,9 +96,9 @@ func _present(report: Dictionary) -> void:
 	add_child(layers)
 	layers.setup(catalog)
 	layers.rebuild(document)
-	_show_info("MAC CONSUMER — read-only\nworld %s\nrevision %d\nauthored hash %s\nobjects %d\nscatter %d\ngrounding mismatches %d" % [
+	_show_info("MAC CONSUMER — read-only\nworld %s\nrevision %d\nauthored hash %s\nobjects %d\nscatter %d\npaths %d\ngrounding mismatches %d" % [
 		report.world_id, report.document_revision, report.authored_hash, report.object_count,
-		layers.stats().instances, report.grounding_mismatches])
+		layers.stats().instances, report.path_count, report.grounding_mismatches])
 
 
 func _show_error(error: String) -> void:

@@ -269,11 +269,11 @@ func _s07_paint() -> void:
 			paint.committed and not _d.changed_regions(before, after_paint).is_empty(), {"attempts": paint.attempts, "over_ui": paint.over_ui})
 	tools.set_tool("path")
 	tools.set_setting("path", "width", 3.0)
-	var records := _object_records()
+	var paths_before := _session.document.paths.size()
 	var path := await _d.stroke(_d.seg(_d.ground(8, 20), _d.ground(34, 20)))
-	_check("S07", "path stroke changed control maps", path.committed
-			and not _d.changed_regions(after_paint, _d.snapshot("control")).is_empty(), {"attempts": path.attempts})
-	_check("S07", "PA-00 path left every object record unchanged", _records_equal(records, _object_records()), {})
+	_check("S07", "path stroke added a path", path.committed and _session.document.paths.size() == paths_before + 1,
+			{"attempts": path.attempts})
+	_check("S07", "path stroke left the control maps alone", _d.changed_regions(after_paint, _d.snapshot("control")).is_empty(), {})
 	tools.set_tool("select")
 	await _d.frames(3)
 	await _shot("painted")
@@ -354,22 +354,6 @@ func _s11_export() -> void:
 	_check("S11", "export exists and reloads with the same authored hash and object ids",
 			_export_path != "" and FileAccess.file_exists(_export_path) and same,
 			{"export_error": str(result.error), "load_error": str(loaded[1]), "path": _export_path})
-
-
-func _object_records() -> Dictionary:
-	var out := {}
-	for id: String in _session.document.objects:
-		out[id] = _session.document.get_object(id).clone()
-	return out
-
-
-func _records_equal(a: Dictionary, b: Dictionary) -> bool:
-	if a.size() != b.size():
-		return false
-	for id: String in a:
-		if not b.has(id) or not (a[id] as ObjectRecord).equals(b[id]):
-			return false
-	return true
 
 
 func _sorted_ids() -> PackedStringArray:
