@@ -7,6 +7,7 @@ extends RefCounted
 
 const MIN_SLOW_STATUS_MSEC := 100
 const BLOCKED := "blocked"
+const HOST_BENCH_IGNORE_FOCUS := "--bench-ignore-focus"
 const ACTIVE_MARGIN_M := 2.0
 const RING_COLOR := Color(0.55, 0.85, 1.0, 0.9)
 
@@ -16,6 +17,7 @@ var vegetation_hidden := false
 var cache: RenderAssetCache
 var active_edit: ActiveEditArea
 var texture_preview: TexturePreviewController
+var safety: SessionSafety
 
 var _registry: RenderAssetRegistry
 var _tools: ToolController
@@ -42,6 +44,7 @@ func _init(session: EditorSession) -> void:
 	cache = RenderAssetCache.new(budgets)
 	active_edit = ActiveEditArea.new(float(config.section("cells").objects_m), int(config.section("stability").settle_ms))
 	texture_preview = TexturePreviewController.new(cache, config.section("texture_preview"))
+	safety = SessionSafety.new(session, self)
 	session.world_replaced.connect(_on_world_replaced)
 
 
@@ -59,6 +62,7 @@ func service_frame(budget_ms: float = -1.0) -> void:
 	if profiles.pending_name() != "" and not _session.tools.has_active_operation():
 		profiles.operation_ended()
 	cache.poll(budget)
+	safety.tick()
 	active_edit.tick(Time.get_ticks_msec())
 	if active_edit.is_active() and _tools != null:
 		var hit := _tools.last_hit()
@@ -137,6 +141,11 @@ func _apply_profile(_name: String, p: Dictionary) -> void:
 	_session.status_changed.emit()
 
 
+## Re-pushes the active profile into a freshly attached presenter/layers (RenderBench catalog swap).
+func reapply_profile() -> void:
+	_apply_profile(profiles.active_name(), profiles.active_profile())
+
+
 ## Presentation only: never stored in the document or history.
 func set_vegetation_hidden(on: bool) -> void:
 	vegetation_hidden = on
@@ -151,7 +160,7 @@ func profile_status(frame_p50_ms: float) -> Dictionary:
 	var p := profiles.active_profile()
 	return {"profile": profiles.active_name(), "profile_label": str(p.get("label", "")),
 		"profile_pending": profiles.pending_name(), "profile_target_fps": int(p.get("target_fps", 0)),
-		"vegetation_hidden": vegetation_hidden, "texture_preview": texture_preview.status(), "fps": 1000.0 / frame_p50_ms if frame_p50_ms > 0.0 else 0.0}
+		"vegetation_hidden": vegetation_hidden, "texture_preview": texture_preview.status(), "fps": 1000.0 / frame_p50_ms if frame_p50_ms > 0.0 else 0.0}.merged(safety.status())
 
 
 ## Frame percentiles, render counters and stats that sort or query the RenderingServer, refreshed at
@@ -188,6 +197,8 @@ func toggle_texture_preview() -> String:
 		return ""
 	if _session.bench_active():
 		return _refuse_preview(EditorSession.BENCH_MESSAGE)
+	if safety.is_restricted():
+		return _refuse_preview(SessionSafety.PREVIEW_REFUSED)
 	var center := _preview_center()
 	if not center.is_finite():
 		return _refuse_preview(TexturePreviewController.NO_AREA)
@@ -204,12 +215,22 @@ func _refuse_preview(message: String) -> String:
 
 ## App deactivation (spec §18.3): stop the bench and optional preview work before the save path runs.
 func on_app_deactivated() -> void:
-	_session.abort_render_bench("app_deactivated")
+	# Host-only escape hatch for unattended Mac bench runs on a shared desktop (focus loss is not app
+	# deactivation there); iOS always aborts.
+	if not (OS.get_cmdline_user_args().has(HOST_BENCH_IGNORE_FOCUS) and not OS.has_feature("ios")):
+		_session.abort_render_bench("app_deactivated")
 	disable_texture_preview("app_deactivated")
+	cache.cancel_queued(1)  # queued loads are optional while inactive; resume never re-enables the preview
 
 
 func disable_texture_preview(reason: String) -> void:
 	texture_preview.disable(reason)
+	_sync_preview()
+
+
+## Resource-safety stop (SessionSafety); the preview stays off until the user turns it on again.
+func suspend_texture_preview(cause: String) -> void:
+	texture_preview.suspend(cause)
 	_sync_preview()
 
 

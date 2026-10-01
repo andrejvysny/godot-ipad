@@ -15,6 +15,8 @@
   prepare-terrain-preview    regenerate app/assets/terrain/preview PNGs (deterministic, bounded Godot run)
   sync-config                copy config/{poc_defaults,rendering_profiles}.json to app/config/
   prepare-render-assets      [--catalog poc|bench|all] [--check]: bench generator + render-asset prep + texture import
+  render-bench               --scenario A[,B] --profile P[,Q] [--seconds S] [--sustained-minutes N] --output PATH:
+                             windowed Mac run, report labeled HOST (never device evidence); --device [--run] for iPad
 """
 from __future__ import annotations
 
@@ -35,6 +37,7 @@ import generate_fixtures  # noqa: E402
 import godot_test  # noqa: E402
 import validate_render_assets  # noqa: E402
 import validate_world  # noqa: E402
+import dev_render_bench  # noqa: E402
 import dev_render_prep  # noqa: E402
 import worldpoc_format as wf  # noqa: E402
 from dev_export import SIGNING_HELP, cmd_export_ios, load_signing, patch_ios_preset
@@ -495,6 +498,10 @@ def cmd_prepare_render_assets(a: argparse.Namespace) -> int:
 	return dev_render_prep.main(a.catalog, a.check)
 
 
+def cmd_render_bench(a: argparse.Namespace) -> int:
+	return dev_render_bench.cmd_render_bench(a, _launch, godot_user_dir(), lambda cmd, timeout: run(cmd, timeout=timeout))
+
+
 def build_parser() -> argparse.ArgumentParser:
 	p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
 	sub = p.add_subparsers(dest="command", required=True)
@@ -551,6 +558,7 @@ def build_parser() -> argparse.ArgumentParser:
 	s.add_argument("--catalog", choices=["poc", "bench", "all"], default="all")
 	s.add_argument("--check", action="store_true", help="regenerate in a temporary copy and fail on any byte difference")
 	s.set_defaults(fn=cmd_prepare_render_assets)
+	dev_render_bench.add_parser(sub, cmd_render_bench)
 	return p
 
 

@@ -15,7 +15,7 @@ var epoch: int = 0
 var box := BoxMesh.new()
 var awaiting: Dictionary = {}  # cache key -> asset_id, for accepted requests that are not READY yet
 
-var _requested: Dictionary = {}  # cache key -> true (also rejected ones: never retried within an epoch)
+var _requested: Dictionary = {}  # cache key -> "requested" | "rejected" (rejected keys are not retried within an epoch)
 
 
 func _init(registry_: RenderAssetRegistry, cache_: RenderAssetCache) -> void:
@@ -58,7 +58,9 @@ func mesh(asset_id: String, role: String, priority: int) -> Mesh:
 	if dep.is_empty():
 		return null
 	var key := RenderAssetCache.resource_key(asset_id, d.asset_version, d.derivative_hash, str(dep.key))
-	if not _requested.has(key) or cache.state(key) == "RETIRED":
+	# A request cancelled by the cache (safety trim, lifecycle) is UNLOADED again and must be re-requested.
+	var state := cache.state(key)
+	if not _requested.has(key) or state == "RETIRED" or (state == "UNLOADED" and _requested[key] != "rejected"):
 		_request(d, dep, key, priority, asset_id)
 	return cache.get_resource(key) as Mesh
 
@@ -99,7 +101,8 @@ func poll_ready() -> PackedStringArray:
 	var done := PackedStringArray()
 	for key: String in awaiting.keys():
 		var state := cache.state(key)
-		if state == "READY":
+		if state == "READY" or state == "UNLOADED":
+			# UNLOADED = cancelled by the cache; re-queuing the asset re-requests it on the next build.
 			done.append(str(awaiting[key]))
 			awaiting.erase(key)
 		elif state != "QUEUED" and state != "LOADING":
@@ -108,9 +111,10 @@ func poll_ready() -> PackedStringArray:
 
 
 func _request(d: RenderAssetDescriptor, dep: Dictionary, key: String, priority: int, asset_id: String) -> void:
-	_requested[key] = true
+	_requested[key] = "requested"
 	var result := cache.request(key, str(dep.path), "mesh", priority, maxi(int(dep.gpu_bytes), 1), owner(), tokens())
 	if str(result.status) == "rejected":
+		_requested[key] = "rejected"
 		return
 	if str(result.status) != "ready":
 		awaiting[key] = asset_id
@@ -133,7 +137,7 @@ func _request_dependency(d: RenderAssetDescriptor, dep_key: String, kind: String
 	if dep.is_empty():
 		return
 	var key := RenderAssetCache.resource_key(d.asset_id, d.asset_version, d.derivative_hash, dep_key)
-	if _requested.has(key):
+	if _requested.has(key) and cache.state(key) != "UNLOADED":
 		return
-	_requested[key] = true
+	_requested[key] = "requested"
 	cache.request(key, str(dep.path), kind, priority, maxi(int(dep.gpu_bytes), 1), owner(), tokens())

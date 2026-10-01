@@ -47,6 +47,8 @@ func refresh(status: Dictionary) -> void:
 	_button.text = caption(status)
 	var warn := is_below_target(float(status.fps), int(status.profile_target_fps))
 	var color := UiKit.DANGER_TEXT if warn else UiKit.TEXT
+	if str(status.get("safety_state", SessionSafety.NORMAL)) != SessionSafety.NORMAL:
+		color = UiKit.WARN_TEXT
 	for key in ["font_color", "font_hover_color", "font_pressed_color", "font_hover_pressed_color"]:
 		_button.add_theme_color_override(key, color)
 	_button.custom_minimum_size = Vector2(0, HEIGHT)
@@ -54,13 +56,16 @@ func refresh(status: Dictionary) -> void:
 
 
 ## "<Label> · <fps> fps", plus " -> <pending label>" while a profile switch waits for the edit and
-## " · Preview" while the Texture Preview is bound (active or limited).
+## " · Preview" while the Texture Preview is bound (active or limited), " · Safety" (warning colour) while the
+## resource-safety state is not normal.
 func caption(status: Dictionary) -> String:
 	var fps := float(status.fps)
 	var text := "%s · %s fps" % [status.profile_label, str(roundi(fps)) if fps > 0.0 else NO_FPS]
 	var pending := str(status.profile_pending)
 	if pending != "":
 		text += " -> " + str(_session.render_config.profile(pending).get("label", pending))
+	if str(status.get("safety_state", SessionSafety.NORMAL)) != SessionSafety.NORMAL:
+		text += " · Safety"
 	var preview := str((status.get("texture_preview", {}) as Dictionary).get("state", ""))
 	if preview == TexturePreviewController.ACTIVE or preview == TexturePreviewController.LIMITED:
 		text += " · Preview"

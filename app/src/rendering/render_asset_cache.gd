@@ -12,6 +12,9 @@ const KINDS := ["mesh", "material", "texture", "preview_texture"]
 const MAX_QUEUE := 512
 const MAX_TOMBSTONES := 2048
 const TRIM_FRACTION := 0.9
+## Requests at or below this priority are correctness-critical (selected/near/ghost); an over_budget
+## rejection of one is a resource-safety signal (spec §18.1).
+const CRITICAL_PRIORITY := 1
 
 
 class Entry extends RefCounted:
@@ -50,6 +53,7 @@ var _tombstones: int = 0
 var _evictions: int = 0
 var _discarded: int = 0
 var _rejected: int = 0
+var _critical_over_budget: int = 0
 
 
 func _init(budgets: Dictionary = {}) -> void:
@@ -85,6 +89,7 @@ func request(key: String, path: String, kind: String, priority: int, estimated_b
 		return _attach(entry, priority, estimated_bytes, owner, tokens)
 	var err := _admit(estimated_bytes, kind)
 	if err != "":
+		_note_over_budget(err, priority)
 		return _reject(err)
 	if _queue.size() >= MAX_QUEUE:
 		return _reject("queue_full")
@@ -142,6 +147,17 @@ func cancel(owner_or_tokens: Variant) -> int:
 			n += cancel_generation(str(name), owner_or_tokens[name])
 		return n
 	return _cancel_matching(func(owner: String, _tokens: Dictionary) -> bool: return owner == owner_or_tokens)
+
+
+## Drops every still-queued request whose priority is at least `min_priority` (speculative and
+## nonvisible work); loads already in flight finish. Returns the number dropped.
+func cancel_queued(min_priority: int) -> int:
+	var n := 0
+	for e: Entry in _queue.duplicate():
+		if e.priority >= min_priority:
+			_cancel_entry(e)
+			n += 1
+	return n
 
 
 func cancel_generation(token_name: String, value: Variant) -> int:
@@ -229,7 +245,8 @@ func stats() -> Dictionary:
 		"soft_bytes": _soft, "preview_bytes": _preview_committed, "fallback_bytes": fallback_bytes,
 		"by_kind": _resident_by_kind.duplicate(), "entries": _by_path.size() - _tombstones,
 		"queued": counts.QUEUED, "loading": counts.LOADING, "ready": counts.READY, "errors": counts.ERROR,
-		"evictions": _evictions, "discarded_stale": _discarded, "rejected": _rejected}
+		"evictions": _evictions, "discarded_stale": _discarded, "rejected": _rejected,
+		"critical_over_budget": _critical_over_budget}
 
 
 func _attach(e: Entry, priority: int, estimated_bytes: int, owner: String, tokens: Dictionary) -> Dictionary:
@@ -239,6 +256,7 @@ func _attach(e: Entry, priority: int, estimated_bytes: int, owner: String, token
 		"RETIRED":
 			var err := _admit(estimated_bytes, e.kind)
 			if err != "":
+				_note_over_budget(err, priority)
 				return _reject(err)
 			_tombstones -= 1
 			_enqueue(e, priority, estimated_bytes, owner, tokens)
@@ -431,6 +449,11 @@ func _touch(e: Entry) -> void:
 
 func _ok(e: Entry) -> Dictionary:
 	return {"status": e.state.to_lower(), "reason": ""}
+
+
+func _note_over_budget(why: String, priority: int) -> void:
+	if why == "over_budget" and priority <= CRITICAL_PRIORITY:
+		_critical_over_budget += 1
 
 
 func _reject(why: String) -> Dictionary:

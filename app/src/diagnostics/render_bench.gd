@@ -32,6 +32,16 @@ var report: Dictionary = {}
 var report_path := ""
 var write_error := ""
 
+# --- Scenario/sustained mode (BenchRunner); without scenarios or sustained minutes the legacy matrix runs ---
+var scenarios: Array[String] = []
+var scenario_profiles: Array[String] = []  # empty: BenchScenarios.BENCH_PROFILES
+var scenario_kinds: Array[String] = []  # empty: every camera path and workload of the scenario
+var measure_seconds := 10.0
+var warmup_seconds := 2.0
+var sustained_minutes := 0.0
+var world_overrides: Dictionary = {}  # {"objects": n, "scatter": n}: small variants for tests
+
+var _runner: BenchRunner
 var _session: EditorSession
 var _running := false
 var _run_token := 0
@@ -61,9 +71,10 @@ func start(session: EditorSession) -> String:
 		return claim
 	_session = session
 	measure_frames = clampi(measure_frames, 1, MAX_MEASURE_FRAMES)
+	_prepare_runner(session)
 	_saved = _capture()
 	_before = BenchReport.authored_state(session)
-	_results = []
+	_results.clear()
 	_started = Time.get_unix_time_from_system()
 	_running = true
 	session.world_replaced.connect(_on_world_replaced)
@@ -107,7 +118,9 @@ func _capture() -> Dictionary:
 		"probe": _session.terrain.get_render_probe(), "pose": _session.rig.controller.get_pose(),
 		"selected": _session.tools.selected_id(), "presenter_objects": _session.presenter.authored_object_count(),
 		"profile": _session.render_profiles.active_name(), "vegetation_hidden": _session.vegetation_hidden(),
-		"max_fps": Engine.max_fps}
+		"max_fps": Engine.max_fps, "attach": BenchAttach.state(_session),
+		"preview_off": _session.render_state().texture_preview.state() in [TexturePreviewController.OFF,
+		TexturePreviewController.RELEASING]}
 
 
 ## Restores in order: settings, documents, selection, camera. A replaced world keeps its own
@@ -121,7 +134,7 @@ func _restore(reason: String) -> bool:
 		_session.rig.reset_to(_saved.pose)
 	else:
 		keys = ["shadows", "mode", "distance", "scale", "scaling_mode", "msaa", "probe", "profile",
-			"vegetation_hidden", "max_fps"]
+			"vegetation_hidden", "max_fps", "attach", "preview_off"]
 	var now := _capture()
 	for key: String in keys:
 		if not _same(now[key], _saved[key]):
@@ -130,6 +143,8 @@ func _restore(reason: String) -> bool:
 
 
 func _restore_settings() -> void:
+	if _runner != null:
+		_runner.restore()
 	var viewport := _session.get_viewport()
 	var sun := _session.sun
 	sun.shadow_enabled = _saved.shadows
@@ -173,16 +188,23 @@ static func _same(a: Variant, b: Variant) -> bool:
 
 func _run(token: int) -> void:
 	_busy = true
+	if _runner != null:
+		await _runner.run(token)
+	else:
+		await _run_legacy(token)
+	_end("COMPLETED", "")  # no-op when the loop was cut short by an abort
+	_busy = false
+	if _free_pending:
+		queue_free()
+
+
+func _run_legacy(token: int) -> void:
 	var steps := BenchPlan.default_steps(counts, profiles, cameras, profiles.size() == BenchPlan.PROFILES.size())
 	for step in steps:
 		var result := await _run_step(step, token)
 		if _stale(token):
 			break
 		_results.append(result)
-	_end("COMPLETED", "")  # no-op when the loop was cut short by an abort
-	_busy = false
-	if _free_pending:
-		queue_free()
 
 
 func _run_step(step: Dictionary, token: int) -> Dictionary:
@@ -387,4 +409,36 @@ func _build_report(status: String, reason: String, restored: bool) -> Dictionary
 		"warmup_frames": warmup_frames, "measure_frames": measure_frames, "seed": rng_seed,
 		"counts": Array(counts), "profiles": profiles, "cameras": cameras,
 		"steps": _results, "started_unix": _started,
-		"duration_s": Time.get_unix_time_from_system() - _started}
+		"duration_s": Time.get_unix_time_from_system() - _started}.merged(
+			_runner.report_fields() if _runner != null else {})
+
+
+# --- Hooks for BenchRunner (scenario/sustained mode) ---------------------------------------
+
+func _prepare_runner(session: EditorSession) -> void:
+	if scenarios.is_empty() and sustained_minutes <= 0.0:
+		return
+	_runner = BenchRunner.new(self, session)
+	_runner.scenarios = scenarios
+	_runner.profiles = scenario_profiles if not scenario_profiles.is_empty() else BenchScenarios.BENCH_PROFILES.duplicate()
+	_runner.kinds = scenario_kinds
+	_runner.seconds = measure_seconds
+	_runner.warmup_seconds = warmup_seconds
+	_runner.sustained_minutes = sustained_minutes
+	_runner.seed_value = rng_seed
+	_runner.overrides = world_overrides
+	_runner.results = _results
+	_runner.prepare()
+
+
+func stale(token: int) -> bool:
+	return _stale(token)
+
+
+func disturbed() -> bool:
+	return _disturbed()
+
+
+## The runner replaced the session's terrain/presenter/layers with a bench world: restore rebuilds them.
+func mark_presented() -> void:
+	_presented_bench = true

@@ -259,6 +259,17 @@ func test_missing_role_mesh_never_makes_the_object_disappear() -> void:
 	_assert_consistent("after the role change")
 
 
+func test_cache_cancellation_never_leaves_permanent_placeholders() -> void:
+	_add(BOULDER, Vector3(10, 0, 10))
+	_add(SPRUCE, Vector3(50, 0, 10))
+	presenter.rebuild(doc)
+	world.service_frame(5.0)
+	assert_true(presenter._cache.cancel_queued(0) > 0, "queued mesh loads cancelled (safety trim / lifecycle)")
+	_settle()
+	assert_eq(world.stats().placeholders, 0, "cancelled loads are requested again")
+	_assert_consistent("after cancellation")
+
+
 func test_pinned_cells_defer_role_changes_but_not_edits() -> void:
 	var r := _add(SPRUCE, Vector3(5, 0, 5))
 	var far := _add(SPRUCE, Vector3(200, 0, 5))

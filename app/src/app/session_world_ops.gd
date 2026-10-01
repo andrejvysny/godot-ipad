@@ -106,7 +106,7 @@ static func make_tool_context(session: EditorSession) -> ToolContext:
 	ctx.stats = session.frames
 	ctx.scatter_changed = session.layers.scatter_changed
 	ctx.path_changed = session.layers.path_changed
-	ctx.render_ready = session.render_registry().is_ready
+	ctx.render_ready = session.render_state().registry().is_ready
 	return ctx
 
 
@@ -156,7 +156,10 @@ static func evidence(input: InputSystem, doc: WorldDocument, camera: Camera3D, f
 
 ## {} unless --render-bench is given; else {enabled, counts, frames} plus the optional keys warmup, seed,
 ## profiles, cameras (--bench-counts=0,100 --bench-frames=60 --bench-warmup=30 --bench-seed=7
-## --bench-profiles=scale_100,scale_050 --bench-cameras=ground). An invalid value gives {"error": text}.
+## --bench-profiles=scale_100,scale_050 --bench-cameras=ground). Scenario mode adds scenarios, seconds,
+## warmup_seconds, sustained_minutes (--bench-scenarios=a,b --bench-seconds=S --bench-warmup-seconds=S
+## --bench-sustained-minutes=N); there --bench-profiles takes real (performance, balanced, detailed) or legacy
+## names and --bench-cameras the camera paths and workloads. An invalid value gives {"error": text}.
 static func parse_bench_args(args: PackedStringArray) -> Dictionary:
 	if not args.has("--render-bench"):
 		return {}
@@ -168,7 +171,27 @@ static func parse_bench_args(args: PackedStringArray) -> Dictionary:
 		var error := _parse_bench_arg(out, parts[0], parts[1])
 		if error != "":
 			return {"error": error}
-	return out
+	var mode_error := _check_bench_mode(out)
+	return {"error": mode_error} if mode_error != "" else out
+
+
+## Cross-flag rules: scenario mode and the legacy matrix take different profile and camera names.
+static func _check_bench_mode(out: Dictionary) -> String:
+	var scenario_mode: bool = out.has("scenarios") or out.has("sustained_minutes")
+	if out.has("scenarios") and out.has("sustained_minutes"):
+		return "--bench-scenarios and --bench-sustained-minutes are exclusive."
+	for name: String in out.get("profiles", []):
+		if not scenario_mode and RenderConfig.PROFILE_NAMES.has(name):
+			return "Profile '%s' needs --bench-scenarios or --bench-sustained-minutes." % name
+	for name: String in out.get("cameras", []):
+		var known := BenchScenarios.kinds().has(name) if scenario_mode else BenchPlan.CAMERAS.has(name)
+		if not known:
+			return "Camera '%s' is not valid in this bench mode." % name
+	if not scenario_mode:
+		for key in ["seconds", "warmup_seconds"]:
+			if out.has(key):
+				return "--bench-%s needs --bench-scenarios or --bench-sustained-minutes." % key.replace("_", "-")
+	return ""
 
 
 static func _parse_bench_arg(out: Dictionary, flag: String, value: String) -> String:
@@ -188,9 +211,22 @@ static func _parse_bench_arg(out: Dictionary, flag: String, value: String) -> St
 				return "Invalid %s value '%s': expected an integer." % [flag, value]
 			out["seed"] = value.to_int()
 		"--bench-profiles":
-			return _parse_bench_names(out, "profiles", flag, value, BenchPlan.PROFILES)
+			return _parse_bench_names(out, "profiles", flag, value, BenchScenarios.profile_names())
 		"--bench-cameras":
-			return _parse_bench_names(out, "cameras", flag, value, BenchPlan.CAMERAS)
+			return _parse_bench_names(out, "cameras", flag, value, BenchScenarios.camera_names())
+		"--bench-scenarios":
+			return _parse_bench_names(out, "scenarios", flag, value, BenchScenarios.scenario_names())
+		"--bench-seconds", "--bench-warmup-seconds", "--bench-sustained-minutes":
+			return _parse_bench_seconds(out, flag, value)
+	return ""
+
+
+static func _parse_bench_seconds(out: Dictionary, flag: String, value: String) -> String:
+	var maximum := float(BenchRunner.MAX_SUSTAINED_MINUTES) if flag == "--bench-sustained-minutes" else 36000.0
+	var minimum := 0.0 if flag == "--bench-warmup-seconds" else 0.001
+	if not value.is_valid_float() or value.to_float() < minimum or value.to_float() > maximum:
+		return "Invalid %s value '%s': expected a number in [%s, %s]." % [flag, value, str(minimum), str(maximum)]
+	out[flag.trim_prefix("--bench-").replace("-", "_")] = value.to_float()
 	return ""
 
 
@@ -231,9 +267,13 @@ static func make_bench(path: String, counts: PackedInt32Array, frames: int, opti
 		bench.set("counts", counts)
 	if frames > 0:
 		bench.set("measure_frames", frames)
-	for key in ["warmup", "seed", "profiles", "cameras"]:
+	var scenario_mode: bool = options.has("scenarios") or options.has("sustained_minutes")
+	var names := {"warmup": "warmup_frames", "seed": "rng_seed", "seconds": "measure_seconds"}
+	if scenario_mode:
+		names.merge({"profiles": "scenario_profiles", "cameras": "scenario_kinds"}, true)
+	for key in ["warmup", "seed", "profiles", "cameras", "scenarios", "seconds", "warmup_seconds", "sustained_minutes"]:
 		if options.has(key):
-			bench.set({"warmup": "warmup_frames", "seed": "rng_seed"}.get(key, key), options[key])
+			bench.set(names.get(key, key), options[key])
 	return bench
 
 

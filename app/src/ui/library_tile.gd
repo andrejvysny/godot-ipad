@@ -40,7 +40,7 @@ func setup(session: EditorSession, asset: AssetDefinition) -> void:
 	var name_label := UiKit.bold_label(asset.display_name, 11)
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(name_label)
-	_prepared = session.render_registry().is_ready(asset.asset_id)
+	_prepared = session.render_state().registry().is_ready(asset.asset_id)
 	_meta.text = asset.category.capitalize() if _prepared else NOT_READY_CAPTION
 	_meta.add_theme_color_override("font_color", UiKit.TEXT_MUTED)
 	_meta.mouse_filter = Control.MOUSE_FILTER_IGNORE

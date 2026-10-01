@@ -101,6 +101,62 @@ The report never claims acceptance (`evidence.acceptance` is `NOT_ACCEPTANCE_RUN
    wall-clock proxies (`frame_interval_source`), not GPU frame time. Steps marked `"diagnostic": true`
    are ablations, not production profiles.
 
+### 4a.1 Representative scenarios, sustained runs, resource safety (spec §18, §20, §21.4-§21.5)
+
+Scenario mode replaces the legacy matrix when `--bench-scenarios` or `--bench-sustained-minutes` is given
+(the legacy flags above keep working without them). Worlds are built in memory from the seed, never saved, and
+presented with the bench catalog (`res://assets/bench`); your catalog attachment, document, profile, camera,
+selection and Texture Preview state are restored afterwards (a running preview is stopped for the run and not
+turned back on).
+
+| Flag | Meaning |
+|---|---|
+| `--bench-scenarios=a,b` | `terrain_only_legacy`, `terrain_only_1km`, `primitive_1k`, `primitive_5k`, `geometry_forest_10k`, `card_forest_10k`, `mixed_world_10k`, `mixed_world_50k`, `grass_50k`. `asset_diversity` is accepted and reported `NOT_RUN` (only 6 prepared bench assets). |
+| `--bench-profiles=` | real profiles `performance`, `balanced`, `detailed` (default `performance`; budget per step is 1000 / profile target fps), or the legacy `scale_*` / `legacy_shadows_diagnostic` ablations |
+| `--bench-cameras=` | camera paths `overview`, `focus`, `shallow`, `canopy`, `path`, `travel` and workloads `edit_sculpt`, `edit_move`, `preview_cycles` (default: all that fit the scenario) |
+| `--bench-seconds=S` | measure window per step (default 10 smoke; acceptance >= 60) |
+| `--bench-warmup-seconds=S` | warm-up per step (default 2) |
+| `--bench-sustained-minutes=N` | `mixed_world_10k` x `performance`: overview, focus, path, edit_sculpt, preview_cycles, travel, repeated for N minutes (N <= 120). Per-minute aggregates only; `steps` is empty and `sustained.minutes` holds frame p50/p95/p99, hitches, missed, GPU status/p95, thermal, footprint, cache bytes, nodes. |
+
+Each step records scenario, profile, camera path or workload, population (authored meaningful, decorative,
+presented), presenter render stats, cache stats, telemetry (thermal and footprint at start and end, safety
+state), the frame summary (p50/p95/p99, hitches, `missed_target`, GPU status) and, for edit steps, terrain
+presentation latency. `preview_cycles` runs 20 enable/disable cycles and records cache stats around each one
+(MEMORY-05/PREVIEW-07). Idle pacing is never enabled. Percentiles come from 0.1 ms histogram bins (the
+resolution is in the report). Focus loss aborts the run (`app_deactivated`): keep the app in front.
+
+Host wrapper (Mac, real renderer, hard timeout, report copied to `--output`, labeled **HOST**, never device
+evidence):
+
+```
+python3 scripts/dev.py render-bench --scenario mixed_world_10k,card_forest_10k --profile performance,detailed \
+    --seconds 60 --output build/bench/mixed-mac.json
+python3 scripts/dev.py render-bench --sustained-minutes 30 --output build/bench/sustained-mac.json
+```
+
+iPad: `--device` prints the `devicectl` launch command (installed Release build, same user args) and the pull
+command for `Documents/traces`; nothing ran until a report file was pulled. `--device --run --device-id <id>
+--bundle-id <id>` executes the launch, then polls the pull (every 30 s, up to `--timeout`) and prints
+`evidence_class` from the pulled report only:
+
+```
+python3 scripts/dev.py render-bench --device --scenario mixed_world_50k --profile performance --seconds 60 \
+    --output docs/evidence/render-bench-50k-ipad.json
+python3 scripts/dev.py render-bench --device --run --device-id <id> --bundle-id <id> --sustained-minutes 30 \
+    --output docs/evidence/render-bench-sustained-ipad.json
+```
+
+Sustained acceptance is a 30-minute then a 60-minute run on the iPad without external cooling; record charging,
+debugger and thermal conditions in the evidence record. A Mac or simulator run proves nothing about the iPad.
+
+Resource safety (observable while a run or normal editing is going): the performance pill appends " · Safety"
+(warning colour) when the state is `warning` (thermal serious: nothing stops) or `restricted` (a memory warning
+in the last 60 s, thermal critical, or a critical cache allocation rejected as over budget). Restricted stops the
+Texture Preview, drops queued speculative loads, trims the cache and refuses re-enabling the preview; the
+profile never changes. It clears 60 s after the last trigger; the preview stays off. `status()` exposes
+`safety_state`, `safety_reason`, `thermal` and `footprint_mib` (null when unavailable, never 0). Backgrounding
+the app also cancels queued loads; returning does not re-enable the preview.
+
 ## 5. Evidence record template
 
 ```

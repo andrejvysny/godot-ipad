@@ -429,14 +429,11 @@ func vegetation_hidden() -> bool:
 	return _render.vegetation_hidden
 
 
-func invalidate_slow_status() -> void:
-	_render.invalidate_slow_status()
-
-
-func render_registry() -> RenderAssetRegistry: return _render.registry()
-
-
 func render_cache() -> RenderAssetCache: return _render.cache
+
+
+## The render-side state object (profiles, safety, Texture Preview) for diagnostics and the render bench.
+func render_state() -> SessionRender: return _render
 
 
 func toggle_texture_preview() -> String: return _render.toggle_texture_preview()

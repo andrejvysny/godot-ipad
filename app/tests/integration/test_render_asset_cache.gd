@@ -128,19 +128,25 @@ func test_invalid_estimates_are_rejected_before_any_load() -> void:
 	assert_eq(cache.state("a"), "UNLOADED")
 
 
+## Plain resources: two concurrent threaded loads of RenderingServer-backed resources race inside the
+## headless dummy renderer (not thread-safe), so the cap is exercised with resources that never touch it;
+## they complete as ERROR wrong_class, which is all the cap needs.
 func test_in_flight_cap_is_respected() -> void:
 	var cache := _cache(100000, -1, 2)
 	for i in 6:
-		_req(cache, "k%d" % i, _mesh_file("m%d" % i))
+		var path := scratch_dir().path_join("plain%d.tres" % i)
+		ResourceSaver.save(Resource.new(), path)
+		_req(cache, "k%d" % i, path)
 	var out := cache.poll(100.0)
 	assert_eq(out.started, 2)
 	assert_eq(cache.stats().loading, 2)
 	var t0 := Time.get_ticks_msec()
-	while cache.stats().ready < 6 and Time.get_ticks_msec() - t0 < TIMEOUT_MS:
+	while cache.stats().errors < 6 and Time.get_ticks_msec() - t0 < TIMEOUT_MS:
 		cache.poll(100.0)
 		assert_true(cache.stats().loading <= 2, "never more than 2 in flight")
 		await tree.process_frame
-	assert_eq(cache.stats().ready, 6)
+	assert_eq(cache.stats().errors, 6)
+	assert_eq(cache.reason("k0"), "wrong_class")
 
 
 func test_priority_then_fifo_order() -> void:
