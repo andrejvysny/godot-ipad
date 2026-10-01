@@ -162,11 +162,10 @@ func _s03_place() -> void:
 
 func _check_boulder_anchor() -> void:
 	var rec := _session.document.get_object(_boulder_id)
-	var node := _session.presenter.node_for(_boulder_id)
-	if rec == null or node == null:
+	if rec == null or not _session.presenter.has_object(_boulder_id):
 		_check("S03", "OB-01 boulder anchor maps to record position", false, {"record": rec != null})
 		return
-	var anchor := node.global_transform * _session.catalog.get_asset(BOULDER).anchor_local
+	var anchor := _session.presenter.anchor_position(_boulder_id)
 	_check("S03", "OB-01 boulder anchor maps to record position",
 			anchor.distance_to(rec.get_position_v3()) < 0.01, {"error_m": anchor.distance_to(rec.get_position_v3())})
 

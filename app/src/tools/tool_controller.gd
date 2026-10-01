@@ -156,6 +156,11 @@ func _make_operation() -> RefCounted:
 			disarm()
 			_ctx.report("Choose an asset in the Library first.")
 			return null
+		var not_ready := _ctx.not_ready_error(asset)
+		if not_ready != "":
+			disarm()
+			_ctx.report(not_ready)
+			return null
 		return PlaceOperation.new(_ctx, asset, _snap)
 	var tool_id := active_tool()
 	if tool_id not in IMPLEMENTED:
@@ -296,6 +301,9 @@ func begin_drop(asset_id: String) -> String:
 	var asset := _ctx.catalog.get_asset(asset_id)
 	if asset == null:
 		return "Unknown asset '%s'." % asset_id
+	var not_ready := _ctx.not_ready_error(asset)
+	if not_ready != "":
+		return not_ready
 	_cancel_height_pick()
 	_op = PlaceOperation.new(_ctx, asset, _snap)
 	_op_tool = OP_PLACE

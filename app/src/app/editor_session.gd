@@ -203,7 +203,7 @@ func _build_scene() -> String:
 	var error := terrain.initialize(document)
 	if error != "":
 		return error
-	presenter.setup(catalog)
+	presenter.setup(catalog, _render.registry(), _render.cache)
 	presenter.set_camera(rig.get_camera())
 	presenter.set_debug_limit(int(render_config.section("ui").max_debug_labels))
 	add_child(presenter)
@@ -220,14 +220,12 @@ func _build_scene() -> String:
 
 
 func _build_tools_and_input() -> void:
-	var ctx := SessionWorldOps.make_tool_context(self)
-	_tool_ctx = ctx
+	_tool_ctx = SessionWorldOps.make_tool_context(self)
 	tools.operation_started.connect(func(_tool: String) -> void: _op_max_gap_ms = 0.0)
 	tools.operation_cancelled.connect(func(reason: String) -> void: _last_cancel_reason = reason)
-	tools.operation_finished.connect(func(_change: WorldChange) -> void: render_profiles.operation_ended())
-	tools.operation_cancelled.connect(func(_reason: String) -> void: render_profiles.operation_ended())
 	add_child(tools)
-	tools.setup(ctx)
+	tools.setup(_tool_ctx)
+	_render.bind_tools(tools)
 	layers.bind_tools(tools)
 	input.provider_override = provider_override
 	input.platform_override = platform_override
@@ -257,10 +255,8 @@ func _process(_delta: float) -> void:
 			post_message("Stroke cancelled: frame stall over %d ms." % roundi(stall_s * 1000.0), true)
 	_last_frame_usec = now_usec
 	tools.advance(input.active_provider().now_seconds())
-	# A tap or no-op finish ends an operation without a signal.
-	if render_profiles.pending_name() != "" and not tools.has_active_operation():
-		render_profiles.operation_ended()
 	rig.frozen = tools.has_active_operation()
+	_render.service_frame()
 	terrain.flush()
 	if Time.get_ticks_msec() - _last_status_msec >= STATUS_INTERVAL_MSEC:
 		_last_status_msec = Time.get_ticks_msec()
@@ -374,10 +370,8 @@ func export_world() -> Dictionary:
 		return {"path": "", "error": BUSY_MESSAGE}
 	var revision := document.document_revision
 	var result := SessionWorldOps.export_verified(storage, document, catalog)
-	if result.error != "":
-		post_message(str(result.error), true)
-	else:
-		post_message("Exported revision %d (verified): %s" % [revision, str(result.path).get_file()])
+	post_message(str(result.error) if result.error != "" else "Exported revision %d (verified): %s" % [
+			revision, str(result.path).get_file()], result.error != "")
 	return result
 
 
@@ -437,6 +431,12 @@ func vegetation_hidden() -> bool:
 
 func invalidate_slow_status() -> void:
 	_render.invalidate_slow_status()
+
+
+func render_registry() -> RenderAssetRegistry: return _render.registry()
+
+
+func render_cache() -> RenderAssetCache: return _render.cache
 
 
 # --- Diagnostics -------------------------------------------------------------------------

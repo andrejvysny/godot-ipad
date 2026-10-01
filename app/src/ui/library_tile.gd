@@ -9,6 +9,7 @@ signal tick_toggled(asset_id: String, on: bool)
 
 const DRAG_PX := 10.0
 const TICK_HIT := 30.0
+const NOT_READY_CAPTION := "Not ready"
 
 var asset_id := ""
 
@@ -24,6 +25,7 @@ var _dead := false  # contact was cancelled or refused; its release does nothing
 var _press_pos := Vector2.ZERO
 var _selected := false
 var _enabled := true
+var _prepared := true  # false while the asset has no render derivatives (spec §6.6)
 
 
 func setup(session: EditorSession, asset: AssetDefinition) -> void:
@@ -38,13 +40,15 @@ func setup(session: EditorSession, asset: AssetDefinition) -> void:
 	var name_label := UiKit.bold_label(asset.display_name, 11)
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(name_label)
-	_meta.text = asset.category.capitalize()
+	_prepared = session.render_registry().is_ready(asset.asset_id)
+	_meta.text = asset.category.capitalize() if _prepared else NOT_READY_CAPTION
 	_meta.add_theme_color_override("font_color", UiKit.TEXT_MUTED)
 	_meta.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(_meta)
 	add_child(column)
 	if asset.scatter_allowed:
 		add_child(_build_tick())
+	set_enabled(_enabled)
 	_apply_style()
 
 
@@ -133,6 +137,10 @@ func set_ticked(on: bool, sync_button := true) -> void:
 	_check.visible = on
 
 
+func is_prepared() -> bool:
+	return _prepared
+
+
 func meta_text() -> String:
 	return _meta.text
 
@@ -144,7 +152,7 @@ func set_selected(on: bool) -> void:
 
 func set_enabled(on: bool) -> void:
 	_enabled = on
-	modulate.a = 1.0 if on else 0.4
+	modulate.a = 1.0 if on and _prepared else 0.4
 
 
 func _apply_style() -> void:
@@ -172,7 +180,7 @@ func _gui_input(event: InputEvent) -> void:
 
 
 func _on_press(pos: Vector2) -> void:
-	if not _enabled or not _session.input.editing_enabled():
+	if not _enabled or not _prepared or not _session.input.editing_enabled():
 		return
 	_pressed = true
 	_dragging = false

@@ -1,20 +1,28 @@
 class_name ObjectPresenter
 extends Node3D
-## Projects WorldDocument object records into scene nodes. Never mutates the document.
+## Projects WorldDocument object records into render state. Never mutates the document. Logical state lives
+## here; visuals are drawn by ObjectRenderWorld (spatial MultiMesh batches, one promoted node for the selection).
 ## Picking is pure math against each object's oriented catalog bounds (no physics bodies).
 ## `_xforms[id]` is the scene-node transform actually applied: record.node_transform(anchor_local),
 ## i.e. the anchor is applied after rotation+scale, so `_xforms[id] * anchor_local == record.position`.
 ## A grid index over world bounds limits picking and proximity queries to nearby candidates.
 
-const GHOST_VALID := Color(0.30, 0.90, 0.40, 0.45)
-const GHOST_INVALID := Color(0.95, 0.30, 0.25, 0.45)
+signal placeholders_reported(text: String)
+
+const ROLE_CELL_M := 32.0
+const REGISTRY_INDEX := "res://assets/render_assets/index.json"
+const DEFAULT_BUDGET_MS := 1.0
 const SELECT_COLOR := Color(1.0, 0.85, 0.1)
 const ANCHOR_COLOR := Color(1.0, 0.0, 1.0)
 const PICK_MAX_DISTANCE_M := 100000.0
 const PICK_TIE_M := 1e-9
 
 var _catalog: AssetCatalog
-var _nodes: Dictionary = {}  # id -> Node3D
+var _registry: RenderAssetRegistry
+var _cache: RenderAssetCache
+var _own_cache: bool = false  # the presenter polls a cache it created itself
+var _world: ObjectRenderWorld
+var _role: String = ""
 var _xforms: Dictionary = {}  # id -> Transform3D
 var _inverses: Dictionary = {}  # id -> affine_inverse of _xforms[id]
 var _index := RenderSpatialIndex.new(32.0)
@@ -24,10 +32,7 @@ var _veg_categories: Dictionary = {}
 var _veg_excluded: Dictionary = {}
 var _asset_of: Dictionary = {}  # id -> asset_id
 var _selected: String = ""
-var _ghost: Node3D
-var _ghost_asset: String = ""
-var _ghost_valid: bool = false
-var _ghost_material := StandardMaterial3D.new()
+var _ghost: PresenterGhost
 var _overlay: Node3D
 var _overlay_holder: Node3D
 var _overlay_box: MeshInstance3D
@@ -41,9 +46,6 @@ var _decor: PresenterDebugDecor
 
 
 func _init() -> void:
-	_ghost_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	_ghost_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	_ghost_material.albedo_color = GHOST_INVALID
 	_overlay_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	_overlay_material.no_depth_test = true
 	_overlay_material.albedo_color = SELECT_COLOR
@@ -53,8 +55,20 @@ func _init() -> void:
 	_decor = PresenterDebugDecor.new(self, _anchor_material)
 
 
-func setup(catalog: AssetCatalog) -> void:
+## Without a registry/cache (tests, tools) the presenter loads the committed registry and owns a default cache.
+func setup(catalog: AssetCatalog, registry: RenderAssetRegistry = null, cache: RenderAssetCache = null) -> void:
 	_catalog = catalog
+	_registry = registry if registry != null else RenderAssetRegistry.load_from(REGISTRY_INDEX, catalog)
+	_own_cache = cache == null
+	_cache = cache if cache != null else RenderAssetCache.new(RenderConfig.load_from().section("budgets"))
+	_world = ObjectRenderWorld.new()
+	_world.name = "render_world"
+	_world.setup(_registry, _cache, ROLE_CELL_M, _is_hidden, catalog)
+	if _role != "":
+		_world.set_default_role(_role)
+	_world.placeholders_reported.connect(placeholders_reported.emit)
+	add_child(_world)
+	_ghost = PresenterGhost.new(_registry, _cache)
 
 
 func _process(delta: float) -> void:
@@ -63,19 +77,61 @@ func _process(delta: float) -> void:
 
 func rebuild(doc: WorldDocument) -> void:
 	var keep := _selected
-	for id: String in _nodes.keys():
-		_remove(id)
+	_world.clear()
+	for id: String in _xforms.keys():
+		_remove(id, false)
 	_set_selected_raw("")
 	_revision += 1
 	for id in doc.sorted_object_ids():
 		sync_object(doc, id)
-	if keep != "" and _nodes.has(keep):
+	if keep != "" and _xforms.has(keep):
 		set_selected(keep)
 
 
-## True while scheduled rendering still has work queued; always false until it exists.
+## True while scheduled rendering still has work queued (batch builds, mesh loads, uploads).
 func has_pending_work() -> bool:
-	return false
+	return _world.has_pending_work()
+
+
+## Once per frame, after the tools: polls the cache when this presenter owns it, then applies render work.
+func service_frame(budget_ms: float = DEFAULT_BUDGET_MS) -> void:
+	if _own_cache:
+		_cache.poll(budget_ms)
+	_world.service_frame(budget_ms)
+
+
+## Services until no work is pending, at most `max_ms`. Headless tests and the Mac consumer only.
+func settle_now(max_ms: float = 2000.0) -> bool:
+	var t0 := Time.get_ticks_msec()
+	while Time.get_ticks_msec() - t0 < max_ms:
+		service_frame(4.0)
+		if not has_pending_work():
+			return true
+		OS.delay_msec(1)
+	return not has_pending_work()
+
+
+func set_default_role(role: String) -> void:
+	_role = role
+	if _world != null:
+		_world.set_default_role(role)
+
+
+func set_pin_check(check: Callable) -> void:
+	_world.set_pin_check(check)
+
+
+func is_asset_ready(asset_id: String) -> bool:
+	return _registry.is_ready(asset_id)
+
+
+## ObjectRenderWorld counters (cells, batches, instances, estimated_triangles, uploads, world_epoch, ...).
+func render_stats() -> Dictionary:
+	return _world.stats()
+
+
+func render_world() -> ObjectRenderWorld:
+	return _world
 
 
 func sync_object(doc: WorldDocument, id: String) -> void:
@@ -87,17 +143,12 @@ func sync_object(doc: WorldDocument, id: String) -> void:
 	if record == null or asset == null:
 		_remove(id)
 		return
-	if not _nodes.has(id) or _asset_of[id] != record.asset_id:
-		if not _instantiate(id, record.asset_id):
-			_remove(id)
-			return
 	var xf := record.node_transform(asset.anchor_local)
-	var node := _nodes[id] as Node3D
-	node.transform = xf
-	node.visible = not _is_hidden(id)
+	_asset_of[id] = record.asset_id
 	_xforms[id] = xf
 	_inverses[id] = xf.affine_inverse()
 	_index.put(id, xf * asset.bounds)
+	_world.upsert(id, record.asset_id, xf)
 	_refresh_decor(id)
 
 
@@ -106,17 +157,29 @@ func sync_objects(doc: WorldDocument, ids: Array) -> void:
 		sync_object(doc, id)
 
 
-func node_for(id: String) -> Node3D:
-	return _nodes.get(id)
+## Debug query: the promoted node of the selected record, else null. Unselected records have no node.
+func node_for(id: String) -> MeshInstance3D:
+	return _world.promoted_node() if id != "" and id == _selected else null
 
 
-func object_count() -> int:
-	return _nodes.size()
-
-
-## Records currently presented; becomes distinct from node_count in WP03.
+## Records presented logically (§7.1).
 func authored_object_count() -> int:
-	return _nodes.size()
+	return _xforms.size()
+
+
+## Records currently drawn by a batch, placeholder or the promoted node.
+func represented_object_count() -> int:
+	return int(_world.stats().instances)
+
+
+## Batch instances plus the promoted node.
+func individual_instance_count() -> int:
+	return int(_world.stats().instances)
+
+
+## Renderer scene nodes of the presenter: batch MultiMeshInstance3Ds, pooled promoted nodes and the ghost.
+func node_count() -> int:
+	return int(_world.stats().nodes) + (1 if _ghost.node != null else 0)
 
 
 func has_object(id: String) -> bool:
@@ -138,7 +201,7 @@ func presentation_revision() -> int:
 
 
 func object_ids() -> PackedStringArray:
-	var ids := PackedStringArray(_nodes.keys())
+	var ids := PackedStringArray(_xforms.keys())
 	ids.sort()
 	return ids
 
@@ -194,8 +257,7 @@ func set_vegetation_hidden(hidden: bool, rule: Dictionary) -> void:
 		_veg_categories[str(c)] = true
 	for a: Variant in rule.get("excluded_asset_ids", []):
 		_veg_excluded[str(a)] = true
-	for id: String in _nodes:
-		(_nodes[id] as Node3D).visible = not _is_hidden(id)
+	_world.set_vegetation_visibility_changed()
 	_revision += 1
 	_decor.refresh()
 
@@ -220,32 +282,23 @@ func show_ghost(record: ObjectRecord, valid: bool) -> void:
 	if asset == null:
 		hide_ghost()
 		return
-	if _ghost == null or _ghost_asset != record.asset_id:
-		_free_ghost()
-		var node := _catalog.instantiate_preview(record.asset_id)
-		if node == null:
-			return
-		_ghost = node
-		_ghost_asset = record.asset_id
-		_style_ghost(_ghost)
-		add_child(_ghost)
-	_ghost.transform = record.node_transform(asset.anchor_local)
-	_ghost.visible = true
-	_ghost_valid = valid
-	_ghost_material.albedo_color = GHOST_VALID if valid else GHOST_INVALID
+	_ghost.show(self, asset, record.node_transform(asset.anchor_local), valid)
 
 
 func hide_ghost() -> void:
-	if _ghost != null:
-		_ghost.visible = false
+	_ghost.hide()
 
 
 func has_ghost_visible() -> bool:
-	return _ghost != null and _ghost.visible
+	return _ghost.is_visible()
 
 
 func ghost_valid() -> bool:
-	return has_ghost_visible() and _ghost_valid
+	return has_ghost_visible() and _ghost.valid
+
+
+func ghost() -> PresenterGhost:
+	return _ghost
 
 
 func set_selected(id: String) -> void:
@@ -272,6 +325,7 @@ func set_debug_limit(n: int) -> void:
 
 func set_camera(camera: Camera3D) -> void:
 	_decor.set_camera(camera)
+	_world.set_camera(camera)
 
 
 func debug_marker_count() -> int:
@@ -305,29 +359,9 @@ func selection_overlay_nodes() -> Array[Node3D]:
 	return nodes
 
 
-func _instantiate(id: String, asset_id: String) -> bool:
-	_free_node(id)
-	var node := _catalog.instantiate_preview(asset_id)
-	if node == null:
-		return false
-	node.name = "obj_" + id
-	_disable_shadows(node)
-	add_child(node)
-	_nodes[id] = node
-	_asset_of[id] = asset_id
-	return true
-
-
-func _free_node(id: String) -> void:
-	var node: Node3D = _nodes.get(id)
-	if node != null:
-		remove_child(node)
-		node.free()
-	_nodes.erase(id)
-
-
-func _remove(id: String) -> void:
-	_free_node(id)
+func _remove(id: String, visual := true) -> void:
+	if visual:
+		_world.remove(id)
 	_xforms.erase(id)
 	_inverses.erase(id)
 	_index.remove(id)
@@ -337,32 +371,10 @@ func _remove(id: String) -> void:
 	_decor.object_removed(id)
 
 
-func _free_ghost() -> void:
-	if _ghost != null:
-		remove_child(_ghost)
-		_ghost.free()
-	_ghost = null
-	_ghost_asset = ""
-
-
-func _style_ghost(node: Node) -> void:
-	_disable_shadows(node)
-	if node is MeshInstance3D:
-		(node as MeshInstance3D).material_override = _ghost_material
-	for child in node.get_children():
-		_style_ghost(child)
-
-
-func _disable_shadows(node: Node) -> void:
-	if node is GeometryInstance3D:
-		(node as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	for child in node.get_children():
-		_disable_shadows(child)
-
-
 func _set_selected_raw(id: String) -> void:
 	var changed := _selected != id
 	_selected = id
+	_world.set_selected(id)
 	_update_overlay()
 	if changed:
 		_decor.refresh()

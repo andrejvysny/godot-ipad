@@ -159,8 +159,12 @@ func set_snap_enabled(on: bool) -> void:
 # --- Armed asset, height pick, ghost -----------------------------------------------------
 
 func arm_asset(asset_id: String) -> String:
-	if _ctx.catalog.get_asset(asset_id) == null:
+	var asset := _ctx.catalog.get_asset(asset_id)
+	if asset == null:
 		return "Unknown asset '%s'." % asset_id
+	var not_ready := _ctx.not_ready_error(asset)
+	if not_ready != "":
+		return not_ready
 	if has_active_operation():
 		return BUSY
 	_cancel_height_pick()

@@ -127,7 +127,7 @@ func test_status_has_profile_keys_and_caches_the_slow_part() -> void:
 func test_no_production_path_casts_shadows_in_any_profile() -> void:
 	var s := await _start("stress_100")
 	_add_scatter(s, [SPRUCE, GRASS, PEBBLES, UiTestCase.BOULDER])
-	assert_true(s.presenter.object_count() > 0)
+	assert_true(s.presenter.authored_object_count() > 0)
 	assert_true(s.layers.stats().multimeshes >= 4, "scatter nodes exist")
 	for name in SCALES:
 		assert_ne(s.request_profile(name).status, "pending")

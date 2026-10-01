@@ -15,6 +15,8 @@ var request_cancel: Callable = Callable()
 var diagnostic: Callable = Callable()
 var units_per_point: Callable = Callable()
 var stats: FrameStats
+## `render_ready(asset_id) -> bool`: whether the asset has prepared render derivatives. Unset means ready.
+var render_ready: Callable = Callable()
 ## `scatter_changed(rect: Rect2, heights_only: bool)`: world-XZ rect whose scatter instances need
 ## redrawing; heights_only when only terrain heights changed (instance membership is unchanged).
 var scatter_changed: Callable = Callable()
@@ -85,6 +87,13 @@ func mark_touched(touched: Dictionary) -> void:
 	if presenter != null:
 		for id: String in touched.get("objects", []):
 			presenter.sync_object(document, id)
+
+
+## "" when `asset` may be armed, dropped, duplicated or placed; otherwise why not (spec §6.6, PREF-15).
+func not_ready_error(asset: AssetDefinition) -> String:
+	if render_ready.is_valid() and not bool(render_ready.call(asset.asset_id)):
+		return "%s is not ready: render derivatives missing." % asset.display_name
+	return ""
 
 
 func default(section: String, key: String, fallback: Variant) -> Variant:

@@ -28,6 +28,26 @@ func _new_set_editor(s: EditorSession) -> SetEditor:
 
 # --- Library ---------------------------------------------------------------------------------
 
+func test_not_ready_assets_are_disabled_captioned_and_cannot_be_armed() -> void:
+	var s := await _start()
+	var stub := StubRenderRegistry.hiding(s.catalog, [SPRUCE])
+	s._render._registry = stub
+	s._tool_ctx.render_ready = stub.is_ready
+	var tile := LibraryTile.new()
+	tile.setup(s, s.catalog.get_asset(SPRUCE))
+	assert_false(tile.is_prepared())
+	assert_eq(tile.meta_text(), "Not ready")
+	assert_true(tile.modulate.a < 1.0, "dimmed like a disabled tile")
+	tile.free()
+	assert_true(_ui(s).library().tile(BOULDER).is_prepared(), "a prepared asset keeps its caption")
+	var error := s.tools.arm_asset(SPRUCE)
+	assert_eq(error, "%s is not ready: render derivatives missing." % s.catalog.get_asset(SPRUCE).display_name)
+	assert_eq(s.tools.armed_asset(), "")
+	assert_error_contains(s.tools.begin_drop(SPRUCE), "not ready")
+	assert_false(s.tools.has_drop())
+	assert_empty_string(s.tools.arm_asset(BOULDER))
+
+
 func test_tabs_switch_between_objects_and_sets() -> void:
 	var s := await _start()
 	var lib := _ui(s).library()

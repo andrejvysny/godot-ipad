@@ -408,6 +408,27 @@ func test_quick_mix_accepts_only_scatter_allowed_assets() -> void:
 
 # --- Duplicate ---------------------------------------------------------------------------
 
+func test_not_ready_assets_cannot_be_armed_dropped_duplicated_or_placed() -> void:
+	var stub := StubRenderRegistry.hiding(h.catalog, [ToolHarness.SPRUCE])
+	h.ctx.render_ready = stub.is_ready
+	var message := "%s is not ready: render derivatives missing." % h.catalog.get_asset(ToolHarness.SPRUCE).display_name
+	assert_eq(h.ctrl.arm_asset(ToolHarness.SPRUCE), message)
+	assert_eq(h.ctrl.armed_asset(), "")
+	assert_eq(h.ctrl.begin_drop(ToolHarness.SPRUCE), message)
+	assert_false(h.ctrl.has_drop())
+	var rec := h.add_object(ToolHarness.SPRUCE, 40.0, 40.0)
+	h.ctrl.select(rec.object_id)
+	assert_eq(h.ctrl.duplicate_selected(), message)
+	assert_eq(h.doc.objects.size(), 1, "nothing was duplicated")
+	assert_eq(h.commits.size(), 0)
+	assert_empty_string(h.ctrl.arm_asset(ToolHarness.BOULDER))
+	h.ctx.render_ready = func(_id: String) -> bool: return false
+	_tap(40.0, 40.0)
+	assert_eq(h.ctrl.armed_asset(), "", "an armed asset that lost readiness is disarmed instead of placed")
+	assert_eq(h.doc.objects.size(), 1)
+	assert_true(h.diagnostics.back().contains("not ready"))
+
+
 func test_duplicate_is_one_undoable_transaction_and_selects_the_copy() -> void:
 	var rec := h.add_object(ToolHarness.BOULDER, 40.0, 40.0, 0.2)
 	h.ctrl.select(rec.object_id)
@@ -425,7 +446,7 @@ func test_duplicate_is_one_undoable_transaction_and_selects_the_copy() -> void:
 	assert_near(copy.position[1], h.doc.sample_height(43.0, 41.5) + 0.2, 1e-9, "regrounded with the height offset")
 	assert_near(rad_to_deg(copy.get_yaw()), 30.0, 1e-6, "yaw and scale are copied")
 	assert_eq(copy.origin, WorldConstants.ORIGIN_MANUAL)
-	assert_true(h.presenter.node_for(copy.object_id) != null)
+	assert_true(h.presenter.has_object(copy.object_id))
 	h.history.undo(h.doc)
 	assert_eq(h.doc.objects.size(), 1)
 	assert_true(h.doc.get_object(copy.object_id) == null)

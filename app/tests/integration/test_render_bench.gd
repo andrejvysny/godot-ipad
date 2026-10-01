@@ -60,7 +60,7 @@ func _state() -> Dictionary:
 		"distance": session.sun.directional_shadow_max_distance, "scale": viewport.scaling_3d_scale,
 		"scaling_mode": viewport.scaling_3d_mode, "msaa": viewport.msaa_3d,
 		"probe": session.terrain.get_render_probe(), "pose": session.rig.controller.get_pose(),
-		"selected": session.tools.selected_id(), "presenter": session.presenter.object_count(),
+		"selected": session.tools.selected_id(), "presenter": session.presenter.authored_object_count(),
 		"hash": session.authored_hash(), "revision": session.document.document_revision,
 		"history": session.history.size()}
 
@@ -268,7 +268,7 @@ func test_world_replacement_aborts_the_run() -> void:
 	assert_eq(reasons, ["world_replaced"])
 	assert_true(bench.report.correctness.restored)
 	assert_false(session.bench_active())
-	assert_eq(session.presenter.object_count(), session.document.objects.size())
+	assert_eq(session.presenter.authored_object_count(), session.document.objects.size())
 
 
 func assert_string_contains_safe(text: String, needle: String) -> bool:

@@ -106,6 +106,7 @@ static func make_tool_context(session: EditorSession) -> ToolContext:
 	ctx.stats = session.frames
 	ctx.scatter_changed = session.layers.scatter_changed
 	ctx.path_changed = session.layers.path_changed
+	ctx.render_ready = session.render_registry().is_ready
 	return ctx
 
 

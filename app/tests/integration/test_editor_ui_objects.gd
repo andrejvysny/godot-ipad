@@ -293,7 +293,7 @@ func test_inspector_avoidance_is_bounded_and_cached() -> void:
 		r.set_position(rng.randf_range(-400, 400), 0.0, rng.randf_range(-400, 400))
 		s.document.put_object(r)
 	s.presenter.rebuild(s.document)
-	assert_true(s.presenter.object_count() >= 400)
+	assert_true(s.presenter.authored_object_count() >= 400)
 	var first := await _select_first(s)
 	var centre := s.presenter.world_bounds(first.object_id).get_center()
 	var crowd := 0

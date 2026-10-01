@@ -36,12 +36,19 @@ func _add(asset_id: String, pos: Vector3, yaw: float = 0.0, scale: float = 1.0) 
 	return r
 
 
-func _meshes(node: Node, out: Array[MeshInstance3D] = []) -> Array[MeshInstance3D]:
-	if node is MeshInstance3D:
-		out.append(node as MeshInstance3D)
-	for c in node.get_children():
-		_meshes(c, out)
-	return out
+## Whether the record's visible owner (promoted node or batch) is shown.
+func _visible(id: String) -> bool:
+	var node := presenter.node_for(id)
+	if node != null:
+		return node.visible
+	return presenter.render_world().batch_of(id).node.visible
+
+
+## World transform of the record's slot: batch origin + cell-local transform.
+func _slot_world(id: String) -> Transform3D:
+	var batch := presenter.render_world().batch_of(id)
+	var local := batch.local_transform(batch.slot_of[id])
+	return Transform3D(local.basis, local.origin + batch.origin)
 
 
 func test_rebuild_applies_anchor_transform() -> void:
@@ -49,44 +56,57 @@ func test_rebuild_applies_anchor_transform() -> void:
 	var anchor := catalog.get_asset(BOULDER).anchor_local
 	assert_true(anchor != Vector3.ZERO)
 	presenter.rebuild(doc)
-	var node := presenter.node_for(r.object_id)
-	assert_true(node != null)
-	assert_eq(String(node.name), "obj_" + r.object_id)
-	assert_true(node.transform.is_equal_approx(r.node_transform(anchor)))
+	assert_true(presenter.has_object(r.object_id))
+	assert_true(presenter.applied_transform(r.object_id).is_equal_approx(r.node_transform(anchor)))
 	assert_vec_near(presenter._xforms[r.object_id] * anchor, r.get_position_v3(), 1e-5)
-	assert_eq(presenter.object_count(), 1)
+	assert_vec_near(presenter.anchor_position(r.object_id), r.get_position_v3(), 1e-5)
+	assert_eq(presenter.authored_object_count(), 1)
+	assert_true(presenter.settle_now(), "scheduled render work completes")
+	assert_eq(presenter.represented_object_count(), 1)
+	assert_true(_slot_world(r.object_id).is_equal_approx(r.node_transform(anchor)), "batch slot reproduces the applied transform")
+	assert_true(presenter.node_for(r.object_id) == null, "unselected records have no node")
 	assert_eq(presenter.object_ids(), PackedStringArray([r.object_id]))
 
 
 func test_sync_add_update_remove_and_asset_change() -> void:
-	var r := _add(BOULDER, Vector3.ZERO)
+	var r := _add(BOULDER, Vector3(10, 0, 10))
 	presenter.sync_object(doc, r.object_id)
-	assert_eq(presenter.object_count(), 1)
-	var first := presenter.node_for(r.object_id)
+	assert_eq(presenter.authored_object_count(), 1)
+	assert_true(presenter.settle_now())
+	var world := presenter.render_world()
+	var first := world.batch_of(r.object_id)
+	var builds := int(presenter.render_stats().batch_builds)
 	var moved := r.clone()
-	moved.set_position(4, 0, 4)
+	moved.set_position(14, 0, 14)
 	doc.put_object(moved)
 	presenter.sync_object(doc, r.object_id)
-	assert_true(presenter.node_for(r.object_id) == first, "same node on transform update")
-	assert_true(first.transform.is_equal_approx(moved.node_transform(catalog.get_asset(BOULDER).anchor_local)))
+	presenter.service_frame()
+	assert_true(world.batch_of(r.object_id) == first, "same batch on transform update")
+	assert_eq(int(presenter.render_stats().batch_builds), builds, "no batch built for a move")
+	assert_true(_slot_world(r.object_id).is_equal_approx(moved.node_transform(catalog.get_asset(BOULDER).anchor_local)))
 	var swapped := moved.clone()
 	swapped.asset_id = SPRUCE
 	doc.put_object(swapped)
 	presenter.sync_object(doc, r.object_id)
-	assert_eq(presenter.object_count(), 1)
-	assert_true(presenter.node_for(r.object_id) != first, "node re-created")
+	assert_true(presenter.settle_now())
+	assert_eq(presenter.authored_object_count(), 1)
+	assert_true(world.owner_of(r.object_id).begins_with(SPRUCE), "re-owned by the new asset's batch")
 	var unknown := swapped.clone()
 	unknown.asset_id = "no.such.asset"
 	doc.put_object(unknown)
 	presenter.sync_object(doc, r.object_id)
-	assert_eq(presenter.object_count(), 0)
+	assert_eq(presenter.authored_object_count(), 0)
+	assert_eq(world.owner_of(r.object_id), "")
 	doc.put_object(swapped)
 	presenter.sync_objects(doc, [r.object_id])
-	assert_eq(presenter.object_count(), 1)
+	assert_eq(presenter.authored_object_count(), 1)
 	doc.remove_object(r.object_id)
 	presenter.sync_object(doc, r.object_id)
-	assert_eq(presenter.object_count(), 0)
+	assert_eq(presenter.authored_object_count(), 0)
+	assert_eq(world.owner_of(r.object_id), "")
 	assert_true(presenter.node_for(r.object_id) == null)
+	assert_true(presenter.settle_now())
+	assert_eq(presenter.render_stats().instances, 0)
 
 
 func test_pick_basic_hits_and_misses() -> void:
@@ -156,19 +176,25 @@ func test_ghost_show_hide_colour_and_not_pickable() -> void:
 	assert_true(presenter.has_ghost_visible())
 	assert_true(presenter.ghost_valid())
 	assert_eq(presenter.pick(Vector3(0, 10, 0), Vector3.DOWN).id, "")
-	assert_eq(presenter.object_count(), 0)
-	var meshes := _meshes(presenter._ghost)
-	assert_true(not meshes.is_empty())
-	for m in meshes:
-		assert_true(m.material_override == presenter._ghost_material)
-		assert_eq(m.cast_shadow, GeometryInstance3D.SHADOW_CASTING_SETTING_OFF)
-	assert_eq(presenter._ghost_material.albedo_color, Color(0.30, 0.90, 0.40, 0.45))
+	assert_eq(presenter.authored_object_count(), 0)
+	var ghost := presenter.ghost()
+	assert_true(ghost.node.mesh != null, "a bounds box stands in until the prepared ghost mesh is ready")
+	assert_true(ghost.node.material_override == ghost.material)
+	assert_eq(ghost.node.cast_shadow, GeometryInstance3D.SHADOW_CASTING_SETTING_OFF)
+	assert_eq(ghost.material.albedo_color, Color(0.30, 0.90, 0.40, 0.45))
 	presenter.show_ghost(r, false)
 	assert_false(presenter.ghost_valid())
-	assert_eq(presenter._ghost_material.albedo_color, Color(0.95, 0.30, 0.25, 0.45))
-	var ghost := presenter._ghost
-	presenter.show_ghost(r, true)
-	assert_true(presenter._ghost == ghost, "same asset reuses ghost")
+	assert_eq(ghost.material.albedo_color, Color(0.95, 0.30, 0.25, 0.45))
+	var node := ghost.node
+	for i in 400:
+		presenter.service_frame(4.0)
+		presenter.show_ghost(r, true)
+		if ghost.uses_prepared_mesh():
+			break
+		OS.delay_msec(5)
+	assert_true(ghost.uses_prepared_mesh(), "the registry's ghost role mesh replaces the box")
+	assert_true(ghost.node == node, "same asset reuses the ghost node")
+	assert_true(ghost.node.transform.is_equal_approx(r.node_transform(catalog.get_asset(BOULDER).anchor_local)))
 	presenter.hide_ghost()
 	assert_false(presenter.has_ghost_visible())
 
@@ -265,13 +291,20 @@ func test_debug_decor_is_bounded_and_keeps_selection() -> void:
 	assert_eq(presenter.debug_label_count(), 0)
 
 
-func test_instantiated_nodes_cast_no_shadow() -> void:
+func test_render_nodes_cast_no_shadow() -> void:
 	var r := _add(SPRUCE, Vector3.ZERO)
+	_add(BOULDER, Vector3(40, 0, 0))
 	presenter.rebuild(doc)
-	var meshes := _meshes(presenter.node_for(r.object_id))
-	assert_true(not meshes.is_empty())
-	for m in meshes:
-		assert_eq(m.cast_shadow, GeometryInstance3D.SHADOW_CASTING_SETTING_OFF)
+	presenter.set_selected(r.object_id)
+	assert_true(presenter.settle_now())
+	assert_eq(presenter.node_for(r.object_id).cast_shadow, GeometryInstance3D.SHADOW_CASTING_SETTING_OFF)
+	var seen := 0
+	for id in presenter.object_ids():
+		var batch := presenter.render_world().batch_of(id)
+		if batch != null:
+			seen += 1
+			assert_eq(batch.node.cast_shadow, GeometryInstance3D.SHADOW_CASTING_SETTING_OFF)
+	assert_eq(seen, 1, "the unselected boulder is batched")
 
 
 func test_selection_overlay_is_built_once_and_followed() -> void:
@@ -324,9 +357,10 @@ func test_vegetation_hidden_is_presentation_only() -> void:
 	presenter.set_vegetation_hidden(true, rule)
 	assert_true(presenter.vegetation_hidden())
 	assert_true(presenter.presentation_revision() > rev)
-	assert_false(presenter.node_for(tree_rec.object_id).visible)
-	assert_true(presenter.node_for(rock.object_id).visible)
-	assert_true(presenter.node_for(lodge.object_id).visible)
+	assert_true(presenter.settle_now())
+	assert_false(_visible(tree_rec.object_id), "hidden vegetation hides the promoted node too")
+	assert_true(_visible(rock.object_id))
+	assert_true(_visible(lodge.object_id))
 	assert_eq(presenter.pick(Vector3(0, 40, 0), Vector3.DOWN).id, "")
 	assert_eq(presenter.pick(Vector3(20, 40, 0), Vector3.DOWN).id, rock.object_id)
 	var near := presenter.objects_near(Vector3.ZERO, 100.0, 10)
@@ -336,14 +370,15 @@ func test_vegetation_hidden_is_presentation_only() -> void:
 	assert_eq(presenter.selected_id(), tree_rec.object_id)
 	var late := _add(SPRUCE, Vector3(5, 0, 40))
 	presenter.sync_object(doc, late.object_id)
-	assert_false(presenter.node_for(late.object_id).visible, "nodes created while hidden are hidden")
+	assert_true(presenter.settle_now())
+	assert_false(_visible(late.object_id), "batches created while hidden are hidden")
 	doc.remove_object(late.object_id)
 	presenter.sync_object(doc, late.object_id)
 	assert_eq(_doc_snapshot(), before, "document untouched")
 	presenter.set_vegetation_hidden(true, {"categories": [category], "excluded_asset_ids": [SPRUCE]})
-	assert_true(presenter.node_for(tree_rec.object_id).visible, "excluded asset stays visible")
+	assert_true(_visible(tree_rec.object_id), "excluded asset stays visible")
 	presenter.set_vegetation_hidden(false, rule)
-	assert_true(presenter.node_for(tree_rec.object_id).visible)
+	assert_true(_visible(tree_rec.object_id))
 	assert_eq(presenter.pick(Vector3(0, 40, 0), Vector3.DOWN).id, tree_rec.object_id)
 	assert_true(presenter.objects_near(Vector3.ZERO, 100.0, 10).has(tree_rec.object_id))
 

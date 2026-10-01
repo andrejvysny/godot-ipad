@@ -29,7 +29,18 @@ func _ready() -> void:
 	var args := OS.get_cmdline_user_args()
 	var code := run(args)
 	if args.has("--verify-only") or args.has("--quit-after-load"):
+		settle_now()
 		get_tree().quit(code)
+
+
+func _process(_delta: float) -> void:
+	if presenter != null:
+		presenter.service_frame()
+
+
+## Applies the presenter's scheduled render work (bounded to about 2 s); true when nothing is pending.
+func settle_now() -> bool:
+	return presenter == null or presenter.settle_now()
 
 
 ## Returns the process exit code: 0 loaded and (in visual mode) displayed, 1 failure.

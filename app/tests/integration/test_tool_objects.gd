@@ -55,7 +55,9 @@ func test_place_snaps_selects_and_returns_to_select_tool() -> void:
 	assert_eq(h.ctrl.active_tool(), ToolController.TOOL_SELECT)
 	assert_false(h.presenter.has_ghost_visible())
 	var anchor := h.catalog.get_asset(ToolHarness.BOULDER).anchor_local
-	assert_vec_near(h.presenter.node_for(rec.object_id).transform * anchor, rec.get_position_v3(), 1e-5, "OB-01")
+	assert_true(h.presenter.has_object(rec.object_id), "presented")
+	assert_vec_near(h.presenter.applied_transform(rec.object_id) * anchor, rec.get_position_v3(), 1e-5, "OB-01")
+	assert_vec_near(h.presenter.anchor_position(rec.object_id), rec.get_position_v3(), 1e-5, "OB-01 anchor_position")
 	h.history.undo(h.doc)
 	assert_eq(h.doc.objects.size(), 0, "undo removes the object")
 
@@ -339,7 +341,8 @@ func test_delete_and_undo_restore_same_id_and_transform() -> void:
 	assert_empty_string(h.ctrl.delete_selected())
 	assert_eq(h.doc.objects.size(), 0)
 	assert_eq(h.ctrl.selected_id(), "")
-	assert_true(h.presenter.node_for(rec.object_id) == null, "node removed")
+	assert_false(h.presenter.has_object(rec.object_id), "object no longer presented")
+	assert_eq(h.presenter.render_world().owner_of(rec.object_id), "", "no render owner left")
 	assert_eq(h.commits.back().label, "Delete " + h.catalog.get_asset(ToolHarness.BOULDER).display_name)
 	h.history.undo(h.doc)
 	h.presenter.sync_object(h.doc, rec.object_id)

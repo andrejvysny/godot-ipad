@@ -166,17 +166,17 @@ func test_undo_refused_during_active_stroke() -> void:
 
 func test_placement_undo_removes_object_and_selection() -> void:
 	var s: EditorSession = await _start()
-	var baseline := s.presenter.object_count()
+	var baseline := s.presenter.authored_object_count()
 	assert_empty_string(s.tools.arm_asset(ToolHarness.BOULDER))
 	_act(s, "tool_begin", 0.0, 0.0, 1.0)
 	_act(s, "tool_end", 0.0, 0.0, 1.05)
-	assert_eq(s.presenter.object_count(), baseline + 1)
+	assert_eq(s.presenter.authored_object_count(), baseline + 1)
 	assert_ne(s.tools.selected_id(), "")
 	assert_eq(s.undo(), "")
-	assert_eq(s.presenter.object_count(), baseline)
+	assert_eq(s.presenter.authored_object_count(), baseline)
 	assert_eq(s.tools.selected_id(), "")
 	assert_eq(s.redo(), "")
-	assert_eq(s.presenter.object_count(), baseline + 1)
+	assert_eq(s.presenter.authored_object_count(), baseline + 1)
 
 
 func test_second_commit_never_reported_saved_early() -> void:
@@ -215,7 +215,7 @@ func test_open_fixture_replaces_world_and_rejects_unknown() -> void:
 	assert_eq(replaced[0], 0)
 	assert_eq(s.open_fixture("stress_100"), "")
 	assert_eq(replaced[0], 1)
-	assert_eq(s.presenter.object_count(), 100)
+	assert_eq(s.presenter.authored_object_count(), 100)
 	assert_ne(s.document.world_id, old_id)
 	assert_eq(s.document.document_revision, 0)
 	assert_eq(s.history.size(), 0)

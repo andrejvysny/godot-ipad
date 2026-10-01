@@ -56,6 +56,7 @@ func setup(tree: SceneTree, fixture: String = "res://fixtures/gentle_hills") -> 
 	ctx.defaults = JSON.parse_string(defaults_file.get_as_text())
 	ctx.document = doc
 	ctx.catalog = catalog
+	ctx.render_ready = presenter.is_asset_ready
 	ctx.camera = camera
 	ctx.terrain = terrain
 	ctx.presenter = presenter

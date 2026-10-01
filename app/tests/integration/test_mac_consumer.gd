@@ -107,7 +107,10 @@ func test_visual_mode_builds_terrain_and_objects() -> void:
 	assert_eq(consumer.run(PackedStringArray(["--world=" + STRESS])), 0)
 	await tree.process_frame
 	assert_true(consumer.adapter != null)
-	assert_eq(consumer.presenter.object_count(), 100)
+	assert_eq(consumer.presenter.authored_object_count(), 100)
+	assert_true(consumer.settle_now(), "scheduled render work completes")
+	assert_eq(consumer.presenter.represented_object_count(), 100, "every record is drawn through the batch path")
+	assert_true(consumer.presenter.node_count() < 100, "batched, not one node per object")
 	assert_true(consumer.info_label.text.contains("MAC CONSUMER — read-only"))
 	tree.root.remove_child(consumer)
 	consumer.free()

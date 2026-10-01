@@ -30,6 +30,8 @@ static func duplicate_object(ctx: ToolContext, source: ObjectRecord) -> Dictiona
 	if is_nan(h):
 		return {"error": "No terrain under the copy.", "id": "", "change": null}
 	var asset := ctx.catalog.get_asset(source.asset_id)
+	if asset != null and ctx.not_ready_error(asset) != "":
+		return {"error": ctx.not_ready_error(asset), "id": "", "change": null}
 	var copy := source.clone()
 	copy.object_id = ObjectRecord.new_uuid_v4()
 	copy.origin = WorldConstants.ORIGIN_MANUAL

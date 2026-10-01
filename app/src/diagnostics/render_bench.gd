@@ -105,7 +105,7 @@ func _capture() -> Dictionary:
 		"distance": sun.directional_shadow_max_distance, "scale": viewport.scaling_3d_scale,
 		"scaling_mode": viewport.scaling_3d_mode, "msaa": viewport.msaa_3d,
 		"probe": _session.terrain.get_render_probe(), "pose": _session.rig.controller.get_pose(),
-		"selected": _session.tools.selected_id(), "presenter_objects": _session.presenter.object_count(),
+		"selected": _session.tools.selected_id(), "presenter_objects": _session.presenter.authored_object_count(),
 		"profile": _session.render_profiles.active_name(), "vegetation_hidden": _session.vegetation_hidden(),
 		"max_fps": Engine.max_fps}
 
@@ -207,7 +207,7 @@ func _run_step(step: Dictionary, token: int) -> Dictionary:
 	var out := step.duplicate()
 	out.merge({"population": {"fixture": BENCH_FIXTURE, "objects": _bench_doc.objects.size(),
 		"scatter_instances": _bench_doc.scatter.count(), "paths": _bench_doc.paths.size()},
-		"objects_presented": _session.presenter.object_count(), "prepare_ms": prepare_ms,
+		"objects_presented": _session.presenter.authored_object_count(), "prepare_ms": prepare_ms,
 		"first_frame_ms": settle.first_frame_ms, "settle_ms": settle.settle_ms, "settled": settle.settled,
 		"terrain_probe_supported": probe_error == "", "settings": settings, "summary": measured.summary,
 		"counters_peak": measured.peak, "counters_last": measured.last})
