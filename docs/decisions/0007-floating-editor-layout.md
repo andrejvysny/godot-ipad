@@ -1,6 +1,8 @@
 # 0007 — Floating editor layout and Library drag-to-place
 
-Status: accepted for the Core PoC editor (2026-10-01). Layout still needs physical validation on
+Status: superseded for layout by ADR 0009 (World Editor v2, 2026-10-01); the Library
+drag-to-place ownership and the inspector placement rules below still apply. Originally accepted
+for the Core PoC editor (2026-10-01). Layout still needs physical validation on
 the iPad with the Pencil and a resting palm (spec §9 calls its layout "proposed defaults to
 validate physically").
 

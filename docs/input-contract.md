@@ -66,6 +66,12 @@ InputProvider --drain_samples()--> InputSystem --map once--> InputRouter --actio
   `Place` transaction; anything else places nothing. `ui_cancelled` cancels the drop before the
   in-place synthetic release, and that release then does nothing. While a drop is open, the
   controller ignores router tool actions except `tool_cancel`.
+- **Armed placement** (ADR 0009). A tap on a Library tile arms its asset
+  (`ToolController.arm_asset`). The next Pencil contact on the world, in any mode, is an ordinary
+  router-owned tool contact that opens a `Place` operation instead of the active tool (drag to
+  position, lift to place). Fingers keep their usual ownership.
+- **Set editor** (ADR 0009). The scatter-set editor is a full-screen registered panel, not a modal:
+  every contact over it is interface. It never opens a world operation.
 - Window-based UI (dialogs, popups) is interface without registration (`UiHitTester.root`): a
   visible exclusive or popup window covers the whole screen (a Pencil tap outside it dismisses it
   and never paints; fingers never navigate behind it); any other visible window covers its rect
