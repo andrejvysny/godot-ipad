@@ -285,19 +285,19 @@ func test_deactivation_rolls_back_active_stroke() -> void:
 	assert_eq(s.storage.status_text(1), "Saved revision 1")
 
 
-func test_history_eviction_posts_message_without_changing_world() -> void:
+func test_history_eviction_is_silent_and_keeps_world() -> void:
 	var s: EditorSession = await _start()
 	var before := s.authored_hash()
-	var evictions: Array[String] = []
-	s.message_posted.connect(func(text: String, _e: bool) -> void:
-		if text.begins_with("Undo limit reached"):
-			evictions.append(text))
-	for i in 20:
+	var messages: Array[String] = []
+	s.message_posted.connect(func(text: String, _e: bool) -> void: messages.append(text))
+	var cap := s.history.max_actions
+	assert_eq(cap, 100, "configured action cap")
+	for i in cap + 5:
 		s.commit(_tiny_change("c%d" % i))
-	assert_true(evictions.is_empty())
-	s.commit(_tiny_change("c20"))
-	assert_eq(evictions.size(), 1)
-	assert_eq(s.history.size(), 20)
+	assert_true(messages.is_empty(), "eviction posts no message: %s" % [messages])
+	assert_eq(s.history.size(), cap)
+	assert_eq(s.history.evicted_count, 5)
+	assert_eq(s.status().history_oldest, "c5", "oldest entries evicted first")
 	assert_eq(s.authored_hash(), before, "eviction never touches the world")
 
 
@@ -305,7 +305,7 @@ func test_status_has_all_keys() -> void:
 	var s: EditorSession = await _start()
 	var status := s.status()
 	for key in ["tool", "mode", "inverted", "armed_asset", "picking_height", "stroke_state", "revision", "save_text", "save_state", "can_undo", "can_redo",
-			"undo_label", "redo_label", "history_size", "history_bytes", "evicted", "object_count",
+			"undo_label", "redo_label", "history_size", "history_bytes", "evicted", "history_oldest", "object_count",
 			"selected_id", "provider_label", "banner", "editing_enabled", "development_input",
 			"router_state", "contacts", "pressure_available", "renderer", "driver", "frame_p50_ms",
 			"frame_p95_ms", "brush_p95_ms", "render_scale", "world_id", "operation_id", "last_hit"]:

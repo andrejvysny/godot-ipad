@@ -2,16 +2,18 @@ class_name CommandHistory
 extends RefCounted
 ## Bounded value-based undo/redo deque (spec §16.2). Session-local, never persisted.
 ## `_cursor` = number of entries currently applied; entries at index >= _cursor are redo.
+## Eviction is silent (ADR 0012): the oldest entries go first and the newest entry is always
+## kept, even when it alone exceeds max_bytes.
 
-var max_actions: int = 20
-var max_bytes: int = 64 * 1024 * 1024
+var max_actions: int = 100
+var max_bytes: int = 256 * 1024 * 1024
 var evicted_count: int = 0
 
 var _entries: Array[WorldChange] = []
 var _cursor := 0
 
 
-func _init(p_max_actions: int = 20, p_max_bytes: int = 64 * 1024 * 1024) -> void:
+func _init(p_max_actions: int = 100, p_max_bytes: int = 256 * 1024 * 1024) -> void:
 	max_actions = p_max_actions
 	max_bytes = p_max_bytes
 
@@ -82,3 +84,8 @@ func peek_undo_label() -> String:
 
 func peek_redo_label() -> String:
 	return _entries[_cursor].label if can_redo() else ""
+
+
+## Label of the oldest retained entry (undone or not); "" when empty.
+func oldest_label() -> String:
+	return _entries[0].label if not _entries.is_empty() else ""

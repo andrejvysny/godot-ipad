@@ -46,8 +46,8 @@
     "height_step_m": 0.1
   },
   "history": {
-    "max_actions": 20,
-    "max_bytes": 67108864
+    "max_actions": 100,
+    "max_bytes": 268435456
   },
   "storage": {
     "keep_generations": 3

@@ -148,3 +148,39 @@ func test_transaction_budget_rejects_capture() -> void:
 	assert_false(tx.capture_heights(Vector2i(-1, 0)), "second region exceeds budget")
 	assert_true(tx.budget_exceeded)
 	tx.rollback()
+
+
+func test_eviction_drops_oldest_first() -> void:
+	var doc := _doc()
+	var hist := CommandHistory.new(3)
+	for i in 5:
+		var tx := EditTransaction.new()
+		tx.begin(doc, "sculpt", "Raise %d" % i)
+		_raise(doc, tx, Vector2i(0, 0), i, 1.0)
+		hist.push_already_applied(tx.finish())
+	assert_eq(hist.oldest_label(), "Raise 2")
+	assert_eq(hist.peek_undo_label(), "Raise 4")
+	for i in 3:
+		assert_true(hist.undo(doc) != null, "every retained entry undoes")
+	assert_false(hist.can_undo())
+
+
+func test_oversized_entry_is_kept_and_evicts_older() -> void:
+	var doc := _doc()
+	# Budget below one height-region entry (2 * 256 KiB): only the newest survives.
+	var hist := CommandHistory.new(100, 256 * 1024)
+	for i in 3:
+		var tx := EditTransaction.new()
+		tx.begin(doc, "sculpt", "Raise %d" % i)
+		_raise(doc, tx, Vector2i(0, 0), i, 1.0)
+		hist.push_already_applied(tx.finish())
+	assert_eq(hist.size(), 1, "newest kept despite exceeding the budget")
+	assert_eq(hist.peek_undo_label(), "Raise 2")
+	assert_eq(hist.evicted_count, 2)
+	assert_true(hist.undo(doc) != null)
+
+
+func test_default_limits() -> void:
+	var hist := CommandHistory.new()
+	assert_eq(hist.max_actions, 100)
+	assert_eq(hist.max_bytes, 256 * 1024 * 1024)

@@ -51,7 +51,6 @@ var _selftest := false
 var _bench: Node = null  # the claimed RenderBench runner
 var _bench_args: Dictionary = {}
 var _fault_armed := false
-var _last_evicted := 0
 var _last_frame_usec := 0
 var _last_status_msec := 0
 var _tool_ctx: ToolContext
@@ -301,9 +300,6 @@ func _notification(what: int) -> void:
 func commit(change: WorldChange) -> void:
 	document.bump_revision()
 	history.push_already_applied(change)
-	if history.evicted_count > _last_evicted:
-		_last_evicted = history.evicted_count
-		post_message("Undo limit reached: oldest action dropped. The world is unchanged.")
 	_request_checkpoint()
 	status_changed.emit()
 
@@ -398,7 +394,6 @@ func _replace_document(doc: WorldDocument) -> void:
 	rig.height_sampler = doc.sample_height
 	reset_camera()
 	history.clear()
-	_last_evicted = history.evicted_count
 	_request_checkpoint()
 	world_replaced.emit()
 	status_changed.emit()

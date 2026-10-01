@@ -312,7 +312,8 @@ static func save_trace_files(session: EditorSession) -> String:
 static func history_status(history: CommandHistory) -> Dictionary:
 	return {"can_undo": history.can_undo(), "can_redo": history.can_redo(),
 		"undo_label": history.peek_undo_label(), "redo_label": history.peek_redo_label(),
-		"history_size": history.size(), "history_bytes": history.total_bytes(), "evicted": history.evicted_count}
+		"history_size": history.size(), "history_bytes": history.total_bytes(), "evicted": history.evicted_count,
+		"history_oldest": history.oldest_label()}
 
 
 static func input_status(input: InputSystem) -> Dictionary:
