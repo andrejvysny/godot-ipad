@@ -1,0 +1,49 @@
+{
+  "format": "world-painter-render-assets",
+  "schema_version": 1,
+  "catalog_id": "bench_nature",
+  "catalog_version": 1,
+  "prepared_for": {
+    "godot": "4.7.2",
+    "renderer": "mobile",
+    "texture_formats": ["etc2_astc", "s3tc_bptc"]
+  },
+  "assets": [
+    {
+      "asset_id": "bench.cover.grass_cards",
+      "asset_version": 1,
+      "descriptor": "grass_cards/descriptor.json",
+      "descriptor_sha256": "2b34d1f06cefccc328d15a31848329b4b8085ac60cebbe46f2c7bbd6ffdbe3c0"
+    },
+    {
+      "asset_id": "bench.rock.slab_a",
+      "asset_version": 1,
+      "descriptor": "slab_a/descriptor.json",
+      "descriptor_sha256": "8bf7101a1e719185ec6adbf0fefd37e1d728a2badbfb55536d046ec2f00011f8"
+    },
+    {
+      "asset_id": "bench.shrub.bush_cards",
+      "asset_version": 1,
+      "descriptor": "bush_cards/descriptor.json",
+      "descriptor_sha256": "4b53a76fe9495f9b5870f8da8134b4c501831801295b4bb1e3658a78cb3bdbbb"
+    },
+    {
+      "asset_id": "bench.structure.tower_a",
+      "asset_version": 1,
+      "descriptor": "tower_a/descriptor.json",
+      "descriptor_sha256": "7bc692169e35de48746f3ff3c0f8d7c139bb0d5d4d051014c0864f96276c3374"
+    },
+    {
+      "asset_id": "bench.tree.broadleaf_geo",
+      "asset_version": 1,
+      "descriptor": "broadleaf_geo/descriptor.json",
+      "descriptor_sha256": "7cdcb814a9f27151d1d8bfd4c1345bde26f49d1bbed847e2feda22f4e47a07fa"
+    },
+    {
+      "asset_id": "bench.tree.pine_cards",
+      "asset_version": 1,
+      "descriptor": "pine_cards/descriptor.json",
+      "descriptor_sha256": "f3652b28785674e80d18320ff543dcda9600221912232964a18121b06bdee639"
+    }
+  ]
+}

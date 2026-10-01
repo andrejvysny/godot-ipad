@@ -1,5 +1,6 @@
 # Build outputs and generated app containers
 build/
+build/render_prep*
 app/.godot/
 *.ipa
 *.xcarchive

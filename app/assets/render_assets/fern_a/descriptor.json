@@ -1,0 +1,74 @@
+{
+  "format": "world-painter-render-asset",
+  "schema_version": 1,
+  "asset_id": "nature.cover.fern_a",
+  "asset_version": 1,
+  "source_content_hash": "eadddb7e820c6f71a742dbc726628717d77fead542514bd48bf128b9890bd3e0",
+  "derivative_hash": "147269dd9046b77847d605d53e2d2c91d983842e1867c5abcf801321da0cc052",
+  "category": "ground_cover",
+  "vegetation": true,
+  "decorative": true,
+  "anchor_local_m": [0.0, 0.0, 0.0],
+  "bounds_min_m": [-0.4, 0.0, -0.4],
+  "bounds_max_m": [0.4, 0.55, 0.4],
+  "footprint_radius_m": 0.4,
+  "representations": {
+    "selected": {
+      "mesh": "mesh_selected",
+      "triangles": 42,
+      "surfaces": 1,
+      "aabb_min_m": [-0.317654, 0.0, -0.367481],
+      "aabb_max_m": [0.376143, 0.498135, 0.374341]
+    },
+    "near": {
+      "alias": "selected"
+    },
+    "mid": {
+      "alias": "selected"
+    },
+    "far": {
+      "alias": "selected"
+    },
+    "ghost": {
+      "alias": "far"
+    }
+  },
+  "overview": {
+    "kind": "none",
+    "shape": "box",
+    "base_y_m": 0.0,
+    "height_m": 0.55,
+    "radius_m": 0.4,
+    "color": [0.15, 0.4, 0.16]
+  },
+  "materials": {
+    "m_cafb9bb9": {
+      "dependency": "mat_m_cafb9bb9",
+      "alpha_mode": "opaque",
+      "texture": null
+    }
+  },
+  "textures": {},
+  "dependencies": [
+    {
+      "key": "mat_m_cafb9bb9",
+      "type": "material",
+      "path": "m_cafb9bb9.tres",
+      "bytes": 153,
+      "sha256": "3031f1f8d24201770f025e85d3e4d7037b57f542b39fb0f0c3a5ee448f6767f5",
+      "gpu_bytes": 0,
+      "staging_bytes": 0
+    },
+    {
+      "key": "mesh_selected",
+      "type": "mesh",
+      "path": "mesh_selected.tres",
+      "bytes": 4889,
+      "sha256": "4ddb95c786b1e7dda4e39aeeb61902be3a4beffd9c82eafb044779ea7c004b55",
+      "gpu_bytes": 3276,
+      "staging_bytes": 3276
+    }
+  ],
+  "provenance": "Prepared from the catalog preview scene (selected) and hand-made tier scenes in app/devtools/render_prep/poc by prepare_render_assets.gd; geometry created in this repository",
+  "license": "CC0-1.0"
+}

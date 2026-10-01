@@ -1,0 +1,18 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="stone"]
+albedo_color = Color(0.47, 0.46, 0.43, 1)
+roughness = 0.95
+
+[sub_resource type="SphereMesh" id="rock"]
+material = SubResource("stone")
+radius = 1.1
+height = 1.4
+radial_segments = 6
+rings = 3
+
+[node name="BoulderA" type="Node3D"]
+
+[node name="Rock" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, 0.7, -0.15)
+mesh = SubResource("rock")

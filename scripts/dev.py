@@ -13,6 +13,7 @@
   fixtures [--check]         regenerate or byte-check bundled fixtures
   catalog-hash               print the trusted catalog content hash
   sync-config                copy config/{poc_defaults,rendering_profiles}.json to app/config/
+  prepare-render-assets      [--catalog poc|bench|all] [--check]: bench generator + render-asset prep + texture import
 """
 from __future__ import annotations
 
@@ -33,6 +34,7 @@ import generate_fixtures  # noqa: E402
 import godot_test  # noqa: E402
 import validate_render_assets  # noqa: E402
 import validate_world  # noqa: E402
+import dev_render_prep  # noqa: E402
 import worldpoc_format as wf  # noqa: E402
 from dev_export import SIGNING_HELP, cmd_export_ios, load_signing, patch_ios_preset
 
@@ -465,6 +467,10 @@ def cmd_sync_config(a: argparse.Namespace) -> int:
 	return 0
 
 
+def cmd_prepare_render_assets(a: argparse.Namespace) -> int:
+	return dev_render_prep.main(a.catalog, a.check)
+
+
 def build_parser() -> argparse.ArgumentParser:
 	p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
 	sub = p.add_subparsers(dest="command", required=True)
@@ -515,6 +521,10 @@ def build_parser() -> argparse.ArgumentParser:
 	s.set_defaults(fn=cmd_fixtures)
 	sub.add_parser("catalog-hash", help="print the catalog content hash").set_defaults(fn=cmd_catalog_hash)
 	sub.add_parser("sync-config", help="copy config/{poc_defaults,rendering_profiles}.json into app/config").set_defaults(fn=cmd_sync_config)
+	s = sub.add_parser("prepare-render-assets", help="generate bench assets, prepare render derivatives, import textures")
+	s.add_argument("--catalog", choices=["poc", "bench", "all"], default="all")
+	s.add_argument("--check", action="store_true", help="regenerate in a temporary copy and fail on any byte difference")
+	s.set_defaults(fn=cmd_prepare_render_assets)
 	return p
 
 

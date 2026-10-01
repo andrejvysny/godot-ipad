@@ -1,0 +1,127 @@
+{
+  "format": "world-painter-render-asset",
+  "schema_version": 1,
+  "asset_id": "nature.tree.spruce_a",
+  "asset_version": 1,
+  "source_content_hash": "17ee05cdbaf186a5a886115821e18e2bb6d439921a6b321c1852809ef6365c53",
+  "derivative_hash": "676eaf8664362bd460cff9ec9c2893284594a49535234b5b46d63d9e837f38fb",
+  "category": "tree",
+  "vegetation": true,
+  "decorative": false,
+  "anchor_local_m": [0.0, 0.0, 0.0],
+  "bounds_min_m": [-1.4, 0.0, -1.4],
+  "bounds_max_m": [1.4, 7.0, 1.4],
+  "footprint_radius_m": 1.4,
+  "representations": {
+    "selected": {
+      "mesh": "mesh_selected",
+      "triangles": 1472,
+      "surfaces": 2,
+      "aabb_min_m": [-1.4, 0.0, -1.4],
+      "aabb_max_m": [1.4, 7.0, 1.4]
+    },
+    "near": {
+      "mesh": "mesh_near",
+      "triangles": 416,
+      "surfaces": 2,
+      "aabb_min_m": [-1.4, 0.0, -1.4],
+      "aabb_max_m": [1.4, 7.0, 1.4]
+    },
+    "mid": {
+      "mesh": "mesh_mid",
+      "triangles": 152,
+      "surfaces": 2,
+      "aabb_min_m": [-1.4, 0.0, -1.4],
+      "aabb_max_m": [1.4, 7.0, 1.4]
+    },
+    "far": {
+      "mesh": "mesh_far",
+      "triangles": 76,
+      "surfaces": 2,
+      "aabb_min_m": [-1.4, 0.0, -1.4],
+      "aabb_max_m": [1.4, 7.0, 1.4]
+    },
+    "ghost": {
+      "alias": "far"
+    }
+  },
+  "overview": {
+    "kind": "canopy",
+    "shape": "cone",
+    "base_y_m": 1.4,
+    "height_m": 5.6,
+    "radius_m": 1.4,
+    "color": [0.13, 0.34, 0.18]
+  },
+  "materials": {
+    "m_7a189dcf": {
+      "dependency": "mat_m_7a189dcf",
+      "alpha_mode": "opaque",
+      "texture": null
+    },
+    "m_dd94e1ab": {
+      "dependency": "mat_m_dd94e1ab",
+      "alpha_mode": "opaque",
+      "texture": null
+    }
+  },
+  "textures": {},
+  "dependencies": [
+    {
+      "key": "mat_m_7a189dcf",
+      "type": "material",
+      "path": "m_7a189dcf.tres",
+      "bytes": 103,
+      "sha256": "a24d55f41f1a862626cfc755338e76d46238e83aa1b5b42dcfd87ea4cb571855",
+      "gpu_bytes": 0,
+      "staging_bytes": 0
+    },
+    {
+      "key": "mat_m_dd94e1ab",
+      "type": "material",
+      "path": "m_dd94e1ab.tres",
+      "bytes": 103,
+      "sha256": "1a00796c6d0ce12e30fe452ee6c38f1069c2205ef812ab34bdf4383c82d0fba3",
+      "gpu_bytes": 0,
+      "staging_bytes": 0
+    },
+    {
+      "key": "mesh_far",
+      "type": "mesh",
+      "path": "mesh_far.tres",
+      "bytes": 4316,
+      "sha256": "d83ee5f90f4778a4973d2a601a1dde5796b3a330a8af6caf3106f7b73b0fbd8e",
+      "gpu_bytes": 2528,
+      "staging_bytes": 2528
+    },
+    {
+      "key": "mesh_mid",
+      "type": "mesh",
+      "path": "mesh_mid.tres",
+      "bytes": 7226,
+      "sha256": "9e162752aa127877d334c6d9793a4b75035fee0d6e310583c0a58d57e4e1f58e",
+      "gpu_bytes": 4720,
+      "staging_bytes": 4720
+    },
+    {
+      "key": "mesh_near",
+      "type": "mesh",
+      "path": "mesh_near.tres",
+      "bytes": 16140,
+      "sha256": "ec5b248d4cca4accd71b3a170d28ce3f264b74701a9aefb2190ccdaf4066f8b4",
+      "gpu_bytes": 11400,
+      "staging_bytes": 11400
+    },
+    {
+      "key": "mesh_selected",
+      "type": "mesh",
+      "path": "mesh_selected.tres",
+      "bytes": 49222,
+      "sha256": "e05cb874bc076a1006408b65961da5dc4d704eb2174291fda36396c75bd8f892",
+      "gpu_bytes": 36216,
+      "staging_bytes": 36216
+    }
+  ],
+  "provenance": "Prepared from the catalog preview scene (selected) and hand-made tier scenes in app/devtools/render_prep/poc by prepare_render_assets.gd; geometry created in this repository",
+  "license": "CC0-1.0"
+}

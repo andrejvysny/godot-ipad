@@ -1,0 +1,129 @@
+{
+  "format": "world-painter-render-asset",
+  "schema_version": 1,
+  "asset_id": "built.lodge.cabin_a",
+  "asset_version": 1,
+  "source_content_hash": "305a36fadec87e65096b37a376b3db10e8d4c3ee34ebda1bff14d8d93304f3b7",
+  "derivative_hash": "51e8e8fb54aa3f655f8a01126ce6127e06975a60a20849f6a5d175631c6dbb8e",
+  "category": "structure",
+  "vegetation": false,
+  "decorative": false,
+  "anchor_local_m": [0.0, 0.5, 0.0],
+  "bounds_min_m": [-4.3, 0.0, -3.3],
+  "bounds_max_m": [4.3, 7.3, 3.3],
+  "footprint_radius_m": 5.5,
+  "representations": {
+    "selected": {
+      "mesh": "mesh_selected",
+      "triangles": 44,
+      "surfaces": 4,
+      "aabb_min_m": [-4.3, 0.0, -3.3],
+      "aabb_max_m": [4.3, 7.3, 3.3]
+    },
+    "near": {
+      "alias": "selected"
+    },
+    "mid": {
+      "alias": "selected"
+    },
+    "far": {
+      "mesh": "mesh_far",
+      "triangles": 20,
+      "surfaces": 1,
+      "aabb_min_m": [-4.3, 0.0, -3.3],
+      "aabb_max_m": [4.3, 7.3, 3.3]
+    },
+    "ghost": {
+      "alias": "mid"
+    }
+  },
+  "overview": {
+    "kind": "solid",
+    "shape": "box",
+    "base_y_m": 0.0,
+    "height_m": 7.3,
+    "radius_m": 4.3,
+    "color": [0.55, 0.38, 0.22]
+  },
+  "materials": {
+    "m_6301a786": {
+      "dependency": "mat_m_6301a786",
+      "alpha_mode": "opaque",
+      "texture": null
+    },
+    "m_d64e4ba2": {
+      "dependency": "mat_m_d64e4ba2",
+      "alpha_mode": "opaque",
+      "texture": null
+    },
+    "m_e615a536": {
+      "dependency": "mat_m_e615a536",
+      "alpha_mode": "opaque",
+      "texture": null
+    },
+    "m_fdc49e61": {
+      "dependency": "mat_m_fdc49e61",
+      "alpha_mode": "opaque",
+      "texture": null
+    }
+  },
+  "textures": {},
+  "dependencies": [
+    {
+      "key": "mat_m_6301a786",
+      "type": "material",
+      "path": "m_6301a786.tres",
+      "bytes": 103,
+      "sha256": "404782c878c2fca3458a03c3f37cb5af2173aa913464718731183e680ed8392a",
+      "gpu_bytes": 0,
+      "staging_bytes": 0
+    },
+    {
+      "key": "mat_m_d64e4ba2",
+      "type": "material",
+      "path": "m_d64e4ba2.tres",
+      "bytes": 103,
+      "sha256": "a2da90881f65015224c7d1bbc78ff6c18542574d3351038690942debec82d5ab",
+      "gpu_bytes": 0,
+      "staging_bytes": 0
+    },
+    {
+      "key": "mat_m_e615a536",
+      "type": "material",
+      "path": "m_e615a536.tres",
+      "bytes": 103,
+      "sha256": "967ec4cb04448bcc7b368e6fff261a9675e5ba4c0a6a21922d817592fcf5317a",
+      "gpu_bytes": 0,
+      "staging_bytes": 0
+    },
+    {
+      "key": "mat_m_fdc49e61",
+      "type": "material",
+      "path": "m_fdc49e61.tres",
+      "bytes": 101,
+      "sha256": "95015fce0120c83456c3dbfae609461ae87016b73478c56e6eadbec8c28c8de9",
+      "gpu_bytes": 0,
+      "staging_bytes": 0
+    },
+    {
+      "key": "mesh_far",
+      "type": "mesh",
+      "path": "mesh_far.tres",
+      "bytes": 2295,
+      "sha256": "c30009df653bee3a084424b8fd2b9365577c3c93886b208b07adf364692f72d3",
+      "gpu_bytes": 1352,
+      "staging_bytes": 1352
+    },
+    {
+      "key": "mesh_selected",
+      "type": "mesh",
+      "path": "mesh_selected.tres",
+      "bytes": 5571,
+      "sha256": "f4ce9e3dee232f38049fd2a7871da9de0e70f1a12504515418cb030e796e8b11",
+      "gpu_bytes": 2840,
+      "staging_bytes": 2840
+    }
+  ],
+  "provenance": "Prepared from the catalog preview scene (selected) and hand-made tier scenes in app/devtools/render_prep/poc by prepare_render_assets.gd; geometry created in this repository",
+  "license": "CC0-1.0"
+}

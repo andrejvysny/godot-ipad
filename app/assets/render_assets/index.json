@@ -1,0 +1,55 @@
+{
+  "format": "world-painter-render-assets",
+  "schema_version": 1,
+  "catalog_id": "poc_nature",
+  "catalog_version": 2,
+  "prepared_for": {
+    "godot": "4.7.2",
+    "renderer": "mobile",
+    "texture_formats": ["etc2_astc", "s3tc_bptc"]
+  },
+  "assets": [
+    {
+      "asset_id": "built.lodge.cabin_a",
+      "asset_version": 1,
+      "descriptor": "cabin_a/descriptor.json",
+      "descriptor_sha256": "c052d1baf6acfa75571346a650ac5c01369bab137e850eb6cff999aba63b258f"
+    },
+    {
+      "asset_id": "nature.cover.fern_a",
+      "asset_version": 1,
+      "descriptor": "fern_a/descriptor.json",
+      "descriptor_sha256": "c09c24a8c9bed2a3c16d83d22573a9175f5a3037f355db0ecc933f4ccc444e19"
+    },
+    {
+      "asset_id": "nature.cover.grass_tuft_a",
+      "asset_version": 1,
+      "descriptor": "grass_tuft_a/descriptor.json",
+      "descriptor_sha256": "857c86f22a7196a9c381ff481934504cfc2599906d69e8506200d1808d63041f"
+    },
+    {
+      "asset_id": "nature.cover.wildflowers_a",
+      "asset_version": 1,
+      "descriptor": "wildflowers_a/descriptor.json",
+      "descriptor_sha256": "32135f567bc68573522d3fcb4fe72b19c55e4c22d183e64b2ec0fa3496e37fe4"
+    },
+    {
+      "asset_id": "nature.rock.boulder_a",
+      "asset_version": 1,
+      "descriptor": "boulder_a/descriptor.json",
+      "descriptor_sha256": "ee8789be2cfce84e9ff8673d5fffa1f04dfec9c5990388ba53281e431ce07cdd"
+    },
+    {
+      "asset_id": "nature.rock.pebbles_a",
+      "asset_version": 1,
+      "descriptor": "pebbles_a/descriptor.json",
+      "descriptor_sha256": "bdf8bf618233d1f057d7a825384c99f4b2eb990234bcea0d11d53f02f2c5fd24"
+    },
+    {
+      "asset_id": "nature.tree.spruce_a",
+      "asset_version": 1,
+      "descriptor": "spruce_a/descriptor.json",
+      "descriptor_sha256": "2bbb55f745607da427c3e8b3e0df375382f5e55690e2ec2b5bcc76ccb287182c"
+    }
+  ]
+}

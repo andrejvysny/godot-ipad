@@ -1,0 +1,74 @@
+{
+  "format": "world-painter-render-asset",
+  "schema_version": 1,
+  "asset_id": "nature.cover.wildflowers_a",
+  "asset_version": 1,
+  "source_content_hash": "6acc2d3361e643129e4979265e29fd5c5effaaae1dbc6484d0774ab9193eec4b",
+  "derivative_hash": "c5d5230ff87360aa7a31528db928d33b663012d65880570e8a6a8b1b78ad7425",
+  "category": "ground_cover",
+  "vegetation": true,
+  "decorative": true,
+  "anchor_local_m": [0.0, 0.0, 0.0],
+  "bounds_min_m": [-0.2, 0.0, -0.2],
+  "bounds_max_m": [0.2, 0.45, 0.2],
+  "footprint_radius_m": 0.3,
+  "representations": {
+    "selected": {
+      "mesh": "mesh_selected",
+      "triangles": 27,
+      "surfaces": 1,
+      "aabb_min_m": [-0.1649, 0.0, -0.181367],
+      "aabb_max_m": [0.184485, 0.399707, 0.173949]
+    },
+    "near": {
+      "alias": "selected"
+    },
+    "mid": {
+      "alias": "selected"
+    },
+    "far": {
+      "alias": "selected"
+    },
+    "ghost": {
+      "alias": "far"
+    }
+  },
+  "overview": {
+    "kind": "none",
+    "shape": "box",
+    "base_y_m": 0.0,
+    "height_m": 0.45,
+    "radius_m": 0.3,
+    "color": [0.36, 0.62, 0.24]
+  },
+  "materials": {
+    "m_cafb9bb9": {
+      "dependency": "mat_m_cafb9bb9",
+      "alpha_mode": "opaque",
+      "texture": null
+    }
+  },
+  "textures": {},
+  "dependencies": [
+    {
+      "key": "mat_m_cafb9bb9",
+      "type": "material",
+      "path": "m_cafb9bb9.tres",
+      "bytes": 153,
+      "sha256": "3031f1f8d24201770f025e85d3e4d7037b57f542b39fb0f0c3a5ee448f6767f5",
+      "gpu_bytes": 0,
+      "staging_bytes": 0
+    },
+    {
+      "key": "mesh_selected",
+      "type": "mesh",
+      "path": "mesh_selected.tres",
+      "bytes": 3334,
+      "sha256": "8b0c1e1783dc90b20485fb7d5817ae60648ed56c34035eb64de5a3e82492ca94",
+      "gpu_bytes": 2106,
+      "staging_bytes": 2106
+    }
+  ],
+  "provenance": "Prepared from the catalog preview scene (selected) and hand-made tier scenes in app/devtools/render_prep/poc by prepare_render_assets.gd; geometry created in this repository",
+  "license": "CC0-1.0"
+}

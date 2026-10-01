@@ -1,0 +1,22 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="timber"]
+albedo_color = Color(0.55, 0.38, 0.22, 1)
+
+[sub_resource type="BoxMesh" id="block"]
+material = SubResource("timber")
+size = Vector3(8, 4, 6)
+
+[sub_resource type="PrismMesh" id="roof"]
+material = SubResource("timber")
+size = Vector3(6.6, 3.3, 8.6)
+
+[node name="CabinA" type="Node3D"]
+
+[node name="Block" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+mesh = SubResource("block")
+
+[node name="Roof" type="MeshInstance3D" parent="."]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 0, 5.65, 0)
+mesh = SubResource("roof")

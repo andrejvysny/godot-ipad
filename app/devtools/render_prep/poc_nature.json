@@ -1,0 +1,273 @@
+{
+  "catalog_dir": "res://assets",
+  "output_dir": "res://assets/render_assets",
+  "report": "../build/render_prep/poc_nature-report.json",
+  "assets": [
+    {
+      "asset_id": "nature.tree.spruce_a",
+      "category": "tree",
+      "vegetation": true,
+      "decorative": false,
+      "tiers": {
+        "selected": {
+          "source": true
+        },
+        "near": {
+          "scene": "res://devtools/render_prep/poc/spruce_near.tscn"
+        },
+        "mid": {
+          "scene": "res://devtools/render_prep/poc/spruce_mid.tscn"
+        },
+        "far": {
+          "scene": "res://devtools/render_prep/poc/spruce_far.tscn"
+        },
+        "ghost": {
+          "alias": "far"
+        }
+      },
+      "textures": {},
+      "overview": {
+        "kind": "canopy",
+        "shape": "cone",
+        "base_y_m": 1.4,
+        "height_m": 5.6,
+        "radius_m": 1.4,
+        "color": [
+          0.13,
+          0.34,
+          0.18
+        ]
+      },
+      "provenance": "Prepared from the catalog preview scene (selected) and hand-made tier scenes in app/devtools/render_prep/poc by prepare_render_assets.gd; geometry created in this repository",
+      "license": "CC0-1.0"
+    },
+    {
+      "asset_id": "nature.rock.boulder_a",
+      "category": "rock",
+      "vegetation": false,
+      "decorative": false,
+      "tiers": {
+        "selected": {
+          "source": true
+        },
+        "near": {
+          "alias": "selected"
+        },
+        "mid": {
+          "scene": "res://devtools/render_prep/poc/boulder_mid.tscn"
+        },
+        "far": {
+          "scene": "res://devtools/render_prep/poc/boulder_far.tscn"
+        },
+        "ghost": {
+          "alias": "far"
+        }
+      },
+      "textures": {},
+      "overview": {
+        "kind": "solid",
+        "shape": "ellipsoid",
+        "base_y_m": 0.0,
+        "height_m": 1.4,
+        "radius_m": 1.1,
+        "color": [
+          0.47,
+          0.46,
+          0.43
+        ]
+      },
+      "provenance": "Prepared from the catalog preview scene (selected) and hand-made tier scenes in app/devtools/render_prep/poc by prepare_render_assets.gd; geometry created in this repository",
+      "license": "CC0-1.0"
+    },
+    {
+      "asset_id": "built.lodge.cabin_a",
+      "category": "structure",
+      "vegetation": false,
+      "decorative": false,
+      "tiers": {
+        "selected": {
+          "source": true
+        },
+        "near": {
+          "alias": "selected"
+        },
+        "mid": {
+          "alias": "selected"
+        },
+        "far": {
+          "scene": "res://devtools/render_prep/poc/cabin_far.tscn"
+        },
+        "ghost": {
+          "alias": "mid"
+        }
+      },
+      "textures": {},
+      "overview": {
+        "kind": "solid",
+        "shape": "box",
+        "base_y_m": 0.0,
+        "height_m": 7.3,
+        "radius_m": 4.3,
+        "color": [
+          0.55,
+          0.38,
+          0.22
+        ]
+      },
+      "provenance": "Prepared from the catalog preview scene (selected) and hand-made tier scenes in app/devtools/render_prep/poc by prepare_render_assets.gd; geometry created in this repository",
+      "license": "CC0-1.0"
+    },
+    {
+      "asset_id": "nature.cover.grass_tuft_a",
+      "category": "ground_cover",
+      "vegetation": true,
+      "decorative": true,
+      "tiers": {
+        "selected": {
+          "source": true
+        },
+        "near": {
+          "alias": "selected"
+        },
+        "mid": {
+          "alias": "selected"
+        },
+        "far": {
+          "alias": "selected"
+        },
+        "ghost": {
+          "alias": "far"
+        }
+      },
+      "textures": {},
+      "overview": {
+        "kind": "none",
+        "shape": "box",
+        "base_y_m": 0.0,
+        "height_m": 0.4,
+        "radius_m": 0.3,
+        "color": [
+          0.34,
+          0.62,
+          0.22
+        ]
+      },
+      "provenance": "Prepared from the catalog preview scene (selected) and hand-made tier scenes in app/devtools/render_prep/poc by prepare_render_assets.gd; geometry created in this repository",
+      "license": "CC0-1.0"
+    },
+    {
+      "asset_id": "nature.cover.fern_a",
+      "category": "ground_cover",
+      "vegetation": true,
+      "decorative": true,
+      "tiers": {
+        "selected": {
+          "source": true
+        },
+        "near": {
+          "alias": "selected"
+        },
+        "mid": {
+          "alias": "selected"
+        },
+        "far": {
+          "alias": "selected"
+        },
+        "ghost": {
+          "alias": "far"
+        }
+      },
+      "textures": {},
+      "overview": {
+        "kind": "none",
+        "shape": "box",
+        "base_y_m": 0.0,
+        "height_m": 0.55,
+        "radius_m": 0.4,
+        "color": [
+          0.15,
+          0.4,
+          0.16
+        ]
+      },
+      "provenance": "Prepared from the catalog preview scene (selected) and hand-made tier scenes in app/devtools/render_prep/poc by prepare_render_assets.gd; geometry created in this repository",
+      "license": "CC0-1.0"
+    },
+    {
+      "asset_id": "nature.cover.wildflowers_a",
+      "category": "ground_cover",
+      "vegetation": true,
+      "decorative": true,
+      "tiers": {
+        "selected": {
+          "source": true
+        },
+        "near": {
+          "alias": "selected"
+        },
+        "mid": {
+          "alias": "selected"
+        },
+        "far": {
+          "alias": "selected"
+        },
+        "ghost": {
+          "alias": "far"
+        }
+      },
+      "textures": {},
+      "overview": {
+        "kind": "none",
+        "shape": "box",
+        "base_y_m": 0.0,
+        "height_m": 0.45,
+        "radius_m": 0.3,
+        "color": [
+          0.36,
+          0.62,
+          0.24
+        ]
+      },
+      "provenance": "Prepared from the catalog preview scene (selected) and hand-made tier scenes in app/devtools/render_prep/poc by prepare_render_assets.gd; geometry created in this repository",
+      "license": "CC0-1.0"
+    },
+    {
+      "asset_id": "nature.rock.pebbles_a",
+      "category": "ground_cover",
+      "vegetation": false,
+      "decorative": true,
+      "tiers": {
+        "selected": {
+          "source": true
+        },
+        "near": {
+          "alias": "selected"
+        },
+        "mid": {
+          "alias": "selected"
+        },
+        "far": {
+          "alias": "selected"
+        },
+        "ghost": {
+          "alias": "far"
+        }
+      },
+      "textures": {},
+      "overview": {
+        "kind": "none",
+        "shape": "box",
+        "base_y_m": 0.0,
+        "height_m": 0.15,
+        "radius_m": 0.25,
+        "color": [
+          0.5,
+          0.5,
+          0.47
+        ]
+      },
+      "provenance": "Prepared from the catalog preview scene (selected) and hand-made tier scenes in app/devtools/render_prep/poc by prepare_render_assets.gd; geometry created in this repository",
+      "license": "CC0-1.0"
+    }
+  ]
+}

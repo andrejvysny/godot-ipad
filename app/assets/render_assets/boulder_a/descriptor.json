@@ -1,0 +1,100 @@
+{
+  "format": "world-painter-render-asset",
+  "schema_version": 1,
+  "asset_id": "nature.rock.boulder_a",
+  "asset_version": 1,
+  "source_content_hash": "20df04c76ca69f73d8566a9bde35a775243b983d3880004971b5a4533869e938",
+  "derivative_hash": "cc34d24bc8c9f469cd2e6bc26573c80274c8b8361b22e7ed78024420f458ca7b",
+  "category": "rock",
+  "vegetation": false,
+  "decorative": false,
+  "anchor_local_m": [0.25, 0.3, -0.15],
+  "bounds_min_m": [-0.85, 0.0, -1.25],
+  "bounds_max_m": [1.35, 1.4, 0.95],
+  "footprint_radius_m": 1.2,
+  "representations": {
+    "selected": {
+      "mesh": "mesh_selected",
+      "triangles": 168,
+      "surfaces": 1,
+      "aabb_min_m": [-0.822421, 0.0, -1.222421],
+      "aabb_max_m": [1.322421, 1.4, 0.922421]
+    },
+    "near": {
+      "alias": "selected"
+    },
+    "mid": {
+      "mesh": "mesh_mid",
+      "triangles": 80,
+      "surfaces": 1,
+      "aabb_min_m": [-0.796162, 0.0, -1.196162],
+      "aabb_max_m": [1.296162, 1.4, 0.896162]
+    },
+    "far": {
+      "mesh": "mesh_far",
+      "triangles": 48,
+      "surfaces": 1,
+      "aabb_min_m": [-0.702628, 0.0, -1.25],
+      "aabb_max_m": [1.202628, 1.4, 0.95]
+    },
+    "ghost": {
+      "alias": "far"
+    }
+  },
+  "overview": {
+    "kind": "solid",
+    "shape": "ellipsoid",
+    "base_y_m": 0.0,
+    "height_m": 1.4,
+    "radius_m": 1.1,
+    "color": [0.47, 0.46, 0.43]
+  },
+  "materials": {
+    "m_122d0611": {
+      "dependency": "mat_m_122d0611",
+      "alpha_mode": "opaque",
+      "texture": null
+    }
+  },
+  "textures": {},
+  "dependencies": [
+    {
+      "key": "mat_m_122d0611",
+      "type": "material",
+      "path": "m_122d0611.tres",
+      "bytes": 120,
+      "sha256": "10f20f7b4695e68e771bddd361e85c722b5c64af352f5f75e7a267950eb0a764",
+      "gpu_bytes": 0,
+      "staging_bytes": 0
+    },
+    {
+      "key": "mesh_far",
+      "type": "mesh",
+      "path": "mesh_far.tres",
+      "bytes": 2197,
+      "sha256": "3eecb3eabbaec1dcb1583ebba4ed9e322e85f2a4ff2d820c676c9f9c6e356174",
+      "gpu_bytes": 1268,
+      "staging_bytes": 1268
+    },
+    {
+      "key": "mesh_mid",
+      "type": "mesh",
+      "path": "mesh_mid.tres",
+      "bytes": 3171,
+      "sha256": "6eac459405916636b46163fcecabb82d2d8fab1b79dc12b27a164806ebbfbd57",
+      "gpu_bytes": 1992,
+      "staging_bytes": 1992
+    },
+    {
+      "key": "mesh_selected",
+      "type": "mesh",
+      "path": "mesh_selected.tres",
+      "bytes": 5747,
+      "sha256": "4cd29689e926569b9c00331e5af9f0d89530a240dadbe267f87db5a1c3cb6954",
+      "gpu_bytes": 3920,
+      "staging_bytes": 3920
+    }
+  ],
+  "provenance": "Prepared from the catalog preview scene (selected) and hand-made tier scenes in app/devtools/render_prep/poc by prepare_render_assets.gd; geometry created in this repository",
+  "license": "CC0-1.0"
+}

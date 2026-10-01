@@ -1,0 +1,192 @@
+{
+  "format": "world-painter-render-asset",
+  "schema_version": 1,
+  "asset_id": "bench.tree.pine_cards",
+  "asset_version": 1,
+  "source_content_hash": "0ae7613f01c54e7d3ff813d10cea582690813ffbeafc4081de9f78b1b6ecf0d6",
+  "derivative_hash": "f7aaac3bf5bff6cb5384cf50432b038a6ed4318e34001812690ff6c279cec46a",
+  "category": "tree",
+  "vegetation": true,
+  "decorative": false,
+  "anchor_local_m": [0.0, 0.0, 0.0],
+  "bounds_min_m": [-2.15, 0.0, -2.15],
+  "bounds_max_m": [2.2, 9.85, 2.2],
+  "footprint_radius_m": 1.75,
+  "representations": {
+    "selected": {
+      "mesh": "mesh_selected",
+      "triangles": 4096,
+      "surfaces": 2,
+      "aabb_min_m": [-2.157707, 0.0, -2.214667],
+      "aabb_max_m": [2.157233, 9.837387, 2.135118]
+    },
+    "near": {
+      "mesh": "mesh_near",
+      "triangles": 2064,
+      "surfaces": 2,
+      "aabb_min_m": [-2.020981, 0.0, -2.088536],
+      "aabb_max_m": [2.161691, 9.8, 2.176308]
+    },
+    "mid": {
+      "mesh": "mesh_mid",
+      "triangles": 944,
+      "surfaces": 2,
+      "aabb_min_m": [-2.151685, 0.0, -2.122163],
+      "aabb_max_m": [2.196228, 9.8, 2.161795]
+    },
+    "far": {
+      "mesh": "mesh_far",
+      "triangles": 288,
+      "surfaces": 2,
+      "aabb_min_m": [-2.040499, 0.0, -1.885031],
+      "aabb_max_m": [2.066569, 9.8, 1.869544]
+    },
+    "ghost": {
+      "alias": "far"
+    }
+  },
+  "overview": {
+    "kind": "canopy",
+    "shape": "cone",
+    "base_y_m": 1.2,
+    "height_m": 8.65,
+    "radius_m": 2.2,
+    "color": [0.12, 0.33, 0.17]
+  },
+  "materials": {
+    "bark": {
+      "dependency": "mat_bark",
+      "alpha_mode": "opaque",
+      "texture": "bark"
+    },
+    "foliage": {
+      "dependency": "mat_foliage",
+      "alpha_mode": "cutout",
+      "texture": "foliage"
+    }
+  },
+  "textures": {
+    "bark": {
+      "low": {
+        "dependency": "tex_bark_low",
+        "width": 128,
+        "height": 128,
+        "mipmaps": true
+      },
+      "preview": {
+        "dependency": "tex_bark_preview",
+        "width": 512,
+        "height": 512,
+        "mipmaps": true
+      }
+    },
+    "foliage": {
+      "low": {
+        "dependency": "tex_foliage_low",
+        "width": 256,
+        "height": 256,
+        "mipmaps": true
+      },
+      "preview": {
+        "dependency": "tex_foliage_preview",
+        "width": 1024,
+        "height": 1024,
+        "mipmaps": true
+      }
+    }
+  },
+  "dependencies": [
+    {
+      "key": "mat_bark",
+      "type": "material",
+      "path": "bark.tres",
+      "bytes": 224,
+      "sha256": "fe1b27c184975699ca795253229eb25f7e5cc58338ac0f82235a79e190a9dc00",
+      "gpu_bytes": 0,
+      "staging_bytes": 0
+    },
+    {
+      "key": "mat_foliage",
+      "type": "material",
+      "path": "foliage.tres",
+      "bytes": 287,
+      "sha256": "0384dc6f5e1122d03649aa771c7b8d2383f7b6c5b60fab95edb85490d4ec34ef",
+      "gpu_bytes": 0,
+      "staging_bytes": 0
+    },
+    {
+      "key": "mesh_far",
+      "type": "mesh",
+      "path": "mesh_far.tres",
+      "bytes": 22487,
+      "sha256": "95d89e47a668c12edf33b12fcd1f57b158556db3e19716ddae682156fd7f4421",
+      "gpu_bytes": 16148,
+      "staging_bytes": 16148
+    },
+    {
+      "key": "mesh_mid",
+      "type": "mesh",
+      "path": "mesh_mid.tres",
+      "bytes": 76724,
+      "sha256": "7f72c0df08ee1ba26bf57d22bf3e106e9c6669b11fe58e4418d78da3215651f7",
+      "gpu_bytes": 56820,
+      "staging_bytes": 56820
+    },
+    {
+      "key": "mesh_near",
+      "type": "mesh",
+      "path": "mesh_near.tres",
+      "bytes": 168470,
+      "sha256": "e12428709638f4111eaa1886f1888a3cfd371e9726e0598b9b611739f6aabf69",
+      "gpu_bytes": 125644,
+      "staging_bytes": 125644
+    },
+    {
+      "key": "mesh_selected",
+      "type": "mesh",
+      "path": "mesh_selected.tres",
+      "bytes": 336446,
+      "sha256": "cb5c9d77baeb21a31c5bf11647ca2c443ba88cf1ee01b2a067ee9a755bd57e74",
+      "gpu_bytes": 251628,
+      "staging_bytes": 251628
+    },
+    {
+      "key": "tex_bark_low",
+      "type": "texture",
+      "path": "bark_low.png",
+      "bytes": 13128,
+      "sha256": "06d0fb29e5e4bb1dda7350ad3ab0022639869a41ab240b41b33b922248da2055",
+      "gpu_bytes": 21845,
+      "staging_bytes": 65536
+    },
+    {
+      "key": "tex_bark_preview",
+      "type": "texture",
+      "path": "bark_preview.png",
+      "bytes": 118336,
+      "sha256": "edc11ddd5695354c6e34784ac4be10cf7843acb0e41667fcdb4718f8f80f5e38",
+      "gpu_bytes": 349525,
+      "staging_bytes": 1048576
+    },
+    {
+      "key": "tex_foliage_low",
+      "type": "texture",
+      "path": "foliage_low.png",
+      "bytes": 84173,
+      "sha256": "0a887998a9412d0cfb4ffcda3f918203aa0eb90baf6293913028cdfcb734f9a1",
+      "gpu_bytes": 87381,
+      "staging_bytes": 262144
+    },
+    {
+      "key": "tex_foliage_preview",
+      "type": "texture",
+      "path": "foliage_preview.png",
+      "bytes": 706476,
+      "sha256": "dea7b572e4d4cc364e967106b03d95c26e26c4496419cff531ba47cb467f2d07",
+      "gpu_bytes": 1398101,
+      "staging_bytes": 4194304
+    }
+  ],
+  "provenance": "Procedural benchmark fixture generated by app/devtools/generate_bench_assets.gd (seeded); tiers prepared by prepare_render_assets.gd",
+  "license": "CC0-1.0"
+}
