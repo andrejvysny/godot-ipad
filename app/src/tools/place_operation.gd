@@ -13,6 +13,7 @@ var _id := ObjectRecord.new_uuid_v4()
 var _ever_valid := false
 var _valid_now := false
 var _created := ""
+var _over_ui := false
 
 
 func _init(ctx: ToolContext, asset: AssetDefinition, snap: bool) -> void:
@@ -50,6 +51,7 @@ func resume(_sample: PointerSample, hit: TerrainHit) -> void:
 
 func pause(_sample: PointerSample) -> void:
 	_valid_now = false
+	_over_ui = true
 	_show()
 
 
@@ -94,6 +96,7 @@ func yaw_deg() -> float:
 
 
 func _update(hit: TerrainHit) -> void:
+	_over_ui = false
 	var p: Variant = _candidate(hit)
 	_valid_now = p != null
 	if _valid_now:
@@ -123,3 +126,31 @@ func _candidate(hit: TerrainHit) -> Variant:
 func _show() -> void:
 	if _ever_valid:
 		_ctx.presenter.show_ghost(_record, _valid_now)
+
+
+static func empty_preview() -> Dictionary:
+	return {"active": false, "asset_name": "", "world_pos": Vector3.ZERO, "valid": false, "over_ui": false,
+			"slope_deg": 0.0, "yaw_deg": 0.0, "conflict": ""}
+
+
+## Ghost label state (ToolController.place_preview()). Active once the ghost has been shown.
+func preview() -> Dictionary:
+	var pos := _record.get_position_v3()
+	var normal := _ctx.document.sample_normal(pos.x, pos.z)
+	return {"active": _ever_valid, "asset_name": _asset.display_name, "world_pos": pos, "valid": _valid_now,
+			"over_ui": _over_ui, "slope_deg": rad_to_deg(acos(clampf(normal.y, -1.0, 1.0))) if normal.is_finite() else 0.0,
+			"yaw_deg": yaw_deg(), "conflict": _conflict(pos)}
+
+
+## Name of the first manual object whose footprint overlaps the candidate (distance < 0.8 (r_a s_a + r_b s_b)).
+func _conflict(pos: Vector3) -> String:
+	var mine := _asset.footprint_radius_m * _record.uniform_scale
+	for id in _ctx.document.sorted_object_ids():
+		var other := _ctx.document.get_object(id)
+		var asset := _ctx.catalog.get_asset(other.asset_id)
+		if other.origin != WorldConstants.ORIGIN_MANUAL or asset == null:
+			continue
+		var reach := 0.8 * (mine + asset.footprint_radius_m * other.uniform_scale)
+		if Vector2(pos.x - other.position[0], pos.z - other.position[2]).length() < reach:
+			return asset.display_name
+	return ""

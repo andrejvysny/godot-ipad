@@ -1,21 +1,17 @@
 class_name AssetLibrary
 extends PanelContainer
 ## Library of placeable assets (spec §9.4): category chips and a tile grid; tiles are dragged onto
-## the terrain or tapped to arm the Place tool. Collapses to a narrow strip (a second panel that
-## EditorUI places and registers). Exactly one of the two is visible.
+## the terrain or tapped to arm the Place tool. Shown or hidden by the Library toggle of the top bar.
 
 signal open_changed(open: bool)
 
-const WIDTH := 300.0
-const STRIP_WIDTH := 56.0
+const WIDTH := 240.0
 
 var _session: EditorSession
 var _tiles: Dictionary = {}  # asset id -> LibraryTile
 var _chips: Dictionary = {}  # category (or "all") -> Button
 var _grid := GridContainer.new()
 var _collapse: Button
-var _strip := PanelContainer.new()
-var _strip_chevron := UiKit.icon_rect("chevron_left", Vector2(16, 16))
 var _open := true
 var _category := "all"
 
@@ -24,9 +20,9 @@ func setup(session: EditorSession, report: Callable) -> void:
 	_session = session
 	custom_minimum_size.x = WIDTH
 	var box := StyleBoxFlat.new()
-	box.bg_color = Color(UiKit.PANEL_BG, 0.88)
-	box.set_corner_radius_all(20)
-	box.set_content_margin_all(14)
+	box.bg_color = Color(UiKit.PANEL_BG, 0.9)
+	box.set_corner_radius_all(14)
+	box.set_content_margin_all(8)
 	box.set_border_width_all(1)
 	box.border_color = UiKit.PANEL_BORDER
 	add_theme_stylebox_override("panel", box)
@@ -37,7 +33,6 @@ func setup(session: EditorSession, report: Callable) -> void:
 	column.add_child(_build_chips())
 	column.add_child(_build_grid(report))
 	column.add_child(_build_footer())
-	_build_strip()
 	for signal_ref: Signal in [session.tools.tool_changed, session.tools.settings_changed,
 			session.status_changed, session.world_replaced]:
 		signal_ref.connect(_on_any_signal)
@@ -114,33 +109,6 @@ func _build_footer() -> Control:
 	return column
 
 
-func _build_strip() -> void:
-	_strip.custom_minimum_size.x = STRIP_WIDTH
-	_strip.visible = false
-	var thumbs := VBoxContainer.new()
-	thumbs.add_theme_constant_override("separation", 8)
-	thumbs.alignment = BoxContainer.ALIGNMENT_CENTER
-	thumbs.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_strip.add_child(thumbs)
-	for id in _session.catalog.sorted_ids():
-		var thumb := TextureRect.new()
-		thumb.texture = load(_session.catalog.get_asset(id).thumbnail) as Texture2D
-		thumb.custom_minimum_size = Vector2(32, 32)
-		thumb.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		thumb.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		thumb.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		thumb.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		thumbs.add_child(thumb)
-	thumbs.add_child(_strip_chevron)
-	var overlay := Button.new()
-	overlay.focus_mode = Control.FOCUS_NONE
-	overlay.flat = true
-	for key in ["normal", "hover", "pressed", "hover_pressed", "disabled", "focus"]:
-		overlay.add_theme_stylebox_override(key, StyleBoxEmpty.new())
-	overlay.pressed.connect(func() -> void: set_open(true))
-	_strip.add_child(overlay)
-
-
 func _choose_category(category: String) -> void:
 	_category = category
 	refresh()
@@ -161,10 +129,6 @@ func collapse_button() -> Button:
 	return _collapse
 
 
-func strip() -> Control:
-	return _strip
-
-
 func is_open() -> bool:
 	return _open
 
@@ -179,13 +143,11 @@ func set_open(on: bool) -> void:
 
 func _apply_open() -> void:
 	visible = _open
-	_strip.visible = not _open
 
 
 ## The Library sits on the left edge for left-handed layouts; chevrons point toward the edge.
 func set_side_left(on: bool) -> void:
 	_collapse.icon = UiKit.icon("chevron_left" if on else "chevron_right")
-	_strip_chevron.texture = UiKit.icon("chevron_right" if on else "chevron_left")
 
 
 func on_ui_cancelled(_reason: String) -> void:

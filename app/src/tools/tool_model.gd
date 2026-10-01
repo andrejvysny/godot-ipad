@@ -6,6 +6,7 @@ extends Node
 
 signal tool_changed(tool_id: String)
 signal settings_changed(ns: String)
+signal dismissed()  # Esc: the UI closes its popover and menu
 
 const TOOL_RAISE := "raise"
 const TOOL_PAINT := "paint"
@@ -41,6 +42,7 @@ var _armed := ""
 var _picking := false
 var _pick_contact := false
 var _snap := true
+var _rule_edits: RuleEdits
 
 
 ## Overridden by ToolController: a world operation or object edit is open.
@@ -60,6 +62,7 @@ func _setup_model(ctx: ToolContext) -> void:
 	_inverted = false
 	_armed = ""
 	_picking = false
+	_rule_edits = RuleEdits.new(ctx, has_active_operation)
 
 
 # --- Modes, tools, invert ----------------------------------------------------------------
@@ -123,6 +126,11 @@ func set_inverted(on: bool) -> String:
 		_inverted = target
 		settings_changed.emit("invert")
 	return ""
+
+
+## Auto-paint rule edits (toggle, scrub) of the current document's rules (docs/editor-v2.md §9).
+func rule_edits() -> RuleEdits:
+	return _rule_edits
 
 
 # --- Settings ----------------------------------------------------------------------------
@@ -192,6 +200,13 @@ func is_picking_height() -> bool:
 
 func cancel_height_pick() -> void:
 	_cancel_height_pick()
+
+
+## Esc on Mac development input: disarm, cancel height picking and tell the UI to close its popups.
+func dismiss() -> void:
+	disarm()
+	_cancel_height_pick()
+	dismissed.emit()
 
 
 func _cancel_height_pick() -> void:

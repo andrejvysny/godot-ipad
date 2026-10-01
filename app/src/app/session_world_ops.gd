@@ -134,8 +134,7 @@ static func dev_key(tools: ToolController, key: int) -> bool:
 		KEY_E:
 			tools.rotate_ghost(15.0)
 		KEY_ESCAPE:
-			tools.disarm()
-			tools.cancel_height_pick()
+			tools.dismiss()
 			return false
 		_:
 			return false

@@ -7,17 +7,22 @@ extends RefCounted
 const ACCENT := Color("f2bf33")
 const ACCENT_TINT := Color(0.949, 0.749, 0.2, 0.16)
 const ACCENT_INK := Color("15191d")
-const PANEL_BG := Color(16.0 / 255.0, 21.0 / 255.0, 26.0 / 255.0, 0.86)
-const PANEL_BG_STRONG := Color(16.0 / 255.0, 21.0 / 255.0, 26.0 / 255.0, 0.94)
+const PANEL_BG := Color(18.0 / 255.0, 22.0 / 255.0, 26.0 / 255.0, 0.86)
+const PANEL_BG_STRONG := Color(18.0 / 255.0, 22.0 / 255.0, 26.0 / 255.0, 0.94)
+const PANEL_BG_POPOVER := Color(18.0 / 255.0, 22.0 / 255.0, 26.0 / 255.0, 0.95)
 const PANEL_BORDER := Color(1, 1, 1, 0.08)
 const TEXT := Color("e8ecef")
-const TEXT_SECONDARY := Color("b8c1c9")
-const TEXT_MUTED := Color("9aa4ad")
+const TEXT_SECONDARY := Color("aab3bb")
+const TEXT_MUTED := Color("8a949d")
+const TEXT_FAINT := Color("6f7880")
 const TOOL_TEXT := Color("c9d0d6")
-const SURFACE := Color(1, 1, 1, 0.06)
+const SURFACE := Color(1, 1, 1, 0.05)
 const SURFACE_HOVER := Color(1, 1, 1, 0.07)
 const VALUE_CELL := Color(1, 1, 1, 0.04)
+const ALPHA_TILE_BG := Color("0c0e10")
+const TOAST_BG := Color(14.0 / 255.0, 17.0 / 255.0, 20.0 / 255.0, 0.94)
 const DANGER_TEXT := Color("ff9a88")
+const WARN_TEXT := Color("ff6b52")
 const DANGER_BG := Color(1, 0.431, 0.353, 0.14)
 const SAVED_DOT := Color("6fd08c")
 const FAILED_DOT := Color("ff6e5a")
@@ -61,15 +66,9 @@ static func _variations(theme: Theme) -> void:
 			_box(ACCENT, 9, 12), TEXT, ACCENT_INK, false)
 	_button_variation(theme, "ChipButton", _box(SURFACE, 22, 18), _box(SURFACE_HOVER, 22, 18),
 			_box(TEXT, 22, 18), TOOL_TEXT, ACCENT_INK, false)
-	var tile := [_box(Color.TRANSPARENT, 13, 2), _box(SURFACE_HOVER, 13, 2), _pressed_box(13, 2)]
-	for box: StyleBoxFlat in tile:
-		box.content_margin_top = 7
-		box.content_margin_bottom = 5
-	_button_variation(theme, "ToolTile", tile[0], tile[1], tile[2], TOOL_TEXT, ACCENT, false)
-	theme.set_font_size("font_size", "ToolTile", 11)
-	theme.set_constant("icon_max_width", "ToolTile", 26)
 	_button_variation(theme, "MenuRow", _box(Color.TRANSPARENT, 10, 12), _box(SURFACE_HOVER, 10, 12),
 			_pressed_box(10, 12), TEXT, TEXT, false)
+	_editor_variations(theme)
 	theme.set_type_variation("StrongPanel", "PanelContainer")
 	var strong := _panel_box(PANEL_BG_STRONG, 18, 12, true)
 	strong.shadow_size = 12
@@ -77,6 +76,36 @@ static func _variations(theme: Theme) -> void:
 	theme.set_stylebox("panel", "StrongPanel", strong)
 	theme.set_type_variation("SubPanel", "PanelContainer")
 	theme.set_stylebox("panel", "SubPanel", _panel_box(Color(1, 1, 1, 0.05), 12, 3, false))
+
+
+## Editor v2 tiles and bar buttons (docs/editor-v2.md §9): transparent until hovered; a toggled tile
+## gets the accent tint and ring.
+static func _editor_variations(theme: Theme) -> void:
+	for entry: Array in [["ModeTile", 10, 20, 10], ["PopTile", 9, 18, 10], ["HistoryTile", 9, 16, 9]]:
+		var radius: int = entry[1]
+		var ring := _pressed_box(radius, 2) if entry[0] != "HistoryTile" else _box(SURFACE_HOVER, radius, 2)
+		var font := TOOL_TEXT if entry[0] != "HistoryTile" else TEXT_SECONDARY
+		_button_variation(theme, entry[0], _box(Color.TRANSPARENT, radius, 2), _box(SURFACE_HOVER, radius, 2), ring,
+				font, ACCENT if entry[0] != "HistoryTile" else font, true)
+		theme.set_constant("icon_max_width", entry[0], entry[2])
+		theme.set_font_size("font_size", entry[0], entry[3])
+	_button_variation(theme, "PillButton", _box(Color.TRANSPARENT, 9, 10), _box(SURFACE_HOVER, 9, 10),
+			_box(SURFACE_HOVER, 9, 10), TEXT, TEXT, true)
+	_button_variation(theme, "BarButton", _box(Color.TRANSPARENT, 9, 12), _box(SURFACE_HOVER, 9, 12),
+			_box(TEXT, 9, 12), TEXT, ACCENT_INK, true)
+	_button_variation(theme, "InvertButton", _box(Color.TRANSPARENT, 9, 10), _box(SURFACE_HOVER, 9, 10),
+			_box(DANGER_BG, 9, 10), TEXT_SECONDARY, DANGER_TEXT, true)
+	_button_variation(theme, "StepButton", _box(SURFACE_HOVER, 8, 4), _box(SURFACE_HOVER.lightened(0.15), 8, 4),
+			_box(SURFACE_HOVER.lightened(0.3), 8, 4), TEXT, TEXT, true)
+	var alpha := _box(ALPHA_TILE_BG, 7, 2)
+	alpha.set_border_width_all(1)
+	alpha.border_color = PANEL_BORDER
+	var alpha_on := _box(ALPHA_TILE_BG, 7, 2)
+	alpha_on.set_border_width_all(2)
+	alpha_on.border_color = ACCENT
+	_button_variation(theme, "AlphaTile", alpha, alpha, alpha_on, TEXT, TEXT, false)
+	for state in ["hover", "hover_pressed"]:
+		theme.set_stylebox(state, "AlphaTile", alpha_on if state == "hover_pressed" else alpha)
 
 
 static func _button_variation(theme: Theme, name: String, normal: StyleBoxFlat, hover: StyleBoxFlat,
@@ -125,6 +154,11 @@ static func _panel_box(color: Color, radius: int, margin: int, border: bool) -> 
 	return box
 
 
+## Panel style for classes that extend PanelContainer themselves (see pill()).
+static func pill_box(bg := PANEL_BG, radius := 16, margin := 6, border := true) -> StyleBoxFlat:
+	return _panel_box(bg, radius, margin, border)
+
+
 static func bold_font() -> FontVariation:
 	if _bold == null:
 		_bold = FontVariation.new()
@@ -144,10 +178,24 @@ static func icon(name: String) -> Texture2D:
 	return load("res://assets/icons/%s.svg" % name) as Texture2D
 
 
+## Terrain3D tool icons (MIT) used untinted, as in the design.
+static func tool_icon(name: String) -> Texture2D:
+	return load("res://addons/terrain_3d/icons/%s.svg" % name) as Texture2D
+
+
+## Sizes a Button to its content row (icon, labels) placed inside it with `margin` on both sides.
+static func fit_content_button(b: Button, row: Control, margin: float, height: float) -> void:
+	b.custom_minimum_size = Vector2(row.get_combined_minimum_size().x + margin * 2.0, height)
+
+
 ## Icon display control of a fixed size (SVGs are imported at 3x for crispness).
 static func icon_rect(name: String, px: Vector2) -> TextureRect:
+	return texture_rect(icon(name), px)
+
+
+static func texture_rect(texture: Texture2D, px: Vector2) -> TextureRect:
 	var r := TextureRect.new()
-	r.texture = icon(name)
+	r.texture = texture
 	r.custom_minimum_size = px
 	r.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	r.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -176,17 +224,20 @@ static func variant_button(text: String, variation: String, on_pressed: Callable
 	return b
 
 
-static func switch_button(text: String, on_toggled: Callable) -> Button:
+## Switch row; `surface` gives it the rgba(255,255,255,.05) cell of the tool popover.
+static func switch_button(text: String, on_toggled: Callable, surface := false) -> Button:
 	var b := button(text, Callable(), true)
+	b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	b.icon_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	b.add_theme_constant_override("h_separation", 10)
 	b.add_theme_constant_override("icon_max_width", 30)
-	var empty := StyleBoxEmpty.new()
-	empty.content_margin_left = 8
-	empty.content_margin_right = 8
+	var empty: StyleBox = _box(SURFACE, 8, 10) if surface else StyleBoxEmpty.new()
+	if not surface:
+		empty.content_margin_left = 8
+		empty.content_margin_right = 8
 	for key in ["normal", "pressed", "hover_pressed", "disabled"]:
 		b.add_theme_stylebox_override(key, empty)
-	var hover := _box(SURFACE_HOVER, 11, 8)
+	var hover := _box(SURFACE_HOVER, 8 if surface else 11, 10 if surface else 8)
 	b.add_theme_stylebox_override("hover", hover)
 	b.add_theme_color_override("font_pressed_color", TEXT)
 	b.add_theme_color_override("font_hover_pressed_color", TEXT)

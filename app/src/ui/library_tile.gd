@@ -32,7 +32,7 @@ func setup(session: EditorSession, asset: AssetDefinition, report: Callable) -> 
 	add_child(column)
 	var thumb := TextureRect.new()
 	thumb.texture = load(asset.thumbnail) as Texture2D
-	thumb.custom_minimum_size = Vector2(92, 92)
+	thumb.custom_minimum_size = Vector2(76, 76)
 	thumb.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	thumb.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	thumb.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -66,7 +66,7 @@ func _apply_style() -> void:
 	var box := StyleBoxFlat.new()
 	box.bg_color = Color(1, 1, 1, 0.05)
 	box.set_corner_radius_all(14)
-	box.set_content_margin_all(10)
+	box.set_content_margin_all(6)
 	box.set_border_width_all(2)
 	box.border_color = UiKit.ACCENT if _selected else Color(UiKit.ACCENT, 0.0)
 	add_theme_stylebox_override("panel", box)
@@ -141,7 +141,7 @@ func _on_release(pos: Vector2) -> void:
 	if error != "":
 		_session.post_message(error, true)
 	else:
-		_session.post_message("Touch the terrain to place %s." % _asset.display_name)
+		_session.post_message("Tap the terrain to place %s" % _asset.display_name)
 
 
 ## Called before the synthetic in-place release that follows ui_cancelled.

@@ -59,6 +59,11 @@ func rotate_ghost(delta_deg: float) -> String:
 	return ""
 
 
+## State of the open PlaceOperation for the ghost label (PlaceOperation.preview()).
+func place_preview() -> Dictionary:
+	return (_op as PlaceOperation).preview() if _op is PlaceOperation else PlaceOperation.empty_preview()
+
+
 # --- Pointer operations ------------------------------------------------------------------
 
 func handle_tool_action(action: Dictionary) -> void:
@@ -130,6 +135,7 @@ func cancel_active(reason: String) -> void:
 		_cancel_op(reason)
 	if _edit_tx != null:
 		cancel_object_edit()
+	rule_edits().cancel_scrub()
 
 
 func _on_begin(sample: PointerSample) -> void:
