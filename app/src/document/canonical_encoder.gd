@@ -20,6 +20,13 @@ func put_u32(v: int) -> void:
 	_buf.append_array(b)
 
 
+func put_u64(v: int) -> void:
+	var b := PackedByteArray()
+	b.resize(8)
+	b.encode_u64(0, v)
+	_buf.append_array(b)
+
+
 func put_i32(v: int) -> void:
 	var b := PackedByteArray()
 	b.resize(4)

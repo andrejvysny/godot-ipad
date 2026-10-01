@@ -7,6 +7,7 @@
   selftest                   windowed scripted end-to-end self-test (SYNTHETIC input) on this Mac
   export-ios                 iOS export (needs config/local.signing.json)
   validate-world PATH        validate a .worldpoc or generation directory
+  validate-render-assets     validate the editor and benchmark render-asset registries
   open-consumer PATH         validate, then open in res://scenes/mac_consumer.tscn
   build-native               build the native input bridge (native/ios_input/build.sh)
   fixtures [--check]         regenerate or byte-check bundled fixtures
@@ -30,6 +31,7 @@ SCRIPTS = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPTS))
 import generate_fixtures  # noqa: E402
 import godot_test  # noqa: E402
+import validate_render_assets  # noqa: E402
 import validate_world  # noqa: E402
 import worldpoc_format as wf  # noqa: E402
 from dev_export import SIGNING_HELP, cmd_export_ios, load_signing, patch_ios_preset
@@ -419,6 +421,19 @@ def cmd_validate_world(a: argparse.Namespace) -> int:
 	return validate_world.main([str(a.path)] + (["--json"] if a.json else []))
 
 
+def cmd_validate_render_assets(a: argparse.Namespace) -> int:
+	registries = (("editor", APP / "assets" / "render_assets" / "index.json", APP / "assets"),
+		("benchmark", APP / "assets" / "bench" / "render_assets" / "index.json", APP / "assets" / "bench"))
+	rc = 0
+	for name, index, catalog_dir in registries:
+		if not index.is_file():
+			print("%s registry: NOT PRESENT (%s)" % (name, index.relative_to(REPO)))
+			continue
+		print("%s registry: %s" % (name, index.relative_to(REPO)))
+		rc |= validate_render_assets.main(["--index", str(index), "--catalog-dir", str(catalog_dir)])
+	return rc
+
+
 def cmd_build_native(a: argparse.Namespace) -> int:
 	script = REPO / "native" / "ios_input" / "build.sh"
 	if not script.is_file():
@@ -492,6 +507,8 @@ def build_parser() -> argparse.ArgumentParser:
 	s.add_argument("--timeout", type=int, default=0)
 	s.add_argument("--verify-only", action="store_true", help="headless: print WORLDPOC_REPORT and exit 0/1")
 	s.set_defaults(fn=cmd_open_consumer)
+	sub.add_parser("validate-render-assets", help="validate render-asset registries").set_defaults(
+		fn=cmd_validate_render_assets)
 	sub.add_parser("build-native", help="run native/ios_input/build.sh").set_defaults(fn=cmd_build_native)
 	s = sub.add_parser("fixtures", help="regenerate fixtures, or --check them")
 	s.add_argument("--check", action="store_true")
