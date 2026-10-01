@@ -20,7 +20,8 @@ scatter/fill/sets, spline paths). Invert = on-screen button + D key (no Pencil d
 - [x] P7 Paths: draw (flatten + record), draped ribbon, handle edit, delete
 - [x] P8 UI v2: top bar, mode rail + popover, chip + invert, Library (Objects/Sets), set editor, inspector, ghost, hints, toasts
 - [x] P9 Mac consumer schema 2, selftest, docs (architecture, input contract, checklist), Mac screenshot review
-- [ ] P10 iPad build + user device check (NOT RUN until measured)
+- [x] P10a iPad Debug build installed + launched on iPad Air 4 (source fingerprint `bcf8abf5…`, process alive)
+- [ ] P10b User Pencil check per `docs/device-test-checklist-v2.md` (NOT RUN until measured)
 
 ## UI redesign (2026-10-01, ADR 0007)
 
