@@ -139,3 +139,21 @@ static func dev_key(tools: ToolController, key: int) -> bool:
 		_:
 			return false
 	return true
+
+
+## Simulator-only keys: P toggles probe/UI and fingers, arrows drag the camera. Cancels any
+## contact first so a key never lands mid-stroke.
+static func simulator_key(input: InputSystem, viewport: Viewport, key: int) -> void:
+	var provider := input.active_provider() as SimulatorInputProvider
+	if provider == null:
+		return
+	if key == KEY_P:
+		input.cancel_all("explicit")
+		provider.pencil_mode = not provider.pencil_mode
+	elif key in [KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN]:
+		input.cancel_all("explicit")
+		var direction := Vector2.LEFT if key == KEY_LEFT else Vector2.RIGHT
+		if key in [KEY_UP, KEY_DOWN]:
+			direction = Vector2.UP if key == KEY_UP else Vector2.DOWN
+		var center := viewport.get_visible_rect().size * 0.75
+		provider.queue_camera_drag(input.mapper.unmap(center), input.mapper.unmap(center + direction * 120))

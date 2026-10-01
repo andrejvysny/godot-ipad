@@ -116,3 +116,19 @@ func test_visual_mode_builds_terrain_and_objects() -> void:
 	tree.root.add_child(consumer)
 	assert_eq(consumer.run(PackedStringArray(["--world=res://fixtures/nope"])), 1)
 	assert_true(consumer.info_label.text.contains("Re-export the world"))
+
+
+func test_visual_mode_renders_gentle_hills_scatter() -> void:
+	allow_logged_errors()
+	log_filter = TerrainTests.KnownWarningFilter.new()
+	OS.add_logger(log_filter)
+	consumer = MacConsumer.new()
+	consumer.auto_run = false
+	tree.root.add_child(consumer)
+	assert_eq(consumer.run(PackedStringArray(["--world=res://fixtures/gentle_hills"])), 0)
+	await tree.process_frame
+	assert_eq(consumer.layers.stats().instances, 550)
+	assert_true(consumer.info_label.text.contains("scatter 550"))
+	var report := WorldLoader.report(consumer.document, catalog)
+	assert_eq(report.scatter_instance_count, 550)
+

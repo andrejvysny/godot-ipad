@@ -31,6 +31,7 @@ var input := InputSystem.new()
 var rig: OrbitCameraRig
 var terrain: TerrainView
 var presenter := ObjectPresenter.new()
+var layers := WorldLayers.new()
 var tools := ToolController.new()
 var history: CommandHistory
 var storage := WorldStorage.new()
@@ -191,6 +192,9 @@ func _build_scene() -> String:
 	presenter.setup(catalog)
 	add_child(presenter)
 	presenter.rebuild(document)
+	layers.setup(catalog)
+	add_child(layers)
+	layers.rebuild(document)
 	sun = SceneLighting.build(self)
 	RenderCounters.enable(get_viewport())
 	return ""
@@ -209,6 +213,7 @@ func _build_tools_and_input() -> void:
 	ctx.diagnostic = post_message
 	ctx.units_per_point = input.mapper.viewport_units_per_point
 	ctx.stats = frames
+	ctx.scatter_changed = layers.scatter_changed
 	_tool_ctx = ctx
 	tools.operation_started.connect(func(_tool: String) -> void: _op_max_gap_ms = 0.0)
 	tools.operation_cancelled.connect(func(reason: String) -> void: _last_cancel_reason = reason)
@@ -264,23 +269,7 @@ func _on_ui_cancelled(reason: String) -> void:
 func _input(event: InputEvent) -> void:
 	if ready_for_input and event is InputEventKey and event.pressed and not event.echo \
 			and not (input.is_development_input() and SessionWorldOps.dev_key(tools, event.keycode)):
-		_simulator_key(event.keycode)
-
-
-func _simulator_key(key: int) -> void:
-	var provider := input.active_provider() as SimulatorInputProvider
-	if provider == null:
-		return
-	if key == KEY_P:
-		input.cancel_all("explicit")
-		provider.pencil_mode = not provider.pencil_mode
-	elif key in [KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN]:
-		input.cancel_all("explicit")
-		var direction := Vector2.LEFT if key == KEY_LEFT else Vector2.RIGHT
-		if key in [KEY_UP, KEY_DOWN]:
-			direction = Vector2.UP if key == KEY_UP else Vector2.DOWN
-		var center := get_viewport().get_visible_rect().size * 0.75
-		provider.queue_camera_drag(input.mapper.unmap(center), input.mapper.unmap(center + direction * 120))
+		SessionWorldOps.simulator_key(input, get_viewport(), event.keycode)
 
 
 func _notification(what: int) -> void:
@@ -340,6 +329,7 @@ func _present_change(change: WorldChange) -> void:
 	if change.has_rules():
 		terrain.set_rules(document.rules)
 	presenter.sync_objects(document, change.object_ids())
+	layers.present_change(document, change)
 	tools.validate_selection()
 
 
@@ -406,6 +396,7 @@ func _replace_document(doc: WorldDocument) -> void:
 	if error != "":
 		post_message(error, true)
 	presenter.rebuild(doc)
+	layers.rebuild(doc)
 	rig.height_sampler = doc.sample_height
 	reset_camera()
 	history.clear()
