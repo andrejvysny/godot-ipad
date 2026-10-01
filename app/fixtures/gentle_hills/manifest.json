@@ -1,9 +1,9 @@
 {
-	"authored_content_hash": "6c38b11259c44ec7c0df2380a141d5f4c679bd65ac419761386e3c4b8749ec9a",
+	"authored_content_hash": "133d5013176873deba05b98c45109fed36e6c3ddbe370627043a6e9e77034934",
 	"catalog": {
 		"id": "poc_nature",
-		"sha256": "a4cfbc629fa7ef9c1d2585cf3881011e385b175993e8d2508b28e5317056e78d",
-		"version": 1
+		"sha256": "3ec750f696154df2ad4cd97d5afb9991a288a07ccd19bb29204c4ad25606cab3",
+		"version": 2
 	},
 	"created_with": {
 		"godot": "4.7.2.stable.official.ed1daf0bf",
@@ -19,9 +19,9 @@
 			"sha256": "daca347f76fb2dfd6e215491fecda67e73ee276447e62c54f280f5084d28d9a4"
 		},
 		{
-			"bytes": 12,
+			"bytes": 124,
 			"path": "paths.bin",
-			"sha256": "f94b6382b8c2c7b4e6f0ce84ad29fc7233d4ab1ffbb1fe2880288f8ee02ec264"
+			"sha256": "10e859317344ccb29a132eedd67d3c95a80fa06fe4937bc5e234e544a7bf2107"
 		},
 		{
 			"bytes": 262144,
@@ -41,7 +41,7 @@
 		{
 			"bytes": 262144,
 			"path": "regions/r_-1_0.color.rgba8",
-			"sha256": "deebf57fad866b38cb6a56e3a0d1d25cbed5daef5f68e46028ebef7371c89b29"
+			"sha256": "9017286836542cde9c2e0b563fa0b87ecd7c8ccd43c771b97a7d645d43744cf6"
 		},
 		{
 			"bytes": 262144,
@@ -76,7 +76,7 @@
 		{
 			"bytes": 262144,
 			"path": "regions/r_0_0.control.u32le",
-			"sha256": "8c4045fe3994fef04a1027f14fbe51103c1191ebb523d23d908ee25ed416b1c0"
+			"sha256": "15b99f6d672933d00849fdd1c059a32f31342f8a4ef1256bd2b6ed23f97ac07c"
 		},
 		{
 			"bytes": 262144,
@@ -84,9 +84,9 @@
 			"sha256": "c7ba34e8609555353fe6a40e6c334fc4c0ef70da9e57c32fbca69f215712807d"
 		},
 		{
-			"bytes": 16,
+			"bytes": 11196,
 			"path": "scatter.bin",
-			"sha256": "fe9e3e954707957a98cc616d4c3073ad7f6c8b8e920bf92e871d8047345418a9"
+			"sha256": "691dd2af21b96b54711d834f5c47110f84279cbe13f60ca21a9ea9d58e5b7848"
 		}
 	],
 	"schema_version": 2,
