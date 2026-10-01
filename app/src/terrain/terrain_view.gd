@@ -77,6 +77,30 @@ func stats() -> Dictionary:
 	return {}
 
 
+## Edit-to-upload age distribution; empty when the view does not track it.
+func presentation_latency() -> Dictionary:
+	return {}
+
+
+## Terrain mesh tuning for benchmarks. Returns "" or an error.
+func set_mesh_config(_mesh_size: int, _lods: int) -> String:
+	return "mesh tuning is not supported by this terrain view"
+
+
+## Fixed-area terrain texture preview (spec 11.4). Returns "" or an error; unsupported views error.
+func set_texture_preview(_center: Vector2, _radius: float, _feather: float, _albedo: Texture2DArray,
+		_normal: Texture2DArray, _layer_map: PackedInt32Array) -> String:
+	return "texture preview is not supported by this terrain view"
+
+
+func clear_texture_preview() -> void:
+	pass
+
+
+func preview_uniforms() -> Dictionary:
+	return TerrainPreviewUniforms.off()
+
+
 ## Empty = verified. Entries starting with "NOT RUN" mean the check could not run (not a failure).
 func verify_gpu() -> PackedStringArray:
 	return PackedStringArray(["NOT RUN: GPU verification is not supported by this terrain view"])

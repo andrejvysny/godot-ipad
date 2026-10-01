@@ -126,6 +126,24 @@ func test_highlight_toggle_and_replace_document_reapplies_rules() -> void:
 	_check_uniform("rules_highlight", false)
 
 
+func test_trimmed_shader_drops_unused_features_and_keeps_the_app_ones() -> void:
+	var full := (load(TerrainAdapter.SHADER_PATH) as Shader).code
+	var code := full.substr(full.find("/* The terrain depends"))  # the header only names what was removed
+	for removed in ["enable_macro_variation", "macro_variation1",
+			"noise_texture", "noise1_scale", "_texture_detile_array", "depth_blur", "bias_distance"]:
+		assert_false(code.contains(removed), "%s was trimmed" % removed)
+	for kept in ["rules_rock_enabled", "rules_sand_height_m", "rules_highlight", "debug_view", "debug_region_grid",
+			"TINT_MEAN_LUM", "_texture_array_albedo", "_texture_array_normal", "_color_maps", "_control_maps",
+			"_region_locations", "DECODE_HOLE", "enable_projection", "projection_threshold", "preview_enabled", "preview_area", "preview_layer",
+			"preview_albedo_array", "preview_normal_array", "textureGrad(_texture_array_albedo"]:
+		assert_true(code.contains(kept), "%s is kept" % kept)
+	var header := full.substr(0, full.find("/* The terrain depends"))
+	assert_true(header.contains("//   8. Trim (spec 13.2)"), "removals are listed in the // WP: header")
+	assert_true(header.contains("Texture lookups per fragment"), "lookup counts recorded")
+	assert_true(header.contains("Terrain3D 1.0.2-stable@0077405b, MIT"), "upstream reference and license kept")
+	assert_eq(code.count("textureGrad(_texture_array_albedo"), 1, "one low-tier albedo lookup site")
+
+
 # --- headless: tint map upload -----------------------------------------------------------------
 
 func _tint(doc: WorldDocument, loc: Vector2i, idx: int, rgba: Array) -> void:
@@ -146,6 +164,8 @@ func test_color_map_uploads_document_tint_bytes() -> void:
 
 
 func test_color_dirty_batching_uploads_each_region_once_per_flush() -> void:
+	# Not at process frame 0: the per-frame upload guard needs a frame counter that has advanced.
+	await tree.process_frame
 	var doc := WorldDocument.create_flat(0.0, AUTO)
 	var a := _make(doc)
 	assert_false(a.has_pending_uploads())
@@ -368,6 +388,86 @@ func test_gpu_rendered_gentle_hills_evidence() -> void:
 	assert_true(rules_on.get_data() != highlighted.get_data(), "highlight changes the picture")
 	assert_eq(a.verify_matches_document(doc).size(), 0)
 	assert_eq(a.verify_gpu(), PackedStringArray(), "GPU layers match")
+
+
+func _preview_arrays() -> Array[Texture2DArray]:
+	var out: Array[Texture2DArray] = []
+	for kind in ["albedo", "normal"]:
+		var images: Array[Image] = []
+		for slot in 4:
+			images.append((load(TerrainPreviewParticipant.default_sources()[slot][kind]) as Texture2D).get_image())
+		var array := Texture2DArray.new()
+		assert_eq(array.create_from_images(images), OK, kind + " array")
+		out.append(array)
+	return out
+
+
+func _patch_diff(a: Image, b: Image, x: float, z: float) -> float:
+	var p := _cam.unproject_position(Vector3(x, _probe_height(x, z), z))
+	var sum := 0.0
+	for dy in range(-12, 13):
+		for dx in range(-12, 13):
+			var ix := clampi(int(p.x) + dx, 0, a.get_width() - 1)
+			var iy := clampi(int(p.y) + dy, 0, a.get_height() - 1)
+			sum += _color_dist(a.get_pixel(ix, iy), b.get_pixel(ix, iy))
+	return sum / 625.0
+
+
+func test_gpu_rendered_preview_changes_detail_only_inside_the_area() -> void:
+	if not _rendered_available():
+		return
+	var a := _make(_probe_doc())
+	_aim_top_down()
+	var before := await _render()
+	var arrays := _preview_arrays()
+	assert_empty_string(a.set_texture_preview(Vector2(-35.0, 0.0), 14.0, 1.5, arrays[0], arrays[1],
+			PackedInt32Array([0, 1, 2, 3])))
+	var after := await _render(6)
+	var dirt_before := _probe(before, -35, 0)
+	var dirt_after := _probe(after, -35, 0)
+	assert_true(_is_dirtish(dirt_after), "painted coverage is unchanged inside the area: %s" % dirt_after)
+	assert_true(_color_dist(dirt_before, dirt_after) < 0.08, "same mean colour: %s vs %s" % [dirt_before, dirt_after])
+	assert_true(_patch_diff(before, after, -35, 0) > 0.004, "finer texture detail inside the area")
+	for far: Vector2 in [Vector2(-60, 0), Vector2(15, 0), Vector2(-40, 60), Vector2(-15, 0)]:
+		assert_true(_patch_diff(before, after, far.x, far.y) < 1e-4, "pixels outside the area are untouched at %s" % far)
+	assert_ne(a.set_texture_preview(Vector2(-35.0, 0.0), 14.0, 1.5, arrays[0], arrays[1], PackedInt32Array([-1, -1, -1, -1])), "")
+	assert_true(a.preview_uniforms().preview_enabled, "an unusable map is rejected and the last good binding stays")
+	a.clear_texture_preview()
+	var restored := await _render(6)
+	assert_true(_patch_diff(before, restored, -35, 0) < 1e-4, "clearing restores the low tier")
+	assert_eq(a.verify_matches_document(a.get_document()).size(), 0, "terrain data untouched")
+	_save_shot(after, "preview_area.png")
+
+
+func test_gpu_rendered_holes_seams_and_overview_extent() -> void:
+	if not _rendered_available():
+		return
+	var doc := WorldDocument.create_flat(0.0, AUTO)
+	var r: RegionBuffers = doc.get_region(Vector2i(0, 0))
+	for j in range(40, 60):
+		for i in range(40, 60):
+			r.control[j * 256 + i] = AUTO | ControlCodec.HOLE_BIT
+	var a := _make(doc)
+	_cam.look_at_from_position(Vector3(0, 300, 0.01), Vector3(0, 0, 0), Vector3(0, 0, -1))
+	_cam.fov = 60.0
+	_cam.current = true
+	var img := await _render()
+	var sky := Color(0.55, 0.7, 0.9)
+	var p := _cam.unproject_position(Vector3(25.0, 0.0, 25.0))  # sample (50, 50) is the middle of the hole
+	var hole_px := img.get_pixel(int(p.x), int(p.y))
+	assert_true(_color_dist(hole_px, sky) < 0.12, "a hole shows the background: %s" % hole_px)
+	for corner: Vector2 in [Vector2(-120, -120), Vector2(120, -120), Vector2(-120, 120), Vector2(120, 120), Vector2(-60, 0.5), Vector2(60, 0.5)]:
+		var q := _cam.unproject_position(Vector3(corner.x, 0.0, corner.y))
+		var c := img.get_pixel(clampi(int(q.x), 0, img.get_width() - 1), clampi(int(q.y), 0, img.get_height() - 1))
+		assert_true(_is_greenish(c), "the whole world renders, grass at %s: %s" % [corner, c])
+	for seam: Array in [[Vector3(-0.6, 0, -40), Vector3(0.6, 0, -40)], [Vector3(-40, 0, -0.6), Vector3(-40, 0, 0.6)],
+			[Vector3(-0.6, 0, 60), Vector3(0.6, 0, 60)]]:
+		var q0 := _cam.unproject_position(seam[0])
+		var q1 := _cam.unproject_position(seam[1])
+		var c0 := img.get_pixel(int(q0.x), int(q0.y))
+		var c1 := img.get_pixel(int(q1.x), int(q1.y))
+		assert_true(_color_dist(c0, c1) < 0.04, "no seam across %s: %s vs %s" % [seam, c0, c1])
+	assert_eq(a.verify_matches_document(doc).size(), 0)
 
 
 func _save_shot(img: Image, file: String) -> void:

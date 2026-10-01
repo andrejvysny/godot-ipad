@@ -12,6 +12,7 @@
   build-native               build the native input bridge (native/ios_input/build.sh)
   fixtures [--check]         regenerate or byte-check bundled fixtures
   catalog-hash               print the trusted catalog content hash
+  prepare-terrain-preview    regenerate app/assets/terrain/preview PNGs (deterministic, bounded Godot run)
   sync-config                copy config/{poc_defaults,rendering_profiles}.json to app/config/
   prepare-render-assets      [--catalog poc|bench|all] [--check]: bench generator + render-asset prep + texture import
 """
@@ -436,6 +437,29 @@ def cmd_validate_render_assets(a: argparse.Namespace) -> int:
 	return rc
 
 
+PREVIEW_TIMEOUT_S = 900
+
+
+def cmd_prepare_terrain_preview(a: argparse.Namespace) -> int:
+	rc, output = godot_test.godot_import(APP)
+	if rc != 0 or godot_test.import_errors(output):
+		print(output, file=sys.stderr)
+		return rc or 1
+	cmd = [GODOT, "--headless", "--path", str(APP), "--script", "res://devtools/generate_terrain_preview.gd"]
+	rc, output = run(cmd, timeout=PREVIEW_TIMEOUT_S)
+	print(output)
+	if rc != 0:
+		return rc
+	# Re-import so the .png.import files carry the generated uid/path next to the new PNGs.
+	rc, output = godot_test.godot_import(APP)
+	if rc != 0 or godot_test.import_errors(output):
+		print(output, file=sys.stderr)
+		return rc or 1
+	total = sum(f.stat().st_size for f in (APP / "assets" / "terrain" / "preview").glob("*.png"))
+	print("preview PNGs: %.2f MiB" % (total / 1048576))
+	return 0
+
+
 def cmd_build_native(a: argparse.Namespace) -> int:
 	script = REPO / "native" / "ios_input" / "build.sh"
 	if not script.is_file():
@@ -515,6 +539,8 @@ def build_parser() -> argparse.ArgumentParser:
 	s.set_defaults(fn=cmd_open_consumer)
 	sub.add_parser("validate-render-assets", help="validate render-asset registries").set_defaults(
 		fn=cmd_validate_render_assets)
+	sub.add_parser("prepare-terrain-preview", help="regenerate the terrain preview textures").set_defaults(
+		fn=cmd_prepare_terrain_preview)
 	sub.add_parser("build-native", help="run native/ios_input/build.sh").set_defaults(fn=cmd_build_native)
 	s = sub.add_parser("fixtures", help="regenerate fixtures, or --check them")
 	s.add_argument("--check", action="store_true")

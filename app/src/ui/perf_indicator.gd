@@ -53,13 +53,17 @@ func refresh(status: Dictionary) -> void:
 	reset_size()
 
 
-## "<Label> · <fps> fps", plus " -> <pending label>" while a profile switch waits for the edit.
+## "<Label> · <fps> fps", plus " -> <pending label>" while a profile switch waits for the edit and
+## " · Preview" while the Texture Preview is bound (active or limited).
 func caption(status: Dictionary) -> String:
 	var fps := float(status.fps)
 	var text := "%s · %s fps" % [status.profile_label, str(roundi(fps)) if fps > 0.0 else NO_FPS]
 	var pending := str(status.profile_pending)
 	if pending != "":
 		text += " -> " + str(_session.render_config.profile(pending).get("label", pending))
+	var preview := str((status.get("texture_preview", {}) as Dictionary).get("state", ""))
+	if preview == TexturePreviewController.ACTIVE or preview == TexturePreviewController.LIMITED:
+		text += " · Preview"
 	return text
 
 

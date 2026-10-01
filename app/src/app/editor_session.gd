@@ -287,7 +287,7 @@ func _notification(what: int) -> void:
 	if not ready_for_input:
 		return
 	if what in [NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_WM_CLOSE_REQUEST]:
-		abort_render_bench("app_deactivated")
+		_render.on_app_deactivated()
 		input.cancel_all("app_deactivated")
 		tools.cancel_active("app_deactivated")
 		var error := SessionWorldOps.ensure_saved(storage, document)
@@ -437,6 +437,12 @@ func render_registry() -> RenderAssetRegistry: return _render.registry()
 
 
 func render_cache() -> RenderAssetCache: return _render.cache
+
+
+func toggle_texture_preview() -> String: return _render.toggle_texture_preview()
+
+
+func texture_preview_status() -> Dictionary: return _render.texture_preview.status()
 
 
 # --- Diagnostics -------------------------------------------------------------------------

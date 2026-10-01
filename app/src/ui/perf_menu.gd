@@ -1,7 +1,8 @@
 class_name PerfMenu
 extends PanelContainer
 ## Dropdown of the PerfIndicator: the three explicit render profiles as radio rows (a profile requested during
-## an edit shows "after edit"), the Hide vegetation switch (presentation only) and the target line.
+## an edit shows "after edit"), the Hide vegetation switch (presentation only), the Texture Preview switch
+## with its status line and the target line.
 ## EditorUI places and registers it.
 
 const WIDTH := 250.0
@@ -10,6 +11,8 @@ const ROW_HEIGHT := 40.0
 var _session: EditorSession
 var _rows: Dictionary = {}  # profile name -> Button
 var _vegetation: Button
+var _preview: Button
+var _preview_info := UiKit.label("", 11)
 var _info := UiKit.label("", 11)
 
 
@@ -34,6 +37,12 @@ func setup(session: EditorSession) -> void:
 	_vegetation.custom_minimum_size.y = ROW_HEIGHT
 	_vegetation.add_theme_font_size_override("font_size", 13)
 	column.add_child(_vegetation)
+	_preview = UiKit.switch_button("Texture Preview", _on_texture_preview, true)
+	_preview.custom_minimum_size.y = ROW_HEIGHT
+	_preview.add_theme_font_size_override("font_size", 13)
+	column.add_child(_preview)
+	_preview_info.add_theme_color_override("font_color", UiKit.TEXT_MUTED)
+	column.add_child(_preview_info)
 	_info.add_theme_color_override("font_color", UiKit.TEXT_MUTED)
 	column.add_child(_info)
 	visible = false
@@ -47,6 +56,14 @@ func profile_button(name: String) -> Button:
 
 func vegetation_switch() -> Button:
 	return _vegetation
+
+
+func preview_switch() -> Button:
+	return _preview
+
+
+func preview_text() -> String:
+	return _preview_info.text
 
 
 func info_text() -> String:
@@ -71,6 +88,11 @@ func _on_hide_vegetation(on: bool) -> void:
 	_session.set_vegetation_hidden(on)
 
 
+func _on_texture_preview(_on: bool) -> void:
+	_session.toggle_texture_preview()
+	refresh(_session.status())
+
+
 func refresh(status: Dictionary) -> void:
 	if _session == null:
 		return
@@ -82,4 +104,8 @@ func refresh(status: Dictionary) -> void:
 		b.text = label + ("  (after edit)" if name == pending else "")
 		b.set_pressed_no_signal(name == active)
 	UiKit.set_switch(_vegetation, bool(status.vegetation_hidden))
+	var preview: Dictionary = status.texture_preview
+	UiKit.set_switch(_preview, [TexturePreviewController.LOADING, TexturePreviewController.ACTIVE,
+			TexturePreviewController.LIMITED].has(str(preview.state)))
+	_preview_info.text = TexturePreviewController.status_text(preview)
 	_info.text = "Target %d fps · 3D %d%%" % [int(status.profile_target_fps), roundi(float(status.render_scale) * 100.0)]

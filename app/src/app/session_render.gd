@@ -1,23 +1,29 @@
 class_name SessionRender
 extends RefCounted
-## Render-side session state (spec §4.1, §15.3, §15.4): the manual profile controller, the
-## presentation-only vegetation toggle, the shared render registry/cache (spec §12.1), the ActiveEditArea
-## wiring (§8.2) and the cached slow part of EditorSession.status(). Never touches the document.
+## Render-side session state (spec §4.1, §8.2, §11, §12.1, §15.3, §15.4): the manual profile
+## controller, the presentation-only vegetation toggle, the shared render registry/cache, the
+## ActiveEditArea wiring, the Texture Preview and the cached slow part of EditorSession.status().
+## Never touches the document.
 
 const MIN_SLOW_STATUS_MSEC := 100
 const BLOCKED := "blocked"
 const ACTIVE_MARGIN_M := 2.0
+const RING_COLOR := Color(0.55, 0.85, 1.0, 0.9)
 
 var config: RenderConfig
 var profiles: RenderProfileController
 var vegetation_hidden := false
 var cache: RenderAssetCache
 var active_edit: ActiveEditArea
+var texture_preview: TexturePreviewController
 
 var _registry: RenderAssetRegistry
 var _tools: ToolController
 var _op_radius: float = 0.0
 var _budget_ms: float = 1.0
+var _preview_state := TexturePreviewController.OFF
+var _preview_ring: BrushRing
+var _preview_ring_key := ""
 var _session: EditorSession
 var _slow_status: Dictionary = {}
 var _slow_status_msec := -1
@@ -31,8 +37,12 @@ func _init(session: EditorSession) -> void:
 	profiles.profile_applied.connect(_on_profile_applied)
 	var budgets := config.section("budgets")
 	_budget_ms = float(budgets.main_thread_soft_ms)
+	if RenderingServer.get_rendering_device() == null:
+		budgets.inflight_loads = 1  # the dummy renderer's texture storage is not thread-safe
 	cache = RenderAssetCache.new(budgets)
 	active_edit = ActiveEditArea.new(float(config.section("cells").objects_m), int(config.section("stability").settle_ms))
+	texture_preview = TexturePreviewController.new(cache, config.section("texture_preview"))
+	session.world_replaced.connect(_on_world_replaced)
 
 
 ## The validated registry of the session's catalog; created on first use (the catalog loads after this object).
@@ -54,6 +64,8 @@ func service_frame(budget_ms: float = -1.0) -> void:
 		var hit := _tools.last_hit()
 		if hit != null and hit.ok:
 			active_edit.update(_tools.active_operation_id(), hit.position, _op_radius)
+	texture_preview.service(budget)
+	_sync_preview()
 	_session.presenter.service_frame(budget)
 
 
@@ -139,7 +151,7 @@ func profile_status(frame_p50_ms: float) -> Dictionary:
 	var p := profiles.active_profile()
 	return {"profile": profiles.active_name(), "profile_label": str(p.get("label", "")),
 		"profile_pending": profiles.pending_name(), "profile_target_fps": int(p.get("target_fps", 0)),
-		"vegetation_hidden": vegetation_hidden, "fps": 1000.0 / frame_p50_ms if frame_p50_ms > 0.0 else 0.0}
+		"vegetation_hidden": vegetation_hidden, "texture_preview": texture_preview.status(), "fps": 1000.0 / frame_p50_ms if frame_p50_ms > 0.0 else 0.0}
 
 
 ## Frame percentiles, render counters and stats that sort or query the RenderingServer, refreshed at
@@ -160,3 +172,95 @@ func slow_status() -> Dictionary:
 
 func invalidate_slow_status() -> void:
 	_slow_status_msec = -1
+
+
+# --- Texture Preview (spec §11) ----------------------------------------------------------
+
+## Turns the preview on at the selected object's anchor or the camera pivot, or off. Returns "" or the
+## reason it did not turn on.
+func toggle_texture_preview() -> String:
+	var state := texture_preview.state()
+	if state == TexturePreviewController.RELEASING:
+		return _refuse_preview("Texture Preview is still releasing.")
+	if state != TexturePreviewController.OFF and state != TexturePreviewController.ERROR:
+		texture_preview.disable("user")
+		_sync_preview()
+		return ""
+	if _session.bench_active():
+		return _refuse_preview(EditorSession.BENCH_MESSAGE)
+	var center := _preview_center()
+	if not center.is_finite():
+		return _refuse_preview(TexturePreviewController.NO_AREA)
+	texture_preview.bind(_session.terrain, _session.document)
+	var result := texture_preview.enable_at(center)
+	_sync_preview()
+	return "" if bool(result.ok) else str(result.message)
+
+
+func _refuse_preview(message: String) -> String:
+	_session.post_message(message, true)
+	return message
+
+
+## App deactivation (spec §18.3): stop the bench and optional preview work before the save path runs.
+func on_app_deactivated() -> void:
+	_session.abort_render_bench("app_deactivated")
+	disable_texture_preview("app_deactivated")
+
+
+func disable_texture_preview(reason: String) -> void:
+	texture_preview.disable(reason)
+	_sync_preview()
+
+
+func _on_world_replaced() -> void:
+	texture_preview.on_world_replaced()
+	texture_preview.bind(_session.terrain, _session.document)
+	_sync_preview()
+
+
+## Selected object's anchor, else the camera pivot when it rests on terrain; NAN vector otherwise.
+func _preview_center() -> Vector3:
+	var id := _session.tools.selected_id()
+	if id != "" and _session.presenter.has_object(id):
+		return _session.presenter.anchor_position(id)
+	var pivot := _session.rig.controller.pivot
+	var h := _session.document.sample_height(pivot.x, pivot.z)
+	return Vector3(NAN, NAN, NAN) if is_nan(h) else Vector3(pivot.x, h, pivot.z)
+
+
+func _sync_preview() -> void:
+	var st := texture_preview.status()
+	var state := str(st.state)
+	_sync_ring(st)
+	if state == _preview_state:
+		return
+	_preview_state = state
+	match state:
+		TexturePreviewController.ACTIVE:
+			_session.post_message("Texture Preview on")
+		TexturePreviewController.LIMITED:
+			_session.post_message("Texture Preview limited: %d textures unavailable" % (st.missing as Array).size())
+		TexturePreviewController.ERROR:
+			_session.post_message("Texture Preview error: " + str(st.reason), true)
+		TexturePreviewController.OFF:
+			_session.post_message("Texture Preview off")
+	_session.status_changed.emit()
+
+
+## Thin terrain-draped outline of the captured area while the preview is not off; redrawn when the
+## terrain under it changes.
+func _sync_ring(st: Dictionary) -> void:
+	if str(st.state) == TexturePreviewController.OFF:
+		if _preview_ring != null:
+			_preview_ring.hide_ring()
+		_preview_ring_key = ""
+		return
+	var key := "%d|%d" % [int(st.generation), _session.document.document_revision]
+	if key == _preview_ring_key:
+		return
+	_preview_ring_key = key
+	if _preview_ring == null:
+		_preview_ring = BrushRing.new()
+		_session.add_child(_preview_ring)
+	_preview_ring.show_at(_session.document, st.center, float(st.radius), RING_COLOR)

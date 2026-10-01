@@ -210,6 +210,14 @@ func trim(target_bytes: int = -1) -> int:
 	return _evict_lru(_resident - target, "")
 
 
+## Retires every unreferenced, unpinned READY entry of one kind (a disabled preview's textures);
+## entries another owner still references stay. Returns the bytes freed.
+func retire_unreferenced(kind: String) -> int:
+	var before := _resident
+	_evict_lru(_resident, kind)
+	return before - _resident
+
+
 func stats() -> Dictionary:
 	var counts := {"QUEUED": 0, "LOADING": 0, "READY": 0, "ERROR": 0}
 	var fallback_bytes := 0
