@@ -16,7 +16,7 @@ scatter/fill/sets, spline paths). Invert = on-screen button + D key (no Pencil d
 - [x] P3 Editor v2 behaviour spec (`docs/editor-v2.md`); ToolController v2 (modes/tools/invert/settings)
 - [x] P4 Brush engine v2: alphas, 4-layer paint/erase, spray, tint, pick; flatten (+pick height), noise/smooth
 - [x] P5 Terrain shader: 4 textures, auto-paint rules, tint, rule highlight (Mac rendered check)
-- [ ] P6 Scatter: MultiMesh renderer, scatter/erase brush, fill/clear lasso, sets store, quick mix
+- [x] P6 Scatter: MultiMesh renderer, scatter/erase brush, fill/clear lasso, sets store, quick mix
 - [ ] P7 Paths: draw (flatten + record), draped ribbon, handle edit, delete
 - [ ] P8 UI v2: top bar, mode rail + popover, chip + invert, Library (Objects/Sets), set editor, inspector, ghost, hints, toasts
 - [ ] P9 Mac consumer schema 2, selftest, docs (architecture, input contract, checklist), Mac screenshot review
