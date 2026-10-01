@@ -27,6 +27,16 @@ func test_pressure_factor_mapping() -> void:
 	assert_eq(BrushMath.pressure_factor(true, NAN, true), 1.0, "NaN pressure is never zero")
 
 
+func test_pressure_factor_gamma() -> void:
+	assert_near(BrushMath.pressure_factor(true, 0.25, true, 0.2, 1.0), 0.4, 1e-12, "gamma 1 = spec linear")
+	assert_near(BrushMath.pressure_factor(true, 0.25, true, 0.2, 0.5), 0.6, 1e-12, "gamma 0.5 lifts light pressure")
+	assert_near(BrushMath.pressure_factor(true, 0.0, true, 0.2, 0.5), 0.2, 1e-12, "p=0 stays at min factor")
+	assert_near(BrushMath.pressure_factor(true, 1.0, true, 0.2, 0.5), 1.0, 1e-12, "p=1 stays full")
+	assert_near(BrushMath.pressure_factor(true, 0.25, true, 0.2, 0.0), 0.4, 1e-12, "gamma 0 falls back to linear")
+	assert_near(BrushMath.pressure_factor(true, 0.25, true, 0.2, NAN), 0.4, 1e-12, "NaN gamma falls back to linear")
+	assert_eq(BrushMath.pressure_factor(false, 0.25, true, 0.2, 0.5), 1.0, "unavailable pressure ignores gamma")
+
+
 func test_resample_spacing() -> void:
 	assert_eq(BrushMath.resample_spacing(0.5), 0.125, "radius/4")
 	assert_eq(BrushMath.resample_spacing(16.0), 0.25, "sample_spacing/2")

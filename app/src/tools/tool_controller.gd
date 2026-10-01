@@ -48,7 +48,7 @@ func setup(ctx: ToolContext) -> void:
 		TOOL_PAINT: {"radius": float(ctx.default("brush", "paint_radius_default_m", 4.0)),
 				"strength": strength, "material": "dirt", "pressure_enabled": true},
 		TOOL_SCULPT: {"radius": float(ctx.default("brush", "sculpt_radius_default_m", 6.0)),
-				"strength": strength, "direction": "raise", "pressure_enabled": true},
+				"strength": float(ctx.default("brush", "sculpt_strength_default", 1.0)), "direction": "raise", "pressure_enabled": true},
 		TOOL_PATH: {"width": float(ctx.default("brush", "path_width_default_m", 3.0))},
 		TOOL_PLACE: {"asset_id": ""},
 		TOOL_SELECT: {},

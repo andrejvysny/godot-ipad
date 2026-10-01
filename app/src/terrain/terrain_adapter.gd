@@ -146,6 +146,38 @@ func verify_matches_document(doc: WorldDocument) -> PackedStringArray:
 	return out
 
 
+## Reads back every uploaded Terrain3D texture-array layer and compares it with the document
+## bytes. Proves the GPU texture layers == document (upload path); it does not prove shader
+## binding or rendered pixels. Layer i belongs to data.get_region_locations()[i].
+## Empty = verified; "NOT RUN: ..." entries mean the check could not run.
+func verify_gpu() -> PackedStringArray:
+	if _terrain == null or _terrain.data == null or _doc == null:
+		return PackedStringArray(["NOT RUN: terrain is not initialized"])
+	if has_pending_uploads():
+		flush()
+	if has_pending_uploads():
+		return PackedStringArray(["NOT RUN: uploads pending; retry next frame"])
+	var data := _terrain.data
+	var h_rid := data.get_height_maps_rid()
+	var c_rid := data.get_control_maps_rid()
+	if RenderingServer.get_rendering_device() == null or not h_rid.is_valid() or not c_rid.is_valid():
+		return PackedStringArray(["NOT RUN: no rendering device (headless)"])
+	var out := PackedStringArray()
+	var locs := data.get_region_locations()
+	for i in locs.size():
+		var loc: Vector2i = locs[i]
+		var rb := _doc.get_region(loc)
+		if rb == null:
+			out.append("region %s exists in Terrain3D but not in the document" % loc)
+			continue
+		_compare_map(out, loc, "GPU height", RenderingServer.texture_2d_layer_get(h_rid, i), rb.height_bytes())
+		_compare_map(out, loc, "GPU control", RenderingServer.texture_2d_layer_get(c_rid, i), rb.control_bytes())
+	for loc: Vector2i in _doc.regions:
+		if not locs.has(loc):
+			out.append("region %s is in the document but missing from Terrain3D" % loc)
+	return out
+
+
 # --- internals ---------------------------------------------------------------------------
 
 func _create_terrain() -> void:
@@ -158,6 +190,7 @@ func _create_terrain() -> void:
 	t.vertex_spacing = WorldConstants.SAMPLE_SPACING
 	var mat := Terrain3DMaterial.new()
 	mat.auto_shader = false
+	mat.set_shader_param("blend_sharpness", TerrainMaterials.BLEND_SHARPNESS)
 	# set_material/set_assets create the collision manager, so the mode sticks before the
 	# node enters the tree and no collision shapes are ever built.
 	t.material = mat

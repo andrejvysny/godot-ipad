@@ -387,16 +387,14 @@ func test_gpu_texture_layers_match_document_after_partial_flush() -> void:
 	var doc := _pattern_doc()
 	var a := _make(doc)
 	var data := a.get_terrain().data
-	if RenderingServer.get_rendering_device() == null or not data.get_height_maps_rid().is_valid():
-		print("    GPU texture layers: NOT RUN (headless dummy renderer; run rendered to check)")
+	var initial := a.verify_gpu()
+	if not initial.is_empty() and initial[0].begins_with("NOT RUN"):
+		print("    GPU texture layers: %s (run rendered: scripts/dev.py test --rendered)" % initial[0])
 		return
+	assert_eq(initial, PackedStringArray(), "GPU matches document after initialize")
 	var locs := data.get_region_locations()
 	var before_h := _gpu_layers(data.get_height_maps_rid(), locs.size())
 	var before_c := _gpu_layers(data.get_control_maps_rid(), locs.size())
-	for i in locs.size():
-		var rb := doc.get_region(locs[i])
-		assert_true(before_h[i] == rb.height_bytes(), "GPU height layer %d %s after initialize" % [i, locs[i]])
-		assert_true(before_c[i] == rb.control_bytes(), "GPU control layer %d %s after initialize" % [i, locs[i]])
 	var h_loc := _set_doc_height(doc, 40, -10, 7.25)
 	var c_loc := Vector2i(-1, 0)
 	var cr := doc.get_region(c_loc)
@@ -405,17 +403,22 @@ func test_gpu_texture_layers_match_document_after_partial_flush() -> void:
 	a.mark_dirty(TerrainAdapter.MAP_CONTROL, c_loc)
 	a.flush()
 	await tree.process_frame
+	assert_eq(a.verify_gpu(), PackedStringArray(), "GPU matches document after partial flush")
 	var after_h := _gpu_layers(data.get_height_maps_rid(), locs.size())
 	var after_c := _gpu_layers(data.get_control_maps_rid(), locs.size())
 	var changed := 0
 	for i in locs.size():
-		var rb := doc.get_region(locs[i])
-		assert_true(after_h[i] == rb.height_bytes(), "GPU height layer %d %s after flush" % [i, locs[i]])
-		assert_true(after_c[i] == rb.control_bytes(), "GPU control layer %d %s after flush" % [i, locs[i]])
 		assert_eq(after_h[i] != before_h[i], locs[i] == h_loc, "only dirty height layer changed %s" % locs[i])
 		assert_eq(after_c[i] != before_c[i], locs[i] == c_loc, "only dirty control layer changed %s" % locs[i])
 		changed += int(after_h[i] != before_h[i]) + int(after_c[i] != before_c[i])
-	print("    GPU texture layers (%s): compared after initialize and partial flush; %d of %d layers changed" % [RenderingServer.get_current_rendering_driver_name(), changed, 2 * locs.size()])
+	# A later frame, a different region: repeated partial updates must keep matching.
+	var h2_loc := _set_doc_height(doc, -40, 30, -3.5)
+	assert_true(h2_loc != h_loc, "second edit targets a different region")
+	a.mark_dirty(TerrainAdapter.MAP_HEIGHT, h2_loc)
+	a.flush()
+	await tree.process_frame
+	assert_eq(a.verify_gpu(), PackedStringArray(), "GPU matches document after second partial flush")
+	print("    GPU texture layers (%s): verified after initialize and two partial flushes; %d of %d layers changed in the first" % [RenderingServer.get_current_rendering_driver_name(), changed, 2 * locs.size()])
 
 
 func _gpu_layers(rid: RID, count: int) -> Array[PackedByteArray]:

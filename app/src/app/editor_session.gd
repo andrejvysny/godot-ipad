@@ -45,6 +45,9 @@ var _fault_armed := false
 var _last_evicted := 0
 var _last_frame_usec := 0
 var _last_status_msec := 0
+var _tool_ctx: ToolContext
+var _op_max_gap_ms := 0.0
+var _last_cancel_reason := ""
 
 
 func _ready() -> void:
@@ -202,6 +205,9 @@ func _build_tools_and_input() -> void:
 	ctx.diagnostic = post_message
 	ctx.units_per_point = input.mapper.viewport_units_per_point
 	ctx.stats = frames
+	_tool_ctx = ctx
+	tools.operation_started.connect(func(_tool: String) -> void: _op_max_gap_ms = 0.0)
+	tools.operation_cancelled.connect(func(reason: String) -> void: _last_cancel_reason = reason)
 	add_child(tools)
 	tools.setup(ctx)
 	input.provider_override = provider_override
@@ -224,6 +230,8 @@ func _process(_delta: float) -> void:
 	if _last_frame_usec > 0:
 		var gap_ms := float(now_usec - _last_frame_usec) / 1000.0
 		frames.add(gap_ms)
+		if tools.has_active_operation():
+			_op_max_gap_ms = maxf(_op_max_gap_ms, gap_ms)
 		var stall_s := float(defaults.brush.stall_cancel_s)
 		if gap_ms / 1000.0 > stall_s and tools.has_active_operation() and not tools.has_object_edit():
 			input.cancel_all("tool_error")
@@ -457,6 +465,13 @@ func post_message(text: String, is_error := false) -> void:
 	status_changed.emit()
 
 
+## Reads back the GPU texture layers and reports whether they match the document.
+func verify_gpu_terrain() -> String:
+	var report := SessionWorldOps.gpu_report(terrain.verify_gpu())
+	post_message(report.text, report.is_error)
+	return report.text
+
+
 func status() -> Dictionary:
 	var revision := document.document_revision
 	var history_state := {"size": history.size(), "bytes": history.total_bytes()}
@@ -476,4 +491,5 @@ func status() -> Dictionary:
 		"frame_p50_ms": frames.p50(), "frame_p95_ms": frames.p95(),
 		"brush_p95_ms": frames.sample_p95("brush"), "render_scale": get_viewport().scaling_3d_scale,
 		"world_id": document.world_id, "operation_id": tools.active_operation_id(),
-		"last_hit": SessionWorldOps.hit_text(tools.last_hit())}
+		"last_hit": SessionWorldOps.hit_text(tools.last_hit()), "last_stroke": SessionWorldOps.with_gap(_tool_ctx.last_stroke, _op_max_gap_ms),
+		"last_cancel": _last_cancel_reason, "terrain_stats": terrain.stats()}

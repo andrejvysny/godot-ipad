@@ -49,3 +49,8 @@ func set_region_grid(_on: bool) -> void:
 
 func stats() -> Dictionary:
 	return {}
+
+
+## Empty = verified. Entries starting with "NOT RUN" mean the check could not run (not a failure).
+func verify_gpu() -> PackedStringArray:
+	return PackedStringArray(["NOT RUN: GPU verification is not supported by this terrain view"])

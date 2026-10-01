@@ -30,7 +30,8 @@ func setup(session: EditorSession) -> void:
 		["Height view", _toggle_view.bind("heightmap"), true],
 		["Region grid", _toggle_grid, true], ["Anchors", _toggle_anchors, true],
 		["Object IDs", _toggle_ids, true], ["3D 50%", _toggle_scale, true],
-		["Save trace", func() -> void: _session.save_trace()]]))
+		["Save trace", func() -> void: _session.save_trace()],
+		["Verify GPU", func() -> void: _session.verify_gpu_terrain()]]))
 	column.add_child(UiKit.label("Fault injection (testing)", 14))
 	column.add_child(_grid([
 		["Fail next save", func() -> void: _session.inject_save_failure()],
@@ -121,10 +122,26 @@ func _build_text() -> String:
 		"History %d actions · %d bytes · evicted %d" % [s.history_size, s.history_bytes, s.evicted],
 		"Objects %d · scatter: PoC+ (not built)" % s.object_count,
 		"Frame p50 %.1f ms · p95 %.1f ms · brush p95 %.1f ms" % [s.frame_p50_ms, s.frame_p95_ms, s.brush_p95_ms],
+		_stroke_line(s.last_stroke),
+		"Last cancel: %s" % (s.last_cancel if s.last_cancel != "" else "none"),
+		_terrain_line(s.terrain_stats),
 		"Input diag %s" % _input_diagnostics(provider.diagnostics()),
 		"Save queue %s" % ("busy" if _session.storage.is_busy() else "idle"),
 	]
 	return "\n".join(lines)
+
+
+static func _stroke_line(st: Dictionary) -> String:
+	if st.is_empty():
+		return "Stroke: none"
+	var p := "p n/a" if is_nan(st.pressure_min) else "p %.2f–%.2f (pf %.2f)" % [st.pressure_min, st.pressure_max, st.pf_avg]
+	return "Stroke %s %s · %.2f s · %d samples · %s · steps %d · Δh %.3f m · ctrl %d · gap %.0f ms" % [
+		st.tool, st.result, st.duration_s, st.samples, p, st.steps, st.peak_dh_m, st.controls_changed, st.max_gap_ms]
+
+
+static func _terrain_line(ts: Dictionary) -> String:
+	return "Terrain uploads h %d · c %d · flush %.1f ms" % [int(ts.get("uploads_height", 0)),
+			int(ts.get("uploads_control", 0)), float(ts.get("last_flush_ms", 0.0))]
 
 
 static func _build_text_short() -> String:

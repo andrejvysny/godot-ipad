@@ -17,6 +17,10 @@ const HEIGHT_MEAN := [0.5, 0.5]
 const HEIGHT_VARIATION := [0.12, 0.25]
 const ROUGHNESS := [0.85, 0.95]
 const COLOR_VARIATION := 0.06
+## Terrain3DMaterial `blend_sharpness` (pinned shader: exponent = 56 * value + 8). The default 0.5
+## (exponent 36) hides partial dirt coverage from light strokes; 0.15 (~16) keeps partial
+## coverage visible while a full stroke still reads as dirt. Visual only, never authored data.
+const BLEND_SHARPNESS := 0.15
 
 
 static func create_assets() -> Terrain3DAssets:

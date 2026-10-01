@@ -15,6 +15,8 @@ var request_cancel: Callable = Callable()
 var diagnostic: Callable = Callable()
 var units_per_point: Callable = Callable()
 var stats: FrameStats
+## StrokeProbe.finish() of the most recent paint/sculpt/path stroke; {} before the first.
+var last_stroke: Dictionary = {}
 
 
 func hit_for(sample: PointerSample) -> TerrainHit:

@@ -52,3 +52,25 @@ class GodotWrapperTests(unittest.TestCase):
             with self.assertRaises(SystemExit):
                 self.invoke(["--sandbox", "../outside"])
             copy.assert_not_called()
+
+    def test_rendered_command_omits_headless_and_selects_driver(self) -> None:
+        with mock.patch.object(godot_test, "run", return_value=(0, "")) as run:
+            godot_test.godot_tests(self.app, "", "gpu", rendered=True, driver="vulkan")
+            godot_test.godot_tests(self.app, "", "gpu", rendered=True)
+            godot_test.godot_tests(self.app, "unit", "")
+        vulkan, mobile, headless = (c.args[0] for c in run.call_args_list)
+        self.assertNotIn("--headless", vulkan)
+        self.assertEqual(vulkan[vulkan.index("--rendering-method") + 1:][:3], ["mobile", "--rendering-driver", "vulkan"])
+        self.assertNotIn("--headless", mobile)
+        self.assertNotIn("--rendering-driver", mobile)
+        self.assertIn("--rendering-method", mobile)
+        self.assertIn("--headless", headless)
+        self.assertNotIn("--rendering-method", headless)
+
+    def test_rendered_defaults_filter_and_fails_on_not_run(self) -> None:
+        with mock.patch.object(godot_test, "godot_tests", return_value=(0, "GPU: NOT RUN")) as tests:
+            self.assertEqual(self.invoke(["--no-import", "--rendered"]), 1)
+            self.assertEqual(tests.call_args.args[2], "gpu")
+        with mock.patch.object(godot_test, "godot_tests", return_value=(0, "ok")) as tests:
+            self.assertEqual(self.invoke(["--no-import", "--rendered", "--filter", "x"]), 0)
+            self.assertEqual(tests.call_args.args[2], "x")

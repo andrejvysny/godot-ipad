@@ -2,7 +2,7 @@
 """World Painter PoC developer wrapper (spec §5). Every command exits nonzero on failure.
 
   doctor [--strict]          environment, pinned hashes, fixtures, config sync, secrets
-  test                       Godot import + GDScript suites, then Python unittest
+  test                       Godot import + GDScript suites, then Python unittest (--rendered [--driver D]: windowed GPU tests)
   run-mac                    launch the app windowed on this Mac
   selftest                   windowed scripted end-to-end self-test (SYNTHETIC input) on this Mac
   export-ios                 iOS export (needs config/local.signing.json)
@@ -301,9 +301,12 @@ def cmd_test(a: argparse.Namespace) -> int:
 	rc_godot = rc_py = 0
 	if not a.python_only:
 		args = [sys.executable, str(SCRIPTS / "godot_test.py")]
-		for flag, val in (("--sandbox", a.sandbox), ("--suite", a.suite), ("--filter", a.filter)):
+		for flag, val in (("--sandbox", a.sandbox), ("--suite", a.suite), ("--filter", a.filter),
+				("--driver", a.driver)):
 			if val:
 				args += [flag, val]
+		if a.rendered:
+			args.append("--rendered")
 		rc_godot, out = run(args, timeout=godot_test.IMPORT_TIMEOUT_S * 2 + godot_test.TEST_TIMEOUT_S + 60, cwd=REPO)
 		print(out)
 		m = re.findall(r"^(\d+) tests, (\d+) failures.*$", out, re.M)
@@ -449,6 +452,9 @@ def build_parser() -> argparse.ArgumentParser:
 	s.add_argument("--sandbox", default="", help="isolated copy of app/ (see scripts/godot_test.py)")
 	s.add_argument("--suite", default="", choices=["", "unit", "integration"])
 	s.add_argument("--filter", default="")
+	s.add_argument("--rendered", action="store_true",
+		help="windowed Godot run (GPU readback tests; default filter 'gpu'; fails on NOT RUN)")
+	s.add_argument("--driver", default="", help="rendering driver for --rendered (metal, vulkan)")
 	g = s.add_mutually_exclusive_group()
 	g.add_argument("--python-only", action="store_true")
 	g.add_argument("--godot-only", action="store_true")

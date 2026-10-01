@@ -67,3 +67,20 @@ static func hit_text(hit: TerrainHit) -> String:
 		return "no hit"
 	return "%.1f, %.1f, %.1f · region (%d, %d)" % [hit.position.x, hit.position.y, hit.position.z,
 		hit.region.x, hit.region.y]
+
+
+## {text, is_error} for TerrainView.verify_gpu() output.
+static func gpu_report(diffs: PackedStringArray) -> Dictionary:
+	if diffs.is_empty():
+		return {"text": "GPU terrain matches the document.", "is_error": false}
+	if diffs[0].begins_with("NOT RUN"):
+		return {"text": "GPU terrain check " + diffs[0], "is_error": false}
+	return {"text": "GPU terrain differs: %s (+%d more)" % [diffs[0], diffs.size() - 1], "is_error": true}
+
+
+## Copy of a StrokeProbe result with the longest frame gap of that stroke merged in.
+static func with_gap(stroke: Dictionary, max_gap_ms: float) -> Dictionary:
+	var out := stroke.duplicate()
+	if not out.is_empty():
+		out["max_gap_ms"] = max_gap_ms
+	return out

@@ -21,6 +21,7 @@ var _tool_id: String
 var _settings: Dictionary
 var _brush: Dictionary
 var _tx := EditTransaction.new()
+var _probe := StrokeProbe.new()
 var _paint: PaintStroke
 var _sculpt: SculptStroke
 var _id := ObjectRecord.new_uuid_v4()
@@ -46,6 +47,7 @@ func operation_id() -> String:
 
 func begin(sample: PointerSample, hit: TerrainHit) -> void:
 	_tx.begin(_ctx.document, _tool_id, _label(), _settings)
+	_probe.begin(_tool_id, sample.timestamp_s)
 	if hit.ok:
 		_apply_sample(sample, hit, false)
 
@@ -73,10 +75,12 @@ func pause(sample: PointerSample) -> void:
 ## Returns the committed change, or null when nothing changed or `error` was set.
 func end(sample: PointerSample, hit: TerrainHit, over_ui: bool) -> WorldChange:
 	if error != "":
+		_record_cancelled()
 		return null
 	if not over_ui and hit.ok:
 		_apply_sample(sample, hit, false)
 		if error != "":
+			_record_cancelled()
 			return null
 	if _started:
 		_begin_timing()
@@ -85,16 +89,20 @@ func end(sample: PointerSample, hit: TerrainHit, over_ui: bool) -> WorldChange:
 		_end_timing()
 		_take_result(res)
 		if error != "":
+			_record_cancelled()
 			return null
 	_ring.hide_ring()
 	_done = true
-	return _tx.finish()
+	var change := _tx.finish()
+	_ctx.last_stroke = _probe.finish("committed" if change != null else "no_change", change, _steps(), "")
+	return change
 
 
 func cancel() -> void:
 	if _done:
 		return
 	_done = true
+	_record_cancelled()
 	var touched: Dictionary
 	if _started:
 		touched = _paint.cancel() if _paint != null else _sculpt.cancel()
@@ -102,6 +110,14 @@ func cancel() -> void:
 		touched = _tx.rollback()
 	_ctx.mark_touched(touched)
 	_ring.hide_ring()
+
+
+func _steps() -> int:
+	return _sculpt.steps_processed if _sculpt != null else 0
+
+
+func _record_cancelled() -> void:
+	_ctx.last_stroke = _probe.finish("cancelled", null, _steps(), error)
 
 
 func advance(now: float) -> void:
@@ -118,8 +134,10 @@ func _apply_sample(sample: PointerSample, hit: TerrainHit, force_resume: bool) -
 	var pf := 1.0
 	if _tool_id != TOOL_PATH:
 		pf = BrushMath.pressure_factor(sample.pressure_valid, sample.pressure,
-				bool(_settings.get("pressure_enabled", true)), float(_brush.get("pressure_min_factor", 0.2)))
+				bool(_settings.get("pressure_enabled", true)), float(_brush.get("pressure_min_factor", 0.2)),
+				float(_brush.get("pressure_gamma", 1.0)))
 	var t := sample.timestamp_s
+	_probe.add_sample(sample.pressure_valid, sample.pressure, pf, t)
 	_begin_timing()
 	var res := BrushKernels.empty_result()
 	if not _started:

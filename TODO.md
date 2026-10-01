@@ -13,8 +13,26 @@ fail to render on iPad, and would pause a world-owned Pencil.
   (drag-to-place), WorldMenu, HistoryBar, EditorUI layout (handedness), toasts/banner/hints
 - [x] test_editor_ui rewrite + new layout/drop/inspector tests; 408 Godot + 110 Python tests, 0 failures
 - [x] Mac screenshot review (Metal, Mac development input); fixture/recovered world names via `source_label`
-- [ ] iPad build and user Pencil/palm check of the new layout (drag-to-place, inspector, right-side Library)
+- [x] iPad Debug build installed + launched on iPad Air 4 (source fingerprint `7bda435d…`)
+- [ ] User Pencil/palm check of the new layout (drag-to-place, inspector, right-side Library)
 - [ ] Cosmetic: scrub accent edge line crosses right-aligned value text at high fill
+
+## Sculpt/paint visibility on iPad (2026-10-01, ADR 0008)
+
+User report: Sculpt shows the ring but no visible shape change on iPad; Paint partial in places.
+
+- [x] Mac rendered GPU readback (Metal, Vulkan, Mobile): uploaded layers match the document
+- [x] Root cause on Mac: magnitudes too small (rate × strength × pressure × spread) + steep blend
+- [x] Tuning: sculpt 5 m/s, sculpt strength 1.0, pressure gamma 0.5, blend sharpness 0.15
+- [x] Diagnostics: `verify_gpu()` + "Verify GPU" button, stroke probe in overlay, `dev.py test --rendered`
+  (416 Godot + 112 Python tests pass; rendered GPU test passes on Mac Metal and Vulkan, Mobile renderer)
+- [x] Mac selftest screenshots: sculpt relief and soft-edged paint now visible (were invisible before)
+- [x] iPad Debug build installed + launched on iPad Air 4 (source fingerprint `f874ee2f…`)
+- [x] iPad check (user, build `f874ee2f…`): sculpt + paint work as expected. No probe numbers captured.
+- [ ] Optional: record stroke-probe numbers (pressure range, Δh) as evidence before any re-tune
+- [ ] Mac selftest S04 tap-select fails: the anchored inspector opened after placement covers the
+  boulder that S04 taps (UI redesign regression; separate from sculpt)
+- [ ] Faint bright line on terrain visible before any edit (seam or edge artifact?), investigate
 
 ## Editor build (started 2026-10-01)
 

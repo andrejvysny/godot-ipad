@@ -30,10 +30,12 @@
     "path_width_max_m": 6.0,
     "path_width_default_m": 3.0,
     "strength_default": 0.8,
-    "sculpt_speed_m_per_s": 2.0,
+    "sculpt_strength_default": 1.0,
+    "sculpt_speed_m_per_s": 5.0,
     "fixed_step_s": 0.016666666666666666,
     "stall_cancel_s": 0.25,
     "pressure_min_factor": 0.2,
+    "pressure_gamma": 0.5,
     "input_latency_s": 0.05
   },
   "placement": {

@@ -6,6 +6,10 @@ a unique WorldPainterTests/NAME-<suffix> user directory, even with the same sand
 quit(), so every invocation is bounded and stdin is /dev/null.
 
 Usage: python3 scripts/godot_test.py [--sandbox NAME] [--suite unit|integration] [--filter TEXT]
+       [--rendered [--driver metal|vulkan|...]]
+
+--rendered runs the tests in a window (real renderer, not --headless) so GPU readback tests run;
+the filter defaults to "gpu" and the run fails if any test printed "NOT RUN".
 """
 from __future__ import annotations
 
@@ -62,8 +66,14 @@ def import_errors(output: str) -> list[str]:
             if "ERROR" in line or "Parse Error" in line]
 
 
-def godot_tests(app_dir: Path, suite: str = "", filt: str = "") -> tuple[int, str]:
-    args = [GODOT, "--headless", "--path", str(app_dir), "--script", "res://tests/run_tests.gd", "--"]
+def godot_tests(app_dir: Path, suite: str = "", filt: str = "", rendered: bool = False,
+                driver: str = "") -> tuple[int, str]:
+    args = [GODOT] + ([] if rendered else ["--headless"]) + ["--path", str(app_dir)]
+    if driver:
+        args += ["--rendering-method", "mobile", "--rendering-driver", driver]
+    elif rendered:
+        args += ["--rendering-method", "mobile"]
+    args += ["--script", "res://tests/run_tests.gd", "--"]
     if suite:
         args.append(f"--suite={suite}")
     if filt:
@@ -77,6 +87,8 @@ def main() -> int:
     p.add_argument("--suite", default="")
     p.add_argument("--filter", default="")
     p.add_argument("--no-import", action="store_true")
+    p.add_argument("--rendered", action="store_true", help="windowed run (GPU tests); fails on NOT RUN")
+    p.add_argument("--driver", default="", help="rendering driver, e.g. metal or vulkan")
     a = p.parse_args()
     # Each invocation owns both its import cache and writable user://, including same-name runs.
     if a.sandbox and (Path(a.sandbox).name != a.sandbox or a.sandbox in (".", "..")):
@@ -100,8 +112,15 @@ def main() -> int:
             print(f"godot --import rc={rc}")
             print("\n".join(errors[:80]))
             return rc or 1
-    rc, out = godot_tests(app_dir, a.suite, a.filter)
+    filt = a.filter or ("gpu" if a.rendered else "")
+    if a.rendered or a.driver:
+        rc, out = godot_tests(app_dir, a.suite, filt, True, a.driver)
+    else:
+        rc, out = godot_tests(app_dir, a.suite, filt)
     print(out)
+    if a.rendered and "NOT RUN" in out:
+        print("rendered run: output contains NOT RUN")
+        return rc or 1
     return rc
 
 

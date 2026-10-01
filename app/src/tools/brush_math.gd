@@ -32,12 +32,16 @@ static func path_falloff(q: float) -> float:
 	return s * s
 
 
-## Unavailable or disabled pressure is full strength, never zero.
+## Unavailable or disabled pressure is full strength, never zero. gamma 1 is the spec §12.1 linear
+## mapping; gamma < 1 lifts light Pencil pressure (normal writing force is a small fraction of
+## maximumPossibleForce). A non-finite or non-positive gamma falls back to linear.
 static func pressure_factor(pressure_valid: bool, pressure: float, enabled: bool,
-		min_factor: float = PRESSURE_MIN_FACTOR) -> float:
+		min_factor: float = PRESSURE_MIN_FACTOR, gamma: float = 1.0) -> float:
 	if not (enabled and pressure_valid) or is_nan(pressure):
 		return 1.0
-	return min_factor + (1.0 - min_factor) * clampf(pressure, 0.0, 1.0)
+	if not (is_finite(gamma) and gamma > 0.0):
+		gamma = 1.0
+	return min_factor + (1.0 - min_factor) * pow(clampf(pressure, 0.0, 1.0), gamma)
 
 
 ## Target resampling spacing from spec §12.1; kernels are continuous and do not depend on it.
