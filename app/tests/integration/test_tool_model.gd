@@ -2,7 +2,7 @@ extends TestCase
 ## Editor v2 tool model on ToolController (docs/editor-v2.md §1, §2): modes, tools, invert,
 ## settings, armed placement, height pick, stubs, scatter source, duplicate, paths.
 
-const STUBS := ["flatten", "noise", "spray", "tint", "pick", "scatter", "erase", "fill"]
+const STUBS := ["scatter", "erase", "fill"]
 
 var h: ToolHarness
 var tool_events: Array[String] = []
@@ -178,27 +178,25 @@ func test_paint_layers_and_erase() -> void:
 	h.ctrl.set_setting("paint", "layer", 0)
 	_tap(40, 40)
 	assert_eq(h.commits.size(), 1)
-	assert_eq(h.commits[0].label, "Paint grass")
+	assert_eq(h.commits[0].label, "Paint Grass")
 	h.ctrl.set_setting("paint", "layer", 1)
 	h.act("tool_begin", h.at(60, 40, 2.0))
 	h.act("tool_move", h.at(64, 40, 2.02))
 	h.act("tool_end", h.at(64, 40, 2.04))
-	assert_eq(h.commits[h.commits.size() - 1].label, "Paint dirt")
-	var commits := h.commits.size()
+	assert_eq(h.commits[h.commits.size() - 1].label, "Paint Dirt")
 	for layer in [2, 3]:
-		h.diagnostics.clear()
 		h.ctrl.set_setting("paint", "layer", layer)
 		h.act("tool_begin", h.at(40, 60, 3.0))
-		assert_false(h.ctrl.has_active_operation(), "layer %d" % layer)
+		assert_true(h.ctrl.has_active_operation(), "layer %d paints" % layer)
 		h.act("tool_end", h.at(40, 60, 3.02))
-		assert_eq(h.diagnostics, [ToolController.LATER_PAINT_MESSAGE])
+		assert_eq(h.commits[h.commits.size() - 1].label, "Paint " + ["Grass", "Dirt", "Rock", "Sand"][layer])
+		assert_eq(ControlCodec.get_overlay(h.doc.get_control_at_sample(80, 120)), layer)
 	h.ctrl.set_setting("paint", "layer", 1)
 	h.ctrl.set_inverted(true)
-	h.diagnostics.clear()
 	h.act("tool_begin", h.at(40, 60, 4.0))
-	assert_false(h.ctrl.has_active_operation())
-	assert_eq(h.diagnostics, ["Rock and sand painting arrive in a later build."])
-	assert_eq(h.commits.size(), commits)
+	h.act("tool_end", h.at(40, 60, 4.02))
+	assert_eq(h.commits[h.commits.size() - 1].label, "Erase paint")
+	assert_true(h.diagnostics.is_empty(), "no later-build messages")
 
 
 func test_stub_tools_report_and_create_no_operation() -> void:
@@ -318,8 +316,7 @@ func test_height_pick_samples_the_tapped_terrain_into_flatten_target() -> void:
 	assert_eq(h.commits.size(), 0, "no history")
 	assert_false(h.ctrl.has_active_operation())
 	_tap(60, 60, 2.0)
-	assert_eq(h.diagnostics.size(), 2, "the stub tool message follows once picking is over")
-	assert_eq(h.diagnostics[1], "Flatten arrives in a later build.")
+	assert_eq(h.diagnostics.size(), 1, "flatten is a working tool: no stub message once picking is over")
 
 
 func test_height_pick_miss_or_ui_release_keeps_picking() -> void:

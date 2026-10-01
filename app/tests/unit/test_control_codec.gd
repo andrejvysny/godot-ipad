@@ -68,3 +68,67 @@ func test_supported_layout() -> void:
 	assert_false(ControlCodec.is_supported(5 << 22), "overlay id 5 has no material slot")
 	assert_eq(ControlCodec.default_value(), 0x00000001, "default: auto bit only")
 	assert_true(ControlCodec.is_supported(ControlCodec.default_value()))
+
+
+# --- v2 paint rules (docs/editor-v2.md §4) -----------------------------------------------
+
+const OTHER := 0x00003FFE  # nav, hole, reserved, uv scale, uv rotation: never owned by paint
+
+
+func _ctl(is_auto: bool, base: int, overlay: int, blend: int) -> int:
+	return ControlCodec.encode(OTHER, {"auto": is_auto, "base_id": base, "overlay_id": overlay, "blend": blend})
+
+
+## {s: start [auto, base, overlay, blend], layer, c, e: expected [auto, base, overlay, blend]}
+func test_paint_layer_rule_table() -> void:
+	var cases: Array[Dictionary] = [
+		{"n": "rule 1 same overlay", "s": [true, 0, 1, 51], "layer": 1, "c": 0.5, "e": [true, 0, 1, 153]},
+		{"n": "rule 1 manual", "s": [false, 0, 1, 51], "layer": 1, "c": 1.0, "e": [false, 0, 1, 255]},
+		{"n": "rule 2 empty blend", "s": [true, 0, 0, 0], "layer": 2, "c": 0.4, "e": [true, 0, 2, 102]},
+		{"n": "rule 2 keeps stored base under auto", "s": [true, 3, 0, 0], "layer": 1, "c": 1.0, "e": [true, 3, 1, 255]},
+		{"n": "rule 2 manual", "s": [false, 2, 0, 0], "layer": 3, "c": 1.0, "e": [false, 2, 3, 255]},
+		{"n": "rule 3 manual base fades", "s": [false, 2, 1, 200], "layer": 2, "c": 0.5, "e": [false, 2, 1, 100]},
+		{"n": "rule 3 needs manual: auto base ignored", "s": [true, 2, 1, 128], "layer": 2, "c": 0.25,
+				"e": [true, 2, 1, 64]},
+		{"n": "rule 4 collapse at 0.75", "s": [true, 0, 1, 192], "layer": 3, "c": 0.2, "e": [false, 1, 3, 51]},
+		{"n": "rule 4 collapse manual", "s": [false, 0, 1, 255], "layer": 2, "c": 1.0, "e": [false, 1, 2, 255]},
+		{"n": "rule 5 just under collapse", "s": [true, 0, 1, 191], "layer": 2, "c": 0.2, "e": [true, 0, 1, 115]},
+		{"n": "rule 5 c <= 0.5", "s": [true, 0, 1, 128], "layer": 2, "c": 0.25, "e": [true, 0, 1, 64]},
+		{"n": "rule 5 c == 0.5 boundary", "s": [true, 0, 1, 128], "layer": 2, "c": 0.5, "e": [true, 0, 1, 0]},
+		{"n": "rule 5 c > 0.5 replaces overlay", "s": [true, 0, 1, 128], "layer": 2, "c": 0.8, "e": [true, 0, 2, 153]},
+		{"n": "rule 5 just above boundary", "s": [true, 0, 1, 128], "layer": 2, "c": 0.5001, "e": [true, 0, 2, 0]},
+	]
+	for k in cases:
+		var s: Array = k.s
+		var e: Array = k.e
+		var got := ControlCodec.paint_layer(_ctl(s[0], s[1], s[2], s[3]), k.layer, k.c)
+		assert_eq(got, _ctl(e[0], e[1], e[2], e[3]), str(k.n))
+
+
+func test_erase_paint_rule_table() -> void:
+	var cases: Array[Dictionary] = [
+		{"n": "auto fades", "s": [true, 0, 1, 200], "c": 0.5, "e": [true, 0, 1, 100]},
+		{"n": "auto full erase", "s": [true, 0, 1, 200], "c": 1.0, "e": [true, 0, 1, 0]},
+		{"n": "manual c <= 0.5", "s": [false, 2, 1, 200], "c": 0.25, "e": [false, 2, 1, 100]},
+		{"n": "manual c == 0.5 boundary", "s": [false, 2, 1, 200], "c": 0.5, "e": [false, 2, 1, 0]},
+		{"n": "manual c > 0.5 restores auto", "s": [false, 2, 1, 200], "c": 0.8, "e": [true, 2, 2, 102]},
+		{"n": "manual full erase", "s": [false, 2, 1, 255], "c": 1.0, "e": [true, 2, 2, 0]},
+		{"n": "zero coverage keeps the value", "s": [false, 2, 1, 200], "c": 0.0, "e": [false, 2, 1, 200]},
+	]
+	for k in cases:
+		var s: Array = k.s
+		var e: Array = k.e
+		assert_eq(ControlCodec.erase_paint(_ctl(s[0], s[1], s[2], s[3]), k.c), _ctl(e[0], e[1], e[2], e[3]), str(k.n))
+
+
+func test_paint_and_erase_preserve_unowned_bits() -> void:
+	for start_auto in [true, false]:
+		for blend in [0, 100, 200, 255]:
+			for c in [0.1, 0.5, 0.9, 1.0]:
+				var v := _ctl(start_auto, 1, 2, blend)
+				var painted := ControlCodec.paint_layer(v, 3, c)
+				var erased := ControlCodec.erase_paint(v, c)
+				assert_eq(painted & ~ControlCodec.PAINT_OWNED_MASK & 0xFFFFFFFF, OTHER, "paint bits %s %d %s" % [start_auto, blend, c])
+				assert_eq(erased & ~ControlCodec.PAINT_OWNED_MASK & 0xFFFFFFFF, OTHER, "erase bits")
+	var all_ones := ControlCodec.paint_layer(0xFFFFFFFF, 2, 0.6)
+	assert_eq(all_ones & ControlCodec.U32, all_ones, "result is a uint32")

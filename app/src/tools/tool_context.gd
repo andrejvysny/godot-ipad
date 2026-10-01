@@ -37,6 +37,8 @@ func mark_result(res: Dictionary) -> void:
 		terrain.mark_dirty(TerrainView.MAP_HEIGHT, loc)
 	for loc: Vector2i in res.get("dirty_controls", []):
 		terrain.mark_dirty(TerrainView.MAP_CONTROL, loc)
+	for loc: Vector2i in res.get("dirty_colors", []):
+		terrain.mark_dirty(TerrainView.MAP_COLOR, loc)
 
 
 ## `touched` is the EditTransaction.rollback() result {heights, controls, objects}.
@@ -46,6 +48,8 @@ func mark_touched(touched: Dictionary) -> void:
 			terrain.mark_dirty(TerrainView.MAP_HEIGHT, loc)
 		for loc: Vector2i in touched.get("controls", []):
 			terrain.mark_dirty(TerrainView.MAP_CONTROL, loc)
+		for loc: Vector2i in touched.get("colors", []):
+			terrain.mark_dirty(TerrainView.MAP_COLOR, loc)
 	if presenter != null:
 		for id: String in touched.get("objects", []):
 			presenter.sync_object(document, id)

@@ -72,6 +72,51 @@ static func encode_paint(existing: int, dirt_blend_u8: int) -> int:
 	return v & U32
 
 
+## Paints material `layer` with coverage `c` onto the stroke-start value (docs/editor-v2.md §4
+## rules 1-5). Bits outside PAINT_OWNED_MASK and the stored base id under the auto bit survive.
+static func paint_layer(start: int, layer: int, c: float) -> int:
+	var v := start & U32
+	var is_auto := (v & AUTO_BIT) != 0
+	var base := get_base(v)
+	var overlay := get_overlay(v)
+	var b := float(get_blend(v)) / 255.0
+	if overlay == layer:
+		b = b + (1.0 - b) * c
+	elif get_blend(v) == 0:
+		overlay = layer
+		b = c
+	elif not is_auto and base == layer:
+		b = b * (1.0 - c)
+	elif b >= 0.75:
+		is_auto = false
+		base = overlay
+		overlay = layer
+		b = c
+	elif c <= 0.5:
+		b = b * (1.0 - 2.0 * c)
+	else:
+		overlay = layer
+		b = 2.0 * c - 1.0
+	return encode(v, {"base_id": base, "overlay_id": overlay, "blend": quantize_blend(b), "auto": is_auto})
+
+
+## Erases manual paint with coverage `c`, revealing the rule layer (§4 Erase).
+static func erase_paint(start: int, c: float) -> int:
+	var v := start & U32
+	var is_auto := (v & AUTO_BIT) != 0
+	var overlay := get_overlay(v)
+	var b := float(get_blend(v)) / 255.0
+	if is_auto:
+		b = b * (1.0 - c)
+	elif c <= 0.5:
+		b = b * (1.0 - 2.0 * c)
+	else:
+		is_auto = true
+		overlay = get_base(v)
+		b = 2.0 * (1.0 - c)
+	return encode(v, {"overlay_id": overlay, "blend": quantize_blend(b), "auto": is_auto})
+
+
 ## Dirt coverage in [0, 1] as seen by the paint tools. Values whose base/overlay are not
 ## the grass/dirt invariant are interpreted by the base id alone (dirt base = fully dirt).
 static func dirt_blend01(value: int) -> float:
