@@ -73,9 +73,16 @@ static func encode_paint(existing: int, dirt_blend_u8: int) -> int:
 
 
 ## Paints material `layer` with coverage `c` onto the stroke-start value (docs/editor-v2.md §4
-## rules 1-5). Bits outside PAINT_OWNED_MASK and the stored base id under the auto bit survive.
+## rules 1-4). Bits outside PAINT_OWNED_MASK and the stored base id under the auto bit survive.
+##
+## Rule 4 (a third material over a two-material sample): the target mix is (1 - c) * old + c * layer,
+## which needs three slots. It keeps the two heaviest of {stronger old, weaker old, layer}: below
+## the point where layer outweighs the weaker old material the sample is unchanged; from there
+## on the weaker one is replaced by layer at the same share, so the swap never jumps in weight.
 static func paint_layer(start: int, layer: int, c: float) -> int:
 	var v := start & U32
+	if c <= 0.0:
+		return v
 	var is_auto := (v & AUTO_BIT) != 0
 	var base := get_base(v)
 	var overlay := get_overlay(v)
@@ -87,16 +94,17 @@ static func paint_layer(start: int, layer: int, c: float) -> int:
 		b = c
 	elif not is_auto and base == layer:
 		b = b * (1.0 - c)
-	elif b >= 0.75:
-		is_auto = false
-		base = overlay
-		overlay = layer
-		b = c
-	elif c <= 0.5:
-		b = b * (1.0 - 2.0 * c)
 	else:
+		var strong_is_overlay := b >= 0.5
+		var w_strong := (1.0 - c) * maxf(b, 1.0 - b)
+		var w_weak := (1.0 - c) * minf(b, 1.0 - b)
+		if c < w_weak:
+			return v
+		if strong_is_overlay:
+			is_auto = false  # the overlay material becomes the stored base
+			base = overlay
 		overlay = layer
-		b = 2.0 * c - 1.0
+		b = c / (c + w_strong)
 	return encode(v, {"base_id": base, "overlay_id": overlay, "blend": quantize_blend(b), "auto": is_auto})
 
 

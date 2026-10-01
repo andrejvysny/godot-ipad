@@ -124,8 +124,11 @@ Control state: auto A, base B, overlay O, blend b = blend_u8 / 255. Painting lay
 1. O == L: b' = b + (1 − b)·c.
 2. else b == 0: O' = L, b' = c.
 3. else !A and B == L: b' = b·(1 − c).
-4. else if b ≥ 0.75: collapse — A' = false, B' = O, O' = L, b' = c.
-5. else: c ≤ 0.5: b' = b·(1 − 2c); c > 0.5: O' = L, b' = 2c − 1.
+4. else (a third material; ADR 0012): the target mix (1 − c)·old + c·L needs three slots, so keep
+   the two heaviest. Strong S = O if b ≥ 0.5 else B; w_S = (1 − c)·max(b, 1 − b),
+   w_W = (1 − c)·min(b, 1 − b). If c < w_W the sample is unchanged. Otherwise the weaker material is
+   replaced by L: if S = O then A' = false, B' = O; O' = L; b' = c / (c + w_S). At the threshold
+   L takes exactly the weaker material's share, so the swap never jumps in weight.
 
 Erase: A: b' = b·(1 − c). !A: c ≤ 0.5: b' = b·(1 − 2c); c > 0.5: A' = true, O' = B,
 b' = 2(1 − c).

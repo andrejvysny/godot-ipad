@@ -65,3 +65,31 @@ grows without bound and the 250 ms check fires. The cancel was the symptom, the 
   brush on a slow device lowers the frame rate instead of failing the stroke.
 - Per-step kernel cost (GDScript) is still high for noise/smooth at large radii; reducing it is a
   separate performance item, measured on the device first.
+
+## Painting a third material (GODOTIPAD-2)
+
+### Context
+
+Painting a material that is neither the base nor the overlay of a sample (editor-v2 rule 5) faded
+the existing overlay for coverage ≤ 0.5 and introduced the new material only above 0.5. Rendered
+HOST repro (`test_paint_repro.gd`): on a grass/dirt mix, rock at strength 0.3 and 0.6 showed no rock
+and erased the dirt into a green band; spray (coverage ≤ 0.35 by spec) never showed rock at all; a
+full-strength band was visibly narrower inside the mix. Region borders, the world edge and far
+views showed no seams or blocks.
+
+### Decision
+
+Rules 4 and 5 are replaced by one projection rule (`docs/editor-v2.md` §4 rule 4): keep the two
+heaviest of {stronger old, weaker old, new} in the (1 − c)·old + c·new mix. Below the point where
+the new material outweighs the weaker old one the sample is unchanged (nothing is erased); from
+there the weaker one is replaced at the same share. A third material now appears by coverage
+≤ 1/3 for any two-material sample, and spray works on mixed ground.
+
+### Consequences
+
+- Two materials per sample remain a format limit: dropping the weaker material slightly
+  overstates the other two (a 0.6 stroke over a 50/50 mix shows 75 % of the new material).
+- Coverage below ~35 % stays hard to see because of the terrain height blend (ADR 0008); single
+  spray strokes on plain ground are faint by design and build up over strokes.
+- Small brushes (1 m radius = 2 samples at 0.5 m spacing) draw blocky, cross-shaped dabs: that is
+  the control-map resolution, not an upload defect.

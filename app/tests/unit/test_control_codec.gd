@@ -88,15 +88,18 @@ func test_paint_layer_rule_table() -> void:
 		{"n": "rule 2 keeps stored base under auto", "s": [true, 3, 0, 0], "layer": 1, "c": 1.0, "e": [true, 3, 1, 255]},
 		{"n": "rule 2 manual", "s": [false, 2, 0, 0], "layer": 3, "c": 1.0, "e": [false, 2, 3, 255]},
 		{"n": "rule 3 manual base fades", "s": [false, 2, 1, 200], "layer": 2, "c": 0.5, "e": [false, 2, 1, 100]},
-		{"n": "rule 3 needs manual: auto base ignored", "s": [true, 2, 1, 128], "layer": 2, "c": 0.25,
-				"e": [true, 2, 1, 64]},
-		{"n": "rule 4 collapse at 0.75", "s": [true, 0, 1, 192], "layer": 3, "c": 0.2, "e": [false, 1, 3, 51]},
+		{"n": "rule 3 needs manual: auto base goes to rule 4", "s": [true, 2, 1, 128], "layer": 2, "c": 0.25,
+				"e": [true, 2, 1, 128]},
+		{"n": "rule 4 strong overlay collapses", "s": [true, 0, 1, 192], "layer": 3, "c": 0.2, "e": [false, 1, 3, 64]},
 		{"n": "rule 4 collapse manual", "s": [false, 0, 1, 255], "layer": 2, "c": 1.0, "e": [false, 1, 2, 255]},
-		{"n": "rule 5 just under collapse", "s": [true, 0, 1, 191], "layer": 2, "c": 0.2, "e": [true, 0, 1, 115]},
-		{"n": "rule 5 c <= 0.5", "s": [true, 0, 1, 128], "layer": 2, "c": 0.25, "e": [true, 0, 1, 64]},
-		{"n": "rule 5 c == 0.5 boundary", "s": [true, 0, 1, 128], "layer": 2, "c": 0.5, "e": [true, 0, 1, 0]},
-		{"n": "rule 5 c > 0.5 replaces overlay", "s": [true, 0, 1, 128], "layer": 2, "c": 0.8, "e": [true, 0, 2, 153]},
-		{"n": "rule 5 just above boundary", "s": [true, 0, 1, 128], "layer": 2, "c": 0.5001, "e": [true, 0, 2, 0]},
+		{"n": "rule 4 below the weaker share keeps the sample", "s": [true, 0, 1, 191], "layer": 2, "c": 0.2, "e": [true, 0, 1, 191]},
+		{"n": "rule 4 50/50 low coverage keeps", "s": [true, 0, 1, 128], "layer": 2, "c": 0.25, "e": [true, 0, 1, 128]},
+		{"n": "rule 4 50/50 just below threshold", "s": [true, 0, 1, 128], "layer": 2, "c": 0.33, "e": [true, 0, 1, 128]},
+		{"n": "rule 4 50/50 just above threshold swaps weaker", "s": [true, 0, 1, 128], "layer": 2, "c": 0.34, "e": [false, 1, 2, 129]},
+		{"n": "rule 4 50/50 c 0.5", "s": [true, 0, 1, 128], "layer": 2, "c": 0.5, "e": [false, 1, 2, 170]},
+		{"n": "rule 4 50/50 c 0.8", "s": [true, 0, 1, 128], "layer": 2, "c": 0.8, "e": [false, 1, 2, 227]},
+		{"n": "rule 4 strong auto base is kept", "s": [true, 0, 1, 64], "layer": 3, "c": 0.5, "e": [true, 0, 3, 146]},
+		{"n": "zero coverage keeps the value", "s": [true, 0, 1, 128], "layer": 2, "c": 0.0, "e": [true, 0, 1, 128]},
 	]
 	for k in cases:
 		var s: Array = k.s
@@ -132,3 +135,25 @@ func test_paint_and_erase_preserve_unowned_bits() -> void:
 				assert_eq(erased & ~ControlCodec.PAINT_OWNED_MASK & 0xFFFFFFFF, OTHER, "erase bits")
 	var all_ones := ControlCodec.paint_layer(0xFFFFFFFF, 2, 0.6)
 	assert_eq(all_ones & ControlCodec.U32, all_ones, "result is a uint32")
+
+
+## Spray (coverage <= 0.35) and light strokes must show a third material on a two-material sample,
+## and the new material's share never decreases as coverage grows.
+func test_third_material_appears_and_grows_monotonically() -> void:
+	for blend in [64, 128, 192]:
+		var v := _ctl(false, 0, 1, blend)
+		var last_share := 0.0
+		var appeared_at := -1.0
+		for i in range(1, 101):
+			var c := float(i) / 100.0
+			var out := ControlCodec.paint_layer(v, 2, c)
+			var share := 0.0
+			if ControlCodec.get_overlay(out) == 2:
+				share = float(ControlCodec.get_blend(out)) / 255.0
+			assert_true(share + 1.0 / 255.0 >= last_share, "share monotonic at blend %d c %.2f" % [blend, c])
+			last_share = share
+			if share > 0.0 and appeared_at < 0.0:
+				appeared_at = c
+		assert_true(appeared_at > 0.0 and appeared_at <= 0.34, "third material visible by c 0.34 (blend %d: %.2f)" % [blend, appeared_at])
+	var spray := ControlCodec.paint_layer(_ctl(false, 0, 1, 128), 2, 0.35)
+	assert_eq(ControlCodec.get_overlay(spray), 2, "full spray coverage introduces the material")
