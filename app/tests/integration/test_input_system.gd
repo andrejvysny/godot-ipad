@@ -343,7 +343,7 @@ func test_palm_guard_params_come_from_config() -> void:
 	fake = FakeProvider.new()
 	_make_system("iOS", fake)
 	assert_eq(sys.router.finger_ui_guard_s, 0.3)
-	assert_eq(sys.router.palm_radius_pt, 30.0)
+	assert_eq(sys.router.palm_radius_pt, 60.0)
 
 
 func test_ios_pencil_ui_press_is_pencil_source() -> void:

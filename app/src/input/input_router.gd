@@ -53,7 +53,7 @@ var ui_hit_test: Callable = func(_p: Vector2) -> bool: return false
 ## Seconds after a Pencil contact ends during which finger UI presses are ignored (palm guard).
 var finger_ui_guard_s: float = 0.3
 ## Finger contacts with a native major radius (points, not viewport units) above this are palms.
-var palm_radius_pt: float = 30.0
+var palm_radius_pt: float = 60.0
 
 var _state: State = State.IDLE
 var _contacts: Dictionary = {}  # int -> Contact
@@ -229,7 +229,8 @@ func _begin_finger_ui(c: Contact, s: PointerSample, out: Array[Dictionary]) -> v
 		out.append(_diag("finger_ui_guarded", "finger UI ignored right after a Pencil contact", c.id))
 		return
 	if s.major_radius_valid and s.major_radius > palm_radius_pt:
-		out.append(_diag("finger_ui_palm", "finger UI ignored: palm-sized contact", c.id))
+		out.append(_diag("finger_ui_palm", "finger UI ignored: palm-sized contact (%.1f pt > %.1f pt)"
+				% [s.major_radius, palm_radius_pt], c.id))
 		return
 	c.role = ROLE_FINGER_UI_ACTIVE
 	c.suppressed = false

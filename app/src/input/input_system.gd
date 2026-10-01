@@ -60,7 +60,7 @@ var native_provider_path: String = NATIVE_PROVIDER_PATH
 var orbit_threshold_pt: float = 5.0
 ## Palm guards for finger UI (config input.*); forwarded to the router.
 var finger_ui_guard_s: float = 0.3
-var palm_radius_pt: float = 30.0
+var palm_radius_pt: float = 60.0
 
 var router := InputRouter.new()
 var mapper := CoordinateMapper.new()
@@ -396,6 +396,8 @@ func _emit_action(a: Dictionary) -> void:
 				_inject_ui(a)
 			ui_action.emit(a)
 		_:
+			if str(a.get("code", "")).begins_with("finger_ui_"):
+				print("input: %s" % a.message)  # palm-guard calibration evidence in the device log
 			_remember_diagnostic(a)
 			diagnostic.emit(a)
 

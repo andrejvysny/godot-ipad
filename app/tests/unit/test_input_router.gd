@@ -316,12 +316,14 @@ func test_pencil_cancel_also_starts_guard_window() -> void:
 
 
 func test_palm_radius_finger_is_not_ui() -> void:
-	var a := _pt(FINGER, 10, BEGIN, 50, 300, 1.0, 45.0)
+	var a := _pt(FINGER, 10, BEGIN, 50, 300, 1.0, 80.0)
 	assert_eq(a[0].code, "finger_ui_palm")
-	_assert_types(_pt(FINGER, 10, MOVE, 60, 300, 1.1, 45.0), [])
+	assert_true(str(a[0].message).contains("80.0 pt"), "message reports the measured radius")
+	_assert_types(_pt(FINGER, 10, MOVE, 60, 300, 1.1, 80.0), [])
 	_pt(FINGER, 10, END, 60, 300, 1.2)
 	assert_eq(r.state_name(), "IDLE")
-	_assert_types(_pt(FINGER, 11, BEGIN, 50, 300, 2.0, 10.0), ["ui_press"], "small radius is a finger")
+	# UIKit reports fingertips in ~5 pt steps up to ~45 pt; they must stay fingers.
+	_assert_types(_pt(FINGER, 11, BEGIN, 50, 300, 2.0, 41.7), ["ui_press"], "fingertip radius is a finger")
 	_pt(FINGER, 11, END, 50, 300, 2.1)
 	_assert_types(_pt(FINGER, 12, BEGIN, 50, 300, 3.0), ["ui_press"], "unknown radius is a finger")
 

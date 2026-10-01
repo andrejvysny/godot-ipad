@@ -19,7 +19,7 @@ Status: accepted 2026-10-01 (user decision). Supersedes the "fingers never opera
 
 ## Palm guards
 
-Initial values: `finger_ui_guard_s = 0.3`, `palm_radius_pt = 30.0` (config `input`). Both are
+Initial values: `finger_ui_guard_s = 0.3`, `palm_radius_pt = 60.0` (raised from 30 on 2026-10-01: device fingertip taps were rejected; UIKit fingertip radii reach ~45 pt) (config `input`). Both are
 guesses and need device calibration.
 
 ## Evidence
