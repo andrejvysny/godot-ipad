@@ -12,16 +12,18 @@ extends TerrainView
 ## Changing an Image alone never refreshes the GPU texture array.
 
 const DEBUG_VIEWS := ["normal", "control_blend", "heightmap"]
-## Terrain3D's own neutral color/roughness default (constants.h COLOR_ROUGHNESS): white
-## albedo multiplier, roughness offset ~0. Reproducible configuration, not authored data.
-const NEUTRAL_COLOR := Color(1.0, 1.0, 1.0, 0.5)
+const UPLOAD_TYPES := [Terrain3DRegion.TYPE_HEIGHT, Terrain3DRegion.TYPE_CONTROL, Terrain3DRegion.TYPE_COLOR]
+const UPLOAD_STATS := ["uploads_height", "uploads_control", "uploads_color"]
+const SHADER_PATH := "res://src/terrain/world_terrain.gdshader"
 
 var _terrain: Terrain3D
 var _camera: Camera3D
 var _doc: WorldDocument
 var _regions: Dictionary = {}  # Vector2i -> Terrain3DRegion
-var _dirty: Array[Dictionary] = [{}, {}]  # per map kind: Vector2i -> true
-var _last_upload_frame: PackedInt64Array = PackedInt64Array([-1, -1])
+var _dirty: Array[Dictionary] = [{}, {}, {}]  # per map kind: Vector2i -> true
+var _last_upload_frame: PackedInt64Array = PackedInt64Array([-1, -1, -1])
+var _rules: TerrainRules = TerrainRules.defaults()
+var _rule_highlight := false
 var _stats: Dictionary = {}
 var _debug_view := "normal"
 var _region_grid := false
@@ -50,6 +52,7 @@ func initialize(doc: WorldDocument) -> String:
 	if _terrain == null:
 		_create_terrain()
 	_load_regions(doc)
+	set_rules(doc.rules)
 	return ""
 
 
@@ -59,7 +62,7 @@ func replace_document(doc: WorldDocument) -> String:
 
 
 func mark_dirty(kind: int, loc: Vector2i) -> String:
-	if kind != MAP_HEIGHT and kind != MAP_CONTROL:
+	if not MAP_KINDS.has(kind):
 		return "unknown map kind %d" % kind
 	if not _regions.has(loc):
 		return "region %s is not loaded" % loc
@@ -68,7 +71,7 @@ func mark_dirty(kind: int, loc: Vector2i) -> String:
 
 
 func has_pending_uploads() -> bool:
-	return not (_dirty[MAP_HEIGHT].is_empty() and _dirty[MAP_CONTROL].is_empty())
+	return not (_dirty[MAP_HEIGHT].is_empty() and _dirty[MAP_CONTROL].is_empty() and _dirty[MAP_COLOR].is_empty())
 
 
 ## Uploads dirty regions, at most once per map kind per process frame. Work for a kind that
@@ -79,7 +82,7 @@ func flush() -> void:
 	var t0 := Time.get_ticks_usec()
 	var frame := Engine.get_process_frames()
 	var uploaded := false
-	for kind in [MAP_HEIGHT, MAP_CONTROL]:
+	for kind: int in MAP_KINDS:
 		if _dirty[kind].is_empty() or _last_upload_frame[kind] == frame:
 			continue
 		_upload(kind)
@@ -87,6 +90,21 @@ func flush() -> void:
 		uploaded = true
 	if uploaded:
 		_stats.last_flush_ms = (Time.get_ticks_usec() - t0) / 1000.0
+
+
+## Pushes the world's auto-paint rules to the shader. Cheap; call on every rules change.
+func set_rules(rules: TerrainRules) -> void:
+	_rules = rules.clone() if rules != null else TerrainRules.defaults()
+	_apply_rule_uniforms()
+
+
+func set_rule_highlight(on: bool) -> void:
+	_rule_highlight = on
+	_apply_rule_uniforms()
+
+
+func get_rule_highlight() -> bool:
+	return _rule_highlight
 
 
 func set_camera(cam: Camera3D) -> void:
@@ -157,6 +175,7 @@ func verify_matches_document(doc: WorldDocument) -> PackedStringArray:
 		var rb := doc.get_region(loc)
 		_compare_map(out, loc, "height", region.get_height_map(), rb.height_bytes())
 		_compare_map(out, loc, "control", region.get_control_map(), rb.control_bytes())
+		_compare_map(out, loc, "color", region.get_color_map(), rb.color_bytes(), Image.FORMAT_RGBA8)
 	return out
 
 
@@ -204,6 +223,9 @@ func _create_terrain() -> void:
 	t.vertex_spacing = WorldConstants.SAMPLE_SPACING
 	var mat := Terrain3DMaterial.new()
 	mat.auto_shader = false
+	# Set the project shader before any parameter: parameters belong to the active shader.
+	mat.shader_override = load(SHADER_PATH) as Shader
+	mat.shader_override_enabled = true
 	mat.set_shader_param("blend_sharpness", TerrainMaterials.BLEND_SHARPNESS)
 	# set_material/set_assets create the collision manager, so the mode sticks before the
 	# node enters the tree and no collision shapes are ever built.
@@ -215,6 +237,7 @@ func _create_terrain() -> void:
 	if _camera != null:
 		t.set_camera(_camera)
 	_apply_debug_state()
+	_apply_rule_uniforms()
 
 
 func _load_regions(doc: WorldDocument) -> void:
@@ -231,8 +254,8 @@ func _load_regions(doc: WorldDocument) -> void:
 	data.update_maps(Terrain3DRegion.TYPE_MAX, true, false)
 	data.calc_height_range(true)
 	_doc = doc
-	_dirty = [{}, {}]
-	_last_upload_frame = PackedInt64Array([-1, -1])
+	_dirty = [{}, {}, {}]
+	_last_upload_frame = PackedInt64Array([-1, -1, -1])
 	_reset_stats()
 
 
@@ -244,7 +267,7 @@ func _build_region(rb: RegionBuffers) -> Terrain3DRegion:
 	region.vertex_spacing = WorldConstants.SAMPLE_SPACING
 	region.set_height_map(Image.create_from_data(n, n, false, Image.FORMAT_RF, rb.height_bytes()))
 	region.set_control_map(ControlCodec.control_to_image(rb.control))
-	region.set_color_map(Terrain3DUtil.get_filled_image(Vector2i(n, n), NEUTRAL_COLOR, true, Image.FORMAT_RGBA8))
+	region.set_color_map(Image.create_from_data(n, n, false, Image.FORMAT_RGBA8, rb.color_bytes()))
 	return region
 
 
@@ -259,17 +282,18 @@ func _upload(kind: int) -> void:
 		if kind == MAP_HEIGHT:
 			region.get_height_map().set_data(n, n, false, Image.FORMAT_RF, rb.height_bytes())
 			region.calc_height_range()
-		else:
+		elif kind == MAP_CONTROL:
 			region.get_control_map().set_data(n, n, false, Image.FORMAT_RF, rb.control_bytes())
+		else:
+			region.get_color_map().set_data(n, n, false, Image.FORMAT_RGBA8, rb.color_bytes())
 		region.edited = true
 	if kind == MAP_HEIGHT:
 		_terrain.data.calc_height_range(false)
-	_terrain.data.update_maps(Terrain3DRegion.TYPE_HEIGHT if kind == MAP_HEIGHT else Terrain3DRegion.TYPE_CONTROL, false, false)
+	_terrain.data.update_maps(UPLOAD_TYPES[kind], false, false)
 	for loc in locs:
 		(_regions[loc] as Terrain3DRegion).edited = false
 	_dirty[kind].clear()
-	var key := "uploads_height" if kind == MAP_HEIGHT else "uploads_control"
-	_stats[key] += locs.size()
+	_stats[UPLOAD_STATS[kind]] += locs.size()
 
 
 func _apply_debug_state() -> void:
@@ -296,12 +320,35 @@ func _validate_document(doc: WorldDocument) -> String:
 	return ""
 
 
-func _compare_map(out: PackedStringArray, loc: Vector2i, label: String, img: Image, expected: PackedByteArray) -> void:
+## Shader parameters derived from the rules and highlight flag (degrees, metres). Headless
+## runs have no shader parameter list, so this is also the observable source of truth.
+func rule_uniforms() -> Dictionary:
+	return {
+		"rules_rock_enabled": _rules.rock_enabled,
+		"rules_rock_slope_deg": float(_rules.rock_slope_deg),
+		"rules_sand_enabled": _rules.sand_enabled,
+		"rules_sand_height_m": _rules.sand_height_dm / 10.0,
+		"rules_highlight": _rule_highlight,
+	}
+
+
+func _apply_rule_uniforms() -> void:
+	if _terrain == null or _terrain.material == null:
+		return
+	var uniforms := rule_uniforms()
+	for key: String in uniforms:
+		_terrain.material.set_shader_param(key, uniforms[key])
+
+
+func _compare_map(out: PackedStringArray, loc: Vector2i, label: String, img: Image, expected: PackedByteArray,
+		format: Image.Format = Image.FORMAT_RF) -> void:
 	var n := WorldConstants.REGION_SAMPLES
-	if img == null or img.get_format() != Image.FORMAT_RF or img.get_width() != n or img.get_height() != n:
+	if img == null or img.get_format() != format or img.get_width() != n or img.get_height() != n:
 		out.append("region %s %s map has wrong format or size" % [loc, label])
 		return
 	var actual := img.get_data()
+	if actual.size() > expected.size():
+		actual = actual.slice(0, expected.size())  # Terrain3D appends color-map mip levels
 	if actual == expected:
 		return
 	var first := -1
@@ -313,4 +360,4 @@ func _compare_map(out: PackedStringArray, loc: Vector2i, label: String, img: Ima
 
 
 func _reset_stats() -> void:
-	_stats = {"uploads_height": 0, "uploads_control": 0, "last_flush_ms": 0.0}
+	_stats = {"uploads_height": 0, "uploads_control": 0, "uploads_color": 0, "last_flush_ms": 0.0}

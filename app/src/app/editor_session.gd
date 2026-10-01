@@ -335,6 +335,10 @@ func _present_change(change: WorldChange) -> void:
 		terrain.mark_dirty(TerrainView.MAP_HEIGHT, loc)
 	for loc: Vector2i in change.control_regions():
 		terrain.mark_dirty(TerrainView.MAP_CONTROL, loc)
+	for loc: Vector2i in change.color_regions():
+		terrain.mark_dirty(TerrainView.MAP_COLOR, loc)
+	if change.has_rules():
+		terrain.set_rules(document.rules)
 	presenter.sync_objects(document, change.object_ids())
 	tools.validate_selection()
 
