@@ -28,4 +28,4 @@ GDScript uses the custom `TestCase` runner in `app/tests/`; Python uses `unittes
 
 ## Commit & Pull Request Guidelines
 
-No commits exist yet, so history provides no convention. Use concise imperative subjects. PRs should describe behavior, link relevant issues/spec sections, list validation, and include screenshots for UI changes. Track phased work in `TODO.md`. Never commit signing files, credentials, or generated caches; never auto-commit, push, or pull.
+Use concise imperative subjects with a conventional type (`feat:`, `fix:`, `docs:`, `perf:`, `chore:`). PRs should describe behavior, link relevant issues/spec sections, list validation, and include screenshots for UI changes. Track work in the Plane project `GODOTIPAD` (work items and the "Current state" page), not in repository TODO files. Never commit signing files, credentials, or generated caches; never auto-commit, push, or pull.

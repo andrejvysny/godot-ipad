@@ -90,6 +90,23 @@ debug development project rather than distributing an IPA. Keep all signing keys
 outside source control. Follow `docs/device-test-checklist.md`; G1 remains NOT RUN until the
 physical Pencil/finger, calibration, interruption, and durable probe tests have evidence.
 
+## Device build, install and self-test
+
+```sh
+venv/bin/python scripts/dev.py export-ios --project-only
+xcodebuild -project build/ios/WorldPainter.xcodeproj -scheme WorldPainter -configuration Debug \
+  -sdk iphoneos -destination generic/platform=iOS -derivedDataPath build/ios/deriveddata-live \
+  CODE_SIGN_STYLE=Automatic -allowProvisioningUpdates build
+xcrun devicectl device install app --device DEVICE_ID PATH_TO.app
+xcrun devicectl device process launch --device DEVICE_ID sk.andrejvysny.worldpainterpoc
+```
+
+Release builds use `export-ios --release` and `-configuration Release`. Scripted on-device
+self-test: launch arguments `-- -- --editor-selftest --selftest-quit --storage-root=user://selftest_worlds`.
+Engine diagnostic arguments such as `--log-file user://ipad-diagnostic.log` precede `--`;
+`-- --lab-diagnostics` enables Input Lab runtime capture. Rebuild before attributing hardware
+measurements to a source state; the build fingerprint identifies the measured build.
+
 ## Local iPad Simulator
 
 The installed iOS 26.5 runtime is arm64-only, but the pinned official Godot simulator archive
@@ -123,7 +140,8 @@ as device data. `user://input_lab_startup.txt` records readiness or a startup fa
 - Product contract: `Godot_iPad_World_Editor_PoC_Specification.md`.
 - Data format: `docs/world-format.md`; input ownership: `docs/input-contract.md`.
 - Architecture and pinned deviations: `docs/architecture.md`, `docs/decisions/`.
-- Tracking: `TODO.md`, `CURRENT_STATE.md`, `HANDOFF.md`.
+- Tracking: Plane project `GODOTIPAD` (work items + "Current state" page). The repository keeps
+  code-coupled documentation only.
 
 Core PoC is WP00–WP06. ADR 0009 additionally authorizes the v2 editor features (smooth/flatten, scatter,
 paths, four materials, rules, tint) for this project; their device results are reported separately.
