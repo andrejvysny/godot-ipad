@@ -32,6 +32,8 @@ func setup(session: EditorSession) -> void:
 		["Object IDs", _toggle_ids, true], ["3D 50%", _toggle_scale, true],
 		["Save trace", func() -> void: _session.save_trace()],
 		["Verify GPU", func() -> void: _session.verify_gpu_terrain()]]))
+	column.add_child(UiKit.label("Development", 14))
+	column.add_child(_grid([["Render bench", _start_render_bench]]))
 	column.add_child(UiKit.label("Fault injection (testing)", 14))
 	column.add_child(_grid([
 		["Fail next save", func() -> void: _session.inject_save_failure()],
@@ -88,6 +90,10 @@ func _toggle_scale() -> void:
 	_session.set_render_scale(0.5 if (_toggles["3D 50%"] as Button).button_pressed else 1.0)
 
 
+func _start_render_bench() -> void:
+	_session.start_render_bench()  # posts its own error
+
+
 func text() -> String:
 	return _text.text
 
@@ -125,6 +131,7 @@ func _build_text() -> String:
 		_stroke_line(s.last_stroke),
 		"Last cancel: %s" % (s.last_cancel if s.last_cancel != "" else "none"),
 		_terrain_line(s.terrain_stats),
+		_render_line(s.render),
 		"Input diag %s" % _input_diagnostics(provider.diagnostics()),
 		"Save queue %s" % ("busy" if _session.storage.is_busy() else "idle"),
 	]
@@ -142,6 +149,12 @@ static func _stroke_line(st: Dictionary) -> String:
 static func _terrain_line(ts: Dictionary) -> String:
 	return "Terrain uploads h %d · c %d · flush %.1f ms" % [int(ts.get("uploads_height", 0)),
 			int(ts.get("uploads_control", 0)), float(ts.get("last_flush_ms", 0.0))]
+
+
+static func _render_line(r: Dictionary) -> String:
+	return "Draws V %d / S %d · prims %d · GPU %.1f ms · CPU %.1f ms · VRAM %.0f MiB · scale %.2f" % [
+		int(r.visible_draws), int(r.shadow_draws), int(r.visible_prims), float(r.gpu_ms), float(r.cpu_ms),
+		float(r.video_mem_mib), float(r.scale_3d)]
 
 
 static func _build_text_short() -> String:

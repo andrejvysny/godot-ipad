@@ -51,7 +51,8 @@ static func export_verified(storage: WorldStorage, doc: WorldDocument, catalog: 
 	return {"path": exported.path, "error": ""}
 
 
-static func evidence(input: InputSystem, doc: WorldDocument, camera: Camera3D, frames: FrameStats) -> Dictionary:
+static func evidence(input: InputSystem, doc: WorldDocument, camera: Camera3D, frames: FrameStats,
+		render: Dictionary) -> Dictionary:
 	return {"device_gate": "NOT RUN", "build": WorldCodec.default_created_with(),
 		"fingerprint": JSON.parse_string(FileAccess.get_file_as_string("res://config/build_fingerprint.json")),
 		"provider": input.active_provider().diagnostics(), "stats": input.stats(),
@@ -59,7 +60,34 @@ static func evidence(input: InputSystem, doc: WorldDocument, camera: Camera3D, f
 		"driver": RenderingServer.get_current_rendering_driver_name(),
 		"camera_transform": str(camera.transform), "timing": frames.snapshot(),
 		"authored_hash": CanonicalEncoder.authored_hash(doc), "revision": doc.document_revision,
-		"object_count": doc.objects.size(), "trace_dropped": input.trace.dropped}
+		"object_count": doc.objects.size(), "trace_dropped": input.trace.dropped,
+		"render": render}
+
+
+## {} unless --render-bench is given; else {enabled, counts, frames} (--bench-counts=0,100 --bench-frames=60).
+static func parse_bench_args(args: PackedStringArray) -> Dictionary:
+	if not args.has("--render-bench"):
+		return {}
+	var out := {"enabled": true, "counts": PackedInt32Array(), "frames": 0}
+	for arg in args:
+		if arg.begins_with("--bench-counts="):
+			for part in arg.trim_prefix("--bench-counts=").split(",", false):
+				out.counts.append(maxi(0, part.to_int()))
+		elif arg.begins_with("--bench-frames="):
+			out.frames = arg.trim_prefix("--bench-frames=").to_int()
+	return out
+
+
+## Loads the bench runner by path (it is optional tooling) with overrides applied; null if missing.
+static func make_bench(path: String, counts: PackedInt32Array, frames: int) -> Node:
+	if not ResourceLoader.exists(path):
+		return null
+	var bench := load(path).new() as Node
+	if not counts.is_empty():
+		bench.set("counts", counts)
+	if frames > 0:
+		bench.set("measure_frames", frames)
+	return bench
 
 
 static func hit_text(hit: TerrainHit) -> String:

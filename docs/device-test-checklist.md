@@ -69,6 +69,26 @@ eviction with memory observed in Xcode's memory gauge.
 Then: `python3 scripts/dev.py validate-world build/from-ipad/…/…worldpoc` and
 `python3 scripts/dev.py open-consumer <same path>`. Record which route worked.
 
+## 4a. Render bench (spec §18.1, §18.3)
+
+Measures frame time, GPU/CPU render time and draw counts over object count (0 / 1000 / 5000) x
+render profile (current, no shadows, lean shadows, 3D scale 0.75 / 0.5) x camera (overview, ground),
+plus terrain-hidden steps and a repeat of the first step (thermal drift). Result: **NOT RUN** until
+a Release build is measured on the iPad. Debug-build or Mac numbers are HOST evidence only (the report
+states `evidence_class`).
+
+1. Release export: `venv/bin/python scripts/dev.py export-ios --project-only`, then `xcodebuild` with
+   `-configuration Release` (same signing setup as section 0); install on the iPad.
+2. Cold device: rested, unplugged (or note "charging"), screen brightness fixed, no other apps running.
+3. Start with `xcrun devicectl device process launch --device <device-id> --terminate-existing <bundle id> -- --render-bench`
+   (optional `--bench-counts=0,1000 --bench-frames=300`), or tap Diagnostics -> **Render bench**.
+4. Keep hands off for about 5 minutes ("Render bench running" message). Steps with `"disturbed": true` are void.
+5. The report `render-bench-<unix time>.json` lands in `user://traces/` = `Documents/traces`. Retrieve it with
+   `xcrun devicectl device copy from --device <device-id> --domain-type appDataContainer --domain-identifier <bundle id> --source Documents/traces --destination ./build/from-ipad`
+   and store the JSON under `docs/evidence/` (e.g. `docs/evidence/render-bench-ipad-<date>.json`) with an
+   evidence record (section 5).
+6. Check: `debug_build` is false, `evidence_class` is `DEVICE`, the repeat step matches the first step.
+
 ## 5. Evidence record template
 
 ```

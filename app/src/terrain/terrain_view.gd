@@ -47,6 +47,11 @@ func set_region_grid(_on: bool) -> void:
 	pass
 
 
+## Render benchmark hook: hide the terrain and/or stop it casting shadows. Returns "" or an error.
+func set_render_probe(_visible: bool, _cast_shadows: bool) -> String:
+	return "render probe is not supported by this terrain view"
+
+
 func stats() -> Dictionary:
 	return {}
 

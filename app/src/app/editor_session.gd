@@ -14,6 +14,7 @@ const SIMULATOR_NOTE := "SIMULATOR preview; no hardware gate. P toggles probe/UI
 const SCRIPTED_PROVIDER := "res://src/app/scripted_input_provider.gd"
 const EDITOR_UI := "res://src/ui/editor_ui.gd"
 const SELFTEST := "res://src/app/editor_selftest.gd"
+const RENDER_BENCH := "res://src/diagnostics/render_bench.gd"
 const STATUS_INTERVAL_MSEC := 250
 
 var storage_root := "user://worlds"
@@ -35,12 +36,14 @@ var history: CommandHistory
 var storage := WorldStorage.new()
 var frames := FrameStats.new(600)
 var ui: Node = null
+var sun: DirectionalLight3D
 var ready_for_input := false
 var boot_error := ""
 var last_message := ""
 var last_message_is_error := false
 
 var _selftest := false
+var _bench_args: Dictionary = {}
 var _fault_armed := false
 var _last_evicted := 0
 var _last_frame_usec := 0
@@ -73,6 +76,8 @@ func _ready() -> void:
 	print("Editor ready: ", input.provider_label())
 	if _selftest:
 		_start_selftest()
+	if _bench_args.has("enabled"):
+		start_render_bench(_bench_args.counts, _bench_args.frames)
 
 
 ## Loaded by path so the session also boots in tests and tools that run without the UI module.
@@ -93,12 +98,26 @@ func _start_selftest() -> void:
 	runner.call("start", self)
 
 
+func start_render_bench(counts := PackedInt32Array(), frames := 0) -> String:
+	var bench := SessionWorldOps.make_bench(RENDER_BENCH, counts, frames)
+	var error := "Render bench module is missing." if bench == null else ""
+	if bench != null:
+		add_child(bench)
+		error = bench.call("start", self)
+		if error != "":
+			bench.queue_free()
+	if error != "":
+		post_message(error, true)
+	return error
+
+
 func _apply_user_args(args: PackedStringArray) -> void:
 	for arg in args:
 		if arg.begins_with("--storage-root="):
 			storage_root = arg.trim_prefix("--storage-root=")
 		elif arg.begins_with("--start-fixture="):
 			start_fixture = arg.trim_prefix("--start-fixture=")
+	_bench_args = SessionWorldOps.parse_bench_args(args)
 	_selftest = args.has("--editor-selftest")
 	if _selftest and provider_override == null and ResourceLoader.exists(SCRIPTED_PROVIDER):
 		provider_override = load(SCRIPTED_PROVIDER).new() as InputProvider
@@ -172,24 +191,9 @@ func _build_scene() -> String:
 	presenter.setup(catalog)
 	add_child(presenter)
 	presenter.rebuild(document)
-	_build_light()
+	sun = SceneLighting.build(self)
+	RenderCounters.enable(get_viewport())
 	return ""
-
-
-func _build_light() -> void:
-	var light := DirectionalLight3D.new()
-	light.rotation_degrees = Vector3(-55, -30, 0)
-	light.shadow_enabled = true
-	add_child(light)
-	var environment := WorldEnvironment.new()
-	var settings := Environment.new()
-	settings.background_mode = Environment.BG_COLOR
-	settings.background_color = Color(0.18, 0.27, 0.34)
-	settings.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	settings.ambient_light_color = Color.WHITE
-	settings.ambient_light_energy = 0.5
-	environment.environment = settings
-	add_child(environment)
 
 
 func _build_tools_and_input() -> void:
@@ -436,7 +440,7 @@ func save_trace() -> String:
 			error = "Evidence file could not be written."
 		else:
 			file.store_string(JSON.stringify(
-					SessionWorldOps.evidence(input, document, rig.get_camera(), frames), "\t"))
+					SessionWorldOps.evidence(input, document, rig.get_camera(), frames, RenderCounters.snapshot(get_viewport())), "\t"))
 	post_message("Trace and evidence saved in user://traces/." if error == "" else error, error != "")
 	return error
 
@@ -492,4 +496,4 @@ func status() -> Dictionary:
 		"brush_p95_ms": frames.sample_p95("brush"), "render_scale": get_viewport().scaling_3d_scale,
 		"world_id": document.world_id, "operation_id": tools.active_operation_id(),
 		"last_hit": SessionWorldOps.hit_text(tools.last_hit()), "last_stroke": SessionWorldOps.with_gap(_tool_ctx.last_stroke, _op_max_gap_ms),
-		"last_cancel": _last_cancel_reason, "terrain_stats": terrain.stats()}
+		"last_cancel": _last_cancel_reason, "terrain_stats": terrain.stats(), "render": RenderCounters.snapshot(get_viewport())}

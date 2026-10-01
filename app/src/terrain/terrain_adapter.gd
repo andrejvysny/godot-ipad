@@ -25,6 +25,7 @@ var _last_upload_frame: PackedInt64Array = PackedInt64Array([-1, -1])
 var _stats: Dictionary = {}
 var _debug_view := "normal"
 var _region_grid := false
+var _original_render_layers := -1
 
 
 func _init() -> void:
@@ -117,6 +118,19 @@ func get_terrain() -> Terrain3D:
 
 func get_document() -> WorldDocument:
 	return _doc
+
+
+## Render benchmark hook: hides the terrain (render_layers 0, original restored) and/or stops
+## it casting shadows.
+func set_render_probe(visible_now: bool, cast_shadows: bool) -> String:
+	if _terrain == null:
+		return "Terrain is not initialized."
+	if _original_render_layers < 0:
+		_original_render_layers = _terrain.render_layers
+	_terrain.render_layers = _original_render_layers if visible_now else 0
+	_terrain.cast_shadows = RenderingServer.SHADOW_CASTING_SETTING_ON if cast_shadows \
+			else RenderingServer.SHADOW_CASTING_SETTING_OFF
+	return ""
 
 
 ## uploads_* count region layers re-uploaded by partial flushes since initialize.
