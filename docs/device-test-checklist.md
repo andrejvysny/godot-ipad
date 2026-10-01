@@ -77,8 +77,8 @@ plus terrain-hidden steps and a repeat of the first step (thermal drift). Result
 a Release build is measured on the iPad. Debug-build or Mac numbers are HOST evidence only (the report
 states `evidence_class`).
 
-1. Release export: `venv/bin/python scripts/dev.py export-ios --project-only`, then `xcodebuild` with
-   `-configuration Release` (same signing setup as section 0); install on the iPad.
+1. Release export: `venv/bin/python scripts/dev.py export-ios --project-only --release`, then `xcodebuild`
+   with `-configuration Release` (same signing setup as section 0); install on the iPad.
 2. Cold device: rested, unplugged (or note "charging"), screen brightness fixed, no other apps running.
 3. Start with `xcrun devicectl device process launch --device <device-id> --terminate-existing <bundle id> -- --render-bench`
    (optional `--bench-counts=0,1000 --bench-frames=300`), or tap Diagnostics -> **Render bench**.
