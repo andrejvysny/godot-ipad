@@ -19,6 +19,8 @@ var rig: OrbitCameraRig
 var adapter: TerrainAdapter
 var presenter: ObjectPresenter
 var layers: WorldLayers
+var render_registry: RenderAssetRegistry
+var render_cache: RenderAssetCache
 var info_label: Label
 var _drag := ""
 
@@ -36,11 +38,15 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	if presenter != null:
 		presenter.service_frame()
+	if layers != null:
+		render_cache.poll(1.0)
+		layers.service_frame()
 
 
 ## Applies the presenter's scheduled render work (bounded to about 2 s); true when nothing is pending.
 func settle_now() -> bool:
-	return presenter == null or presenter.settle_now()
+	var layers_settled := layers == null or layers.settle_now()
+	return (presenter == null or presenter.settle_now()) and layers_settled
 
 
 ## Returns the process exit code: 0 loaded and (in visual mode) displayed, 1 failure.
@@ -106,11 +112,18 @@ func _present(report: Dictionary) -> void:
 	presenter.rebuild(document)
 	layers = WorldLayers.new()
 	add_child(layers)
-	layers.setup(catalog)
+	var config := RenderConfig.load_from()
+	render_registry = RenderAssetRegistry.load_from(ObjectPresenter.REGISTRY_INDEX, catalog)
+	var budgets := config.section("budgets")
+	if RenderingServer.get_rendering_device() == null:
+		budgets.inflight_loads = 1  # the dummy renderer's storage is not thread-safe
+	render_cache = RenderAssetCache.new(budgets)
+	layers.setup(catalog, render_registry, render_cache, config)
+	layers.set_camera(rig.get_camera())
 	layers.rebuild(document)
 	_show_info("MAC CONSUMER — read-only\nworld %s\nrevision %d\nauthored hash %s\nobjects %d\nscatter %d\npaths %d\ngrounding mismatches %d" % [
 		report.world_id, report.document_revision, report.authored_hash, report.object_count,
-		layers.stats().instances, report.path_count, report.grounding_mismatches])
+		layers.stats().authored, report.path_count, report.grounding_mismatches])
 
 
 func _show_error(error: String) -> void:

@@ -316,7 +316,7 @@ func test_status_has_all_keys() -> void:
 
 func test_scatter_stroke_renders_and_follows_undo_redo() -> void:
 	var s: EditorSession = await _start()
-	assert_eq(s.layers.stats().instances, 0)
+	assert_eq(s.layers.stats().authored, 0)
 	s.tools.set_tool("scatter")
 	assert_empty_string(s.tools.set_setting("place", "radius", 20.0))
 	_stroke(s, -10.0, 10.0)
@@ -324,13 +324,20 @@ func test_scatter_stroke_renders_and_follows_undo_redo() -> void:
 	assert_true(added > 5, "scattered %d" % added)
 	assert_eq(s.history.size(), 1)
 	await tree.process_frame
-	assert_eq(s.layers.stats().instances, added, "live stroke is drawn")
+	assert_true(s.layers.settle_now())
+	assert_eq(s.layers.stats().authored, added, "live stroke is bucketed")
+	var drawn := int(s.layers.stats().instances)
+	assert_true(drawn > 0 and drawn <= added, "live stroke is drawn (decorative cover may be thinned): %d of %d" % [drawn, added])
 	assert_eq(s.undo(), "")
 	await tree.process_frame
-	assert_eq(s.layers.stats().instances, 0, "undo redraws")
+	assert_true(s.layers.settle_now())
+	assert_eq(s.layers.stats().authored, 0, "undo redraws")
+	assert_eq(s.layers.stats().instances, 0)
 	assert_eq(s.redo(), "")
 	await tree.process_frame
-	assert_eq(s.layers.stats().instances, added, "redo redraws")
+	assert_true(s.layers.settle_now())
+	assert_eq(s.layers.stats().authored, added, "redo redraws")
+	assert_eq(s.layers.stats().instances, drawn, "the same subset after redo")
 	s.tools.set_tool("raise")
 	_act(s, "tool_begin", 0.0, 0.0, 5.0)
 	_act(s, "tool_move", 2.0, 0.0, 5.1)

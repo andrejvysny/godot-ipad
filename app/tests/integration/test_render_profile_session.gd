@@ -29,7 +29,13 @@ func _add_scatter(s: EditorSession, ids: Array) -> void:
 	for id: String in ids:
 		s.document.scatter.add(id, s.catalog.get_asset(id).version, x, 10.0, 0.0, 1.0, 0)
 		x += 25.0
+	var wide := s.render_config.profile("performance")  # ground cover is drawn near the camera and thinned: draw all
+	wide.ground_cover_radius_m = 100000.0
+	wide.decorative_density_outside = 1.0
+	wide.decorative_density_active = 1.0
+	s.layers.set_lod_profile(wide)
 	s.layers.rebuild(s.document)
+	assert_true(s.layers.settle_now(), "scatter settles")
 
 
 # --- PROFILE-01, -02, -03 ----------------------------------------------------------------------
@@ -179,14 +185,16 @@ func test_hide_vegetation_is_presentation_only() -> void:
 	s.set_vegetation_hidden(true)
 	assert_true(s.vegetation_hidden())
 	assert_true(s.status().vegetation_hidden)
-	var visible_by_asset := {}
-	for node: Node in s.layers.scatter.get_children():
-		var mm := node as MultiMeshInstance3D
-		visible_by_asset[mm.multimesh.mesh.resource_path] = mm.visible
+	var x := -60.0
+	var node_by_asset := {}
+	for id: String in [SPRUCE, GRASS, PEBBLES, UiTestCase.BOULDER]:
+		node_by_asset[id] = s.layers.scatter.multimesh_for(s.layers.scatter.cell_for(id, x, 10.0), id)
+		assert_true(node_by_asset[id] != null, id + " is drawn")
+		x += 25.0
 	for id: String in [SPRUCE, GRASS]:
-		assert_false(visible_by_asset[s.catalog.get_asset(id).scatter_mesh], id + " hidden")
+		assert_false((node_by_asset[id] as MultiMeshInstance3D).visible, id + " hidden")
 	for id: String in [PEBBLES, UiTestCase.BOULDER]:
-		assert_true(visible_by_asset[s.catalog.get_asset(id).scatter_mesh], id + " stays visible")
+		assert_true((node_by_asset[id] as MultiMeshInstance3D).visible, id + " stays visible")
 	assert_eq(s.authored_hash(), hash_before)
 	assert_eq(s.document.document_revision, revision)
 	assert_eq(s.history.size(), history)

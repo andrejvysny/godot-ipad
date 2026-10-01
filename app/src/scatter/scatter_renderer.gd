@@ -1,260 +1,247 @@
 class_name ScatterRenderer
 extends Node3D
-## Draws the document's scatter layer with one MultiMeshInstance3D per (32 m cell, asset)
-## (docs/editor-v2.md §6). Instance Y is the bilinear terrain height (instances without a
-## sample are skipped); an align flag tilts the instance to the terrain normal. Cells are rebuilt
-## only when marked dirty (scatter edits or height edits under them), once per frame in flush().
-## Nothing casts shadows. Hidden vegetation (presentation only) is invisible but keeps its MultiMeshes.
-## Never mutates the document.
+## Draws the document's scatter layer through prepared registry tiers in spatial batches (spec §7, §10;
+## docs/editor-v2.md §6). Never mutates the document; saved scatter data is the only authority.
+## - Decorative assets (descriptor.decorative: grass, ferns, pebbles) live in 16 m ground-cover cells, drawn only
+##   inside the profile's ground-cover radius, thinned by a deterministic nested subset (ScatterDensity) whose
+##   density is higher inside the active area (ScatterView).
+## - Everything else (trees, rocks) is meaningful: 32 m cells, LodPolicy individual roles (near/mid/far), never
+##   thinned. The overview interface (overview_members / set_cells_covered / overview_changed) lets the HLOD
+##   overview group them; decorative cells are never covered.
+## Meshes come from the shared RenderAssetCache through ScatterResources (coarse-first, shared placeholder box
+## for NOT_READY assets); the catalog scatter_mesh is not used. Instance Y follows the terrain. Nothing casts
+## shadows. All work happens in service_frame(budget_ms); there is no _process. Scheduling lives in
+## ScatterEngine, batch construction in ScatterCellBuilder.
 
-const CELL_M := 32.0
-const FLOATS_PER_INSTANCE := 12  # MultiMesh 3D transform buffer: three rows of (basis row, origin)
+## Meaningful instances changed inside `rect` (scatter edits, re-drape, rebuild_all/mark_all: the whole layout).
+## Not emitted for density, visibility or camera-driven changes.
+signal overview_changed(rect: Rect2)
 
-var last_rebuild_ms := 0.0
+const CELL_M := 32.0  # object cell size of the static cell_of()
 
-var _catalog: AssetCatalog
-var _doc: WorldDocument
-var _meshes := {}  # asset_id -> Mesh (null cached for assets without a usable mesh)
-var _nodes := {}  # Vector2i cell -> {asset_id -> MultiMeshInstance3D}
-var _data := {}  # Vector2i cell -> {asset_id -> PackedFloat32Array transform buffer as uploaded}
-var _buckets := {}  # Vector2i cell -> {asset_id -> PackedInt32Array layer indices}
-var _buckets_valid := false
-var _dirty := {}  # Vector2i cell -> true
-var _veg_hidden := false
-var _veg_rule: Dictionary = {}
+var last_rebuild_ms: float:
+	get:
+		return _engine.last_rebuild_ms
 
-
-func setup(catalog: AssetCatalog) -> void:
-	_catalog = catalog
-	_meshes = {}
-
-
-func _process(_delta: float) -> void:
-	flush()
+var _engine: ScatterEngine
+# Re-applied when setup() replaces the engine (render bench catalog swaps).
+var _camera: Camera3D
+var _area: ActiveEditArea
+var _profile: Dictionary = {}
+var _catalog_id := ""
 
 
-## Frees everything and draws `doc.scatter` from scratch.
+## Without a registry/cache (tests, tools) the committed registry is loaded and a default cache is owned and
+## polled by service_frame().
+func setup(catalog: AssetCatalog, registry: RenderAssetRegistry = null, cache: RenderAssetCache = null,
+		config: RenderConfig = null) -> void:
+	var cfg := config if config != null else RenderConfig.load_from()
+	var reg := registry if registry != null else RenderAssetRegistry.load_from(ObjectPresenter.REGISTRY_INDEX, catalog)
+	var budgets := cfg.section("budgets")
+	if RenderingServer.get_rendering_device() == null:
+		budgets.inflight_loads = 1  # the dummy renderer's storage is not thread-safe (as in SessionRender)
+	var shared := cache if cache != null else RenderAssetCache.new(budgets)
+	if _engine != null:
+		_engine.overview_changed.disconnect(overview_changed.emit)
+		_engine.teardown()
+	_engine = ScatterEngine.new(self, catalog, reg, shared, cache == null, cfg)
+	_catalog_id = catalog.catalog_id if catalog != null else ""
+	_engine.overview_changed.connect(overview_changed.emit)
+	if _camera != null:
+		_engine.set_camera(_camera)
+	_engine.view.area = _area
+	if not _profile.is_empty():
+		_engine.set_profile(_profile)
+
+
+## Waits (bounded) for the mesh loads this renderer started: a threaded load still running when the owner goes
+## away races with whatever creates meshes next (the dummy renderer's storage is not thread-safe).
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PREDELETE and _engine != null:
+		_engine.drain(1000.0)
+
+
+## The explicit manual profile (RenderConfig.profile()); never chosen automatically.
+## Logical catalog the scatter is drawn with (render bench attachment checks).
+func catalog_id() -> String:
+	return _catalog_id
+
+
+func set_lod_profile(profile: Dictionary) -> void:
+	_profile = profile
+	_engine.set_profile(profile)
+
+
+func set_camera(camera: Camera3D) -> void:
+	_camera = camera
+	_engine.set_camera(camera)
+
+
+func set_active_area(area: ActiveEditArea) -> void:
+	_area = area
+	_engine.view.area = area
+
+
+## Frees everything and re-buckets `doc.scatter`; cells are built by service_frame()/flush().
 func rebuild_all(doc: WorldDocument) -> void:
-	var t0 := Time.get_ticks_usec()
-	_doc = doc
-	for cell: Vector2i in _nodes.keys():
-		_free_cell(cell)
-	_buckets_valid = false
-	mark_all()
-	_flush_dirty()
-	last_rebuild_ms = float(Time.get_ticks_usec() - t0) / 1000.0
+	_engine.rebuild_all(doc)
 
 
-## Marks every cell overlapping `rect` (world XZ). `heights_only` means instance membership is
-## unchanged (a height edit), so the cell index stays valid.
+## Scatter instances (or, with `heights_only`, the terrain) changed under `rect` (world XZ).
 func mark_rect(rect: Rect2, heights_only: bool = false) -> void:
-	if _doc == null:
-		return
-	if not heights_only:
-		_buckets_valid = false
-	var lo := _cell_of(rect.position.x, rect.position.y)
-	var hi := _cell_of(rect.end.x, rect.end.y)
-	for cz in range(lo.y, hi.y + 1):
-		for cx in range(lo.x, hi.x + 1):
-			_dirty[Vector2i(cx, cz)] = true
+	_engine.mark_rect(rect, heights_only)
 
 
+## Membership may have changed anywhere and every built cell re-drapes.
 func mark_all() -> void:
-	_buckets_valid = false
-	if _doc != null:
-		mark_rect(_doc.layout.extent_rect())
+	_engine.mark_all()
 
 
 func has_dirty() -> bool:
-	return not _dirty.is_empty()
+	return _engine.has_dirty()
 
 
-## Rebuilds the dirty cells only. Per-frame work.
+## True while meshes are still loading (cells show the coarse or placeholder representation meanwhile).
+func has_pending_work() -> bool:
+	return _engine.has_pending_work()
+
+
+## Applies all pending work now, unbudgeted and treating the camera as settled (tests, benchmarks).
 func flush() -> void:
-	if _dirty.is_empty() or _doc == null:
-		return
-	var t0 := Time.get_ticks_usec()
-	_flush_dirty()
-	last_rebuild_ms = float(Time.get_ticks_usec() - t0) / 1000.0
+	_engine.flush()
+
+
+## Flushes and polls the cache until nothing is pending, at most `max_ms`. Headless tests and the Mac consumer.
+func settle_now(max_ms: float = 2000.0) -> bool:
+	return _engine.settle_now(max_ms)
+
+
+## Once per frame, after the cache poll: view selection, then scheduled cell builds within `budget_ms`
+## (at least one cell per call while any is queued).
+func service_frame(budget_ms: float = 1.0) -> void:
+	_engine.service_frame(budget_ms)
 
 
 func stats() -> Dictionary:
 	var instances := 0
 	var multimeshes := 0
-	for cell: Vector2i in _data:
-		for asset_id: String in _data[cell]:
-			instances += (_data[cell][asset_id] as PackedFloat32Array).size() / FLOATS_PER_INSTANCE
-			multimeshes += 1
-	return {"instances": instances, "cells": _data.size(), "multimeshes": multimeshes,
-			"last_rebuild_ms": last_rebuild_ms}
+	var cells := 0
+	var placeholders := 0
+	for kind in 2:
+		for key: Vector2i in (_engine.built[kind] as Dictionary):
+			var cell := _engine.buckets.cell(kind, key)
+			cells += 1
+			instances += cell.drawn
+			multimeshes += cell.batches.size()
+			for batch: ScatterBatch in cell.batches.values():
+				placeholders += 1 if batch.rep == RenderWorldResources.PLACEHOLDER else 0
+	var doc := _engine.doc
+	return {"instances": instances, "authored": doc.scatter.count() if doc != null else 0, "cells": cells,
+			"multimeshes": multimeshes, "placeholder_batches": placeholders, "uploads": _engine.builder.uploads,
+			"cell_builds": _engine.builder.builds, "pending_builds": _engine.pending_builds(),
+			"scatter_epoch": _engine.builder.res.epoch, "last_rebuild_ms": _engine.last_rebuild_ms}
 
 
+## Decorative diagnostics: instances bucketed in the drawn ground-cover cells, how many of them survive
+## thinning, the drawn cell count and the profile's two densities.
+func density_stats() -> Dictionary:
+	var total := 0
+	var drawn := 0
+	var cells := 0
+	for key: Vector2i in (_engine.built[ScatterCell.DECORATIVE] as Dictionary):
+		var cell := _engine.buckets.cell(ScatterCell.DECORATIVE, key)
+		total += cell.total
+		drawn += cell.drawn
+		cells += 1
+	var p := _engine.profile
+	return {"decorative_total": total, "decorative_drawn": drawn, "cells_drawn": cells,
+			"density_outside": float(p.get("decorative_density_outside", 1.0)),
+			"density_active": float(p.get("decorative_density_active", 1.0))}
+
+
+# --- Test and overview interface -----------------------------------------------------------
+
+## Drawn instances of the batch of `asset_id` in `cell` (a 16 m cell for decorative assets, a 32 m cell
+## for the others, see cell_for()).
 func rendered_count(cell: Vector2i, asset_id: String) -> int:
-	var buffer: PackedFloat32Array = (_data.get(cell, {}) as Dictionary).get(asset_id, PackedFloat32Array())
-	return buffer.size() / FLOATS_PER_INSTANCE
+	var batch := _batch(cell, asset_id)
+	return 0 if batch == null else batch.count
 
 
-## Transform of instance `k` of a MultiMesh as last uploaded (the headless renderer cannot read
-## it back from the MultiMesh).
+## World transform of instance `k` of that batch as last uploaded (a headless MultiMesh cannot be read back).
 func instance_transform(cell: Vector2i, asset_id: String, k: int) -> Transform3D:
-	var b: PackedFloat32Array = (_data.get(cell, {}) as Dictionary).get(asset_id, PackedFloat32Array())
-	var o := k * FLOATS_PER_INSTANCE
-	return Transform3D(Basis(Vector3(b[o], b[o + 4], b[o + 8]), Vector3(b[o + 1], b[o + 5], b[o + 9]),
-			Vector3(b[o + 2], b[o + 6], b[o + 10])), Vector3(b[o + 3], b[o + 7], b[o + 11]))
+	var batch := _batch(cell, asset_id)
+	var local := batch.local_transform(k)
+	return Transform3D(local.basis, local.origin + batch.origin)
 
 
 func multimesh_for(cell: Vector2i, asset_id: String) -> MultiMeshInstance3D:
-	return (_nodes.get(cell, {}) as Dictionary).get(asset_id)
+	var batch := _batch(cell, asset_id)
+	return null if batch == null else batch.node
+
+
+## The cell of the asset's class that holds an instance at (x, z).
+func cell_for(asset_id: String, x: float, z: float) -> Vector2i:
+	return _engine.buckets.key_of(_kind_of(asset_id), x, z)
 
 
 static func cell_of(x: float, z: float) -> Vector2i:
 	return Vector2i(floori(x / CELL_M), floori(z / CELL_M))
 
 
-func _cell_of(x: float, z: float) -> Vector2i:
-	var lo := _doc.layout.world_min()
-	var hi := _doc.layout.world_max_sample()
-	return cell_of(clampf(x, lo.x, hi.x), clampf(z, lo.y, hi.y))
-
-
-func _flush_dirty() -> void:
-	if not _buckets_valid:
-		_rebucket()
-	var cells: Array = _dirty.keys()
-	_dirty = {}
-	for cell: Vector2i in cells:
-		_build_cell(cell)
-
-
-## One pass over the layer: cell -> asset -> instance indices.
-func _rebucket() -> void:
-	_buckets = {}
-	var layer := _doc.scatter
-	for i in layer.count():
-		var cell := cell_of(layer.x[i], layer.z[i])
-		var by_asset: Dictionary = _buckets.get(cell, {})
-		var asset_id := layer.asset_of(i)
-		var list: PackedInt32Array = by_asset.get(asset_id, PackedInt32Array())
-		list.append(i)
-		by_asset[asset_id] = list
-		_buckets[cell] = by_asset
-	_buckets_valid = true
-
-
-func _build_cell(cell: Vector2i) -> void:
-	var by_asset: Dictionary = _buckets.get(cell, {})
-	var existing: Dictionary = _nodes.get(cell, {})
-	for asset_id: String in existing.keys():
-		if not by_asset.has(asset_id):
-			_free_instance(cell, asset_id)
-	for asset_id: String in by_asset:
-		var mesh := _mesh_for(asset_id)
-		if mesh == null:
+## [{"asset_id": String, "xf": Transform3D}] of the meaningful instances whose XZ lies in `rect` (half-open),
+## with terrain Y, yaw, tilt and scale; instances without a terrain sample are left out.
+func overview_members(rect: Rect2) -> Array:
+	var out := []
+	if _engine.doc == null:
+		return out
+	for key in _engine.cell_range(ScatterCell.MEANINGFUL, rect):
+		var cell := _engine.buckets.cell(ScatterCell.MEANINGFUL, key)
+		if cell == null:
 			continue
-		var buffer := _transforms(by_asset[asset_id])
-		var count := buffer.size() / FLOATS_PER_INSTANCE
-		if count == 0:
-			_free_instance(cell, asset_id)
-			continue
-		var node := _instance_for(cell, asset_id, mesh)
-		node.multimesh.instance_count = count
-		node.multimesh.buffer = buffer
-		var uploaded: Dictionary = _data.get(cell, {})
-		uploaded[asset_id] = buffer
-		_data[cell] = uploaded
-	if (_nodes.get(cell, {}) as Dictionary).is_empty():
-		_nodes.erase(cell)
-		_data.erase(cell)
-
-
-## Transform buffer of the instances that have a terrain sample.
-func _transforms(indices: PackedInt32Array) -> PackedFloat32Array:
-	var layer := _doc.scatter
-	var out := PackedFloat32Array()
-	out.resize(indices.size() * FLOATS_PER_INSTANCE)
-	var o := 0
-	for i in indices:
-		var x := layer.x[i]
-		var z := layer.z[i]
-		var h := _doc.sample_height(x, z)
-		if is_nan(h):
-			continue
-		var basis := Basis(Vector3.UP, layer.yaw[i])
-		if (layer.flags[i] & ScatterLayer.FLAG_TILT) != 0:
-			var normal := _doc.sample_normal(x, z)
-			if normal.is_finite():
-				basis = Basis(Quaternion(Vector3.UP, normal)) * basis
-		basis = basis.scaled(Vector3.ONE * layer.scale[i])
-		out[o] = basis.x.x
-		out[o + 1] = basis.y.x
-		out[o + 2] = basis.z.x
-		out[o + 3] = x
-		out[o + 4] = basis.x.y
-		out[o + 5] = basis.y.y
-		out[o + 6] = basis.z.y
-		out[o + 7] = h
-		out[o + 8] = basis.x.z
-		out[o + 9] = basis.y.z
-		out[o + 10] = basis.z.z
-		out[o + 11] = z
-		o += FLOATS_PER_INSTANCE
-	out.resize(o)
+		for asset_id: String in cell.xz:
+			var xz: PackedFloat32Array = cell.xz[asset_id]
+			var attr: PackedFloat32Array = cell.attr[asset_id]
+			for i in xz.size() / 2:
+				if not rect.has_point(Vector2(xz[i * 2], xz[i * 2 + 1])):
+					continue
+				var xf: Variant = ScatterBuild.world_transform(_engine.doc, xz[i * 2], xz[i * 2 + 1], attr[i * 3],
+						attr[i * 3 + 1], int(attr[i * 3 + 2]))
+				if xf != null:
+					out.append({"asset_id": asset_id, "xf": xf})
 	return out
 
 
-func _instance_for(cell: Vector2i, asset_id: String, mesh: Mesh) -> MultiMeshInstance3D:
-	var by_asset: Dictionary = _nodes.get(cell, {})
-	if by_asset.has(asset_id):
-		return by_asset[asset_id]
-	var mm := MultiMesh.new()
-	mm.transform_format = MultiMesh.TRANSFORM_3D
-	mm.mesh = mesh
-	var node := MultiMeshInstance3D.new()
-	node.multimesh = mm
-	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	node.visible = not _hidden_by_rule(asset_id)
-	add_child(node)
-	by_asset[asset_id] = node
-	_nodes[cell] = by_asset
-	return node
+## Hides or shows the meaningful batches of the object cells whose centre lies in `rect`; they stay built.
+func set_cells_covered(rect: Rect2, covered: bool) -> void:
+	if _engine.doc == null:
+		return
+	var size: float = _engine.buckets.sizes[ScatterCell.MEANINGFUL]
+	for key in _engine.cell_range(ScatterCell.MEANINGFUL, rect):
+		if not rect.has_point((Vector2(key) + Vector2(0.5, 0.5)) * size):
+			continue
+		if covered:
+			_engine.builder.covered[key] = true
+		else:
+			_engine.builder.covered.erase(key)
+		var cell := _engine.buckets.cell(ScatterCell.MEANINGFUL, key)
+		if cell != null:
+			_engine.builder.apply_visibility(cell)
 
 
-## Hides (or restores) the MultiMeshes of assets `rule` classifies as vegetation; cells built later follow.
+## Presentation only: hides vegetation scatter (descriptor.vegetation; `rule` classifies NOT_READY assets).
 func set_vegetation_hidden(hidden: bool, rule: Dictionary) -> void:
-	_veg_hidden = hidden
-	_veg_rule = rule.duplicate(true)
-	for cell: Vector2i in _nodes:
-		for asset_id: String in _nodes[cell]:
-			(_nodes[cell][asset_id] as MultiMeshInstance3D).visible = not _hidden_by_rule(asset_id)
+	_engine.builder.veg_hidden = hidden
+	_engine.builder.veg_rule = rule.duplicate(true)
+	for kind in 2:
+		for key: Vector2i in (_engine.built[kind] as Dictionary):
+			_engine.builder.apply_visibility(_engine.buckets.cell(kind, key))
 
 
-func _hidden_by_rule(asset_id: String) -> bool:
-	return _veg_hidden and RenderConfig.rule_is_vegetation(_veg_rule, _catalog.get_asset(asset_id))
+func _kind_of(asset_id: String) -> int:
+	return ScatterCell.DECORATIVE if _engine.builder.is_decorative(asset_id) else ScatterCell.MEANINGFUL
 
 
-func _mesh_for(asset_id: String) -> Mesh:
-	if _meshes.has(asset_id):
-		return _meshes[asset_id]
-	var asset := _catalog.get_asset(asset_id) if _catalog != null else null
-	var mesh: Mesh = null
-	if asset != null and asset.scatter_mesh != "":
-		mesh = load(asset.scatter_mesh) as Mesh
-	_meshes[asset_id] = mesh
-	return mesh
-
-
-func _free_instance(cell: Vector2i, asset_id: String) -> void:
-	var by_asset: Dictionary = _nodes.get(cell, {})
-	var node: MultiMeshInstance3D = by_asset.get(asset_id)
-	if node != null:
-		remove_child(node)
-		node.free()
-	by_asset.erase(asset_id)
-	(_data.get(cell, {}) as Dictionary).erase(asset_id)
-
-
-func _free_cell(cell: Vector2i) -> void:
-	for asset_id: String in (_nodes.get(cell, {}) as Dictionary).keys():
-		_free_instance(cell, asset_id)
-	_nodes.erase(cell)
-	_data.erase(cell)
+func _batch(cell_key: Vector2i, asset_id: String) -> ScatterBatch:
+	var cell := _engine.buckets.cell(_kind_of(asset_id), cell_key)
+	return null if cell == null else cell.batches.get(asset_id)

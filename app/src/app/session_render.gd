@@ -53,6 +53,14 @@ func _init(session: EditorSession) -> void:
 	session.world_replaced.connect(_on_world_replaced)
 
 
+## Scatter layers follow the session camera and the active edit area (decorative density freeze, pins).
+func bind_layers() -> void:
+	_session.layers.set_camera(_session.rig.get_camera())
+	_session.layers.set_active_area(active_edit)
+	# Object cells under an active edit keep their tier until the pins release (spec §8.2).
+	_session.presenter.set_pin_check(active_edit.is_pinned)
+
+
 ## The validated registry of the session's catalog; created on first use (the catalog loads after this object).
 func registry() -> RenderAssetRegistry:
 	if _registry == null:
@@ -76,6 +84,7 @@ func service_frame(budget_ms: float = -1.0) -> void:
 	texture_preview.service(budget)
 	_sync_preview()
 	_session.presenter.service_frame(budget)
+	_session.layers.service_frame(budget)
 	_service_overview()
 
 
@@ -117,9 +126,7 @@ func _overview_levels() -> PackedFloat32Array:
 
 func _add_overview_populations() -> void:
 	overview.add_population(_session.presenter.render_world())
-	# TODO(merge): ScatterRenderer implements the overview interface; remove the guard once it has landed.
-	if _session.layers.scatter.has_method("overview_members"):
-		overview.add_population(_session.layers.scatter)
+	overview.add_population(_session.layers.scatter)
 
 
 ## Creates the overview proxies (after the presenter and layers exist) and hooks the area-focus tap.
@@ -227,9 +234,7 @@ func _apply_profile(_name: String, p: Dictionary) -> void:
 	_session.presenter.set_lod_profile(lod)
 	if overview != null:
 		overview.set_lod_profile(lod)
-	# TODO(merge): ScatterRenderer.set_lod_profile (registry tiers, decorative density) is added by the scatter migration.
-	if _session.layers.scatter.has_method("set_lod_profile"):
-		_session.layers.scatter.call("set_lod_profile", lod)
+	_session.layers.set_lod_profile(lod)
 	# Cap only below the display rate (Detailed 30 fps); 0 leaves pacing to vsync.
 	Engine.max_fps = int(p.target_fps) if int(p.target_fps) < 60 else 0
 	_session.status_changed.emit()

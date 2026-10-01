@@ -19,6 +19,13 @@ static func make(ctx: ToolContext, ring: BrushRing, lasso: LassoPreview, tool_id
 	if not erase and (config.items as Array).is_empty():
 		ctx.report(ToolCommands.EMPTY_SOURCE_MESSAGE)
 		return null
+	if not erase:
+		for item: Dictionary in config.items:
+			var asset := ctx.catalog.get_asset(str(item.asset_id))
+			var refusal := ctx.not_ready_error(asset) if asset != null else ""
+			if refusal != "":
+				ctx.report(refusal)
+				return null
 	var place := model.settings("place")
 	var brush := model.settings("brush")
 	var settings := {"radius": place.radius, "strength": place.strength, "shape": brush.shape,

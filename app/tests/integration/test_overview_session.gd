@@ -51,3 +51,14 @@ func test_profile_switch_reaches_the_per_cell_lod_and_the_overview() -> void:
 		if world.owner_of(id).ends_with("|near"):
 			break
 	assert_true(world.owner_of(id).ends_with("|near"), "Balanced allows the near tier once navigation settled: " + world.owner_of(id))
+
+
+func test_active_edit_pins_reach_the_object_lod_and_survive_a_presenter_reset() -> void:
+	var s := await _start("flat")
+	var world := s.presenter.render_world()
+	assert_false(world._pinned(Vector2i(0, 0)))
+	s.render_state().active_edit.begin("pin-test", Vector3(5, 0, 5), 4.0)
+	assert_true(world._pinned(Vector2i(0, 0)), "session pins are the world's pin check")
+	s.presenter.setup(s.catalog, s.render_state().registry(), s.render_cache())
+	assert_true(s.presenter.render_world()._pinned(Vector2i(0, 0)), "a new render world keeps the pin check")
+	s.render_state().active_edit.end("pin-test", "finished")

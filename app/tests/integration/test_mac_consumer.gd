@@ -130,7 +130,9 @@ func test_visual_mode_renders_gentle_hills_scatter() -> void:
 	tree.root.add_child(consumer)
 	assert_eq(consumer.run(PackedStringArray(["--world=res://fixtures/gentle_hills"])), 0)
 	await tree.process_frame
-	assert_eq(consumer.layers.stats().instances, 550)
+	assert_eq(consumer.layers.stats().authored, 550)
+	assert_true(consumer.settle_now(), "scatter builds settle")
+	assert_true(consumer.layers.stats().instances > 0, "meaningful and nearby scatter is drawn")
 	assert_true(consumer.info_label.text.contains("scatter 550"))
 	var report := WorldLoader.report(consumer.document, catalog)
 	assert_eq(report.scatter_instance_count, 550)

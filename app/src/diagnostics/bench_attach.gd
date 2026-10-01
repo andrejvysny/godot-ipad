@@ -62,14 +62,13 @@ func restore() -> void:
 ## scatter layer, and whether the presenter still shares the session cache.
 static func state(session: EditorSession) -> Dictionary:
 	var catalog: Variant = session.presenter.get("_catalog")
-	var scatter_catalog: Variant = session.layers.scatter.get("_catalog")
 	return {"presenter_catalog": (catalog as AssetCatalog).catalog_id if catalog != null else "",
-		"scatter_catalog": (scatter_catalog as AssetCatalog).catalog_id if scatter_catalog != null else "",
+		"scatter_catalog": session.layers.scatter.catalog_id(),
 		"presenter_cache_shared": session.presenter.get("_cache") == session.render_cache()}
 
 
-## TODO(merge): re-verify against the LOD/overview branch: any state it adds to ObjectPresenter.setup() or
-## ObjectRenderWorld must be rebuilt here too (setup() runs again on a fresh render world).
+## setup() runs again on a fresh render world; the presenter re-applies its profile and pin check, the overview is
+## rebound to the new world and the scatter renderer replaces its engine (re-applying camera, area, profile).
 func _swap(catalog: AssetCatalog, registry: RenderAssetRegistry) -> void:
 	var presenter := _session.presenter
 	presenter.set_selected("")
@@ -88,14 +87,5 @@ func _swap(catalog: AssetCatalog, registry: RenderAssetRegistry) -> void:
 	_session.render_state().reapply_profile()
 
 
-## TODO(merge): WorldLayers.setup(catalog) grows registry/cache parameters on the scatter branch; pass them
-## when the loaded signature accepts them.
 func _setup_layers(catalog: AssetCatalog, registry: RenderAssetRegistry) -> void:
-	var accepted := 1
-	for method: Dictionary in _session.layers.get_method_list():
-		if method.name == "setup":
-			accepted = (method.args as Array).size()
-	if accepted >= 3:
-		_session.layers.call("setup", catalog, registry, _session.render_cache())
-	else:
-		_session.layers.setup(catalog)
+	_session.layers.setup(catalog, registry, _session.render_cache(), _session.render_config)

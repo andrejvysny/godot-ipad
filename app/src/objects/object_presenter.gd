@@ -23,6 +23,7 @@ var _cache: RenderAssetCache
 var _own_cache: bool = false  # the presenter polls a cache it created itself
 var _world: ObjectRenderWorld
 var _profile: Dictionary = {}
+var _pin_check := Callable()
 var _xforms: Dictionary = {}  # id -> Transform3D
 var _inverses: Dictionary = {}  # id -> affine_inverse of _xforms[id]
 var _index := RenderSpatialIndex.new(32.0)
@@ -66,6 +67,7 @@ func setup(catalog: AssetCatalog, registry: RenderAssetRegistry = null, cache: R
 	_world.setup(_registry, _cache, ROLE_CELL_M, _is_hidden, catalog)
 	if not _profile.is_empty():
 		_world.set_lod_profile(_profile)
+	_world.set_pin_check(_pin_check)
 	_world.placeholders_reported.connect(placeholders_reported.emit)
 	add_child(_world)
 	_ghost = PresenterGhost.new(_registry, _cache)
@@ -124,6 +126,7 @@ func set_default_role(role: String) -> void:
 
 
 func set_pin_check(check: Callable) -> void:
+	_pin_check = check
 	_world.set_pin_check(check)
 
 

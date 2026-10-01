@@ -25,7 +25,7 @@ tool = Godot headless devtools + Python descriptor validator; no automatic decim
 - [x] WP02 render registry/descriptor (GD + Python), prep devtool, bench catalog + geometry-heavy and
   leaf-card fixtures, RenderAssetCache, readiness gating, prepared ghosts
 - [x] WP03 ObjectRenderWorld (cells, dense batches, bounds, work queue), promotion pool, active-edit pins
-- [ ] WP05 LOD/hysteresis, HLOD overview + area focus, decorative density, residency/eviction
+- [x] WP05 LOD/hysteresis, HLOD overview + area focus, decorative density, residency/eviction
 - [ ] WP06 shader trim + terrain/object Texture Preview, terrain upload accounting
 - [ ] WP07 telemetry/lifecycle, device Release runs (10k/50k/overview/edit/preview), 30 + 60 min
 - [ ] WP08 docs, ADR 0010, export check, final report
