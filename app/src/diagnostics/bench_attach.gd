@@ -84,6 +84,7 @@ func _swap(catalog: AssetCatalog, registry: RenderAssetRegistry) -> void:
 	presenter.setup(catalog, registry, _session.render_cache())
 	presenter.set_camera(_session.rig.get_camera())
 	_setup_layers(catalog, registry)
+	_session.render_state().rebind_overview(registry)
 	_session.render_state().reapply_profile()
 
 

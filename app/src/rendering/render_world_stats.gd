@@ -5,12 +5,14 @@ extends RefCounted
 
 
 ## `base` carries the world's own counters (full_uploads/partial_uploads of retired batches, batch_builds,
-## pending_builds, world_epoch) and pooled_nodes; `promoted` is {"asset", "rep"} or {} without a promoted node.
+## pending_builds, world_epoch, covered_cells, lod_evaluations) and pooled_nodes; `promoted` is {"asset", "rep"} or {} without a promoted node.
 static func collect(cells: Dictionary, res: RenderWorldResources, base: Dictionary, promoted: Dictionary) -> Dictionary:
 	var out := {"cells": cells.size(), "batches": 0, "instances": 0, "promoted": 0, "placeholders": 0,
-		"estimated_triangles": 0, "nodes": int(base.pooled_nodes)}
+		"estimated_triangles": 0, "visible_instances": 0, "visible_triangles": 0, "cell_roles": {},
+		"nodes": int(base.pooled_nodes)}
 	out.merge(base)
 	for cell: RenderCell in cells.values():
+		out.cell_roles[cell.role] = int(out.cell_roles.get(cell.role, 0)) + 1
 		for key: String in cell.batches:
 			var batch: InstanceBatch = cell.batches[key]
 			var parts := key.rsplit("|", true, 1)
@@ -18,6 +20,9 @@ static func collect(cells: Dictionary, res: RenderWorldResources, base: Dictiona
 			out.nodes += 1
 			out.instances += batch.count
 			out.estimated_triangles += batch.count * res.triangles(parts[0], parts[1])
+			if batch.node.visible:
+				out.visible_instances += batch.count
+				out.visible_triangles += batch.count * res.triangles(parts[0], parts[1])
 			out.full_uploads += batch.full_uploads
 			out.partial_uploads += batch.partial_uploads
 			if parts[1] == RenderWorldResources.PLACEHOLDER:
@@ -26,6 +31,8 @@ static func collect(cells: Dictionary, res: RenderWorldResources, base: Dictiona
 		out.promoted = 1
 		out.instances += 1
 		out.estimated_triangles += res.triangles(promoted.asset, promoted.rep)
+		out.visible_instances += 1
+		out.visible_triangles += res.triangles(promoted.asset, promoted.rep)
 		if promoted.rep == RenderWorldResources.PLACEHOLDER:
 			out.placeholders += 1
 	return out

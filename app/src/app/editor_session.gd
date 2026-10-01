@@ -225,7 +225,7 @@ func _build_tools_and_input() -> void:
 	tools.operation_cancelled.connect(func(reason: String) -> void: _last_cancel_reason = reason)
 	add_child(tools)
 	tools.setup(_tool_ctx)
-	_render.bind_tools(tools)
+	_render.bind_tools(tools, _tool_ctx)
 	layers.bind_tools(tools)
 	input.provider_override = provider_override
 	input.platform_override = platform_override
@@ -417,16 +417,13 @@ func focus_selection() -> String:
 
 
 ## Profile and vegetation calls delegate to SessionRender (spec §4.1, §15.4).
-func request_profile(name: String) -> Dictionary:
-	return _render.request_profile(name)
+func request_profile(name: String) -> Dictionary: return _render.request_profile(name)
 
 
-func set_vegetation_hidden(on: bool) -> void:
-	_render.set_vegetation_hidden(on)
+func set_vegetation_hidden(on: bool) -> void: _render.set_vegetation_hidden(on)
 
 
-func vegetation_hidden() -> bool:
-	return _render.vegetation_hidden
+func vegetation_hidden() -> bool: return _render.vegetation_hidden
 
 
 func render_cache() -> RenderAssetCache: return _render.cache
@@ -434,6 +431,10 @@ func render_cache() -> RenderAssetCache: return _render.cache
 
 ## The render-side state object (profiles, safety, Texture Preview) for diagnostics and the render bench.
 func render_state() -> SessionRender: return _render
+
+
+## Presenter and overview counters (RenderBench per-step `render` stats).
+func render_summary() -> Dictionary: return _render.render_summary()
 
 
 func toggle_texture_preview() -> String: return _render.toggle_texture_preview()

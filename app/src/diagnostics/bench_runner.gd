@@ -118,7 +118,7 @@ func _ensure_world(name: String) -> bool:
 	_session.presenter.rebuild(doc)
 	_session.layers.rebuild(doc)
 	_session.rig.height_sampler = doc.sample_height
-	_session.rig.set_world_rect(doc.layout.world_rect())
+	_session.render_state().present_world_rect(doc.layout.world_rect())
 	_host.mark_presented()
 	_world_name = name
 	_world_dirty = false

@@ -22,6 +22,10 @@ var render_ready: Callable = Callable()
 var scatter_changed: Callable = Callable()
 ## `path_changed(ids: Array)`: paths edited live by a tool whose ribbons need redrawing.
 var path_changed: Callable = Callable()
+## `area_pick(origin, dir) -> Dictionary`: overview group under the ray ({"area": AABB, ...}) or {}.
+## `focus_area(area: AABB)`: zooms the camera onto a grouped area (PICK-03). Unset = no overview.
+var area_pick: Callable = Callable()
+var focus_area: Callable = Callable()
 ## StrokeProbe.finish() of the most recent paint/sculpt/path stroke; {} before the first.
 var last_stroke: Dictionary = {}
 

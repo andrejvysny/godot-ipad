@@ -10,6 +10,8 @@ const BLOCKED := "blocked"
 const HOST_BENCH_IGNORE_FOCUS := "--bench-ignore-focus"
 const ACTIVE_MARGIN_M := 2.0
 const RING_COLOR := Color(0.55, 0.85, 1.0, 0.9)
+const AREA_FOCUS_FACTOR := 0.6  # camera distance after an area focus, x the profile's tree detail radius
+const AREA_FOCUS_MESSAGE := "Area focused — tap again to select an object."
 
 var config: RenderConfig
 var profiles: RenderProfileController
@@ -18,6 +20,9 @@ var cache: RenderAssetCache
 var active_edit: ActiveEditArea
 var texture_preview: TexturePreviewController
 var safety: SessionSafety
+var overview: OverviewRenderer
+
+var _presented_rect := Rect2()  # world rect shown when the projections show a bench document
 
 var _registry: RenderAssetRegistry
 var _tools: ToolController
@@ -71,14 +76,97 @@ func service_frame(budget_ms: float = -1.0) -> void:
 	texture_preview.service(budget)
 	_sync_preview()
 	_session.presenter.service_frame(budget)
+	_service_overview()
 
 
-func bind_tools(tools: ToolController) -> void:
+func _service_overview() -> void:
+	if overview == null:
+		return
+	var rect := _presented_rect if _presented_rect.has_area() else _session.document.layout.world_rect()
+	if rect != overview.world_rect():
+		overview.set_world_rect(rect)
+	var bounds := _session.presenter.world_bounds(_tools.selected_id()) if _tools != null else AABB()
+	overview.set_blockers(active_edit.pinned_set(), bounds)
+	overview.service(_session.rig.get_camera())
+
+
+## The projections show a document other than the session's (render bench) with world rect `rect`;
+## a zero rect returns to the session document. Camera limits and overview groups follow.
+func present_world_rect(rect: Rect2) -> void:
+	_presented_rect = rect
+	_session.rig.set_world_rect(rect if rect.has_area() else _session.document.layout.world_rect())
+
+
+## The presenter's render world was replaced (bench catalog swap): the overview drops its groups and
+## populations and binds the new world, scatter and registry.
+func rebind_overview(registry_: RenderAssetRegistry) -> void:
+	if overview == null:
+		return
+	overview.reset()
+	overview.clear_populations()
+	overview.setup(registry_, float(config.section("cells").objects_m), _overview_levels())
+	_add_overview_populations()
+
+
+func _overview_levels() -> PackedFloat32Array:
+	var levels := PackedFloat32Array()
+	for m: Variant in config.section("cells").overview_levels_m:
+		levels.append(float(m))
+	return levels
+
+
+func _add_overview_populations() -> void:
+	overview.add_population(_session.presenter.render_world())
+	# TODO(merge): ScatterRenderer implements the overview interface; remove the guard once it has landed.
+	if _session.layers.scatter.has_method("overview_members"):
+		overview.add_population(_session.layers.scatter)
+
+
+## Creates the overview proxies (after the presenter and layers exist) and hooks the area-focus tap.
+func bind_tools(tools: ToolController, ctx: ToolContext) -> void:
 	_tools = tools
+	_build_overview(ctx)
 	_session.presenter.placeholders_reported.connect(_session.post_message)
 	tools.operation_started.connect(_on_operation_started)
 	tools.operation_finished.connect(func(_change: WorldChange) -> void: _operation_ended("finished"))
 	tools.operation_cancelled.connect(func(reason: String) -> void: _operation_ended(reason))
+
+
+func _build_overview(ctx: ToolContext) -> void:
+	overview = OverviewRenderer.new()
+	overview.name = "overview"
+	overview.setup(registry(), float(config.section("cells").objects_m), _overview_levels())
+	overview.set_lod_profile(_lod_profile(profiles.active_profile()))
+	overview.set_world_rect(_session.document.layout.world_rect())
+	_session.add_child(overview)
+	_add_overview_populations()
+	overview.set_vegetation_hidden(vegetation_hidden)
+	ctx.area_pick = overview.pick
+	ctx.focus_area = focus_area
+
+
+## Frames a grouped area: pivot on the terrain under its centre, far enough for individual cells to appear.
+func focus_area(area: AABB) -> void:
+	var c := area.get_center()
+	var h := _session.document.sample_height(c.x, c.z)
+	var pose := _session.rig.controller.get_pose()
+	pose["pivot"] = Vector3(c.x, 0.0 if is_nan(h) else h, c.z)
+	pose["distance"] = float(profiles.active_profile().get("tree_detail_radius_m", 80.0)) * AREA_FOCUS_FACTOR
+	_session.rig.reset_to(pose)
+	_session.post_message(AREA_FOCUS_MESSAGE)
+
+
+## Per-step render stats of the bench: presenter batches/instances/triangles/uploads plus the overview.
+func render_summary() -> Dictionary:
+	var out := _session.presenter.render_stats()
+	out["overview"] = overview.stats() if overview != null else {}
+	return out
+
+
+## Profile dictionary plus the stability settings the LOD policy needs.
+func _lod_profile(p: Dictionary) -> Dictionary:
+	var stability := config.section("stability")
+	return p.merged({"lod_hysteresis_fraction": float(stability.lod_hysteresis_fraction), "settle_ms": int(stability.settle_ms)}, true)
 
 
 func _on_operation_started(_tool: String) -> void:
@@ -135,7 +223,13 @@ func _apply_profile(_name: String, p: Dictionary) -> void:
 	viewport.screen_space_aa = Viewport.SCREEN_SPACE_AA_DISABLED
 	viewport.use_taa = false
 	viewport.mesh_lod_threshold = float(p.mesh_lod_threshold_px)
-	_session.presenter.set_default_role(str(p.near_min_role))
+	var lod := _lod_profile(p)
+	_session.presenter.set_lod_profile(lod)
+	if overview != null:
+		overview.set_lod_profile(lod)
+	# TODO(merge): ScatterRenderer.set_lod_profile (registry tiers, decorative density) is added by the scatter migration.
+	if _session.layers.scatter.has_method("set_lod_profile"):
+		_session.layers.scatter.call("set_lod_profile", lod)
 	# Cap only below the display rate (Detailed 30 fps); 0 leaves pacing to vsync.
 	Engine.max_fps = int(p.target_fps) if int(p.target_fps) < 60 else 0
 	_session.status_changed.emit()
@@ -152,6 +246,8 @@ func set_vegetation_hidden(on: bool) -> void:
 	var rule := config.vegetation_rule()
 	_session.layers.set_vegetation_hidden(on, rule)
 	_session.presenter.set_vegetation_hidden(on, rule)
+	if overview != null:
+		overview.set_vegetation_hidden(on)
 	_session.status_changed.emit()
 
 
@@ -235,6 +331,8 @@ func suspend_texture_preview(cause: String) -> void:
 
 
 func _on_world_replaced() -> void:
+	if overview != null:
+		overview.set_world_rect(_session.document.layout.world_rect())
 	texture_preview.on_world_replaced()
 	texture_preview.bind(_session.terrain, _session.document)
 	_sync_preview()

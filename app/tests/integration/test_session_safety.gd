@@ -38,6 +38,8 @@ func _start() -> EditorSession:
 	_sessions.append(s)
 	tree.root.add_child(s)
 	await tree.process_frame
+	# The first real-clock sample happened during that frame; the test clock must start after it.
+	_now[0] = maxi(_now[0], Time.get_ticks_msec()) + 100000
 	s.render_state().safety.clock_msec = func() -> int: return _now[0]
 	return s
 

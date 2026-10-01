@@ -10,6 +10,7 @@ var error: String = ""
 var _ctx: ToolContext
 var _snap: bool
 var _pick_id := ""
+var _area := {}  # overview group hit by the tap ray when no object was hit
 var _grab_id := ""
 var _start_vp := Vector2.ZERO
 var _threshold := 0.0
@@ -43,6 +44,10 @@ func begin(sample: PointerSample, hit: TerrainHit) -> void:
 	var pick := _ctx.presenter.pick(cam.project_ray_origin(sample.position_viewport),
 			cam.project_ray_normal(sample.position_viewport))
 	_pick_id = pick.id
+	_area = {}
+	if _pick_id == "" and _ctx.area_pick.is_valid():
+		_area = _ctx.area_pick.call(cam.project_ray_origin(sample.position_viewport),
+				cam.project_ray_normal(sample.position_viewport))
 	if _pick_id == "" or _pick_id != _grab_id:
 		_grab_id = ""
 	_learn_offset(hit)
@@ -75,7 +80,11 @@ func advance(_now: float) -> void:
 
 func end(_sample: PointerSample, hit: TerrainHit, over_ui: bool) -> WorldChange:
 	if not _dragging:
-		if not over_ui:
+		if over_ui:
+			return null
+		if not _area.is_empty() and _ctx.focus_area.is_valid():
+			_ctx.focus_area.call(_area.area)  # a grouped area is focused, never a hidden object selected
+		else:
 			_tap = _pick_id
 		return null
 	if over_ui or not hit.ok or not _try_move(hit):

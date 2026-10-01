@@ -122,6 +122,9 @@ func _check_report(bench: RenderBench) -> void:
 	assert_eq(steps.size(), bench.report.steps.size())
 	for step: Dictionary in steps:
 		assert_true(int(step.summary.frames) == 3 and step.has("counters_peak") and step.has("prepare_ms"), str(step.id))
+		for key in ["batches", "instances", "estimated_triangles", "full_uploads", "partial_uploads", "overview"]:
+			assert_true((step.render as Dictionary).has(key), "step %s carries render.%s" % [str(step.id), key])
+		assert_true((step.render.overview as Dictionary).has("proxy_triangles"), "overview stats in the step")
 		assert_eq(int(step.objects_presented), int(step.count), "exact population " + str(step.id))  # BENCH-02
 		assert_eq(step.population.fixture, "gentle_hills")  # JSON numbers parse as float
 		assert_eq([int(step.population.objects), int(step.population.scatter_instances), int(step.population.paths)],

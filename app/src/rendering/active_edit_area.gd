@@ -76,6 +76,11 @@ func pinned_cells(cell_size: float) -> Dictionary:
 	return out
 
 
+## Currently pinned cells (Vector2i -> true); read only.
+func pinned_set() -> Dictionary:
+	return _pinned
+
+
 func is_pinned(cell: Vector2i) -> bool:
 	return _pinned.has(cell)
 

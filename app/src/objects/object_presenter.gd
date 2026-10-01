@@ -22,7 +22,7 @@ var _registry: RenderAssetRegistry
 var _cache: RenderAssetCache
 var _own_cache: bool = false  # the presenter polls a cache it created itself
 var _world: ObjectRenderWorld
-var _role: String = ""
+var _profile: Dictionary = {}
 var _xforms: Dictionary = {}  # id -> Transform3D
 var _inverses: Dictionary = {}  # id -> affine_inverse of _xforms[id]
 var _index := RenderSpatialIndex.new(32.0)
@@ -64,8 +64,8 @@ func setup(catalog: AssetCatalog, registry: RenderAssetRegistry = null, cache: R
 	_world = ObjectRenderWorld.new()
 	_world.name = "render_world"
 	_world.setup(_registry, _cache, ROLE_CELL_M, _is_hidden, catalog)
-	if _role != "":
-		_world.set_default_role(_role)
+	if not _profile.is_empty():
+		_world.set_lod_profile(_profile)
 	_world.placeholders_reported.connect(placeholders_reported.emit)
 	add_child(_world)
 	_ghost = PresenterGhost.new(_registry, _cache)
@@ -111,10 +111,16 @@ func settle_now(max_ms: float = 2000.0) -> bool:
 	return not has_pending_work()
 
 
-func set_default_role(role: String) -> void:
-	_role = role
+## LOD profile of the active render profile (see ObjectRenderWorld.set_lod_profile).
+func set_lod_profile(profile: Dictionary) -> void:
+	_profile = profile
 	if _world != null:
-		_world.set_default_role(role)
+		_world.set_lod_profile(profile)
+
+
+## Compatibility: changes only the minimum unselected role of the current profile.
+func set_default_role(role: String) -> void:
+	set_lod_profile(_profile.merged({"near_min_role": role}, true))
 
 
 func set_pin_check(check: Callable) -> void:
@@ -206,14 +212,15 @@ func object_ids() -> PackedStringArray:
 	return ids
 
 
-## Nearest hit in front of `origin`. `distance` is in world units along the ray.
+## Nearest hit in front of `origin`. `distance` is in world units along the ray. Objects in cells an overview
+## group covers are not individually visible and never hit (PICK-03).
 func pick(origin: Vector3, dir: Vector3) -> Dictionary:
 	var best := {"id": "", "distance": INF}
 	if not origin.is_finite() or not dir.is_finite() or dir.length_squared() < 1e-12:
 		return best
 	var dir_len := dir.length()
 	for id in _index.query_ray(origin, dir, PICK_MAX_DISTANCE_M):
-		if _is_hidden(id):
+		if _is_hidden(id) or _world.is_object_covered(id):
 			continue
 		var bounds := _catalog.get_asset(_asset_of[id]).bounds
 		var inv: Transform3D = _inverses[id]
