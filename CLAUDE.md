@@ -1,7 +1,9 @@
 # World Painter PoC — agent notes
 
-Product contract: `Godot_iPad_World_Editor_PoC_Specification.md` (Core PoC = WP00–WP06; WP07/PoC+ is NOT authorized).
-Format contract: `docs/world-format.md`. Input contract: `docs/input-contract.md`. Decisions: `docs/decisions/`.
+Product contract: `Godot_iPad_World_Editor_PoC_Specification.md` (Core PoC = WP00–WP06). The user authorized the
+World Editor v2 redesign incl. PoC+ features on 2026-10-01: `docs/decisions/0009-world-editor-v2.md`, behaviour spec
+`docs/editor-v2.md`, design source `docs/design/`. Report PoC+ results separately from Core results.
+Format contract: `docs/world-format.md` (schema 2). Input contract: `docs/input-contract.md`. Decisions: `docs/decisions/`.
 
 ## Layout
 - `app/` Godot 4.7.2 project (typed GDScript). `app/src/<module>/`, tests in `app/tests/{unit,integration}/test_*.gd`.
