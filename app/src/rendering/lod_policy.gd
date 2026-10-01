@@ -5,7 +5,8 @@ extends RefCounted
 ## wider FOV or a smaller viewport makes the same object coarser at the same metric distance; the
 ## profile radii are the detail targets at the reference view, never disappearance distances.
 ## Roles from fine to coarse: near, mid, far, group128, group256 (near only when the profile's
-## minimum unselected tier is "near").
+## minimum unselected tier is "near"). The overview itself uses group_levels / group_level_for, which index any
+## number of overview levels; role_for's group roles equal the two-level case.
 
 const REFERENCE_FOV_DEG := 60.0
 const REFERENCE_VIEWPORT_H := 820.0
@@ -13,7 +14,7 @@ const NEAR_FRACTION := 0.35
 # Individual far representations up to R * GROUP_FACTOR. 2.5 measured ~2.9 M primitives in a dense 50k-object
 # focus view (HOST); 1.6 hands the outer ring to the overview groups sooner (Performance: 128 m).
 const GROUP_FACTOR := 1.6
-const GROUP256_FACTOR := 2.0  # 128 m groups up to 2 x the group threshold, 256 m groups beyond
+const GROUP256_FACTOR := 2.0  # each overview level becomes eligible at 2 x the previous level's threshold
 
 const NEAR := "near"
 const MID := "mid"
@@ -59,6 +60,31 @@ static func role_for(effective_m: float, profile: Dictionary, current: String = 
 	if raw > cur:
 		return names[maxi(cur, _index(effective_m, limits, 1.0 + hysteresis * 0.5))]
 	return names[mini(cur, _index(effective_m, limits, 1.0 - hysteresis * 0.5))]
+
+
+## Effective distance at which each of `level_count` overview levels becomes eligible: level 0 at R x GROUP_FACTOR,
+## every next level at GROUP256_FACTOR x the previous one.
+static func group_levels(profile: Dictionary, level_count: int) -> PackedFloat64Array:
+	var out := PackedFloat64Array()
+	var limit := float(profile.get("tree_detail_radius_m", 80.0)) * GROUP_FACTOR
+	for i in level_count:
+		out.append(limit)
+		limit *= GROUP256_FACTOR
+	return out
+
+
+## Coarsest eligible overview level for `effective_m`, -1 = individual cells. Same half-hysteresis rule as role_for;
+## `current_level` below -1 means no history.
+static func group_level_for(effective_m: float, profile: Dictionary, level_count: int, current_level: int = -2,
+		hysteresis: float = 0.2) -> int:
+	var limits := group_levels(profile, level_count)
+	var raw := _index(effective_m, limits, 1.0) - 1
+	if current_level < -1 or raw == current_level:
+		return raw
+	var cur := mini(current_level, level_count - 1)
+	if raw > cur:
+		return maxi(cur, _index(effective_m, limits, 1.0 + hysteresis * 0.5) - 1)
+	return mini(cur, _index(effective_m, limits, 1.0 - hysteresis * 0.5) - 1)
 
 
 ## Individual (cell batch) role: group roles clamp to far; the overview decides grouping itself.

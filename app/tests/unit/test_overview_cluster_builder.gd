@@ -180,6 +180,19 @@ func test_vertices_are_local_to_the_group_origin() -> void:
 	assert_near(float(out.cell_m), 8.0, 1e-6, "256 m groups use an 8 m grid")
 
 
+func test_64_m_groups_use_a_4_m_grid_within_the_lobe_budget() -> void:
+	assert_near(OverviewRenderer.grid_cell_m(64.0), 4.0, 1e-6)
+	assert_near(OverviewRenderer.grid_cell_m(128.0), 4.0, 1e-6)
+	assert_near(OverviewRenderer.grid_cell_m(256.0), 8.0, 1e-6)
+	var members := _forest(3000, 5, Rect2(0, 0, 64, 64))
+	var input := _input(members, 64.0)
+	input.cell_m = OverviewRenderer.grid_cell_m(64.0)
+	var out := OverviewClusterBuilder.build(input)
+	assert_near(float(out.cell_m), 4.0, 1e-6, "16 x 16 grid cells per kind fit the budget without aggregation")
+	assert_true(int(out.lobes) <= OverviewClusterBuilder.MAX_LOBES and int(out.lobes) > 100)
+	assert_true(out == OverviewClusterBuilder.build(input), "deterministic")
+
+
 func test_run_reports_the_result_and_time_for_a_worker() -> void:
 	var out := {}
 	OverviewClusterBuilder.run(_input(_forest(200, 1, Rect2(0, 0, 128, 128))), out)

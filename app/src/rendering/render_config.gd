@@ -209,17 +209,21 @@ static func _validate_dependencies(budgets: Dictionary, preview: Dictionary) -> 
 
 static func _overview_levels(cells: Dictionary) -> String:
 	var levels: Variant = cells.overview_levels_m
-	if typeof(levels) != TYPE_ARRAY or (levels as Array).is_empty():
-		return "cells.overview_levels_m must be a non-empty array"
-	var previous := 0.0
+	if typeof(levels) != TYPE_ARRAY or (levels as Array).is_empty() or (levels as Array).size() > OverviewRenderer.MAX_LEVELS:
+		return "cells.overview_levels_m must be an array of 1 to %d levels" % OverviewRenderer.MAX_LEVELS
+	var previous := float(cells.objects_m)
 	for level: Variant in levels:
 		if typeof(level) not in [TYPE_FLOAT, TYPE_INT] or float(level) <= previous:
-			return "cells.overview_levels_m must be strictly ascending numbers"
-		var ratio := float(level) / float(cells.objects_m)
-		if not is_equal_approx(ratio, roundf(ratio)):
-			return "cells.overview_levels_m must be multiples of objects_m"
+			return "cells.overview_levels_m must be strictly ascending numbers above objects_m"
+		var ratio := float(level) / previous
+		if not is_equal_approx(ratio, roundf(ratio)) or not _is_power_of_two(int(roundf(ratio))):
+			return "cells.overview_levels_m must each be a power-of-two multiple of the previous level (the first of objects_m)"
 		previous = float(level)
 	return ""
+
+
+static func _is_power_of_two(n: int) -> bool:
+	return n > 0 and (n & (n - 1)) == 0
 
 
 static func _exact_keys(d: Variant, keys: Array, at: String) -> String:

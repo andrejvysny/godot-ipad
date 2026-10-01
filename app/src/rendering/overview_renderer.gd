@@ -1,18 +1,17 @@
 class_name OverviewRenderer
 extends Node3D
-## Whole-world 3D overview proxies (spec §9): 128 m / 256 m groups (origin-aligned, inside the world rect) built
-## by OverviewClusterBuilder on WorkerThreadPool tasks; at most one build start and one ArrayMesh pair per frame.
-## Hierarchy cut (LOD-03): a 256 m group is active when its role is group256, its proxy is current and none of
-## its 128 m children is blocked; else each 128 m group is active when its role is group128 or coarser, its proxy
-## is current and it is not blocked (pinned cell, selected object or pending invalidation). (De)activation shows/
-## hides the proxy and (un)covers its cells in every population in the same call, so a proxy never shows over
-## visible cell batches or with its parent/children. Activation waits for settled navigation; deactivation by
-## invalidation, pin or selection is immediate and non-blocked 128 m children take over at once.
+## Whole-world 3D overview proxies (spec §9): groups of 1-4 configured levels (e.g. 64 / 128 / 256 m; origin-aligned,
+## inside the world rect, each level a power-of-two multiple of the previous, level 0 children are the object cells)
+## built by OverviewClusterBuilder on WorkerThreadPool tasks; at most one build start and one ArrayMesh pair per frame.
+## Hierarchy cut (LOD-03): see OverviewCut. (De)activation shows/hides the proxy and (un)covers its cells in every
+## population in the same call, so a proxy never shows over visible cell batches or with an ancestor/descendant.
 ## Populations (ObjectRenderWorld, ScatterRenderer): overview_members(rect), set_cells_covered(rect, covered),
 ## signal overview_changed(rect).
 
 const MAX_JOBS := 2
-const GRID_DIVISOR := 32.0  # grid cell = group size / 32: 4 m for 128 m groups, 8 m for 256 m groups
+const GRID_DIVISOR := 32.0  # grid cell = max(MIN_GRID_M, group size / 32): 4 m for 64 / 128 m groups, 8 m for 256 m
+const MIN_GRID_M := 4.0
+const MAX_LEVELS := 4
 const NO_ROW := -1
 const CAPTURE_BUDGET_MS := 1.0
 
@@ -27,7 +26,7 @@ var _hysteresis: float = 0.2
 var _settle_ms: int = 250
 var _cell_m: float = 32.0
 var _cam := LodCameraTracker.new()
-var _blocked: Array[Dictionary] = [{}, {}]
+var _blocked: Array[Dictionary] = [{}, {}]  # level -> Dictionary(Vector2i -> true)
 var _selected := AABB()
 var _veg_hidden := false
 var _roles_dirty := true
@@ -50,6 +49,11 @@ func _init() -> void:
 	_material.cull_mode = BaseMaterial3D.CULL_BACK
 
 
+## Proxy grid cell of a group of `size_m`: 4 m up to 128 m groups, 8 m for 256 m (lobe budget stays <= 1024).
+static func grid_cell_m(size_m: float) -> float:
+	return maxf(MIN_GRID_M, size_m / GRID_DIVISOR)
+
+
 func material() -> Material:
 	return _material
 
@@ -57,8 +61,13 @@ func material() -> Material:
 func setup(registry: RenderAssetRegistry, cell_m: float = 32.0, levels_m: PackedFloat32Array = PackedFloat32Array()) -> void:
 	_registry = registry
 	_cell_m = cell_m
-	if levels_m.size() == 2:
+	if levels_m.size() >= 1 and levels_m.size() <= MAX_LEVELS:
 		_levels = levels_m
+	_groups = []
+	_blocked = []
+	for lvl in _levels.size():
+		_groups.append({})
+		_blocked.append({})
 
 
 func _exit_tree() -> void:
@@ -74,7 +83,7 @@ func add_population(pop: Object) -> void:
 	_pops.append(pop)
 	if pop.has_signal("overview_changed"):
 		pop.connect("overview_changed", _on_changed)
-	for lvl in 2:
+	for lvl in _levels.size():
 		for g: OverviewGroup in _groups[lvl].values():
 			if g.active:
 				pop.call("set_cells_covered", g.rect, true)
@@ -96,17 +105,21 @@ func set_lod_profile(profile: Dictionary) -> void:
 	_roles_dirty = true
 
 
-## Groups exist for the 128 m / 256 m cells intersecting `rect`; replaces every existing group.
+## Groups exist for the level cells intersecting `rect`; replaces every existing group.
 func set_world_rect(rect: Rect2) -> void:
 	reset()
 	_world_rect = rect
-	for lvl in 2:
+	for lvl in _levels.size():
 		var size := _levels[lvl]
 		var lo := Vector2i(floori(rect.position.x / size), floori(rect.position.y / size))
 		var hi := Vector2i(ceili(rect.end.x / size) - 1, ceili(rect.end.y / size) - 1)
 		for gx in range(lo.x, hi.x + 1):
 			for gz in range(lo.y, hi.y + 1):
-				_groups[lvl][Vector2i(gx, gz)] = OverviewGroup.new(lvl, size, Vector2i(gx, gz))
+				var g := OverviewGroup.new(lvl, size, Vector2i(gx, gz))
+				if lvl + 1 < _levels.size():
+					var ratio := int(roundf(_levels[lvl + 1] / size))
+					g.parent_key = Vector2i(floori(float(gx) / ratio), floori(float(gz) / ratio))
+				_groups[lvl][g.key] = g
 
 
 func world_rect() -> Rect2:
@@ -115,7 +128,7 @@ func world_rect() -> Rect2:
 
 ## World replacement: every group is deactivated (cells revealed) and dropped, outstanding builds are discarded.
 func reset() -> void:
-	for lvl in 2:
+	for lvl in _levels.size():
 		for g: OverviewGroup in _groups[lvl].values():
 			if g.active:
 				_set_active(g, false)
@@ -130,7 +143,7 @@ func reset() -> void:
 
 func set_vegetation_hidden(hidden: bool) -> void:
 	_veg_hidden = hidden
-	for lvl in 2:
+	for lvl in _levels.size():
 		for g: OverviewGroup in _groups[lvl].values():
 			if g.active and g.canopy != null:
 				g.canopy.visible = not hidden
@@ -140,7 +153,7 @@ func set_vegetation_hidden(hidden: bool) -> void:
 ## (zero size = none); groups holding either are blocked. Call every frame before service().
 func set_blockers(pinned_cells: Dictionary, selected_bounds: AABB) -> void:
 	_selected = selected_bounds
-	for lvl in 2:
+	for lvl in _levels.size():
 		var blocked: Dictionary = _blocked[lvl]
 		blocked.clear()
 		var size := _levels[lvl]
@@ -172,7 +185,7 @@ func service(camera: Camera3D) -> void:
 func has_pending_work() -> bool:
 	if not _jobs.is_empty() or not _capture.is_empty() or _withheld:
 		return true
-	for lvl in 2:
+	for lvl in _levels.size():
 		for g: OverviewGroup in _groups[lvl].values():
 			if not g.current and not _blocked[lvl].has(g.key):
 				return true
@@ -184,7 +197,7 @@ func has_pending_work() -> bool:
 func pick(origin: Vector3, dir: Vector3) -> Dictionary:
 	var best := {}
 	var best_d := INF
-	for lvl in 2:
+	for lvl in _levels.size():
 		for g: OverviewGroup in _groups[lvl].values():
 			if not g.active:
 				continue
@@ -206,6 +219,10 @@ func groups(level: int) -> Array:
 	return _groups[level].values()
 
 
+func level_count() -> int:
+	return _levels.size()
+
+
 func level_m(level: int) -> float:
 	return _levels[level]
 
@@ -216,7 +233,8 @@ func stats() -> Dictionary:
 		"cells_covered": 0, "pending_builds": 0, "jobs": _jobs.size(), "mesh_builds": int(_timing.mesh_builds),
 		"last_worker_ms": int(_timing.last_worker) / 1000.0, "max_worker_ms": int(_timing.max_worker) / 1000.0,
 		"last_mesh_ms": int(_timing.last_mesh) / 1000.0, "max_mesh_ms": int(_timing.max_mesh) / 1000.0}
-	for lvl in 2:
+	for lvl in _levels.size():
+		out.active[int(_levels[lvl])] = 0
 		for g: OverviewGroup in _groups[lvl].values():
 			out.groups += 1
 			out.built += 1 if g.current else 0
@@ -245,7 +263,7 @@ func _ray_lobes(local_origin: Vector3, dir: Vector3, boxes: PackedVector3Array) 
 
 func _on_changed(rect: Rect2) -> void:
 	var now := Time.get_ticks_msec()
-	for lvl in 2:
+	for lvl in _levels.size():
 		var size := _levels[lvl]
 		var lo := Vector2i(floori(rect.position.x / size), floori(rect.position.y / size))
 		var hi := Vector2i(ceili(rect.end.x / size) - 1, ceili(rect.end.y / size) - 1)
@@ -299,7 +317,7 @@ func _collect_jobs() -> void:
 func _make_one_mesh() -> void:
 	var best: OverviewGroup = null
 	var best_score := INF
-	for lvl in 2:
+	for lvl in _levels.size():
 		for g: OverviewGroup in _groups[lvl].values():
 			if g.result.is_empty():
 				continue
@@ -321,7 +339,7 @@ func _start_capture(now: int) -> void:
 		return
 	var best: OverviewGroup = null
 	var best_score := INF
-	for lvl in 2:
+	for lvl in _levels.size():
 		for g: OverviewGroup in _groups[lvl].values():
 			if g.current or g.building or not g.result.is_empty() or now - g.dirty_ms < _settle_ms \
 					or _blocked[lvl].has(g.key):
@@ -367,7 +385,7 @@ func _advance_capture() -> void:
 		g.building = false
 		g.result = OverviewClusterBuilder.empty_result()
 	else:
-		var input := {"origin": g.rect.position, "size_m": g.level_m, "cell_m": g.level_m / GRID_DIVISOR,
+		var input := {"origin": g.rect.position, "size_m": g.level_m, "cell_m": grid_cell_m(g.level_m),
 			"positions": _cap_positions, "assets": _cap_assets, "scale_xz": _cap_sxz, "scale_y": _cap_sy,
 			"table": _table.duplicate()}
 		var out := {}
@@ -393,7 +411,7 @@ func _capture_cell(g: OverviewGroup, rect: Rect2) -> void:
 
 ## Groups the camera wants proxies for come first, then nearest first (idle prefetch of the others).
 func _score(g: OverviewGroup) -> float:
-	var wanted := g.role == LodPolicy.GROUP256 or (g.level == 0 and g.role == LodPolicy.GROUP128)
+	var wanted := g.group_level >= g.level
 	return _effective(g) + (0.0 if wanted else 1.0e9)
 
 
@@ -419,77 +437,19 @@ func _effective(g: OverviewGroup) -> float:
 
 func _refresh_roles() -> void:
 	_roles_dirty = false
-	for lvl in 2:
+	for lvl in _levels.size():
 		for g: OverviewGroup in _groups[lvl].values():
-			g.role = LodPolicy.role_for(_effective(g), _profile, g.role, _hysteresis)
+			g.group_level = LodPolicy.group_level_for(_effective(g), _profile, _levels.size(), g.group_level, _hysteresis)
 
 
-func _is_blocked(g: OverviewGroup) -> bool:
-	return g.invalidated or _blocked[g.level].has(g.key)
-
-
-func _children(parent: OverviewGroup) -> Array[OverviewGroup]:
-	var out: Array[OverviewGroup] = []
-	var ratio := int(roundf(_levels[1] / _levels[0]))
-	for dx in ratio:
-		for dz in ratio:
-			var g: OverviewGroup = _groups[0].get(Vector2i(parent.key.x * ratio + dx, parent.key.y * ratio + dz))
-			if g != null:
-				out.append(g)
-	return out
-
-
-func _group_role_ok(g: OverviewGroup) -> bool:
-	return g.role == LodPolicy.GROUP128 or g.role == LodPolicy.GROUP256
-
-
-## Computes the cut and applies it: deactivations first (cells revealed), then activations.
 func _apply_activation(settled: bool) -> void:
 	var off: Array[OverviewGroup] = []
 	var on: Array[OverviewGroup] = []
-	_withheld = false
-	for parent: OverviewGroup in _groups[1].values():
-		var kids := _children(parent)
-		var blocked := _is_blocked(parent)
-		for k in kids:
-			blocked = blocked or _is_blocked(k)
-		var wants := parent.current and parent.complete and parent.role == LodPolicy.GROUP256 and not blocked
-		var parent_on := parent.active
-		if parent.active:
-			if blocked or (not wants and settled):
-				off.append(parent)
-				parent_on = false
-			elif not wants:
-				_withheld = true
-		elif wants:
-			if settled:
-				on.append(parent)
-				parent_on = true
-			else:
-				_withheld = true
-		var handoff := parent.active and not parent_on and blocked
-		for k in kids:
-			_decide_child(k, parent_on, settled, handoff, off, on)
+	_withheld = OverviewCut.compute(_groups, _blocked, settled, off, on)
 	for g in off:
 		_set_active(g, false)
 	for g in on:
 		_set_active(g, true)
-
-
-func _decide_child(k: OverviewGroup, parent_on: bool, settled: bool, handoff: bool, off: Array[OverviewGroup],
-		on: Array[OverviewGroup]) -> void:
-	var blocked := _is_blocked(k)
-	var wants := not parent_on and k.current and k.complete and _group_role_ok(k) and not blocked
-	if k.active:
-		if parent_on or blocked or (not wants and settled):
-			off.append(k)
-		elif not wants:
-			_withheld = true
-	elif wants:
-		if settled or handoff:
-			on.append(k)
-		else:
-			_withheld = true
 
 
 func _set_active(g: OverviewGroup, on: bool) -> void:

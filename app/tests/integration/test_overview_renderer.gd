@@ -23,10 +23,9 @@ func _assert_cut_is_clean(what: String) -> void:
 	var active := fx.active_groups()
 	for g: OverviewGroup in active:
 		assert_true(g.current and not g.invalidated, "%s: active group %s is current" % [what, g.key])
-		if g.level == 1:
-			for k: OverviewGroup in fx.overview.groups(0):
-				if g.rect.encloses(k.rect):
-					assert_false(k.active, "%s: no active child under an active 256 m group" % what)
+		for k: OverviewGroup in active:
+			if k.level < g.level:
+				assert_false(g.rect.encloses(k.rect), "%s: no active %d m group under an active %d m group" % [what, k.level_m, g.level_m])
 	for cell: RenderCell in fx.world._cells.values():
 		for batch: InstanceBatch in cell.batches.values():
 			if not batch.node.visible:
@@ -66,9 +65,8 @@ func test_overview_distance_represents_every_object_exactly_once() -> void:
 	assert_true(fx.visible_individuals() > 0, "near cells are individual")
 	_assert_every_object_once("mixed")
 	_assert_cut_is_clean("mixed")
-	for g: OverviewGroup in fx.overview.groups(0):
-		if g.active:
-			assert_true(g.role == LodPolicy.GROUP128 or g.role == LodPolicy.GROUP256, "active 128 m group has a group role")
+	for g: OverviewGroup in fx.active_groups():
+		assert_true(g.group_level >= g.level, "an active group is wanted at its own level")
 
 
 func test_a_blocked_child_splits_its_parent_and_siblings_take_over() -> void:
@@ -335,8 +333,212 @@ func test_world_replacement_reveals_every_cell_and_discards_old_builds() -> void
 	assert_eq(fx.visible_individuals(), 0)
 
 
+# --- Three levels (64 / 128 / 256 m) ----------------------------------------------------------
+
+const L3 := [64.0, 128.0, 256.0]
+
+
+func _fx3(rect: Rect2 = Rect2(-256.0, -256.0, 512.0, 512.0)) -> OverviewFixture:
+	return OverviewFixture.new(tree, rect, PackedFloat32Array(L3))
+
+
+func _active_by_level() -> Dictionary:
+	return fx.overview.stats().active
+
+
+func test_three_levels_represent_every_object_exactly_once_across_the_cut() -> void:
+	fx = _fx3(OverviewFixture.WORLD)
+	fx.add_patches(20, 250, 45.0, 0.0)
+	_top(0.0, 0.0, 1600.0)
+	fx.sync_all()
+	assert_true(fx.settle())
+	var stats := fx.overview.stats()
+	assert_eq(int(stats.active.get(256, 0)), 16, "the whole km1 is 16 groups of 256 m")
+	assert_eq(int(stats.active.get(128, 0)) + int(stats.active.get(64, 0)), 0, "no descendant under an active group")
+	assert_eq(fx.visible_individuals(), 0)
+	_assert_every_object_once("overview")
+	_assert_cut_is_clean("overview")
+	var mixed_levels := {}
+	for step in [Vector3(60.0, 0.0, 40.0), Vector3(-200.0, 0.0, 120.0), Vector3(150.0, 0.0, -180.0)]:
+		_top(step.x, step.z, 70.0)
+		assert_true(fx.run_until(func() -> bool:
+			_assert_cut_is_clean("moving")
+			return not fx.busy()))
+		fx.settle()
+		_assert_every_object_once("mixed at %s" % str(step))
+		_assert_cut_is_clean("mixed")
+		assert_true(fx.visible_individuals() > 0, "near cells are individual")
+		for g: OverviewGroup in fx.active_groups():
+			mixed_levels[g.level] = true
+			assert_true(g.group_level >= g.level)
+	assert_true(mixed_levels.has(0) and mixed_levels.has(1), "the 64 m and 128 m levels take part in the cut")
+
+
+func test_blocked_groups_at_each_level_split_their_ancestors_and_siblings_take_over() -> void:
+	fx = _fx3()
+	fx.add_patches(10, 120, 28.0, 0.0)
+	_top(0.0, 0.0, 1600.0)
+	fx.sync_all()
+	assert_true(fx.settle())
+	var top: OverviewGroup = fx.overview.group(2, Vector2i(0, 0))
+	assert_true(top.active, "the 256 m group over the origin quadrant is grouped")
+	var kids128: Array[OverviewGroup] = []
+	var kids64: Array[OverviewGroup] = []
+	for g: OverviewGroup in fx.overview.groups(1):
+		if top.rect.encloses(g.rect):
+			kids128.append(g)
+	for g: OverviewGroup in fx.overview.groups(0):
+		if kids128[0].rect.encloses(g.rect):
+			kids64.append(g)
+	assert_eq(kids128.size(), 4)
+	assert_eq(kids64.size(), 4)
+	for g: OverviewGroup in kids128:
+		assert_true(g.current, "128 m proxies are prefetched")
+	for g: OverviewGroup in kids64:
+		assert_true(g.current, "64 m proxies are prefetched")
+	fx.pins = {Vector2i(floori(kids64[0].rect.position.x / 32.0), floori(kids64[0].rect.position.y / 32.0)): true}
+	fx.frame()
+	assert_false(top.active, "the 256 m group is retired in the frame of the pin")
+	assert_false(kids128[0].active, "the 128 m group holding the pin is retired too")
+	assert_false(kids64[0].active, "the pinned 64 m group is individual")
+	for i in range(1, 4):
+		assert_true(kids128[i].active, "unblocked 128 m sibling %d takes over at once" % i)
+		assert_true(kids64[i].active, "unblocked 64 m sibling %d takes over at once" % i)
+	_assert_every_object_once("split at level 0")
+	_assert_cut_is_clean("split at level 0")
+	fx.pins = {}
+	assert_true(fx.settle())
+	assert_true(top.active and not kids128[1].active and not kids64[1].active, "released: the top group returns")
+	_assert_every_object_once("merged")
+
+	var target: OverviewGroup = kids128[1]
+	var inside: Array[OverviewGroup] = []
+	for g: OverviewGroup in fx.overview.groups(0):
+		if target.rect.encloses(g.rect):
+			inside.append(g)
+	fx.selected = AABB(Vector3(inside[0].rect.get_center().x - 5.0, 0.0, inside[0].rect.get_center().y - 5.0), Vector3(10.0, 5.0, 10.0))
+	fx.frame()
+	assert_false(top.active and kids128[1].active, "a selection splits its ancestors")
+	assert_false(kids64[1].active)
+	assert_true(kids128[2].active, "other 128 m groups take over")
+	_assert_every_object_once("selection split")
+	_assert_cut_is_clean("selection split")
+	fx.selected = AABB()
+	assert_true(fx.settle())
+	assert_true(top.active)
+
+
+func test_an_edit_deactivates_its_group_and_every_ancestor_only() -> void:
+	fx = _fx3(OverviewFixture.WORLD)
+	var centres := fx.add_patches(6, 150, 40.0, 0.0)
+	_top(0.0, 0.0, 1400.0)
+	fx.sync_all()
+	assert_true(fx.settle())
+	_assert_every_object_once("start")
+	var victim_id := ""
+	for id in fx.doc.sorted_object_ids():
+		var p := fx.doc.get_object(id).get_position_v3()
+		if Vector2(p.x, p.z).distance_to(Vector2(centres[0].x, centres[0].z)) < 10.0:
+			victim_id = id
+			break
+	var rec := fx.doc.get_object(victim_id)
+	var gens := {}
+	for lvl in 3:
+		for g: OverviewGroup in fx.overview.groups(lvl):
+			gens[g] = g.gen
+	var moved := rec.clone()
+	var p0 := rec.get_position_v3()
+	moved.set_position(p0.x, p0.y + 3.0, p0.z)
+	fx.doc.put_object(moved)
+	fx.sync(victim_id)
+	var touched := 0
+	for lvl in 3:
+		for g: OverviewGroup in fx.overview.groups(lvl):
+			if g.rect.has_point(Vector2(p0.x, p0.z)):
+				assert_false(g.active, "the %d m group of the edit is retired at once" % g.level_m)
+				assert_false(g.current, "its old proxy is dropped")
+				assert_ne(g.gen, gens[g])
+				touched += 1
+			else:
+				assert_eq(g.gen, gens[g], "%d m group %s untouched" % [g.level_m, g.key])
+	assert_eq(touched, 3, "the 64 m group and its 128 m and 256 m ancestors")
+	_assert_every_object_once("after edit")
+	assert_true(fx.run_until(func() -> bool:
+		_assert_cut_is_clean("rebuilding")
+		return not fx.busy()))
+	fx.settle()
+	_assert_every_object_once("rebuilt")
+	assert_eq(int(_active_by_level().get(256, 0)), 16, "the whole world is grouped again")
+
+
+func test_top_down_64_m_proxies_use_a_4_m_grid_and_keep_clearings() -> void:
+	fx = _fx3(Rect2(-128.0, -128.0, 256.0, 256.0))
+	var centre := Vector3(-32.0, 0.0, -32.0)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 78
+	for i in 700:
+		var p := centre + Vector3(rng.randf_range(-30.0, 30.0), 0.0, rng.randf_range(-30.0, 30.0))
+		if absf(p.x - centre.x) < 10.0 and absf(p.z - centre.z) < 10.0:
+			continue
+		fx.add(OverviewFixture.SPRUCE, p, rng.randf() * TAU, rng.randf_range(0.8, 1.3))
+	_top(0.0, 0.0, 1600.0)
+	fx.sync_all()
+	assert_true(fx.settle())
+	var g := fx.overview.group(0, Vector2i(-1, -1))
+	assert_eq(g.level_m, 64.0)
+	assert_true(g.members > 600 and g.canopy != null, "the forest group")
+	var arrays := g.canopy.mesh.surface_get_arrays(0)
+	var v: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+	var idx: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
+	var up_cells := {}
+	for t in range(0, idx.size(), 3):
+		var face := (v[idx[t + 2]] - v[idx[t]]).cross(v[idx[t + 1]] - v[idx[t]])
+		if face.normalized().y > 0.5:
+			var c := (v[idx[t]] + v[idx[t + 1]] + v[idx[t + 2]]) / 3.0 + g.canopy.position
+			up_cells[Vector2i(floori(c.x / 4.0), floori(c.z / 4.0))] = true
+	for id in fx.doc.sorted_object_ids():
+		var p := fx.doc.get_object(id).get_position_v3()
+		assert_true(up_cells.has(Vector2i(floori(p.x / 4.0), floori(p.z / 4.0))), "an upward triangle over %s" % str(p))
+	for cell: Vector2i in up_cells:
+		var cx := (cell.x + 0.5) * 4.0
+		var cz := (cell.y + 0.5) * 4.0
+		assert_false(absf(cx - centre.x) < 7.0 and absf(cz - centre.z) < 7.0, "no geometry in the clearing at %s" % cell)
+	assert_true(g.lobes <= OverviewClusterBuilder.MAX_LOBES)
+
+
+func _three_level_signature() -> Dictionary:
+	fx = _fx3(Rect2(-256.0, -256.0, 512.0, 512.0))
+	fx.add_patches(6, 150, 30.0, 0.0)
+	_top(0.0, 0.0, 1600.0)
+	fx.sync_all()
+	fx.settle()
+	_top(40.0, 20.0, 300.0)
+	fx.settle()
+	var s := fx.overview.stats()
+	var sig := {"active": (s.active as Dictionary).duplicate(), "built": s.built, "proxy": s.proxy_triangles,
+		"all": s.built_triangles, "covered": s.cells_covered, "individuals": fx.visible_individuals()}
+	fx.release()
+	fx = null
+	return sig
+
+
+func test_three_level_results_are_deterministic() -> void:
+	var a := _three_level_signature()
+	var b := _three_level_signature()
+	assert_eq(a, b, "two identical runs give identical cuts and proxies")
+	assert_true(int(a.proxy) > 0)
+
+
 func test_measurements_for_a_km1_world_with_50000_objects() -> void:
-	fx = OverviewFixture.new(tree)
+	for levels: Array in [[128.0, 256.0], L3]:
+		print("    --- overview levels %s ---" % str(levels))
+		_measure_50000(PackedFloat32Array(levels))
+		fx.release()
+		fx = null
+
+
+func _measure_50000(levels: PackedFloat32Array) -> void:
+	fx = OverviewFixture.new(tree, OverviewFixture.WORLD, levels)
 	var t0 := Time.get_ticks_usec()
 	fx.add_patches(50, 1000, 70.0, 20.0)
 	print("    build 50,000 records in 50 patches with clearings: %.0f ms" % (float(Time.get_ticks_usec() - t0) / 1000.0))

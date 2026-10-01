@@ -93,6 +93,14 @@ func test_invalid_configs_fall_back_with_error() -> void:
 	d = _shipped()
 	d.cells.overview_levels_m = [100, 200]
 	_assert_rejected(d, "levels not multiples of objects_m")
+	for bad: Array in [[], [32], [96, 192], [64, 192], [64, 128, 256, 512, 1024], [128, 128], [64, "128"]]:
+		d = _shipped()
+		d.cells.overview_levels_m = bad
+		_assert_rejected(d, "overview levels %s" % str(bad))
+	for good: Array in [[128], [64, 128, 256], [64, 256], [128, 512], [64, 128, 256, 512]]:
+		d = _shipped()
+		d.cells.overview_levels_m = good
+		assert_eq(RenderConfig.validate(d), "", "overview levels %s are valid" % str(good))
 	d = _shipped()
 	d.budgets.managed_soft_mib = 600
 	_assert_rejected(d, "soft above ceiling")

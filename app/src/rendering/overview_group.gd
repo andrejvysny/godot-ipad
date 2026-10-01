@@ -1,6 +1,6 @@
 class_name OverviewGroup
 extends RefCounted
-## State of one overview group (128 m / 256 m, aligned to the world origin): its rect, build generation,
+## State of one overview group (any configured level, e.g. 64 / 128 / 256 m, aligned to the world origin): its rect, build generation,
 ## proxy meshes and activation. `current` means the proxy meshes match the instances as of the last
 ## invalidation; an invalidated group is never active (spec §9.3). Coordinates: world XZ; proxy vertices are
 ## local to the rect corner (y absolute).
@@ -15,7 +15,13 @@ var building := false
 var invalidated := false  # a change since the last applied build (never true for a group that was never built)
 var active := false
 var complete := true  # false when a member has no overview descriptor: the group must not hide its cells
-var role := ""
+var group_level: int = -2  # LodPolicy.group_level_for of this group's box: coarsest level wanted, -1 none, -2 not yet evaluated
+var parent_key := Vector2i.ZERO  # key of the enclosing group one level up (unused at the top level)
+# Transient per-pass state of OverviewRenderer._apply_activation.
+var sub_blocked := false  # this group or any group below it is blocked
+var cut_on := false  # active after this pass
+var cut_anc := false  # an ancestor is active after this pass
+var cut_handoff := false  # an ancestor was retired by a block in this pass: unblocked groups below take over at once
 var dirty_ms: int = 0
 var result: Dictionary = {}  # worker result waiting for the main-thread mesh creation
 var members: int = 0

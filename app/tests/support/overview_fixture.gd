@@ -25,7 +25,8 @@ var selected := AABB()
 var _rng := RandomNumberGenerator.new()
 
 
-func _init(tree_: SceneTree, rect: Rect2 = WORLD) -> void:
+## `levels` are the overview group sizes; the default keeps the two-level setup most tests index by level number.
+func _init(tree_: SceneTree, rect: Rect2 = WORLD, levels: PackedFloat32Array = PackedFloat32Array([128.0, 256.0])) -> void:
 	tree = tree_
 	catalog = AssetCatalog.load_from()[0]
 	registry = RenderAssetRegistry.load_from(ObjectPresenter.REGISTRY_INDEX, catalog)
@@ -39,7 +40,7 @@ func _init(tree_: SceneTree, rect: Rect2 = WORLD) -> void:
 	presenter.set_camera(camera)
 	presenter.set_lod_profile(profile)
 	overview = OverviewRenderer.new()
-	overview.setup(registry, 32.0)
+	overview.setup(registry, 32.0, levels)
 	overview.set_lod_profile(profile)
 	overview.set_world_rect(rect)
 	tree.root.add_child(overview)
@@ -144,7 +145,7 @@ func total_objects() -> int:
 
 func active_groups() -> Array:
 	var out: Array = []
-	for lvl in 2:
+	for lvl in overview.level_count():
 		for g: OverviewGroup in overview.groups(lvl):
 			if g.active:
 				out.append(g)

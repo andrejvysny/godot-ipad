@@ -16,6 +16,34 @@ func test_roles_follow_the_profile_thresholds() -> void:
 	assert_eq(LodPolicy.individual_role(900.0, PERF), "far", "groups are the overview's decision")
 
 
+func test_group_levels_double_from_the_group_threshold() -> void:
+	assert_eq(LodPolicy.group_levels(PERF, 3), PackedFloat64Array([128.0, 256.0, 512.0]))
+	assert_eq(LodPolicy.group_levels(PERF, 2), PackedFloat64Array([128.0, 256.0]), "two levels equal group128 / group256")
+	assert_eq(LodPolicy.group_levels(BAL, 1), PackedFloat64Array([192.0]))
+	assert_eq(LodPolicy.group_level_for(100.0, PERF, 3), -1)
+	assert_eq(LodPolicy.group_level_for(200.0, PERF, 3), 0)
+	assert_eq(LodPolicy.group_level_for(300.0, PERF, 3), 1)
+	assert_eq(LodPolicy.group_level_for(900.0, PERF, 3), 2)
+	assert_eq(LodPolicy.group_level_for(900.0, PERF, 2), 1)
+	assert_eq(LodPolicy.group_level_for(1000.0, PERF, 3, -1), 2, "big jumps skip levels")
+	assert_eq(LodPolicy.group_level_for(5.0, PERF, 3, 2), -1)
+
+
+func test_group_level_hysteresis_prevents_toggling_near_each_threshold() -> void:
+	for boundary: float in [128.0, 256.0, 512.0]:
+		var below := LodPolicy.group_level_for(boundary * 0.99, PERF, 3)
+		var level := below
+		for d: float in [1.01, 0.99, 1.04, 0.96, 1.0, 1.08, 0.92]:
+			level = LodPolicy.group_level_for(boundary * d, PERF, 3, level)
+			assert_eq(level, below, "inside the band at %.1f x %.0f m" % [d, boundary])
+		level = LodPolicy.group_level_for(boundary * 1.11, PERF, 3, level)
+		assert_eq(level, below + 1, "clears the band upward at %.0f m" % boundary)
+		for d: float in [0.95, 1.0, 1.05]:
+			level = LodPolicy.group_level_for(boundary * d, PERF, 3, level)
+			assert_eq(level, below + 1, "stays coarse inside the band at %.2f x %.0f m" % [d, boundary])
+		assert_eq(LodPolicy.group_level_for(boundary * 0.89, PERF, 3, level), below, "clears the band downward")
+
+
 func test_lod_01_hysteresis_prevents_toggling_near_a_threshold() -> void:
 	var role := LodPolicy.role_for(79.0, PERF)
 	assert_eq(role, "mid")

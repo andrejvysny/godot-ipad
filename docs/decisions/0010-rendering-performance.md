@@ -82,3 +82,7 @@ separately from the input bridge.
 - `asset_diversity` (8–32 material families) cannot be benchmarked with the 6 prepared bench
   assets and is reported NOT_RUN.
 - Every performance number from the Mac or headless runs is HOST evidence only.
+- The overview supports 1-4 configurable group levels (`cells.overview_levels_m`); the shipped value stays
+  `[128, 256]`. HOST bench `mixed_world_50k`/performance with `[64, 128, 256]` cut the focus/shallow
+  primitives by only ~7 % (2.74 M to 2.55 M; 64 m proxies add ~225 k triangles; the remaining individual
+  cells lie inside the 1.6 x tree-detail-radius circle), so it was not adopted.
