@@ -116,6 +116,10 @@ func _ensure_world(name: String) -> bool:
 		_session.post_message("Render bench cannot present '%s': %s" % [name, error], true)
 		_host.abort("bench_world_failed")
 		return false
+	_world["authored_sha256"] = CanonicalEncoder.authored_hash(doc)
+	var attached_catalog := _attach.bench_catalog if _world.catalog_kind == "bench" else _session.catalog
+	_world.population["authored_sha256"] = _world.authored_sha256
+	_world.population["bench_catalog_sha256"] = attached_catalog.sha256
 	_session.presenter.rebuild(doc)
 	_session.layers.rebuild(doc)
 	_session.rig.height_sampler = doc.sample_height
@@ -142,12 +146,29 @@ func _make_camera_ctx(doc: WorldDocument) -> Dictionary:
 	var aspect := size.x / size.y if size.y > 0.0 else 1.0
 	var fit := _session.rig.controller.fit_distance(deg_to_rad(BenchCameraPaths.YAW_DEG),
 			deg_to_rad(BenchCameraPaths.OVERVIEW_PITCH_DEG), aspect)
-	return {"anchors": _world.anchors, "height": doc.sample_height, "fit_distance": fit}
+	var rect := doc.layout.world_rect()
+	var heights := doc.height_range()
+	var bounds := AABB(Vector3(rect.position.x, heights.x, rect.position.y),
+			Vector3(rect.size.x, maxf(heights.y - heights.x, 0.001), rect.size.y))
+	var pivot := Vector3(0.0, doc.sample_height(0.0, 0.0), 0.0)
+	var threshold := float(_session.render_state().config.section("overview_view").enter_extent_ratio)
+	var centered := BenchCameraPaths.threshold_distance(RenderCameraSnapshot.capture(_session.rig.get_camera()),
+			bounds, pivot, fit, threshold)
+	return {"anchors": _world.anchors, "height": doc.sample_height, "fit_distance": fit,
+		"threshold_distance": centered, "threshold_extent_ratio": threshold}
 
 
 ## Applies the step's profile. Real profiles go through the profile controller (allowed for the bench owner);
 ## legacy ablation names only change render settings. Returns the profile's target fps.
 func _apply_profile(profile: String) -> float:
+	_host.apply_comparison({})
+	if BenchPlan.COMPARISONS.has(profile):
+		var target := _apply_profile("performance")
+		var error := _host.apply_comparison(BenchPlan.comparison_flags(profile))
+		if error != "":
+			_session.post_message(error, true)
+			_host.abort("comparison_unsupported")
+		return target
 	if not BenchScenarios.is_real_profile(profile):
 		_host._apply_settings(BenchPlan.profile_settings(profile))
 		return BenchPlan.DEFAULT_TARGET_FPS
@@ -169,6 +190,8 @@ func _run_step(step: Dictionary, token: int) -> Dictionary:
 		return {}
 	var t0 := Time.get_ticks_usec()
 	var target_fps := _apply_profile(str(step.profile))
+	if _host.stale(token):
+		return {}
 	RenderCounters.reset_warmup(_session.get_viewport())
 	var kind := str(step.camera)
 	var focus_pose := BenchCameraPaths.pose("focus", _camera_ctx, 0.0, seconds)
@@ -182,6 +205,7 @@ func _run_step(step: Dictionary, token: int) -> Dictionary:
 	var cache_start := _session.render_cache().stats()
 	if not await _warmup(kind, token):
 		return {}
+	var ready := _host.pending_state()
 	var stats := BenchStreamStats.new(target_fps)
 	var run := await _measure(kind, seconds, stats, token, -1)
 	if run.is_empty():
@@ -189,11 +213,15 @@ func _run_step(step: Dictionary, token: int) -> Dictionary:
 	var out := step.duplicate()
 	out.merge({"target_fps": target_fps, "target_budget_ms": 1000.0 / target_fps, "prepare_ms": prepare_ms,
 		"first_frame_ms": settle.first_frame_ms, "settle_ms": settle.settle_ms, "settled": settle.settled,
-		"population": _population(), "render_stats": _session.presenter.render_stats(),
+		"pending_at_settle": settle.pending_at_settle, "pending_before_measure": ready,
+		"measurement_status": BenchPlan.measurement_status(kind, ready),
+		"comparison": _session.render_state().comparison_flags(), "population": _population(), "render_stats": _session.presenter.render_stats(),
 		"cache_start": cache_start, "cache": _session.render_cache().stats(), "terrain_mesh": _session.terrain.mesh_config(),
 		"telemetry": {"start": telemetry_start, "end": _telemetry()},
-		"summary": stats.summary(run.status, run.status), "counters_peak": run.peak, "counters_last": run.last,
-		"nodes": _session.presenter.node_count()})
+		"summary": stats.summary(), "counters_peak": run.peak, "counters_last": run.last,
+		"nodes": _session.presenter.node_count(), "view_state": _session.render_state().view.status(),
+		"terrain_material": _session.terrain.material_mode(), "scatter_stats": _session.layers.scatter.stats(),
+		"render": _session.render_summary()})
 	var overview := _session.render_state().overview
 	if overview != null:
 		out["overview_stats"] = overview.stats()
@@ -241,27 +269,22 @@ func _warmup(kind: String, token: int) -> bool:
 
 
 ## Runs frames for `duration` s (a workload that ends by itself ends the window, capped), applying the camera
-## path or the edit workload every frame. Returns {} on abort, else {status, peak, last, workload}.
+## path or the edit workload every frame. Returns {} on abort, else {peak, last, workload}.
 ## `deadline_usec` >= 0 ends the window early (sustained mode).
 func _measure(kind: String, duration: float, stats: BenchStreamStats, token: int, deadline_usec: int,
 		minute_hook: Callable = Callable()) -> Dictionary:
-	var is_workload := kind in BenchScenarios.WORKLOAD_KINDS
-	_workload = null
-	if is_workload:
-		_workload = BenchWorkloads.new(_session, _world.doc, _world.anchors.focus)
-		_workload.preview_cycles = int(overrides.get("preview_cycles", BenchWorkloads.PREVIEW_CYCLES))
-		var error := _workload.begin(kind)
-		if error != "":
-			return {"status": RenderCounters.NOT_RUN, "peak": {}, "last": {}, "workload": {"error": error}}
+	var initial_camera_pose := _start_segment_camera(kind, duration)
+	var error := _begin_workload(kind)
+	if error != "":
+		return {"peak": {}, "last": {}, "workload": {"error": error}}
 	var limit := PREVIEW_WINDOW_CAP_S if kind == "preview_cycles" else duration
 	var viewport := _session.get_viewport()
 	var peak := {"gpu_ms": null, "cpu_ms": null}
 	var last := {}
-	var status := RenderCounters.NOT_RUN
 	var start := Time.get_ticks_usec()
 	var previous := start
 	var t := 0.0
-	var dynamic := kind in ["path", "travel"]
+	var dynamic := kind in BenchScenarios.DYNAMIC_CAMERA_KINDS
 	var self_ending := _workload != null and not _workload.is_timed()
 	while t < limit:
 		await _host.get_tree().process_frame
@@ -279,21 +302,35 @@ func _measure(kind: String, duration: float, stats: BenchStreamStats, token: int
 		stats.add_frame(float(now - previous) / 1000.0)
 		previous = now
 		last = RenderCounters.snapshot(viewport)
-		var valid: bool = last.gpu_status == RenderCounters.AVAILABLE
-		if valid:
-			stats.add_timing(float(last.gpu_ms), float(last.cpu_ms))
-		if valid or status != RenderCounters.AVAILABLE:
-			status = last.gpu_status
-		RenderBench._track_peak(peak, last, valid)
+		stats.add_snapshot(last)
+		RenderBench._track_peak(peak, last)
 		if minute_hook.is_valid():
 			minute_hook.call(t, last)
 		if (self_ending and _workload.is_done()) or (deadline_usec >= 0 and now >= deadline_usec):
 			break
-	var result := {"status": status, "peak": peak, "last": last, "workload": {}}
+	var result := {"peak": peak, "last": last, "workload": {}, "initial_camera_pose": initial_camera_pose}
 	if _workload != null:
 		result.workload = _workload.finish(t)
 		_workload = null
 	return result
+
+
+func _start_segment_camera(kind: String, duration: float) -> Dictionary:
+	var path := "focus" if kind in BenchScenarios.WORKLOAD_KINDS else kind
+	_session.rig.reset_to(BenchCameraPaths.pose(path, _camera_ctx, 0.0, duration))
+	var actual := _session.rig.controller.get_pose()
+	var pivot: Vector3 = actual.pivot
+	return {"pivot": [pivot.x, pivot.y, pivot.z], "yaw_deg": rad_to_deg(float(actual.yaw)),
+		"pitch_deg": rad_to_deg(float(actual.pitch)), "distance_m": actual.distance}
+
+
+func _begin_workload(kind: String) -> String:
+	_workload = null
+	if kind not in BenchScenarios.WORKLOAD_KINDS:
+		return ""
+	_workload = BenchWorkloads.new(_session, _world.doc, _world.anchors.focus)
+	_workload.preview_cycles = int(overrides.get("preview_cycles", BenchWorkloads.PREVIEW_CYCLES))
+	return _workload.begin(kind)
 
 
 # --- Sustained -----------------------------------------------------------------------------
@@ -310,12 +347,15 @@ func _run_sustained(token: int) -> void:
 		"minutes_requested": minutes, "segment_seconds": seconds, "target_fps": target_fps,
 		"sequence": BenchScenarios.SUSTAINED_SEQUENCE, "minutes": [], "segments": {}, "elapsed_s": 0.0,
 		"completed": false, "idle_pacing": "never_enabled"}
+	_start_segment_camera("overview", seconds)
 	var settle := await _host._settle(token)
 	if _host.stale(token) or settle.is_empty():
 		return
+	if not await _warmup("overview", token):
+		return
 	var start := Time.get_ticks_usec()
 	var deadline := start + int(total_s * 1e6)
-	var minute := {"stats": BenchStreamStats.new(target_fps), "index": 0, "status": RenderCounters.NOT_RUN,
+	var minute := {"stats": BenchStreamStats.new(target_fps), "index": 0,
 		"segment": "", "start": start}
 	var hook := _minute_hook.bind(minute)
 	while Time.get_ticks_usec() < deadline:
@@ -336,16 +376,15 @@ func _run_sustained(token: int) -> void:
 
 func _note_segment(kind: String, run: Dictionary) -> void:
 	var seg: Dictionary = sustained.segments.get(kind, {"runs": 0})
+	if not seg.has("initial_camera_pose"):
+		seg["initial_camera_pose"] = run.initial_camera_pose
 	seg["runs"] = int(seg.runs) + 1
 	if kind == "preview_cycles":
 		seg["cycles_done"] = int(seg.get("cycles_done", 0)) + int((run.workload as Dictionary).get("cycles_done", 0))
 	sustained.segments[kind] = seg
 
 
-func _minute_hook(_t: float, snapshot: Dictionary, minute: Dictionary) -> void:
-	var valid: bool = snapshot.gpu_status == RenderCounters.AVAILABLE
-	if valid or minute.status != RenderCounters.AVAILABLE:
-		minute.status = snapshot.gpu_status
+func _minute_hook(_t: float, _snapshot: Dictionary, minute: Dictionary) -> void:
 	var elapsed := float(Time.get_ticks_usec() - int(minute.start)) / 1e6
 	if elapsed >= float(int(minute.index) + 1) * MINUTE_S:
 		_flush_minute(minute)
@@ -359,15 +398,15 @@ func _flush_minute(minute: Dictionary) -> void:
 		return
 	var list: Array = sustained.minutes
 	if list.size() < MAX_SUSTAINED_MINUTES:
-		var s := stats.summary(str(minute.status), str(minute.status))
+		var s := stats.summary()
 		var tel := _telemetry()
 		list.append({"minute": int(minute.index) + 1, "frames": s.frames, "frame_p50_ms": s.frame_p50_ms,
 			"frame_p95_ms": s.frame_p95_ms, "frame_p99_ms": s.frame_p99_ms, "frame_max_ms": s.frame_max_ms,
 			"hitches_over_50_ms": s.hitches_over_50_ms, "over_100_ms": s.over_100_ms, "missed_target": s.missed_target,
-			"gpu_status": s.gpu_status, "gpu_p95_ms": s.gpu_p95_ms, "thermal": tel.thermal,
+			"gpu_status": s.gpu_status, "gpu_p95_ms": s.gpu_p95_ms,
+			"cpu_status": s.cpu_status, "cpu_p95_ms": s.cpu_p95_ms, "cpu_samples": s.cpu_samples, "gpu_samples": s.gpu_samples, "thermal": tel.thermal,
 			"footprint_mib": tel.footprint_mib, "safety_state": tel.safety_state,
 			"cache_resident_bytes": int(_session.render_cache().stats().resident_bytes),
 			"nodes": _session.presenter.node_count(), "last_segment": minute.segment})
 	minute.index = int(minute.index) + 1
 	stats.reset()
-	minute.status = RenderCounters.NOT_RUN

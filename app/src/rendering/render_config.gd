@@ -5,7 +5,7 @@ extends RefCounted
 ## Expected failures are returned as strings; nothing here calls push_error.
 
 const PATH := "res://config/rendering_profiles.json"
-const SCHEMA_VERSION := 1
+const SCHEMA_VERSION := 2
 const STARTUP_PROFILE := "performance"
 const PROFILE_NAMES: Array[String] = ["performance", "balanced", "detailed"]
 const PROFILE_KEYS: Array[String] = ["label", "target_fps", "scale_3d", "scaling_mode", "msaa", "texture_tier",
@@ -13,6 +13,9 @@ const PROFILE_KEYS: Array[String] = ["label", "target_fps", "scale_3d", "scaling
 		"decorative_density_outside", "decorative_density_active", "active_area_radius_m", "mesh_lod_threshold_px",
 		"shadows", "complex_effects"]
 const SECTION_KEYS := {
+	"size_visibility": ["enabled", "reference_height_px", "object_hide_px", "object_show_px",
+			"decorative_hide_px", "decorative_show_px", "far_mid_px", "mid_near_px"],
+	"overview_view": ["enter_extent_ratio", "exit_extent_ratio", "enter_pitch_deg", "exit_pitch_deg"],
 	"cells": ["objects_m", "ground_cover_m", "overview_levels_m"],
 	"budgets": ["managed_soft_mib", "managed_ceiling_mib", "preview_mib", "main_thread_soft_ms",
 			"main_thread_max_scheduled_ms", "upload_soft_mib_per_frame", "inflight_loads"],
@@ -191,7 +194,36 @@ static func _validate_sections(d: Dictionary) -> String:
 	for message in checks:
 		if message != "":
 			return message + "."
-	return _validate_dependencies(budgets, preview)
+	var visibility_problem := _validate_visibility(d)
+	return visibility_problem if visibility_problem != "" else _validate_dependencies(budgets, preview)
+
+
+static func _validate_visibility(d: Dictionary) -> String:
+	var v: Dictionary = d.size_visibility
+	var o: Dictionary = d.overview_view
+	if typeof(v.enabled) != TYPE_BOOL:
+		return "size_visibility.enabled must be a bool."
+	if not _is_number(v.reference_height_px) or float(v.reference_height_px) != 820.0:
+		return "size_visibility.reference_height_px must be 820."
+	for key: String in ["object_hide_px", "object_show_px", "decorative_hide_px", "decorative_show_px", "far_mid_px", "mid_near_px"]:
+		var problem := _in_range(v[key], 0.0, 10000.0, "size_visibility." + key, true)
+		if problem != "":
+			return problem + "."
+	if float(v.object_show_px) <= float(v.object_hide_px) or float(v.decorative_show_px) <= float(v.decorative_hide_px):
+		return "size_visibility show thresholds must exceed hide thresholds."
+	if float(v.mid_near_px) <= float(v.far_mid_px):
+		return "size_visibility.mid_near_px must exceed far_mid_px."
+	for key: String in ["enter_extent_ratio", "exit_extent_ratio"]:
+		var problem := _in_range(o[key], 0.0, 10.0, "overview_view." + key, true)
+		if problem != "":
+			return problem + "."
+	for key: String in ["enter_pitch_deg", "exit_pitch_deg"]:
+		var problem := _in_range(o[key], 0.0, 90.0, "overview_view." + key)
+		if problem != "":
+			return problem + "."
+	if float(o.exit_extent_ratio) <= float(o.enter_extent_ratio) or float(o.exit_pitch_deg) >= float(o.enter_pitch_deg):
+		return "overview_view exit thresholds must provide hysteresis."
+	return ""
 
 
 static func _validate_dependencies(budgets: Dictionary, preview: Dictionary) -> String:
@@ -286,6 +318,8 @@ static func _default_data() -> Dictionary:
 			"balanced": _default_profile("Balanced", 60, 0.75, 512, "near", 120, 40, 0.5, 1.0, 25, 2),
 			"detailed": _default_profile("Detailed", 30, 1.0, 1024, "near", 160, 60, 0.75, 1.0, 30, 1),
 		},
+		"size_visibility": {"enabled": true, "reference_height_px": 820, "object_hide_px": 2, "object_show_px": 3, "decorative_hide_px": 3, "decorative_show_px": 4, "far_mid_px": 32, "mid_near_px": 160},
+		"overview_view": {"enter_extent_ratio": 1.1, "exit_extent_ratio": 1.3, "enter_pitch_deg": 45, "exit_pitch_deg": 35},
 		"cells": {"objects_m": 32, "ground_cover_m": 16, "overview_levels_m": [128, 256]},
 		"budgets": {"managed_soft_mib": 384, "managed_ceiling_mib": 512, "preview_mib": 128,
 				"main_thread_soft_ms": 1.0, "main_thread_max_scheduled_ms": 2.0, "upload_soft_mib_per_frame": 2,

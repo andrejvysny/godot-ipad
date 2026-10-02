@@ -3,7 +3,7 @@ extends RefCounted
 ## Scheduling core of ScatterRenderer: keeps the buckets in sync with the layer, selects which cells are
 ## drawn and how (ground-cover radius with hysteresis, decorative density, object roles), and builds the
 ## queued cells nearest first within a per-frame budget. Camera-driven changes follow the stability rules
-## of spec §8: role changes apply after the camera settled and never in pinned cells; the active area is
+## of spec §8: size downgrades apply during navigation, upgrades after settling, pins remain stable. The active area is
 ## frozen for the duration of an operation.
 
 signal overview_changed(rect: Rect2)
@@ -32,17 +32,18 @@ var _queued := {}  # Vector3i(cx, cz, kind) -> true
 var _order: Array[Vector3i] = []  # queued keys, nearest last
 var _order_dirty := false
 var _order_focus := Vector3.INF
+var _order_sort_ms := 0
 var _wanted := {}  # Vector2i -> true: decorative cells inside the ground-cover band
 var _view_pos := Vector3.INF
 var _view_force := true
 var _roles_due := false
 var _roles_retry := false
 var _role_scan: Array[Vector2i] = []
-var _upgrade_retry := false
-var _retry_ms := 0
 var _active_due := false
 var _reclassify_due := false
 var _force_settled := false
+var view_suppressed := false
+var _building := NO_CELL
 
 
 func _init(parent: Node3D, catalog: AssetCatalog, registry: RenderAssetRegistry, cache: RenderAssetCache,
@@ -61,6 +62,7 @@ func _init(parent: Node3D, catalog: AssetCatalog, registry: RenderAssetRegistry,
 
 
 func set_profile(p: Dictionary) -> void:
+	builder.jobs.clear()
 	profile = p.duplicate()
 	view.active_radius = float(profile.get("active_area_radius_m", 20.0))
 	_view_force = true
@@ -82,6 +84,7 @@ func rebuild_all(new_doc: WorldDocument) -> void:
 	for kind in 2:
 		for cell: ScatterCell in (buckets.cells[kind] as Dictionary).values():
 			builder.free_batches(cell)
+	_building = NO_CELL
 	_queued.clear()
 	_order.clear()
 	_role_scan.clear()
@@ -111,7 +114,9 @@ func mark_rect(rect: Rect2, heights_only: bool) -> void:
 	if heights_only:
 		for kind in 2:
 			for key in cell_range(kind, rect):
-				if (built[kind] as Dictionary).has(key):
+				var cell := buckets.cell(kind, key)
+				if cell != null and (cell.built or builder.jobs.has(Vector3i(key.x, key.y, kind))):
+					builder.invalidate(cell)
 					_enqueue(kind, key)
 		if _has_meaningful(rect):
 			overview_changed.emit(rect)
@@ -123,10 +128,10 @@ func mark_rect(rect: Rect2, heights_only: bool) -> void:
 		overview_changed.emit(moved)
 
 
-## Membership may have changed anywhere and every built cell re-drapes.
 func mark_all() -> void:
 	if doc == null:
 		return
+	builder.jobs.clear()
 	view.track(Time.get_ticks_msec())
 	_apply_changed(buckets.sync(doc.scatter, Rect2(), true))
 	for kind in 2:
@@ -136,14 +141,13 @@ func mark_all() -> void:
 
 
 func has_dirty() -> bool:
-	return not _queued.is_empty() or not _role_scan.is_empty() or (_view_force and doc != null)
+	return _building != NO_CELL or _roles_due or _roles_retry or not _queued.is_empty() or not _role_scan.is_empty() or (_view_force and doc != null)
 
 
 func has_pending_work() -> bool:
 	return has_dirty() or not builder.res.awaiting.is_empty()
 
 
-## All pending work now, unbudgeted, treating the camera as settled (tests, benchmarks).
 func flush() -> void:
 	_force_settled = true
 	service_frame(INF)
@@ -180,15 +184,19 @@ func drain(max_ms: float) -> void:
 
 
 func service_frame(budget_ms: float) -> void:
-	if doc == null:
+	if doc == null or view_suppressed:
 		return
 	var t0 := Time.get_ticks_usec()
 	if _own_cache:
 		_cache.poll(budget_ms)
 	var now := Time.get_ticks_msec()
 	if view.track(now):
+		_view_force = true
 		_roles_due = true
 		_active_due = true
+	builder.snapshot = view.snapshot
+	builder.profile = profile
+	builder.allow_upgrades = _force_settled or view.is_settled(now)
 	_sync_freeze()
 	_poll_ready(now)
 	_refresh_ground_cover()
@@ -199,7 +207,7 @@ func service_frame(budget_ms: float) -> void:
 
 
 func pending_builds() -> int:
-	return _queued.size()
+	return _queued.size() + (1 if _building != NO_CELL else 0)
 
 
 ## Cells of `kind` overlapping `rect`, clamped to the world extent.
@@ -215,8 +223,6 @@ func cell_range(kind: int, rect: Rect2) -> Array[Vector2i]:
 			out.append(Vector2i(cx, cz))
 	return out
 
-
-# --- View selection ------------------------------------------------------------------------
 
 func _eff(cell: ScatterCell) -> float:
 	var size: float = buckets.sizes[cell.kind]
@@ -243,6 +249,7 @@ func _sync_freeze() -> void:
 		_view_force = true
 		_reclassify(true)
 	elif not pinned and view.freezing:
+		_roles_due = true
 		view.frozen = {}
 		view.freezing = false
 		_view_force = true
@@ -338,56 +345,43 @@ func _reclassify(allow_pinned: bool) -> void:
 			_enqueue(DECO, key)
 
 
-## Role changes of built object cells apply only after the camera settled, and never in pinned cells.
+## Projection changes can reduce submissions immediately; upgrades wait for settle.
 func _refresh_roles(now: int, t0: int, budget_ms: float) -> void:
-	if _role_scan.is_empty():
-		if (_roles_retry or _upgrade_retry) and now - _retry_ms >= RECHECK_MS:
-			_retry_ms = now
-			_roles_due = _roles_due or _roles_retry
-			_poll_ready(now, true)
-		if not _roles_due or not (_force_settled or view.is_settled(now)):
-			return
-		_roles_due = false
+	if _roles_retry and (_force_settled or view.is_settled(now)):
+		_roles_due = true
 		_roles_retry = false
-		_role_scan.assign((built[MEAN] as Dictionary).keys())
-	var n := 0
+	if _role_scan.is_empty() and _roles_due:
+		_roles_due = false
+		_roles_retry = not (_force_settled or view.is_settled(now))
+		for kind in 2:
+			for key: Vector2i in (built[kind] as Dictionary):
+				_role_scan.append(Vector2i(key.x, key.y))
+		# Both kinds may share a key; enqueueing is idempotent.
 	while not _role_scan.is_empty():
-		n += 1
-		if n % 16 == 0 and float(Time.get_ticks_usec() - t0) / 1000.0 >= budget_ms:
+		var key: Vector2i = _role_scan.pop_back()
+		for kind in 2:
+			var cell := buckets.cell(kind, key)
+			if cell != null and cell.built and not (view.is_pinned(key) if kind == MEAN else view.frozen.has(key)):
+				_enqueue(kind, key)
+		if float(Time.get_ticks_usec() - t0) / 1000.0 >= budget_ms:
 			return
-		var cell := buckets.cell(MEAN, _role_scan.pop_back())
-		if cell == null or not cell.built:
-			continue
-		var role := LodPolicy.individual_role(_eff(cell) if view.has_camera else 0.0, profile, cell.role, _hyst)
-		if role == cell.role:
-			continue
-		if view.is_pinned(cell.key):
-			_roles_retry = true
-		else:
-			cell.role = role
-			_enqueue(MEAN, cell.key)
 
 
-## Cells showing a coarser or placeholder representation switch when the wanted one became READY.
-func _poll_ready(now: int, recheck: bool = false) -> void:
+func _poll_ready(_now: int, recheck: bool = false) -> void:
 	var ready := builder.res.poll_ready()
 	if ready.is_empty() and not recheck:
 		return
-	_upgrade_retry = false
 	for kind in 2:
 		for key: Vector2i in (built[kind] as Dictionary):
 			var cell := buckets.cell(kind, key)
-			for asset_id: String in cell.batches:
-				if not recheck and not ready.has(asset_id):
+			for batch: ScatterBatch in cell.batches.values():
+				if not recheck and not ready.has(batch.asset_id):
 					continue
-				var batch: ScatterBatch = cell.batches[asset_id]
-				if builder.wanted_rep(cell, asset_id, _priority(cell)) == batch.rep:
-					continue
-				if batch.rep != RenderWorldResources.PLACEHOLDER and kind == MEAN and view.is_pinned(key):
-					_upgrade_retry = true
-					_retry_ms = now
-				else:
-					_enqueue(kind, key)
+				if builder.res.rep_for(batch.asset_id, batch.wanted_role, _priority(cell)) != batch.rep:
+					if not view.is_pinned(key) and builder.allow_upgrades:
+						_enqueue(kind, key)
+					else:
+						_roles_due = true
 
 
 func _has_meaningful(rect: Rect2) -> bool:
@@ -398,7 +392,6 @@ func _has_meaningful(rect: Rect2) -> bool:
 	return false
 
 
-## Union of the object cells in `changed` (empty Rect2 when none).
 func _meaningful_rect(changed: Dictionary) -> Rect2:
 	var size: float = buckets.sizes[MEAN]
 	var out := Rect2()
@@ -409,13 +402,12 @@ func _meaningful_rect(changed: Dictionary) -> Rect2:
 	return out
 
 
-# --- Membership changes and builds -----------------------------------------------------------
-
 func _apply_changed(changed: Dictionary) -> void:
 	for key3: Vector3i in changed:
 		var cell := buckets.cell(key3.z, Vector2i(key3.x, key3.y))
 		if cell == null:
 			continue
+		builder.invalidate(cell)
 		cell.y_ref = NAN
 		if key3.z == DECO and not cell.wanted:
 			_eval_deco(cell)
@@ -424,22 +416,30 @@ func _apply_changed(changed: Dictionary) -> void:
 
 
 func _enqueue(kind: int, key: Vector2i) -> void:
-	_queued[Vector3i(key.x, key.y, kind)] = true
+	var key3 := Vector3i(key.x, key.y, kind)
+	if _queued.has(key3):
+		return
+	_queued[key3] = true
+	_order.append(key3)
 	_order_dirty = true
 
 
 func _run_queue(t0: int, budget_ms: float) -> int:
 	var n := 0
-	while not _queued.is_empty():
-		if n > 0 and float(Time.get_ticks_usec() - t0) / 1000.0 >= budget_ms:
+	while not _queued.is_empty() or _building != NO_CELL:
+		if float(Time.get_ticks_usec() - t0) / 1000.0 >= budget_ms:
 			break
-		_build_cell(_pop())
+		if _building == NO_CELL:
+			_building = _pop()
+		if _build_cell(_building):
+			_building = NO_CELL
 		n += 1
 	return n
 
 
 func _pop() -> Vector3i:
-	if _order_dirty or _order.is_empty() or view.focus.distance_to(_order_focus) > buckets.sizes[MEAN]:
+	if _order.is_empty() or ((_order_dirty or view.focus.distance_to(_order_focus) > buckets.sizes[MEAN]) \
+			and Time.get_ticks_msec() - _order_sort_ms >= RECHECK_MS):
 		_sort_order()
 	while not _order.is_empty():
 		var key: Vector3i = _order.pop_back()
@@ -449,6 +449,7 @@ func _pop() -> Vector3i:
 
 
 func _sort_order() -> void:
+	_order_sort_ms = Time.get_ticks_msec()
 	_order_dirty = false
 	_order_focus = view.focus
 	_order.assign(_queued.keys())
@@ -467,24 +468,29 @@ func _priority(cell: ScatterCell) -> int:
 	return 1 if center.length() <= NEAR_PRIORITY_M else 2
 
 
-func _build_cell(key3: Vector3i) -> void:
+func _build_cell(key3: Vector3i) -> bool:
 	if key3.z < 0:
-		return
+		return true
 	var kind := key3.z
 	var cell := buckets.cell(kind, Vector2i(key3.x, key3.y))
 	if cell == null:
-		return
+		return true
 	if cell.count() == 0:
 		_wanted.erase(cell.key)
 		_free_cell(cell)
 		buckets.erase(kind, cell.key)
-		return
+		return true
 	if kind == DECO and not cell.wanted:
-		return
-	if kind == MEAN and cell.role == "":
-		cell.role = LodPolicy.individual_role(_eff(cell) if view.has_camera else 0.0, profile, "", _hyst)
-	builder.build_cell(cell, _density_for(cell) if kind == DECO else 1.0, _priority(cell))
+		return true
+	if kind == MEAN and (cell.role == "" or builder.allow_upgrades):
+		cell.role = LodPolicy.individual_role(_eff(cell) if view.has_camera else 0.0, profile, cell.role, _hyst)
+	builder.pinned = view.is_pinned(cell.key) if kind == MEAN else view.frozen.has(cell.key)
+	if not builder.build_cell(cell, _density_for(cell) if kind == DECO else 1.0, _priority(cell)):
+		return false
 	(built[kind] as Dictionary)[cell.key] = true
+	if builder.refresh_needed:
+		_enqueue(kind, cell.key)
+	return true
 
 
 func _free_cell(cell: ScatterCell) -> void:

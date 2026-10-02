@@ -112,6 +112,7 @@ func test_sync_add_update_remove_and_asset_change() -> void:
 func test_pick_basic_hits_and_misses() -> void:
 	var r := _add(BOULDER, Vector3.ZERO)
 	presenter.rebuild(doc)
+	assert_true(presenter.settle_now(), "visible owners are ready before picking")
 	var hit := presenter.pick(Vector3(0, 10, 0), Vector3.DOWN)
 	assert_eq(hit.id, r.object_id)
 	assert_near(hit.distance, 8.9, 1e-4)
@@ -128,6 +129,7 @@ func test_pick_nearest_of_stacked_and_origin_inside() -> void:
 	var low := _add(BOULDER, Vector3.ZERO)
 	var high := _add(BOULDER, Vector3(0, 5, 0))
 	presenter.rebuild(doc)
+	assert_true(presenter.settle_now(), "visible owners are ready before picking")
 	var hit := presenter.pick(Vector3(0, 20, 0), Vector3.DOWN)
 	assert_eq(hit.id, high.object_id)
 	assert_near(hit.distance, 13.9, 1e-4)
@@ -139,6 +141,7 @@ func test_pick_nearest_of_stacked_and_origin_inside() -> void:
 func test_pick_uses_oriented_bounds() -> void:
 	var r := _add(LODGE, Vector3.ZERO, deg_to_rad(45.0))
 	presenter.rebuild(doc)
+	assert_true(presenter.settle_now(), "visible owners are ready before picking")
 	var wb := presenter.world_bounds(r.object_id)
 	assert_true(wb.has_point(Vector3(5, 3, 0)), "inside the axis-aligned bounds")
 	assert_eq(presenter.pick(Vector3(5, 20, 0), Vector3.DOWN).id, "", "outside oriented box")
@@ -148,6 +151,7 @@ func test_pick_uses_oriented_bounds() -> void:
 func test_pick_honours_scale() -> void:
 	var r := _add(BOULDER, Vector3.ZERO, 0.0, 2.0)
 	presenter.rebuild(doc)
+	assert_true(presenter.settle_now(), "visible owners are ready before picking")
 	var hit := presenter.pick(Vector3(1.8, 10, 0), Vector3.DOWN)
 	assert_eq(hit.id, r.object_id)
 	assert_near(hit.distance, 7.8, 1e-4)
@@ -161,6 +165,7 @@ func test_pick_honours_scale() -> void:
 func test_pick_rejects_bad_input() -> void:
 	_add(BOULDER, Vector3.ZERO)
 	presenter.rebuild(doc)
+	assert_true(presenter.settle_now(), "visible owners are ready before picking")
 	assert_eq(presenter.pick(Vector3(0, 10, 0), Vector3.ZERO).id, "")
 	assert_eq(presenter.pick(Vector3(0, 10, 0), Vector3(0, NAN, 0)).id, "")
 	assert_eq(presenter.pick(Vector3(0, INF, 0), Vector3.DOWN).id, "")
@@ -237,6 +242,7 @@ func test_world_bounds_of_scaled_object() -> void:
 func test_debug_markers_follow_sync() -> void:
 	var r := _add(BOULDER, Vector3(1, 2, 3))
 	presenter.rebuild(doc)
+	assert_true(presenter.settle_now(), "visible owners are ready before picking")
 	assert_eq(presenter.debug_marker_count(), 0)
 	assert_eq(presenter.debug_label_count(), 0)
 	presenter.set_show_anchors(true)
@@ -417,6 +423,7 @@ func test_pick_matches_reference_on_random_scene() -> void:
 		var pos := Vector3(rng.randf_range(-300, 300), rng.randf_range(-2, 12), rng.randf_range(-300, 300))
 		_add(assets[i % 3], pos, rng.randf_range(0.0, TAU), rng.randf_range(0.6, 2.5))
 	presenter.rebuild(doc)
+	assert_true(presenter.settle_now(), "visible owners are ready before picking")
 	var ids := presenter.object_ids()
 	var hits := 0
 	for i in 600:
@@ -445,6 +452,7 @@ func test_pick_ignores_removed_objects_and_bad_dirs() -> void:
 	var a := _add(BOULDER, Vector3.ZERO)
 	var b := _add(BOULDER, Vector3(0, 6, 0))
 	presenter.rebuild(doc)
+	assert_true(presenter.settle_now(), "visible owners are ready before picking")
 	assert_eq(presenter.pick(Vector3(0, 30, 0), Vector3(0, -7, 0)).id, b.object_id)
 	doc.remove_object(b.object_id)
 	presenter.sync_object(doc, b.object_id)
@@ -458,6 +466,7 @@ func test_pick_ignores_removed_objects_and_bad_dirs() -> void:
 func test_overhanging_bounds_are_picked_from_the_neighbour_cell() -> void:
 	var r := _add(LODGE, Vector3(30.0, 0, 5.0), 0.0, 2.0)
 	presenter.rebuild(doc)
+	assert_true(presenter.settle_now(), "visible owners are ready before picking")
 	var wb := presenter.world_bounds(r.object_id)
 	assert_true(wb.end.x > 32.0 and wb.position.x < 32.0, "bounds straddle the cell edge")
 	var x := 32.0 + (wb.end.x - 32.0) * 0.5

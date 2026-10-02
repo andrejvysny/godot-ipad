@@ -37,6 +37,7 @@ func _new_renderer() -> ScatterRenderer:
 
 func _profile(outside: float, active: float, radius: float = 100000.0) -> Dictionary:
 	var p := RenderConfig.load_from().profile("performance")
+	p.size_policy_enabled = false
 	p.decorative_density_outside = outside
 	p.decorative_density_active = active
 	p.ground_cover_radius_m = radius

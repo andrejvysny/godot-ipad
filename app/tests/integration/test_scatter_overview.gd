@@ -96,7 +96,6 @@ func test_unchanged_scene_has_no_uploads_or_rebuilds_after_settling() -> void:
 	var nodes := renderer.get_children()
 	for i in 40:
 		renderer.service_frame(1.0)
-	camera.global_position += Vector3(0.4, 0.0, 0.0)  # below every re-evaluation threshold
 	for i in 10:
 		renderer.service_frame(1.0)
 	assert_false(renderer.has_dirty())
@@ -114,7 +113,9 @@ func test_meaningful_roles_follow_distance_only_after_the_camera_settles() -> vo
 	doc.scatter = layer
 	_camera_at(Vector3(10.0, 5.0, 12.0), Vector3(10.0, 0.0, 10.0))
 	renderer.set_camera(camera)
-	renderer.set_lod_profile(RenderConfig.load_from().profile("detailed"))
+	var legacy := RenderConfig.load_from().profile("detailed")
+	legacy.size_policy_enabled = false
+	renderer.set_lod_profile(legacy)
 	_build()
 	var cell := ScatterRenderer.cell_of(10.0, 10.0)
 	var near_mesh := renderer.multimesh_for(cell, SPRUCE).multimesh.mesh

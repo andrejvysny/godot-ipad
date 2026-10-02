@@ -17,6 +17,7 @@ var _threshold := 0.0
 var _offset := Vector2.ZERO
 var _have_offset := false
 var _dragging := false
+var _focus_only := false
 var _tx := EditTransaction.new()
 var _tap: Variant = null
 var _id := ObjectRecord.new_uuid_v4()
@@ -39,6 +40,10 @@ func tap_selection() -> Variant:
 
 
 func begin(sample: PointerSample, hit: TerrainHit) -> void:
+	_focus_only = _ctx.focus_before_object_action.is_valid() and bool(_ctx.focus_before_object_action.call(hit))
+	if _focus_only:
+		_grab_id = ""
+		return
 	_start_vp = sample.position_viewport
 	var cam := _ctx.camera
 	var pick := _ctx.presenter.pick(cam.project_ray_origin(sample.position_viewport),
@@ -79,6 +84,8 @@ func advance(_now: float) -> void:
 
 
 func end(_sample: PointerSample, hit: TerrainHit, over_ui: bool) -> WorldChange:
+	if _focus_only:
+		return null
 	if not _dragging:
 		if over_ui:
 			return null

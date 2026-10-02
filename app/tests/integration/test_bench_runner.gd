@@ -217,6 +217,12 @@ func test_sustained_mode_is_bounded_and_restores() -> void:
 		assert_true(minute.has(key), key)
 	assert_true(int(minute.frames) > 0)
 	assert_eq(report.steps.size(), 0, "no per-frame or per-step arrays in sustained mode")
+	var overview_pose: Dictionary = s.segments.overview.initial_camera_pose
+	var focus_pose: Dictionary = s.segments.focus.initial_camera_pose
+	assert_near(float(overview_pose.pitch_deg), BenchCameraPaths.OVERVIEW_PITCH_DEG, 0.001)
+	assert_near(float(focus_pose.pitch_deg), BenchCameraPaths.FOCUS_PITCH_DEG, 0.001)
+	assert_near(float(focus_pose.distance_m), BenchCameraPaths.FOCUS_DISTANCE_M, 0.001)
+	assert_true(float(overview_pose.distance_m) > float(focus_pose.distance_m), "static sustained segments use distinct cameras")
 	await _assert_restored(before)
 
 
@@ -260,4 +266,46 @@ func test_unknown_scenarios_are_skipped_and_reported() -> void:
 		return
 	assert_eq(report.steps.size(), 2, "only the runnable scenario (plus the repeat)")
 	assert_true(report.not_run.has("asset_diversity"))
+	await _assert_restored(before)
+
+
+func test_comparison_passes_preserve_population_and_restore_flags_view_material() -> void:
+	await _boot()
+	var render := session.render_state()
+	var before := _state()
+	var flags := render.comparison_flags()
+	var view_state := render.view.capture()
+	var comparison_profiles: Array[String] = []
+	comparison_profiles.append_array(BenchPlan.COMPARISONS.keys())
+	var material := session.terrain.material_mode()
+	var bench := _make(["mixed_world_10k"], comparison_profiles, ["overview"])
+	var report := await _run_to_end(bench)
+	assert_eq(report.status, "COMPLETED")
+	assert_true(report.correctness.restored)
+	assert_eq(report.steps.size(), 7)
+	var first: Dictionary = report.steps[0]
+	assert_eq(first.population.authored_sha256.length(), 64)
+	assert_eq(first.population.bench_catalog_sha256.length(), 64)
+	var attached := AssetCatalog.load_from(BenchAttach.BENCH_CATALOG_DIR)
+	assert_eq(first.population.bench_catalog_sha256, (attached[0] as AssetCatalog).sha256)
+	for step: Dictionary in report.steps:
+		assert_eq(step.population.authored_meaningful, first.population.authored_meaningful)
+		assert_eq(step.population.decorative, first.population.decorative)
+		assert_eq(step.population.authored_sha256, first.population.authored_sha256)
+		assert_eq(step.population.bench_catalog_sha256, first.population.bench_catalog_sha256)
+		assert_true(step.diagnostic)
+	assert_false(report.steps[1].comparison.hlod_enabled)
+	assert_eq(report.steps[2].comparison_alias_of, "comparison_old_distance")
+	assert_eq(report.steps[3].comparison.forced_view, "terrain_only")
+	assert_eq(report.steps[3].view_state.view_state, "terrain_only")
+	assert_eq(report.steps[3].scatter_stats.submitted_instances, 0)
+	assert_eq(report.steps[3].terrain_material, "full")
+	assert_false(report.steps[3].pending_before_measure.objects)
+	assert_false(report.steps[3].pending_before_measure.scatter)
+	assert_eq(report.steps[3].measurement_status, "READY")
+	assert_eq(report.steps[4].comparison.forced_view, "")
+	assert_true(report.steps[5].comparison.far_terrain)
+	assert_eq(session.terrain.material_mode(), material)
+	assert_eq(render.comparison_flags(), flags)
+	assert_eq(render.view.capture(), view_state)
 	await _assert_restored(before)

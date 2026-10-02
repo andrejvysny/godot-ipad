@@ -144,3 +144,42 @@ static func _index(effective_m: float, limits: PackedFloat64Array, scale: float)
 	while i < limits.size() and effective_m >= limits[i] * scale:
 		i += 1
 	return i
+
+
+## Individual mesh tier from unclipped projected size in reference-height pixels.
+static func size_role(reference_px: float, profile: Dictionary, current: String = "", hysteresis: float = 0.2) -> String:
+	var near_allowed := str(profile.get("near_min_role", MID)) == NEAR
+	if not is_finite(reference_px):
+		return NEAR if near_allowed else MID
+	var names := PackedStringArray([FAR, MID, NEAR] if near_allowed else [FAR, MID])
+	var limits := PackedFloat64Array([float(profile.get("far_mid_px", 32.0))])
+	if near_allowed:
+		limits.append(float(profile.get("mid_near_px", 160.0)))
+	var raw := _size_index(reference_px, limits, 1.0)
+	var cur := names.find(current)
+	if cur < 0 or raw == cur:
+		return names[raw]
+	var fraction := clampf(hysteresis, 0.0, 0.5) * 0.5
+	if raw > cur:
+		return names[maxi(cur, _size_index(reference_px, limits, 1.0 + fraction))]
+	return names[mini(cur, _size_index(reference_px, limits, 1.0 - fraction, true))]
+
+
+## Strict inequalities keep exact hide/show ties stable, including zero hysteresis configurations.
+static func size_visible(reference_px: float, visible_now: bool = true, decorative: bool = false,
+		settings: Dictionary = {}) -> bool:
+	if not bool(settings.get("enabled", true)) or not is_finite(reference_px):
+		return true
+	var hide := float(settings.get("decorative_hide_px" if decorative else "object_hide_px", 3.0 if decorative else 2.0))
+	var show := float(settings.get("decorative_show_px" if decorative else "object_show_px", 4.0 if decorative else 3.0))
+	return reference_px >= hide if visible_now else reference_px > show
+
+
+static func _size_index(size_px: float, limits: PackedFloat64Array, scale: float, inclusive: bool = false) -> int:
+	var index := 0
+	while index < limits.size():
+		var boundary := limits[index] * scale
+		if size_px < boundary or (size_px == boundary and not inclusive):
+			break
+		index += 1
+	return index

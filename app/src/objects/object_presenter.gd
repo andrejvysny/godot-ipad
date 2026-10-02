@@ -33,6 +33,7 @@ var _veg_categories: Dictionary = {}
 var _veg_excluded: Dictionary = {}
 var _asset_of: Dictionary = {}  # id -> asset_id
 var _selected: String = ""
+var _view_suppressed := false
 var _ghost: PresenterGhost
 var _overlay: Node3D
 var _overlay_holder: Node3D
@@ -236,7 +237,7 @@ func pick(origin: Vector3, dir: Vector3) -> Dictionary:
 		return best
 	var dir_len := dir.length()
 	for id in _index.query_ray(origin, dir, PICK_MAX_DISTANCE_M):
-		if _is_hidden(id) or _world.is_object_covered(id):
+		if _is_hidden(id) or not _world.is_object_visible(id):
 			continue
 		var bounds := _catalog.get_asset(_asset_of[id]).bounds
 		var inv: Transform3D = _inverses[id]
@@ -338,6 +339,8 @@ func world_bounds(id: String) -> AABB:
 
 
 func show_ghost(record: ObjectRecord, valid: bool) -> void:
+	if _view_suppressed:
+		return
 	var asset := _catalog.get_asset(record.asset_id)
 	if asset == null:
 		hide_ghost()
@@ -381,6 +384,19 @@ func set_show_ids(on: bool) -> void:
 
 func set_debug_limit(n: int) -> void:
 	_decor.set_limit(n)
+
+
+func set_view_suppressed(suppressed: bool) -> void:
+	_view_suppressed = suppressed
+	_world.set_view_suppressed(suppressed)
+	if _overlay_box != null:
+		_overlay_box.visible = not suppressed
+	if suppressed:
+		hide_ghost()
+
+
+func set_camera_snapshot(snapshot: RenderCameraSnapshot) -> void:
+	_world.set_camera_snapshot(snapshot)
 
 
 func set_camera(camera: Camera3D) -> void:
@@ -451,13 +467,14 @@ func _update_overlay() -> void:
 	var asset := _catalog.get_asset(_asset_of[_selected])
 	var xf: Transform3D = _xforms[_selected]
 	if not _wire_meshes.has(asset.asset_id):
-		_wire_meshes[asset.asset_id] = _wire_box(asset.bounds.grow(0.1))
+		_wire_meshes[asset.asset_id] = PresenterOverlayGeometry.wire_box(asset.bounds.grow(0.1))
 	if _overlay_box.mesh != _wire_meshes[asset.asset_id]:
 		_overlay_box.mesh = _wire_meshes[asset.asset_id]
 	_overlay_holder.transform = xf
 	# Sphere lives outside the scaled holder so its radius stays in metres.
 	_overlay_sphere.position = xf * asset.anchor_local
 	_overlay.visible = true
+	_overlay_box.visible = not _view_suppressed
 
 
 func _build_overlay() -> void:
@@ -469,33 +486,9 @@ func _build_overlay() -> void:
 	_overlay_box.material_override = _overlay_material
 	_overlay_box.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_overlay_holder.add_child(_overlay_box)
-	_overlay_sphere = _sphere_marker(0.25, _overlay_material)
+	_overlay_sphere = PresenterOverlayGeometry.sphere_marker(0.25, _overlay_material)
 	_overlay.add_child(_overlay_sphere)
 	add_child(_overlay)
-
-
-func _wire_box(box: AABB) -> ImmediateMesh:
-	var mesh := ImmediateMesh.new()
-	mesh.surface_begin(Mesh.PRIMITIVE_LINES)
-	# get_endpoint bits: 1 = z, 2 = y, 4 = x.
-	for i in 8:
-		for bit in [1, 2, 4]:
-			if i & bit == 0:
-				mesh.surface_add_vertex(box.get_endpoint(i))
-				mesh.surface_add_vertex(box.get_endpoint(i | bit))
-	mesh.surface_end()
-	return mesh
-
-
-func _sphere_marker(radius: float, material: Material) -> MeshInstance3D:
-	var sphere := SphereMesh.new()
-	sphere.radius = radius
-	sphere.height = radius * 2.0
-	var mi := MeshInstance3D.new()
-	mi.mesh = sphere
-	mi.material_override = material
-	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	return mi
 
 
 func _refresh_decor(id: String) -> void:

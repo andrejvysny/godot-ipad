@@ -35,6 +35,7 @@ func after_each() -> void:
 ## No thinning and no ground-cover radius: every instance of every cell is drawn.
 static func full_profile(outside: float = 1.0, active: float = 1.0, radius: float = 100000.0) -> Dictionary:
 	var p := RenderConfig.load_from().profile("performance")
+	p.size_policy_enabled = false
 	p.decorative_density_outside = outside
 	p.decorative_density_active = active
 	p.ground_cover_radius_m = radius

@@ -92,6 +92,19 @@ func mesh_config() -> Dictionary:
 	return {}
 
 
+## Developer terrain-material experiment; unsupported views must not claim it was applied.
+func set_material_mode(_mode: String) -> String:
+	return "material tuning is not supported by this terrain view"
+
+
+func material_mode() -> String:
+	return "full"
+
+
+func material_uniforms() -> Dictionary:
+	return {}
+
+
 ## Fixed-area terrain texture preview (spec 11.4). Returns "" or an error; unsupported views error.
 func set_texture_preview(_center: Vector2, _radius: float, _feather: float, _albedo: Texture2DArray,
 		_normal: Texture2DArray, _layer_map: PackedInt32Array) -> String:

@@ -120,6 +120,8 @@ func _capture() -> Dictionary:
 		"selected": _session.tools.selected_id(), "presenter_objects": _session.presenter.authored_object_count(),
 		"profile": _session.render_profiles.active_name(), "vegetation_hidden": _session.vegetation_hidden(),
 		"max_fps": Engine.max_fps, "attach": BenchAttach.state(_session), "mesh_config": _session.terrain.mesh_config(),
+		"comparison": _session.render_state().comparison_flags(),
+		"view_snapshot": _session.render_state().view.capture(), "terrain_material": _session.terrain.material_mode(),
 		"preview_off": _session.render_state().texture_preview.state() in [TexturePreviewController.OFF,
 		TexturePreviewController.RELEASING]}
 
@@ -135,7 +137,10 @@ func _restore(reason: String) -> bool:
 		_session.rig.reset_to(_saved.pose)
 	else:
 		keys = ["shadows", "mode", "distance", "scale", "scaling_mode", "msaa", "probe", "profile",
-			"vegetation_hidden", "max_fps", "attach", "preview_off", "mesh_config"]
+			"vegetation_hidden", "max_fps", "attach", "preview_off", "mesh_config", "comparison", "view_snapshot", "terrain_material"]
+	_session.render_state().set_comparison_flags(_saved.comparison)
+	_session.render_state().view.restore(_saved.view_snapshot)
+	_session.terrain.set_material_mode(_saved.terrain_material)
 	var now := _capture()
 	for key: String in keys:
 		if not _same(now[key], _saved[key]):
@@ -146,6 +151,7 @@ func _restore(reason: String) -> bool:
 func _restore_settings() -> void:
 	if _runner != null:
 		_runner.restore()
+	_session.render_profiles.request_profile(_saved.profile, false)
 	var viewport := _session.get_viewport()
 	var sun := _session.sun
 	sun.shadow_enabled = _saved.shadows
@@ -213,10 +219,16 @@ func _run_step(step: Dictionary, token: int) -> Dictionary:
 	var viewport := _session.get_viewport()
 	var t0 := Time.get_ticks_usec()
 	var settings := BenchPlan.profile_settings(step.profile)
+	if BenchPlan.COMPARISONS.has(str(step.profile)):
+		settings["comparison"] = BenchPlan.comparison_flags(str(step.profile))
 	var changed := _present_count(int(step.count))
 	if not _running:
 		return {}
 	var probe_error := _apply_settings(settings)
+	if settings.has("comparison") and probe_error != "":
+		_session.post_message(probe_error, true)
+		abort("comparison_unsupported")
+		return {}
 	_apply_camera(step.camera)
 	if changed or settings != _last_settings:
 		RenderCounters.reset_warmup(viewport)
@@ -225,6 +237,7 @@ func _run_step(step: Dictionary, token: int) -> Dictionary:
 	var settle := await _settle(token)
 	if _stale(token) or not await _wait_frames(warmup_frames, token):
 		return {}
+	var ready := pending_state()
 	var measured := await _measure(token)
 	if measured.is_empty():
 		return {}
@@ -233,12 +246,23 @@ func _run_step(step: Dictionary, token: int) -> Dictionary:
 		"scatter_instances": _bench_doc.scatter.count(), "paths": _bench_doc.paths.size()},
 		"objects_presented": _session.presenter.authored_object_count(), "prepare_ms": prepare_ms,
 		"first_frame_ms": settle.first_frame_ms, "settle_ms": settle.settle_ms, "settled": settle.settled,
+		"pending_at_settle": settle.pending_at_settle, "pending_before_measure": ready,
+		"measurement_status": BenchPlan.measurement_status(str(step.camera), ready),
 		"terrain_probe_supported": probe_error == "", "settings": settings, "terrain_mesh": _session.terrain.mesh_config(), "summary": measured.summary,
-		"counters_peak": measured.peak, "counters_last": measured.last, "render": _session.render_summary()})
+		"counters_peak": measured.peak, "counters_last": measured.last, "render": _session.render_summary(),
+		"view_state": _session.render_state().view.status(), "terrain_material": _session.terrain.material_mode(),
+		"scatter_stats": _session.layers.scatter.stats()})
 	return out
 
 
 func _apply_settings(s: Dictionary) -> String:
+	var comparison: Dictionary = s.get("comparison", {})
+	if not comparison.is_empty():
+		_session.render_profiles.request_profile("performance", false)
+		s["scale"] = float(_session.render_profiles.active_profile().scale_3d)
+	var error := apply_comparison(comparison)
+	if error != "":
+		return error
 	var sun := _session.sun
 	sun.shadow_enabled = s.shadows
 	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS if int(s.splits) == 4 \
@@ -247,6 +271,10 @@ func _apply_settings(s: Dictionary) -> String:
 	_session.get_viewport().scaling_3d_scale = s.scale
 	apply_mesh(int(s.get("mesh_size", 0)))
 	return _session.terrain.set_render_probe(s.terrain_visible, s.terrain_shadows)
+
+
+func apply_comparison(flags: Dictionary) -> String:
+	return _session.render_state().set_comparison_flags(flags)
 
 
 ## Terrain mesh_size ablation for the step; 0 returns to the captured config. Returns the mesh config now in force.
@@ -295,9 +323,16 @@ func _present_count(count: int) -> bool:
 	return true
 
 
+func pending_state() -> Dictionary:
+	return BenchReadiness.capture(_session)
+
+
 func _pending() -> bool:
-	return _session.presenter.has_pending_work() or _session.terrain.has_pending_uploads() \
-			or _session.layers.scatter.has_dirty()
+	var pending := pending_state()
+	for key: String in ["objects", "terrain", "scatter", "overview", "cache"]:
+		if pending[key]:
+			return true
+	return false
 
 
 ## first_frame_ms: end of prepare to the end of the next process frame; settle_ms: until no
@@ -312,7 +347,7 @@ func _settle(token: int) -> Dictionary:
 		await get_tree().process_frame
 		if _stale(token):
 			return {}
-	return {"first_frame_ms": first_ms, "settle_ms": Time.get_ticks_msec() - t0, "settled": not _pending()}
+	return {"first_frame_ms": first_ms, "settle_ms": Time.get_ticks_msec() - t0, "settled": not _pending(), "pending_at_settle": pending_state()}
 
 
 ## False when the run ended or was aborted (input disturbance) while waiting.
@@ -334,7 +369,8 @@ func _measure(token: int) -> Dictionary:
 	var peak := {"gpu_ms": null, "cpu_ms": null}
 	var last := {}
 	var viewport := _session.get_viewport()
-	var status := RenderCounters.NOT_RUN
+	var gpu_status := RenderCounters.NOT_RUN
+	var cpu_status := RenderCounters.NOT_RUN
 	var previous := Time.get_ticks_usec()
 	for i in measure_frames:
 		await get_tree().process_frame
@@ -347,19 +383,20 @@ func _measure(token: int) -> Dictionary:
 		frame_ms.append(float(now - previous) / 1000.0)
 		previous = now
 		last = RenderCounters.snapshot(viewport)
-		var valid: bool = last.gpu_status == RenderCounters.AVAILABLE
-		if valid:
+		if last.gpu_status == RenderCounters.AVAILABLE:
 			gpu_ms.append(float(last.gpu_ms))
+		if last.cpu_status == RenderCounters.AVAILABLE:
 			cpu_ms.append(float(last.cpu_ms))
-		if valid or status != RenderCounters.AVAILABLE:
-			status = last.gpu_status
-		_track_peak(peak, last, valid)
-	return {"summary": BenchPlan.summarize(frame_ms, gpu_ms, cpu_ms, status, status), "peak": peak, "last": last}
+		gpu_status = RenderCounters.merge_timing_status(gpu_status, str(last.gpu_status))
+		cpu_status = RenderCounters.merge_timing_status(cpu_status, str(last.cpu_status))
+		_track_peak(peak, last)
+	return {"summary": BenchPlan.summarize(frame_ms, gpu_ms, cpu_ms, gpu_status, cpu_status), "peak": peak, "last": last}
 
 
-static func _track_peak(peak: Dictionary, sample: Dictionary, timing_valid: bool) -> void:
+static func _track_peak(peak: Dictionary, sample: Dictionary) -> void:
 	for key in PEAK_KEYS:
-		if key in TIMING_KEYS and not timing_valid:
+		if key in TIMING_KEYS and RenderCounters.sample_status(str(sample.get(key.trim_suffix("_ms") + "_status", RenderCounters.NOT_RUN)),
+				float(sample[key])) != RenderCounters.AVAILABLE:
 			continue
 		peak[key] = maxf(float(peak.get(key, 0.0)) if peak.get(key) != null else 0.0, float(sample[key]))
 

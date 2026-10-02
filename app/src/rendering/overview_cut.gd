@@ -4,11 +4,11 @@ extends RefCounted
 ## level down, a group is active iff its group level is at least its own level, its proxy is current and complete,
 ## neither it nor any group below it is blocked (pinned cell, selected object, pending invalidation) and no
 ## ancestor is active; otherwise its children decide, and cells under no active group stay individual.
-## Activation waits for settled navigation; deactivation by a block is immediate and unblocked groups below a
-## group retired by a block take over at once (handoff). Pure state transition: the caller applies off, then on.
+## Coarser activation is immediate; finer upgrades wait for settled navigation. Blocks retire groups immediately;
+## unblocked descendants take over at once. Pure state transition: the caller applies off, then on.
 
 
-## Fills `off` / `on` and returns true when an activation change waits for settled navigation.
+## Fills `off` / `on` and returns true when a finer upgrade waits for settled navigation.
 ## groups: level -> Dictionary(Vector2i -> OverviewGroup); blocked: level -> Dictionary(Vector2i -> true).
 static func compute(groups: Array[Dictionary], blocked: Array[Dictionary], settled: bool,
 		off: Array[OverviewGroup], on: Array[OverviewGroup]) -> bool:
@@ -38,12 +38,8 @@ static func compute(groups: Array[Dictionary], blocked: Array[Dictionary], settl
 					g.cut_on = true
 					withheld = withheld or not wants
 			elif wants:
-				if settled or g.cut_handoff:
-					on.append(g)
-					g.cut_on = true
-				else:
-					g.cut_on = false
-					withheld = true
+				on.append(g)
+				g.cut_on = true
 			else:
 				g.cut_on = false
 	return withheld

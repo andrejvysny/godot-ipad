@@ -1,0 +1,1229 @@
+{
+	"abort_reason": null,
+	"bench_profiles": [
+		"comparison_old_distance",
+		"comparison_terrain_only",
+		"comparison_far_terrain"
+	],
+	"cameras": [
+		"overview",
+		"ground"
+	],
+	"correctness": {
+		"authored_hash_after": "133d5013176873deba05b98c45109fed36e6c3ddbe370627043a6e9e77034934",
+		"authored_hash_before": "133d5013176873deba05b98c45109fed36e6c3ddbe370627043a6e9e77034934",
+		"history_size_after": 0,
+		"history_size_before": 0,
+		"restored": true,
+		"revision_after": 0,
+		"revision_before": 0
+	},
+	"counts": [
+		0,
+		1000,
+		5000
+	],
+	"driver": "metal",
+	"duration_s": 149.14394903183,
+	"evidence": {
+		"acceptance": "NOT_ACCEPTANCE_RUN",
+		"build": "debug",
+		"device_model": "Mac16,8",
+		"is_target_device": false,
+		"platform_class": "HOST"
+	},
+	"evidence_class": "HOST",
+	"fingerprints": {
+		"catalog_sha256": "3ec750f696154df2ad4cd97d5afb9991a288a07ccd19bb29204c4ad25606cab3",
+		"config_sha256": "936689703d8a3906da4b3e1c68f498a9fb0d3bc5a7776e0c3c55ff717d4e47b9",
+		"git_validity": "AVAILABLE",
+		"godot": "4.7.2.stable.official.ed1daf0bf",
+		"installed_build_source_sha256": "7b704d45b7f53f06b4c2ed26b8b993469f81f68264897e61085aea9ebdb9f6d3",
+		"installed_build_validity": "RECORDED_BUILD_INPUTS",
+		"live_source_scope": "res://src,scenes,assets,config,project.godot; excludes uid/import/cache/build_fingerprint",
+		"live_source_sha256": "065ffea207dce5666d47312a87fbdec476361dcb8e43d6c5d6e70f89e9e09370",
+		"live_source_validity": "AVAILABLE_LOCAL_SOURCE",
+		"rendering_profiles_sha256": "14e5c830ac3c923c2f827502374e2e16385642a0ed9abfe4af98cab8cdbf4986",
+		"source_commit": "47cbb912275cf7cd4adf49ab28274f1b697d5ed3",
+		"source_dirty": true,
+		"source_sha256": "065ffea207dce5666d47312a87fbdec476361dcb8e43d6c5d6e70f89e9e09370",
+		"source_validity": "AVAILABLE_LOCAL_SOURCE"
+	},
+	"idle_pacing": "never_enabled",
+	"kinds": [
+		"overview"
+	],
+	"measure_frames": 300,
+	"measure_seconds": 30.0,
+	"not_run": {
+		"asset_diversity": "needs 8-32 prepared resource/material families; only 6 bench assets are prepared"
+	},
+	"os": "macOS 26.6.2",
+	"populations": {
+		"terrain_only_1km": {
+			"authored_meaningful": 0,
+			"build_ms": 77.168,
+			"by_asset": {},
+			"decorative": 0,
+			"layout": "km1",
+			"patches": 0,
+			"present_ms": 298.7,
+			"world": "km1"
+		}
+	},
+	"preview_stopped_for_bench": false,
+	"profiles": [
+		"scale_100",
+		"scale_075",
+		"scale_065",
+		"scale_050",
+		"legacy_shadows_diagnostic"
+	],
+	"renderer": "mobile",
+	"scenarios": [
+		"terrain_only_1km"
+	],
+	"seed": 1234,
+	"started_unix": 1790886393.6889,
+	"status": "COMPLETED",
+	"steps": [
+		{
+			"cache": {
+				"by_kind": {
+					"material": 0,
+					"mesh": 0,
+					"preview_texture": 0,
+					"texture": 0
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 0,
+				"errors": 0,
+				"evictions": 0,
+				"fallback_bytes": 0,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 0,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 0,
+				"soft_bytes": 402653184
+			},
+			"cache_start": {
+				"by_kind": {
+					"material": 0,
+					"mesh": 0,
+					"preview_texture": 0,
+					"texture": 0
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 0,
+				"errors": 0,
+				"evictions": 0,
+				"fallback_bytes": 0,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 0,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 0,
+				"soft_bytes": 402653184
+			},
+			"camera": "overview",
+			"camera_poses": {
+				"duration_s": 30.0,
+				"path": "overview",
+				"samples": [
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 0.0,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 6.0,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 12.0,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 18.0,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 24.0,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 30.0,
+						"yaw_deg": 30.0
+					}
+				]
+			},
+			"comparison": {
+				"far_terrain": false,
+				"forced_view": "regional",
+				"hlod_enabled": true,
+				"size_enabled": false
+			},
+			"comparison_alias_of": "",
+			"counters_last": {
+				"buffer_mem_mib": 6.89304351806641,
+				"cpu_ms": 0.11599999666214,
+				"cpu_status": "AVAILABLE",
+				"gpu_ms": 0.0,
+				"gpu_status": "NOT_AVAILABLE",
+				"internal_3d_size": [
+					767,
+					533
+				],
+				"internal_3d_size_source": "display_size_times_scale",
+				"pipelines": {
+					"canvas": 2,
+					"draw": 2,
+					"mesh": 0,
+					"specialization": 3,
+					"surface": 5
+				},
+				"scale_3d": 0.649999976158142,
+				"shadow_draws": 0,
+				"shadow_objects": 0,
+				"shadow_prims": 0,
+				"static_mem_mib": 187.897850990295,
+				"texture_mem_mib": 57.6671142578125,
+				"video_mem_mib": 124.984375,
+				"viewport_size": [
+					1180,
+					820
+				],
+				"visible_draws": 115,
+				"visible_objects": 115,
+				"visible_prims": 355424
+			},
+			"counters_peak": {
+				"cpu_ms": 0.186000004410744,
+				"gpu_ms": null,
+				"shadow_draws": 0.0,
+				"shadow_prims": 0.0,
+				"visible_draws": 115.0,
+				"visible_objects": 115.0,
+				"visible_prims": 355424.0
+			},
+			"diagnostic": true,
+			"first_frame_ms": 41,
+			"id": "terrain_only_1km-comparison_old_distance-overview",
+			"nodes": 0,
+			"overview_stats": {
+				"active": {
+					"128": 0,
+					"256": 16
+				},
+				"built": 80,
+				"built_triangles": 0,
+				"cells_covered": 1024,
+				"groups": 80,
+				"jobs": 0,
+				"last_mesh_ms": 0.004,
+				"last_service_ms": 0.08,
+				"last_worker_ms": 0.0,
+				"max_mesh_ms": 0.01,
+				"max_service_ms": 0.461,
+				"max_worker_ms": 0.0,
+				"mesh_builds": 80,
+				"pending_builds": 0,
+				"proxy_submissions": 0,
+				"proxy_triangles": 0,
+				"retained_proxy_triangles": 0,
+				"view_suppressed": false
+			},
+			"population": {
+				"authored_meaningful": 0,
+				"by_asset": {},
+				"decorative": 0,
+				"layout": "km1",
+				"patches": 0,
+				"presented": 0,
+				"represented": 0,
+				"world": "km1"
+			},
+			"prepare_ms": 0.17,
+			"profile": "comparison_old_distance",
+			"render_stats": {
+				"batch_builds": 0,
+				"batches": 0,
+				"behind_hidden_instances": 0,
+				"canonical_instances": 0,
+				"cell_roles": {},
+				"cells": 0,
+				"covered_cells": 1024,
+				"estimated_triangles": 0,
+				"full_uploads": 0,
+				"instances": 0,
+				"lod_evaluations": 0,
+				"nodes": 0,
+				"partial_uploads": 0,
+				"pending_builds": 0,
+				"placeholders": 0,
+				"pooled_nodes": 0,
+				"preview_nodes": 0,
+				"promoted": 0,
+				"size_hidden_instances": 0,
+				"view_suppressed": false,
+				"visible_instances": 0,
+				"visible_triangles": 0,
+				"world_epoch": 1
+			},
+			"repeat": false,
+			"scenario": "terrain_only_1km",
+			"settle_ms": 545,
+			"settled": true,
+			"summary": {
+				"cpu_p50_ms": 0.2,
+				"cpu_p95_ms": 0.2,
+				"cpu_p99_ms": 0.2,
+				"cpu_samples": 3429,
+				"cpu_status": "AVAILABLE",
+				"frame_interval_source": "wall_clock_proxy",
+				"frame_max_ms": 1017.964,
+				"frame_p50_ms": 7.0,
+				"frame_p95_ms": 16.8,
+				"frame_p99_ms": 17.3,
+				"frames": 3429,
+				"gpu_p50_ms": null,
+				"gpu_p95_ms": null,
+				"gpu_p99_ms": null,
+				"gpu_samples": 0,
+				"gpu_status": "NOT_AVAILABLE",
+				"histogram_resolution_ms": 0.1,
+				"hitches_over_50_ms": 1,
+				"missed_target": 2,
+				"over_100_ms": 1,
+				"over_16_7": 240,
+				"over_250_ms": 1,
+				"over_33_4": 1,
+				"target_ms": 16.6666666666667
+			},
+			"target_budget_ms": 16.6666666666667,
+			"target_fps": 60.0,
+			"telemetry": {
+				"end": {
+					"footprint_mib": 696.516975402832,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				},
+				"start": {
+					"footprint_mib": 508.548202514648,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				}
+			},
+			"terrain_mesh": {
+				"lods": 7,
+				"mesh_size": 48
+			},
+			"workload": "camera_path"
+		},
+		{
+			"cache": {
+				"by_kind": {
+					"material": 0,
+					"mesh": 0,
+					"preview_texture": 0,
+					"texture": 0
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 0,
+				"errors": 0,
+				"evictions": 0,
+				"fallback_bytes": 0,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 0,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 0,
+				"soft_bytes": 402653184
+			},
+			"cache_start": {
+				"by_kind": {
+					"material": 0,
+					"mesh": 0,
+					"preview_texture": 0,
+					"texture": 0
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 0,
+				"errors": 0,
+				"evictions": 0,
+				"fallback_bytes": 0,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 0,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 0,
+				"soft_bytes": 402653184
+			},
+			"camera": "overview",
+			"camera_poses": {
+				"duration_s": 30.0,
+				"path": "overview",
+				"samples": [
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 0.0,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 6.0,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 12.0,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 18.0,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 24.0,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 30.0,
+						"yaw_deg": 30.0
+					}
+				]
+			},
+			"comparison": {
+				"far_terrain": false,
+				"forced_view": "terrain_only",
+				"hlod_enabled": true,
+				"size_enabled": true
+			},
+			"comparison_alias_of": "",
+			"counters_last": {
+				"buffer_mem_mib": 6.89304351806641,
+				"cpu_ms": 0.115000002086163,
+				"cpu_status": "AVAILABLE",
+				"gpu_ms": 0.0,
+				"gpu_status": "NOT_AVAILABLE",
+				"internal_3d_size": [
+					767,
+					533
+				],
+				"internal_3d_size_source": "display_size_times_scale",
+				"pipelines": {
+					"canvas": 2,
+					"draw": 2,
+					"mesh": 0,
+					"specialization": 3,
+					"surface": 5
+				},
+				"scale_3d": 0.649999976158142,
+				"shadow_draws": 0,
+				"shadow_objects": 0,
+				"shadow_prims": 0,
+				"static_mem_mib": 187.939759254456,
+				"texture_mem_mib": 57.6671142578125,
+				"video_mem_mib": 124.984375,
+				"viewport_size": [
+					1180,
+					820
+				],
+				"visible_draws": 115,
+				"visible_objects": 115,
+				"visible_prims": 355424
+			},
+			"counters_peak": {
+				"cpu_ms": 0.137999996542931,
+				"gpu_ms": null,
+				"shadow_draws": 0.0,
+				"shadow_prims": 0.0,
+				"visible_draws": 115.0,
+				"visible_objects": 115.0,
+				"visible_prims": 355424.0
+			},
+			"diagnostic": true,
+			"first_frame_ms": 7,
+			"id": "terrain_only_1km-comparison_terrain_only-overview",
+			"nodes": 0,
+			"overview_stats": {
+				"active": {
+					"128": 0,
+					"256": 16
+				},
+				"built": 80,
+				"built_triangles": 0,
+				"cells_covered": 1024,
+				"groups": 80,
+				"jobs": 0,
+				"last_mesh_ms": 0.004,
+				"last_service_ms": 0.002,
+				"last_worker_ms": 0.0,
+				"max_mesh_ms": 0.01,
+				"max_service_ms": 0.461,
+				"max_worker_ms": 0.0,
+				"mesh_builds": 80,
+				"pending_builds": 0,
+				"proxy_submissions": 0,
+				"proxy_triangles": 0,
+				"retained_proxy_triangles": 0,
+				"view_suppressed": true
+			},
+			"population": {
+				"authored_meaningful": 0,
+				"by_asset": {},
+				"decorative": 0,
+				"layout": "km1",
+				"patches": 0,
+				"presented": 0,
+				"represented": 0,
+				"world": "km1"
+			},
+			"prepare_ms": 0.228,
+			"profile": "comparison_terrain_only",
+			"render_stats": {
+				"batch_builds": 0,
+				"batches": 0,
+				"behind_hidden_instances": 0,
+				"canonical_instances": 0,
+				"cell_roles": {},
+				"cells": 0,
+				"covered_cells": 1024,
+				"estimated_triangles": 0,
+				"full_uploads": 0,
+				"instances": 0,
+				"lod_evaluations": 0,
+				"nodes": 0,
+				"partial_uploads": 0,
+				"pending_builds": 0,
+				"placeholders": 0,
+				"pooled_nodes": 0,
+				"preview_nodes": 0,
+				"promoted": 0,
+				"size_hidden_instances": 0,
+				"view_suppressed": true,
+				"visible_instances": 0,
+				"visible_triangles": 0,
+				"world_epoch": 1
+			},
+			"repeat": false,
+			"scenario": "terrain_only_1km",
+			"settle_ms": 10005,
+			"settled": false,
+			"summary": {
+				"cpu_p50_ms": 0.2,
+				"cpu_p95_ms": 0.2,
+				"cpu_p99_ms": 0.2,
+				"cpu_samples": 4348,
+				"cpu_status": "AVAILABLE",
+				"frame_interval_source": "wall_clock_proxy",
+				"frame_max_ms": 7.74,
+				"frame_p50_ms": 7.0,
+				"frame_p95_ms": 7.1,
+				"frame_p99_ms": 7.6,
+				"frames": 4348,
+				"gpu_p50_ms": null,
+				"gpu_p95_ms": null,
+				"gpu_p99_ms": null,
+				"gpu_samples": 0,
+				"gpu_status": "NOT_AVAILABLE",
+				"histogram_resolution_ms": 0.1,
+				"hitches_over_50_ms": 0,
+				"missed_target": 0,
+				"over_100_ms": 0,
+				"over_16_7": 0,
+				"over_250_ms": 0,
+				"over_33_4": 0,
+				"target_ms": 16.6666666666667
+			},
+			"target_budget_ms": 16.6666666666667,
+			"target_fps": 60.0,
+			"telemetry": {
+				"end": {
+					"footprint_mib": 698.626350402832,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				},
+				"start": {
+					"footprint_mib": 696.532600402832,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				}
+			},
+			"terrain_mesh": {
+				"lods": 7,
+				"mesh_size": 48
+			},
+			"workload": "camera_path"
+		},
+		{
+			"cache": {
+				"by_kind": {
+					"material": 0,
+					"mesh": 0,
+					"preview_texture": 0,
+					"texture": 0
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 0,
+				"errors": 0,
+				"evictions": 0,
+				"fallback_bytes": 0,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 0,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 0,
+				"soft_bytes": 402653184
+			},
+			"cache_start": {
+				"by_kind": {
+					"material": 0,
+					"mesh": 0,
+					"preview_texture": 0,
+					"texture": 0
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 0,
+				"errors": 0,
+				"evictions": 0,
+				"fallback_bytes": 0,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 0,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 0,
+				"soft_bytes": 402653184
+			},
+			"camera": "overview",
+			"camera_poses": {
+				"duration_s": 30.0,
+				"path": "overview",
+				"samples": [
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 0.0,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 6.0,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 12.0,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 18.0,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 24.0,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 30.0,
+						"yaw_deg": 30.0
+					}
+				]
+			},
+			"comparison": {
+				"far_terrain": true,
+				"forced_view": "",
+				"hlod_enabled": true,
+				"size_enabled": true
+			},
+			"comparison_alias_of": "",
+			"counters_last": {
+				"buffer_mem_mib": 6.89304351806641,
+				"cpu_ms": 0.116999998688698,
+				"cpu_status": "AVAILABLE",
+				"gpu_ms": 0.0,
+				"gpu_status": "NOT_AVAILABLE",
+				"internal_3d_size": [
+					767,
+					533
+				],
+				"internal_3d_size_source": "display_size_times_scale",
+				"pipelines": {
+					"canvas": 2,
+					"draw": 2,
+					"mesh": 0,
+					"specialization": 3,
+					"surface": 5
+				},
+				"scale_3d": 0.649999976158142,
+				"shadow_draws": 0,
+				"shadow_objects": 0,
+				"shadow_prims": 0,
+				"static_mem_mib": 187.966629981995,
+				"texture_mem_mib": 57.6671142578125,
+				"video_mem_mib": 124.984375,
+				"viewport_size": [
+					1180,
+					820
+				],
+				"visible_draws": 115,
+				"visible_objects": 115,
+				"visible_prims": 355424
+			},
+			"counters_peak": {
+				"cpu_ms": 0.156000003218651,
+				"gpu_ms": null,
+				"shadow_draws": 0.0,
+				"shadow_prims": 0.0,
+				"visible_draws": 115.0,
+				"visible_objects": 115.0,
+				"visible_prims": 355424.0
+			},
+			"diagnostic": true,
+			"first_frame_ms": 6,
+			"id": "terrain_only_1km-comparison_far_terrain-overview",
+			"nodes": 0,
+			"overview_stats": {
+				"active": {
+					"128": 0,
+					"256": 16
+				},
+				"built": 80,
+				"built_triangles": 0,
+				"cells_covered": 1024,
+				"groups": 80,
+				"jobs": 0,
+				"last_mesh_ms": 0.004,
+				"last_service_ms": 0.003,
+				"last_worker_ms": 0.0,
+				"max_mesh_ms": 0.01,
+				"max_service_ms": 0.461,
+				"max_worker_ms": 0.0,
+				"mesh_builds": 80,
+				"pending_builds": 0,
+				"proxy_submissions": 0,
+				"proxy_triangles": 0,
+				"retained_proxy_triangles": 0,
+				"view_suppressed": true
+			},
+			"population": {
+				"authored_meaningful": 0,
+				"by_asset": {},
+				"decorative": 0,
+				"layout": "km1",
+				"patches": 0,
+				"presented": 0,
+				"represented": 0,
+				"world": "km1"
+			},
+			"prepare_ms": 0.158,
+			"profile": "comparison_far_terrain",
+			"render_stats": {
+				"batch_builds": 0,
+				"batches": 0,
+				"behind_hidden_instances": 0,
+				"canonical_instances": 0,
+				"cell_roles": {},
+				"cells": 0,
+				"covered_cells": 1024,
+				"estimated_triangles": 0,
+				"full_uploads": 0,
+				"instances": 0,
+				"lod_evaluations": 0,
+				"nodes": 0,
+				"partial_uploads": 0,
+				"pending_builds": 0,
+				"placeholders": 0,
+				"pooled_nodes": 0,
+				"preview_nodes": 0,
+				"promoted": 0,
+				"size_hidden_instances": 0,
+				"view_suppressed": true,
+				"visible_instances": 0,
+				"visible_triangles": 0,
+				"world_epoch": 1
+			},
+			"repeat": false,
+			"scenario": "terrain_only_1km",
+			"settle_ms": 10005,
+			"settled": false,
+			"summary": {
+				"cpu_p50_ms": 0.2,
+				"cpu_p95_ms": 0.2,
+				"cpu_p99_ms": 0.2,
+				"cpu_samples": 4348,
+				"cpu_status": "AVAILABLE",
+				"frame_interval_source": "wall_clock_proxy",
+				"frame_max_ms": 7.745,
+				"frame_p50_ms": 7.0,
+				"frame_p95_ms": 7.3,
+				"frame_p99_ms": 7.7,
+				"frames": 4348,
+				"gpu_p50_ms": null,
+				"gpu_p95_ms": null,
+				"gpu_p99_ms": null,
+				"gpu_samples": 0,
+				"gpu_status": "NOT_AVAILABLE",
+				"histogram_resolution_ms": 0.1,
+				"hitches_over_50_ms": 0,
+				"missed_target": 0,
+				"over_100_ms": 0,
+				"over_16_7": 0,
+				"over_250_ms": 0,
+				"over_33_4": 0,
+				"target_ms": 16.6666666666667
+			},
+			"target_budget_ms": 16.6666666666667,
+			"target_fps": 60.0,
+			"telemetry": {
+				"end": {
+					"footprint_mib": 696.563850402832,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				},
+				"start": {
+					"footprint_mib": 696.563850402832,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				}
+			},
+			"terrain_mesh": {
+				"lods": 7,
+				"mesh_size": 48
+			},
+			"workload": "camera_path"
+		},
+		{
+			"cache": {
+				"by_kind": {
+					"material": 0,
+					"mesh": 0,
+					"preview_texture": 0,
+					"texture": 0
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 0,
+				"errors": 0,
+				"evictions": 0,
+				"fallback_bytes": 0,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 0,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 0,
+				"soft_bytes": 402653184
+			},
+			"cache_start": {
+				"by_kind": {
+					"material": 0,
+					"mesh": 0,
+					"preview_texture": 0,
+					"texture": 0
+				},
+				"ceiling_bytes": 536870912,
+				"critical_over_budget": 0,
+				"discarded_stale": 0,
+				"entries": 0,
+				"errors": 0,
+				"evictions": 0,
+				"fallback_bytes": 0,
+				"loading": 0,
+				"preview_bytes": 0,
+				"queued": 0,
+				"ready": 0,
+				"rejected": 0,
+				"reserved_bytes": 0,
+				"resident_bytes": 0,
+				"soft_bytes": 402653184
+			},
+			"camera": "overview",
+			"camera_poses": {
+				"duration_s": 30.0,
+				"path": "overview",
+				"samples": [
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 0.0,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 6.0,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 12.0,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 18.0,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 24.0,
+						"yaw_deg": 30.0
+					},
+					{
+						"distance_m": 1445.02,
+						"pitch_deg": 70.0,
+						"pivot": [
+							0.0,
+							3.73,
+							0.0
+						],
+						"t_s": 30.0,
+						"yaw_deg": 30.0
+					}
+				]
+			},
+			"comparison": {
+				"far_terrain": false,
+				"forced_view": "regional",
+				"hlod_enabled": true,
+				"size_enabled": false
+			},
+			"comparison_alias_of": "",
+			"counters_last": {
+				"buffer_mem_mib": 6.89304351806641,
+				"cpu_ms": 0.120999999344349,
+				"cpu_status": "AVAILABLE",
+				"gpu_ms": 0.0,
+				"gpu_status": "NOT_AVAILABLE",
+				"internal_3d_size": [
+					767,
+					533
+				],
+				"internal_3d_size_source": "display_size_times_scale",
+				"pipelines": {
+					"canvas": 2,
+					"draw": 2,
+					"mesh": 0,
+					"specialization": 3,
+					"surface": 5
+				},
+				"scale_3d": 0.649999976158142,
+				"shadow_draws": 0,
+				"shadow_objects": 0,
+				"shadow_prims": 0,
+				"static_mem_mib": 187.987553596497,
+				"texture_mem_mib": 57.6671142578125,
+				"video_mem_mib": 124.984375,
+				"viewport_size": [
+					1180,
+					820
+				],
+				"visible_draws": 115,
+				"visible_objects": 115,
+				"visible_prims": 355424
+			},
+			"counters_peak": {
+				"cpu_ms": 0.202000007033348,
+				"gpu_ms": null,
+				"shadow_draws": 0.0,
+				"shadow_prims": 0.0,
+				"visible_draws": 115.0,
+				"visible_objects": 115.0,
+				"visible_prims": 355424.0
+			},
+			"diagnostic": true,
+			"first_frame_ms": 6,
+			"id": "terrain_only_1km-comparison_old_distance-overview-repeat",
+			"nodes": 0,
+			"overview_stats": {
+				"active": {
+					"128": 0,
+					"256": 16
+				},
+				"built": 80,
+				"built_triangles": 0,
+				"cells_covered": 1024,
+				"groups": 80,
+				"jobs": 0,
+				"last_mesh_ms": 0.004,
+				"last_service_ms": 0.081,
+				"last_worker_ms": 0.0,
+				"max_mesh_ms": 0.01,
+				"max_service_ms": 0.461,
+				"max_worker_ms": 0.0,
+				"mesh_builds": 80,
+				"pending_builds": 0,
+				"proxy_submissions": 0,
+				"proxy_triangles": 0,
+				"retained_proxy_triangles": 0,
+				"view_suppressed": false
+			},
+			"population": {
+				"authored_meaningful": 0,
+				"by_asset": {},
+				"decorative": 0,
+				"layout": "km1",
+				"patches": 0,
+				"presented": 0,
+				"represented": 0,
+				"world": "km1"
+			},
+			"prepare_ms": 0.171,
+			"profile": "comparison_old_distance",
+			"render_stats": {
+				"batch_builds": 0,
+				"batches": 0,
+				"behind_hidden_instances": 0,
+				"canonical_instances": 0,
+				"cell_roles": {},
+				"cells": 0,
+				"covered_cells": 1024,
+				"estimated_triangles": 0,
+				"full_uploads": 0,
+				"instances": 0,
+				"lod_evaluations": 0,
+				"nodes": 0,
+				"partial_uploads": 0,
+				"pending_builds": 0,
+				"placeholders": 0,
+				"pooled_nodes": 0,
+				"preview_nodes": 0,
+				"promoted": 0,
+				"size_hidden_instances": 0,
+				"view_suppressed": false,
+				"visible_instances": 0,
+				"visible_triangles": 0,
+				"world_epoch": 1
+			},
+			"repeat": true,
+			"scenario": "terrain_only_1km",
+			"settle_ms": 6,
+			"settled": true,
+			"summary": {
+				"cpu_p50_ms": 0.2,
+				"cpu_p95_ms": 0.2,
+				"cpu_p99_ms": 0.2,
+				"cpu_samples": 4348,
+				"cpu_status": "AVAILABLE",
+				"frame_interval_source": "wall_clock_proxy",
+				"frame_max_ms": 7.755,
+				"frame_p50_ms": 7.0,
+				"frame_p95_ms": 7.3,
+				"frame_p99_ms": 7.7,
+				"frames": 4348,
+				"gpu_p50_ms": null,
+				"gpu_p95_ms": null,
+				"gpu_p99_ms": null,
+				"gpu_samples": 0,
+				"gpu_status": "NOT_AVAILABLE",
+				"histogram_resolution_ms": 0.1,
+				"hitches_over_50_ms": 0,
+				"missed_target": 0,
+				"over_100_ms": 0,
+				"over_16_7": 0,
+				"over_250_ms": 0,
+				"over_33_4": 0,
+				"target_ms": 16.6666666666667
+			},
+			"target_budget_ms": 16.6666666666667,
+			"target_fps": 60.0,
+			"telemetry": {
+				"end": {
+					"footprint_mib": 696.595100402832,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				},
+				"start": {
+					"footprint_mib": 696.563850402832,
+					"safety_state": "normal",
+					"thermal": "nominal"
+				}
+			},
+			"terrain_mesh": {
+				"lods": 7,
+				"mesh_size": 48
+			},
+			"workload": "camera_path"
+		}
+	],
+	"viewport_size": [
+		1180,
+		820
+	],
+	"warmup_frames": 90,
+	"warmup_seconds": 2.0
+}

@@ -14,6 +14,9 @@ var _frame := PackedInt32Array()
 var _gpu := PackedInt32Array()
 var _cpu := PackedInt32Array()
 var _gpu_samples := 0
+var _cpu_samples := 0
+var gpu_status := RenderCounters.NOT_RUN
+var cpu_status := RenderCounters.NOT_RUN
 var _peak := 0.0
 var _counts := {}
 var _target_ms := 1000.0 / BenchPlan.DEFAULT_TARGET_FPS
@@ -33,6 +36,9 @@ func reset() -> void:
 	_cpu = PackedInt32Array()
 	_cpu.resize(BINS)
 	_gpu_samples = 0
+	_cpu_samples = 0
+	gpu_status = RenderCounters.NOT_RUN
+	cpu_status = RenderCounters.NOT_RUN
 	_peak = 0.0
 	_counts = {"over_16_7": 0, "over_33_4": 0, "missed_target": 0, "hitches_over_50_ms": 0, "over_100_ms": 0,
 		"over_250_ms": 0}
@@ -51,10 +57,25 @@ func add_frame(ms: float) -> void:
 
 
 ## Only AVAILABLE render-time samples may be added (RenderCounters validity).
-func add_timing(gpu_ms: float, cpu_ms: float) -> void:
-	_gpu_samples += 1
-	_gpu[_bin(gpu_ms)] += 1
-	_cpu[_bin(cpu_ms)] += 1
+func add_timing(gpu_ms: float, cpu_ms: float, gpu_valid: bool = true, cpu_valid: bool = true) -> void:
+	if gpu_valid:
+		gpu_status = RenderCounters.merge_timing_status(gpu_status, RenderCounters.sample_status(RenderCounters.AVAILABLE, gpu_ms))
+	if cpu_valid:
+		cpu_status = RenderCounters.merge_timing_status(cpu_status, RenderCounters.sample_status(RenderCounters.AVAILABLE, cpu_ms))
+	if gpu_valid and RenderCounters.sample_status(RenderCounters.AVAILABLE, gpu_ms) == RenderCounters.AVAILABLE:
+		_gpu_samples += 1
+		_gpu[_bin(gpu_ms)] += 1
+	if cpu_valid and RenderCounters.sample_status(RenderCounters.AVAILABLE, cpu_ms) == RenderCounters.AVAILABLE:
+		_cpu_samples += 1
+		_cpu[_bin(cpu_ms)] += 1
+
+
+func add_snapshot(sample: Dictionary) -> void:
+	var gpu := RenderCounters.sample_status(str(sample.gpu_status), float(sample.gpu_ms))
+	var cpu := RenderCounters.sample_status(str(sample.cpu_status), float(sample.cpu_ms))
+	gpu_status = RenderCounters.merge_timing_status(gpu_status, gpu)
+	cpu_status = RenderCounters.merge_timing_status(cpu_status, cpu)
+	add_timing(float(sample.gpu_ms), float(sample.cpu_ms), gpu == RenderCounters.AVAILABLE, cpu == RenderCounters.AVAILABLE)
 
 
 func missed_target() -> int:
@@ -69,28 +90,34 @@ func percentile(q: float) -> float:
 	return _quantile(_frame, frames, q, _peak)
 
 
-func summary(gpu_status: String, cpu_status: String) -> Dictionary:
+func summary(recorded_gpu_status: String = "", recorded_cpu_status: String = "") -> Dictionary:
+	var gpu := gpu_status if recorded_gpu_status == "" else recorded_gpu_status
+	var cpu := cpu_status if recorded_cpu_status == "" else recorded_cpu_status
+	if _gpu_samples == 0 and gpu == RenderCounters.AVAILABLE:
+		gpu = RenderCounters.NOT_AVAILABLE
+	if _cpu_samples == 0 and cpu == RenderCounters.AVAILABLE:
+		cpu = RenderCounters.NOT_AVAILABLE
 	var out := {"frames": frames, "frame_interval_source": "wall_clock_proxy",
 		"frame_p50_ms": percentile(0.5), "frame_p95_ms": percentile(0.95), "frame_p99_ms": percentile(0.99),
-		"frame_max_ms": _peak, "target_ms": _target_ms, "gpu_samples": _gpu_samples, "gpu_status": gpu_status,
-		"cpu_samples": _gpu_samples, "cpu_status": cpu_status, "histogram_resolution_ms": RESOLUTION_MS}
+		"frame_max_ms": _peak, "target_ms": _target_ms, "gpu_samples": _gpu_samples, "gpu_status": gpu,
+		"cpu_samples": _cpu_samples, "cpu_status": cpu, "histogram_resolution_ms": RESOLUTION_MS}
 	out.merge(_counts)
 	for q: Array in [["p50", 0.5], ["p95", 0.95], ["p99", 0.99]]:
-		out["gpu_%s_ms" % q[0]] = _quantile_or_null(_gpu, q[1])
-		out["cpu_%s_ms" % q[0]] = _quantile_or_null(_cpu, q[1])
+		out["gpu_%s_ms" % q[0]] = _quantile_or_null(_gpu, _gpu_samples, q[1])
+		out["cpu_%s_ms" % q[0]] = _quantile_or_null(_cpu, _cpu_samples, q[1])
 	return out
 
 
 func gpu_percentile(q: float) -> Variant:
-	return _quantile_or_null(_gpu, q)
+	return _quantile_or_null(_gpu, _gpu_samples, q)
 
 
 static func _bin(ms: float) -> int:
 	return clampi(int(ms / RESOLUTION_MS), 0, BINS - 1)
 
 
-func _quantile_or_null(hist: PackedInt32Array, q: float) -> Variant:
-	return null if _gpu_samples == 0 else _quantile(hist, _gpu_samples, q, MAX_MS)
+func _quantile_or_null(hist: PackedInt32Array, samples: int, q: float) -> Variant:
+	return null if samples == 0 else _quantile(hist, samples, q, MAX_MS)
 
 
 ## Upper bin edge of the sample with rank ceil(q * n), capped at `ceiling`; 0 for an empty histogram.

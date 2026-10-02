@@ -94,6 +94,7 @@ func add_object(asset_id: String, x: float, z: float, offset: float = 0.0) -> Ob
 	r.set_position(x, doc.sample_height(x, z) + offset, z)
 	doc.put_object(r)
 	presenter.sync_object(doc, r.object_id)
+	presenter.settle_now()
 	return r
 
 

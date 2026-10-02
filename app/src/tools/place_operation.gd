@@ -14,6 +14,7 @@ var _ever_valid := false
 var _valid_now := false
 var _created := ""
 var _over_ui := false
+var _focus_only := false
 var _max_other_m := -1.0  # largest footprint x scale_max in the catalog (conflict query radius)
 
 
@@ -39,7 +40,9 @@ func created_id() -> String:
 
 
 func begin(_sample: PointerSample, hit: TerrainHit) -> void:
-	_update(hit)
+	_focus_only = _ctx.focus_before_object_action.is_valid() and bool(_ctx.focus_before_object_action.call(hit))
+	if not _focus_only:
+		_update(hit)
 
 
 func move(_sample: PointerSample, hit: TerrainHit) -> void:
@@ -61,6 +64,9 @@ func advance(_now: float) -> void:
 
 
 func end(sample: PointerSample, hit: TerrainHit, over_ui: bool) -> WorldChange:
+	if _focus_only:
+		cancel()
+		return null
 	if not over_ui:
 		_update(hit)
 	if over_ui or not _valid_now or not _ever_valid:
@@ -102,6 +108,8 @@ func yaw_deg() -> float:
 
 
 func _update(hit: TerrainHit) -> void:
+	if _focus_only:
+		return
 	_over_ui = false
 	var p: Variant = _candidate(hit)
 	_valid_now = p != null

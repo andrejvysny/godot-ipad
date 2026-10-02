@@ -9,6 +9,7 @@ const AVAILABLE := "AVAILABLE"
 const WARMING_UP := "WARMING_UP"
 const UNSUPPORTED := "UNSUPPORTED"
 const NOT_RUN := "NOT_RUN"
+const NOT_AVAILABLE := "NOT_AVAILABLE"
 const WARMUP_SAMPLES := 4
 
 static var _enabled: Dictionary = {}  # viewport rid -> true once measure_render_time was switched on
@@ -42,16 +43,19 @@ static func timing_status(viewport: Viewport) -> String:
 static func snapshot(viewport: Viewport) -> Dictionary:
 	var rid := viewport.get_viewport_rid()
 	var timing := timing_status(viewport)
+	var gpu_ms := RenderingServer.viewport_get_measured_render_time_gpu(rid)
+	var cpu_ms := RenderingServer.viewport_get_measured_render_time_cpu(rid)
 	var out := {
-		"gpu_status": timing, "cpu_status": timing,
-		"gpu_ms": RenderingServer.viewport_get_measured_render_time_gpu(rid),
-		"cpu_ms": RenderingServer.viewport_get_measured_render_time_cpu(rid),
+		"gpu_status": sample_status(timing, gpu_ms), "cpu_status": sample_status(timing, cpu_ms),
+		"gpu_ms": gpu_ms, "cpu_ms": cpu_ms,
 		"video_mem_mib": _mib(RenderingServer.RENDERING_INFO_VIDEO_MEM_USED),
 		"texture_mem_mib": _mib(RenderingServer.RENDERING_INFO_TEXTURE_MEM_USED),
 		"buffer_mem_mib": _mib(RenderingServer.RENDERING_INFO_BUFFER_MEM_USED),
 		"static_mem_mib": float(OS.get_static_memory_usage()) / MIB,
 		"scale_3d": viewport.scaling_3d_scale,
 		"viewport_size": [viewport.size.x, viewport.size.y],
+		"internal_3d_size": [roundi(viewport.size.x * viewport.scaling_3d_scale), roundi(viewport.size.y * viewport.scaling_3d_scale)],
+		"internal_3d_size_source": "display_size_times_scale",
 		"pipelines": pipelines(),
 	}
 	out.merge(_view("visible", viewport, Viewport.RENDER_INFO_TYPE_VISIBLE))
@@ -80,3 +84,14 @@ static func pipelines() -> Dictionary:
 		"draw": RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_PIPELINE_COMPILATIONS_DRAW),
 		"specialization": RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_PIPELINE_COMPILATIONS_SPECIALIZATION),
 	}
+
+
+## A renderer can report CPU timing while GPU timing remains unavailable (for example Metal returning zero).
+static func sample_status(base: String, measured_ms: float) -> String:
+	if base != AVAILABLE:
+		return base
+	return AVAILABLE if is_finite(measured_ms) and measured_ms > 0.0 else NOT_AVAILABLE
+
+
+static func merge_timing_status(current: String, sample: String) -> String:
+	return AVAILABLE if current == AVAILABLE or sample == AVAILABLE else sample

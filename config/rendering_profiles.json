@@ -1,5 +1,5 @@
 {
-	"schema_version": 1,
+	"schema_version": 2,
 	"startup_profile": "performance",
 	"profiles": {
 		"performance": {
@@ -30,6 +30,9 @@
 		"main_thread_max_scheduled_ms": 2.0, "upload_soft_mib_per_frame": 2, "inflight_loads": 2
 	},
 	"texture_preview": {"radius_m": 20, "max_texture_edge_px": 2048, "fallback_texture_edge_px": 1024, "max_terrain_materials": 4},
+	"size_visibility": {"enabled": true, "reference_height_px": 820, "object_hide_px": 2, "object_show_px": 3,
+		"decorative_hide_px": 3, "decorative_show_px": 4, "far_mid_px": 32, "mid_near_px": 160},
+	"overview_view": {"enter_extent_ratio": 1.10, "exit_extent_ratio": 1.30, "enter_pitch_deg": 45, "exit_pitch_deg": 35},
 	"stability": {"lod_hysteresis_fraction": 0.2, "settle_ms": 250},
 	"ui": {"diagnostics_refresh_hz": 4, "inspector_candidates": 64, "max_debug_labels": 64},
 	"vegetation": {"categories": ["trees", "shrubs", "ground_cover"], "excluded_asset_ids": ["nature.rock.pebbles_a"]}

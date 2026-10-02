@@ -61,6 +61,24 @@ class RenderBenchCliTests(unittest.TestCase):
         plan = (bench.REPO / "app" / "src" / "diagnostics" / "bench_plan.gd").read_text()
         for name in bench.LEGACY_PROFILES:
             self.assertIn('"%s"' % name, plan, name)
+        for name in bench.COMPARISON_PROFILES:
+            self.assertIn('"%s"' % name, plan, name)
+        for name in bench.CAMERAS:
+            self.assertIn('"%s"' % name, source, name)
+
+    def test_comparison_and_camera_reach_the_app(self) -> None:
+        captured: list[str] = []
+
+        def launch(engine: list[str], user_args: list[str], timeout: int) -> int:
+            captured.extend(user_args)
+            return 1
+
+        rc, _out, _err = self.invoke(bench.cmd_render_bench,
+                                   args(profile="comparison_combined", camera="zoom_transition,rotation"),
+                                   launch, self.root, None)
+        self.assertEqual(rc, 1)
+        self.assertIn("--bench-profiles=comparison_combined", captured)
+        self.assertIn("--bench-cameras=zoom_transition,rotation", captured)
 
     def test_user_args(self) -> None:
         self.assertEqual(bench.build_user_args(["mixed_world_10k", "grass_50k"], ["performance", "detailed"], 60, 5, None),
@@ -76,7 +94,7 @@ class RenderBenchCliTests(unittest.TestCase):
         def never(*_a):
             raise AssertionError("must not launch")
         for bad in (args(scenario="nope"), args(profile="turbo"), args(scenario=""),
-                    args(sustained_minutes=5), args(seconds=-1)):
+                    args(sustained_minutes=5), args(seconds=-1), args(camera="unknown")):
             rc, _out, err = self.invoke(bench.cmd_render_bench, bad, never, self.root, never)
             self.assertEqual(rc, 2, err)
             self.assertIn("error:", err)
@@ -132,7 +150,7 @@ class RenderBenchCliTests(unittest.TestCase):
         rc, out, _err = self.invoke(bench.cmd_render_bench, args(device=True, device_id="D1", bundle_id="com.x.y"),
                                     never, self.root, never)
         self.assertEqual(rc, 0)
-        self.assertIn("devicectl device process launch --device D1 --terminate-existing com.x.y -- --render-bench", out)
+        self.assertIn("devicectl device process launch --device D1 --terminate-existing com.x.y -- -- --render-bench", out)
         self.assertIn("--source Documents/traces", out)
         self.assertIn("NOT RUN", out)
         self.assertFalse(re.search(r"evidence_class", out))
@@ -171,6 +189,24 @@ class RenderBenchCliTests(unittest.TestCase):
         self.assertIn("NO report was pulled", err)
         self.assertNotIn("evidence_class", out)
         self.assertFalse((self.root / "none.json").exists())
+
+    def test_device_sustained_run_can_collect_after_sixty_minutes(self) -> None:
+        output = self.root / "sustained.json"
+
+        def run(cmd: list[str], _timeout: int) -> tuple[int, str]:
+            if "copy" in cmd:
+                bench.PULL_DIR.mkdir(parents=True, exist_ok=True)
+                (bench.PULL_DIR / "render-bench-3601.json").write_text(json.dumps(report("DEVICE")))
+            return 0, "ok"
+
+        with mock.patch.object(bench.time, "time", side_effect=[0, 0, 3601]), \
+                mock.patch.object(bench.time, "sleep"):
+            rc, out, _err = self.invoke(bench.cmd_render_bench,
+                                       args(scenario="", sustained_minutes=60, device=True, run=True,
+                                            device_id="D1", bundle_id="com.x.y", output=output),
+                                       None, self.root, run)
+        self.assertEqual(rc, 0, out)
+        self.assertTrue(output.is_file())
 
     def test_dev_parser_registers_the_command(self) -> None:
         parsed = dev.build_parser().parse_args(["render-bench", "--scenario", "grass_50k", "--output", "x.json",

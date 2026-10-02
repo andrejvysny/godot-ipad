@@ -13,6 +13,7 @@ const ACTIVE := "ACTIVE"
 const LIMITED := "LIMITED"
 const RELEASING := "RELEASING"
 const ERROR := "ERROR"
+const SUSPENDED := "SUSPENDED"
 const FEATHER_M := 1.5
 const NO_AREA := "Select an object or aim at terrain to preview textures."
 
@@ -32,6 +33,8 @@ var _objects: ObjectPreviewParticipant
 var _object_progress: Dictionary = {}
 var _retiring: Array[ObjectPreviewParticipant] = []  # released, still waiting for pinned cells
 var _state := OFF
+var _view_suspended := false
+var _resume_request := false
 var _center := Vector3.ZERO
 var _radius := 0.0
 var _reason := ""
@@ -87,6 +90,10 @@ func enable_at(center: Vector3, radius: float = -1.0) -> Dictionary:
 	_reason = ""
 	_cause = ""
 	_released_bytes = 0
+	if _view_suspended:
+		_resume_request = true
+		_state = SUSPENDED
+		return {"ok": true, "message": "Texture Preview suspended in terrain overview."}
 	_participant = TerrainPreviewParticipant.new(_cache, _terrain, _doc, _sources)
 	_state = LOADING
 	var err := _participant.begin(xz, r, minf(FEATHER_M, r), int(_config.get("max_terrain_materials", 4)),
@@ -104,15 +111,31 @@ func enable_at(center: Vector3, radius: float = -1.0) -> Dictionary:
 
 
 func disable(reason: String) -> void:
+	_resume_request = false
 	_release(reason, "")
 
 
 ## Safety hook (memory pressure, lifecycle): same as disable with the state reason "suspended".
 func suspend(cause: String) -> void:
+	_resume_request = false
 	_release("suspended", cause)
 
 
+## Overview suspension releases expensive owners but retains the world-anchored request.
+func set_view_suspended(suspended: bool) -> void:
+	if suspended == _view_suspended:
+		return
+	_view_suspended = suspended
+	if suspended:
+		_resume_request = _resume_request or _state in [LOADING, ACTIVE, LIMITED]
+		if _resume_request:
+			_release("terrain_overview", "view")
+			_state = SUSPENDED
+
+
 func on_world_replaced() -> void:
+	_resume_request = false
+	_view_suspended = false
 	_release("world_replaced", "")
 	generation += 1
 	_terrain = null
@@ -123,6 +146,18 @@ func on_world_replaced() -> void:
 ## finishes RELEASING one frame after the release.
 func service(budget_ms: float) -> void:
 	_service_objects()
+	if _view_suspended:
+		if not _resume_request and _state == RELEASING and Engine.get_process_frames() > _busy_frame:
+			_state = OFF
+		if _draining:
+			_cache.poll(budget_ms)
+			var pending := _cache.stats()
+			_draining = int(pending.queued) + int(pending.loading) > 0
+		return
+	if _resume_request and not _draining and _retiring.is_empty() and Engine.get_process_frames() > _busy_frame:
+		_resume_request = false
+		_state = OFF
+		enable_at(_center, _radius)
 	if _state != LOADING and not _draining:
 		if _state == RELEASING and Engine.get_process_frames() > _busy_frame:
 			_state = OFF
@@ -164,6 +199,8 @@ func status() -> Dictionary:
 ## Text of the Performance menu status line.
 static func status_text(st: Dictionary) -> String:
 	match str(st.state):
+		SUSPENDED:
+			return "Suspended in terrain overview"
 		LOADING:
 			return "Loading…"
 		ACTIVE:

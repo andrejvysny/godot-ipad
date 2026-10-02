@@ -23,22 +23,26 @@ var active_valid := false
 var active_center := Vector2.ZERO
 var active_radius := 20.0
 
+var snapshot: RenderCameraSnapshot
+var _tracker := LodCameraTracker.new()
+var supplied_snapshot: RenderCameraSnapshot
 var _xf := Transform3D()
 
 
 ## True when the camera transform changed since the last call.
 func track(now_ms: int) -> bool:
 	if camera == null or not camera.is_inside_tree():
+		var changed := _tracker.update(null, now_ms)
+		snapshot = _tracker.snapshot
 		has_camera = false
-		return false
-	var viewport := camera.get_viewport()
-	var moved := not has_camera or camera.global_transform != _xf
-	has_camera = true
-	_xf = camera.global_transform
+		return changed
+	var moved := _tracker.update_snapshot(supplied_snapshot, now_ms) if supplied_snapshot != null else _tracker.update(camera, now_ms)
+	snapshot = _tracker.snapshot
+	has_camera = _tracker.has_camera
+	_xf = snapshot.transform
 	pos = _xf.origin
-	fov = camera.fov
-	if viewport != null:
-		viewport_h = viewport.get_visible_rect().size.y
+	fov = _tracker.fov
+	viewport_h = snapshot.viewport_size.y
 	if moved:
 		moved_ms = now_ms
 		var fwd := -_xf.basis.z

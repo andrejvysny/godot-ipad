@@ -26,6 +26,8 @@ var path_changed: Callable = Callable()
 ## `focus_area(area: AABB)`: zooms the camera onto a grouped area (PICK-03). Unset = no overview.
 var area_pick: Callable = Callable()
 var focus_area: Callable = Callable()
+## Returns true after focusing an overview area; the current contact must not edit.
+var focus_before_object_action: Callable = Callable()
 ## StrokeProbe.finish() of the most recent paint/sculpt/path stroke; {} before the first.
 var last_stroke: Dictionary = {}
 

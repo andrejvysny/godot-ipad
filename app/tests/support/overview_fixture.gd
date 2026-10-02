@@ -19,7 +19,7 @@ var world: ObjectRenderWorld
 var overview: OverviewRenderer
 var camera: Camera3D
 var profile := {"near_min_role": "mid", "tree_detail_radius_m": 80.0, "ground_cover_radius_m": 25.0,
-	"lod_hysteresis_fraction": 0.2, "settle_ms": 0}
+	"lod_hysteresis_fraction": 0.2, "settle_ms": 0, "size_policy_enabled": false}
 var pins := {}
 var selected := AABB()
 var _rng := RandomNumberGenerator.new()

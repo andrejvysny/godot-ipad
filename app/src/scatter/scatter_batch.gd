@@ -1,12 +1,15 @@
 class_name ScatterBatch
 extends RefCounted
-## One MultiMeshInstance3D of the scatter instances of one (cell, asset) at one representation. The node
+## One bounded source chunk of (cell, asset, requested role) at one representation. The node
 ## sits at the cell origin and the buffer is cell-local (float32 precision does not depend on the distance
 ## from the world origin). The whole buffer is replaced when it changes (a scatter cell holds few instances,
 ## and instance identity is not needed: rebuilding a dirty cell is cheaper than tracking slots); an identical
 ## buffer is never uploaded again. Never casts shadows.
 
 var node: MultiMeshInstance3D
+var asset_id := ""
+var wanted_role := ""
+var chunk := 0
 var rep := ""
 var count := 0
 var origin: Vector3

@@ -37,11 +37,52 @@ static func pose(name: String, ctx: Dictionary, t: float, duration: float) -> Di
 			return _pose(pivot, YAW_DEG, CANOPY_PITCH_DEG, CANOPY_DISTANCE_M)
 		"path":
 			return _path(ctx, focus, t, duration)
+		"zoom_transition", "threshold_oscillation", "rotation":
+			return _size_path(name, ctx, focus, t, duration)
 		"travel":
 			var far: Vector2 = anchors.far
 			var at_far := int(floor(t / TRAVEL_PERIOD_S)) % 2 == 1
 			return _pose(_ground(ctx, far if at_far else focus), YAW_DEG, FOCUS_PITCH_DEG, FOCUS_DISTANCE_M)
 	return _pose(_ground(ctx, focus), YAW_DEG, FOCUS_PITCH_DEG, FOCUS_DISTANCE_M)
+
+
+static func _size_path(name: String, ctx: Dictionary, focus: Vector2, t: float, duration: float) -> Dictionary:
+	var u := clampf(t / maxf(duration, 0.001), 0.0, 1.0)
+	if name == "rotation":
+		return _pose(_ground(ctx, focus), YAW_DEG + u * PATH_ORBIT_DEG, FOCUS_PITCH_DEG, FOCUS_DISTANCE_M)
+	var distance := float(ctx.get("threshold_distance", ctx.fit_distance)) * (1.0 + 0.05 * sin(t * TAU / TRAVEL_PERIOD_S))
+	if name == "zoom_transition":
+		distance = exp(lerpf(log(FOCUS_DISTANCE_M), log(maxf(float(ctx.fit_distance), FOCUS_DISTANCE_M)), u))
+	return _pose(_ground(ctx, Vector2.ZERO), YAW_DEG, OVERVIEW_PITCH_DEG, distance)
+
+
+## Calibrate once before timing; a framing distance alone does not locate the overview boundary.
+static func threshold_distance(snapshot: RenderCameraSnapshot, bounds: AABB, pivot: Vector3,
+		fit_distance: float, target_ratio: float) -> float:
+	if snapshot == null or not snapshot.valid:
+		return fit_distance
+	var probe := RenderCameraSnapshot.new()
+	probe.valid = true
+	probe.projection = snapshot.projection
+	probe.viewport_size = snapshot.viewport_size
+	probe.internal_size = snapshot.internal_size
+	probe.render_scale = snapshot.render_scale
+	probe.near = snapshot.near
+	var controller := OrbitCameraController.new()
+	controller.pivot = pivot
+	controller.yaw = deg_to_rad(YAW_DEG)
+	controller.pitch = deg_to_rad(OVERVIEW_PITCH_DEG)
+	var low := 3.0
+	var high := maxf(fit_distance * 2.0, low)
+	for i in 24:
+		controller.distance = (low + high) * 0.5
+		probe.transform = controller.camera_transform()
+		var measured := ProjectedBounds.measure(bounds, probe)
+		if measured.conservative or float(measured.extent_ratio) > target_ratio:
+			low = controller.distance
+		else:
+			high = controller.distance
+	return (low + high) * 0.5
 
 
 ## One full orbit while the pivot pans back and forth along X over the patch and the distance zooms between

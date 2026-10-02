@@ -1,0 +1,79 @@
+{
+  "error" : {
+    "code" : 10002,
+    "domain" : "com.apple.dt.CoreDeviceError",
+    "userInfo" : {
+      "BundleIdentifier" : {
+        "string" : "sk.andrejvysny.worldpainterpoc"
+      },
+      "NSLocalizedDescription" : {
+        "string" : "The application failed to launch."
+      },
+      "NSUnderlyingError" : {
+        "error" : {
+          "code" : 1,
+          "domain" : "FBSOpenApplicationServiceErrorDomain",
+          "userInfo" : {
+            "BSErrorCodeDescription" : {
+              "string" : "RequestDenied"
+            },
+            "FBSOpenApplicationRequestID" : {
+              "string" : "0xb5f3"
+            },
+            "NSLocalizedDescription" : {
+              "string" : "The request to open \"sk.andrejvysny.worldpainterpoc\" failed."
+            },
+            "NSLocalizedFailureReason" : {
+              "string" : "The request was denied by service delegate (SBMainWorkspace) for reason: Locked (\"Unable to launch sk.andrejvysny.worldpainterpoc because the device was not, or could not be, unlocked\")."
+            },
+            "NSUnderlyingError" : {
+              "error" : {
+                "code" : 7,
+                "domain" : "FBSOpenApplicationErrorDomain",
+                "userInfo" : {
+                  "BSErrorCodeDescription" : {
+                    "string" : "Locked"
+                  },
+                  "NSLocalizedFailureReason" : {
+                    "string" : "Unable to launch sk.andrejvysny.worldpainterpoc because the device was not, or could not be, unlocked."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "info" : {
+    "arguments" : [
+      "devicectl",
+      "device",
+      "process",
+      "launch",
+      "--device",
+      "7BB0A651-EAEE-52BC-A002-F375B58C226C",
+      "--terminate-existing",
+      "--json-output",
+      "build/evidence/godotipad35-device/rebind-smoke-launch.json",
+      "sk.andrejvysny.worldpainterpoc",
+      "--",
+      "--",
+      "--render-bench",
+      "--bench-scenarios=mixed_world_10k",
+      "--bench-profiles=comparison_old_distance,comparison_combined",
+      "--bench-cameras=overview,focus,shallow",
+      "--bench-seconds=2",
+      "--bench-warmup-seconds=120",
+      "--storage-root=user://render_bench_worlds",
+      "--bench-quit"
+    ],
+    "commandType" : "devicectl.device.process.launch",
+    "environment" : {
+      "TERM" : "xterm-256color"
+    },
+    "jsonVersion" : 3,
+    "outcome" : "failed",
+    "version" : "518.33"
+  }
+}

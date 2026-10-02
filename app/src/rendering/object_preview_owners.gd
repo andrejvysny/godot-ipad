@@ -180,9 +180,16 @@ func _show(id: String, rep: String) -> void:
 
 
 func _visible(id: String) -> bool:
-	return not _store._covered.has(_store._cell_of[id]) and not _store._hidden(id)
+	return _store.is_object_visible(id)
 
 
 func _rep_of(id: String) -> String:
+	if _store._size_policy_enabled:
+		return _store._size_visibility.rep_of(id)
 	var cell: RenderCell = _store._cells[_store._cell_of[id]]
 	return cell.reps.get(_store._asset[id], RenderWorldResources.PLACEHOLDER)
+
+
+func retarget_object(id: String, rep: String) -> void:
+	if _nodes.has(id):
+		_show(id, rep)

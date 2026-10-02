@@ -5,8 +5,8 @@ extends Node3D
 ## - Decorative assets (descriptor.decorative: grass, ferns, pebbles) live in 16 m ground-cover cells, drawn only
 ##   inside the profile's ground-cover radius, thinned by a deterministic nested subset (ScatterDensity) whose
 ##   density is higher inside the active area (ScatterView).
-## - Everything else (trees, rocks) is meaningful: 32 m cells, LodPolicy individual roles (near/mid/far), never
-##   thinned. The overview interface (overview_members / set_cells_covered / overview_changed) lets the HLOD
+## - Everything else (trees, rocks) is meaningful: 32 m cells, per-instance projected near/mid/far tiers.
+##   Meaningful instances are never density-thinned; tiny projected instances are culled with hysteresis. The overview interface (overview_members / set_cells_covered / overview_changed) lets the HLOD
 ##   overview group them; decorative cells are never covered.
 ## Meshes come from the shared RenderAssetCache through ScatterResources (coarse-first, shared placeholder box
 ## for NOT_READY assets); the catalog scatter_mesh is not used. Instance Y follows the terrain. Nothing casts
@@ -25,6 +25,8 @@ var last_rebuild_ms: float:
 
 var _engine: ScatterEngine
 # Re-applied when setup() replaces the engine (render bench catalog swaps).
+var _snapshot: RenderCameraSnapshot
+var _view_suppressed := false
 var _camera: Camera3D
 var _area: ActiveEditArea
 var _profile: Dictionary = {}
@@ -50,6 +52,9 @@ func setup(catalog: AssetCatalog, registry: RenderAssetRegistry = null, cache: R
 	if _camera != null:
 		_engine.set_camera(_camera)
 	_engine.view.area = _area
+	_engine.view.supplied_snapshot = _snapshot
+	_engine.view_suppressed = _view_suppressed
+	_engine.builder.view_suppressed = _view_suppressed
 	if not _profile.is_empty():
 		_engine.set_profile(_profile)
 
@@ -75,6 +80,23 @@ func set_lod_profile(profile: Dictionary) -> void:
 func set_camera(camera: Camera3D) -> void:
 	_camera = camera
 	_engine.set_camera(camera)
+
+
+func set_camera_snapshot(snapshot: RenderCameraSnapshot) -> void:
+	_snapshot = snapshot
+	if _engine != null:
+		_engine.view.supplied_snapshot = snapshot
+
+
+func set_view_suppressed(suppressed: bool) -> void:
+	_view_suppressed = suppressed
+	if _engine == null:
+		return
+	_engine.view_suppressed = suppressed
+	_engine.builder.view_suppressed = suppressed
+	for kind in 2:
+		for cell: ScatterCell in (_engine.buckets.cells[kind] as Dictionary).values():
+			_engine.builder.apply_visibility(cell)
 
 
 func set_active_area(area: ActiveEditArea) -> void:
@@ -117,13 +139,14 @@ func settle_now(max_ms: float = 2000.0) -> bool:
 
 
 ## Once per frame, after the cache poll: view selection, then scheduled cell builds within `budget_ms`
-## (at least one cell per call while any is queued).
+## (classification and uploads use bounded, resumable source chunks).
 func service_frame(budget_ms: float = 1.0) -> void:
 	_engine.service_frame(budget_ms)
 
 
 func stats() -> Dictionary:
 	var instances := 0
+	var submitted := 0
 	var multimeshes := 0
 	var cells := 0
 	var placeholders := 0
@@ -134,9 +157,11 @@ func stats() -> Dictionary:
 			instances += cell.drawn
 			multimeshes += cell.batches.size()
 			for batch: ScatterBatch in cell.batches.values():
+				submitted += batch.count if batch.node.visible else 0
 				placeholders += 1 if batch.rep == RenderWorldResources.PLACEHOLDER else 0
 	var doc := _engine.doc
-	return {"instances": instances, "authored": doc.scatter.count() if doc != null else 0, "cells": cells,
+	return {"instances": instances, "submitted_instances": submitted, "view_suppressed": _view_suppressed,
+			"authored": doc.scatter.count() if doc != null else 0, "cells": cells,
 			"multimeshes": multimeshes, "placeholder_batches": placeholders, "uploads": _engine.builder.uploads,
 			"cell_builds": _engine.builder.builds, "pending_builds": _engine.pending_builds(),
 			"scatter_epoch": _engine.builder.res.epoch, "last_rebuild_ms": _engine.last_rebuild_ms}
@@ -164,15 +189,20 @@ func density_stats() -> Dictionary:
 ## Drawn instances of the batch of `asset_id` in `cell` (a 16 m cell for decorative assets, a 32 m cell
 ## for the others, see cell_for()).
 func rendered_count(cell: Vector2i, asset_id: String) -> int:
-	var batch := _batch(cell, asset_id)
-	return 0 if batch == null else batch.count
+	var total := 0
+	for item: ScatterBatch in _batches(cell, asset_id):
+		total += item.count
+	return total
 
 
 ## World transform of instance `k` of that batch as last uploaded (a headless MultiMesh cannot be read back).
 func instance_transform(cell: Vector2i, asset_id: String, k: int) -> Transform3D:
-	var batch := _batch(cell, asset_id)
-	var local := batch.local_transform(k)
-	return Transform3D(local.basis, local.origin + batch.origin)
+	for batch: ScatterBatch in _batches(cell, asset_id):
+		if k < batch.count:
+			var local: Transform3D = batch.local_transform(k)
+			return Transform3D(local.basis, local.origin + batch.origin)
+		k -= batch.count
+	return Transform3D.IDENTITY
 
 
 func multimesh_for(cell: Vector2i, asset_id: String) -> MultiMeshInstance3D:
@@ -242,6 +272,16 @@ func _kind_of(asset_id: String) -> int:
 	return ScatterCell.DECORATIVE if _engine.builder.is_decorative(asset_id) else ScatterCell.MEANINGFUL
 
 
-func _batch(cell_key: Vector2i, asset_id: String) -> ScatterBatch:
+func _batches(cell_key: Vector2i, asset_id: String) -> Array[ScatterBatch]:
+	var out: Array[ScatterBatch] = []
 	var cell := _engine.buckets.cell(_kind_of(asset_id), cell_key)
-	return null if cell == null else cell.batches.get(asset_id)
+	if cell != null:
+		for batch: ScatterBatch in cell.batches.values():
+			if batch.asset_id == asset_id:
+				out.append(batch)
+	return out
+
+
+func _batch(cell_key: Vector2i, asset_id: String) -> ScatterBatch:
+	var batches := _batches(cell_key, asset_id)
+	return null if batches.is_empty() else batches[0]

@@ -1,0 +1,1125 @@
+{
+  "report_path": "build/evidence/godotipad35-device/generation-matrix-final-traces/render-bench-1790890707.json",
+  "report_sha256": "9fc8c88dfa147f2f598da940d3e5f30a2b490ed19f0a5aef16f5a6f4ff356563",
+  "status": "COMPLETED",
+  "duration_s": 992.262501001358,
+  "source_sha256": "be6c34f030721734433ed54a76220d6fe6bee173a1cae57a0e55d3d98cc35436",
+  "correctness": {
+    "authored_hash_after": "dda708936d0820fcf04ebff6b44c78e98690b2a595b0ad4787b4ea90e823a21d",
+    "authored_hash_before": "dda708936d0820fcf04ebff6b44c78e98690b2a595b0ad4787b4ea90e823a21d",
+    "history_size_after": 0,
+    "history_size_before": 0,
+    "restored": true,
+    "revision_after": 74,
+    "revision_before": 74
+  },
+  "rows": [
+    {
+      "id": "mixed_world_10k-comparison_old_distance-overview",
+      "measurement_status": "READY",
+      "settled": false,
+      "pending_at_settle": {
+        "cache": false,
+        "object_work": {
+          "awaiting_assets": 0,
+          "classification_pending": false,
+          "dirty_batches": 0,
+          "queued_batches": 904,
+          "rechecks": 0
+        },
+        "objects": true,
+        "overview": false,
+        "scatter": false,
+        "scatter_work": {
+          "awaiting_assets": 0,
+          "queued_cells": 0,
+          "role_scan": 0,
+          "roles_due": false,
+          "roles_retry": false,
+          "view_force": false
+        },
+        "terrain": false,
+        "view_suppressed": false
+      },
+      "pending_before_measure": {
+        "cache": false,
+        "object_work": {
+          "awaiting_assets": 0,
+          "classification_pending": false,
+          "dirty_batches": 0,
+          "queued_batches": 0,
+          "rechecks": 0
+        },
+        "objects": false,
+        "overview": false,
+        "scatter": false,
+        "scatter_work": {
+          "awaiting_assets": 0,
+          "queued_cells": 0,
+          "role_scan": 0,
+          "roles_due": false,
+          "roles_retry": false,
+          "view_force": false
+        },
+        "terrain": false,
+        "view_suppressed": false
+      },
+      "telemetry": {
+        "end": {
+          "footprint_mib": 828.206176757812,
+          "safety_state": "warning",
+          "thermal": "serious"
+        },
+        "start": {
+          "footprint_mib": 790.534240722656,
+          "safety_state": "warning",
+          "thermal": "serious"
+        }
+      },
+      "summary": {
+        "cpu_p50_ms": 2.3,
+        "cpu_p95_ms": 2.4,
+        "cpu_p99_ms": 2.5,
+        "cpu_samples": 1801,
+        "cpu_status": "AVAILABLE",
+        "frame_interval_source": "wall_clock_proxy",
+        "frame_max_ms": 17.318,
+        "frame_p50_ms": 16.7,
+        "frame_p95_ms": 17.0,
+        "frame_p99_ms": 17.1,
+        "frames": 1801,
+        "gpu_p50_ms": 12.5,
+        "gpu_p95_ms": 12.6,
+        "gpu_p99_ms": 12.6,
+        "gpu_samples": 1801,
+        "gpu_status": "AVAILABLE",
+        "histogram_resolution_ms": 0.1,
+        "hitches_over_50_ms": 0,
+        "missed_target": 0,
+        "over_100_ms": 0,
+        "over_16_7": 664,
+        "over_250_ms": 0,
+        "over_33_4": 0,
+        "target_ms": 16.6666666666667
+      },
+      "classification_end": {
+        "evaluated": 0,
+        "generation": 20006,
+        "pass_requested": true,
+        "pinned_retries": 0,
+        "records": 10000,
+        "remaining": 0,
+        "retries": 0
+      },
+      "end_batch_pending": 0,
+      "end_visible_objects": 10000,
+      "end_scatter_submitted": 0,
+      "end_hlod_proxies": 0,
+      "end_render_service_ms": 0.286,
+      "end_service_overrun_ms": 0.0,
+      "view_state": {
+        "camera_generation": 1,
+        "objects_view_suppressed": false,
+        "view_state": "regional"
+      },
+      "terrain_material": "full"
+    },
+    {
+      "id": "mixed_world_10k-comparison_old_distance-focus",
+      "measurement_status": "READY",
+      "settled": false,
+      "pending_at_settle": {
+        "cache": false,
+        "object_work": {
+          "awaiting_assets": 0,
+          "classification_pending": false,
+          "dirty_batches": 0,
+          "queued_batches": 1043,
+          "rechecks": 0
+        },
+        "objects": true,
+        "overview": false,
+        "scatter": false,
+        "scatter_work": {
+          "awaiting_assets": 0,
+          "queued_cells": 0,
+          "role_scan": 0,
+          "roles_due": false,
+          "roles_retry": false,
+          "view_force": false
+        },
+        "terrain": false,
+        "view_suppressed": false
+      },
+      "pending_before_measure": {
+        "cache": false,
+        "object_work": {
+          "awaiting_assets": 0,
+          "classification_pending": false,
+          "dirty_batches": 0,
+          "queued_batches": 0,
+          "rechecks": 0
+        },
+        "objects": false,
+        "overview": false,
+        "scatter": false,
+        "scatter_work": {
+          "awaiting_assets": 0,
+          "queued_cells": 0,
+          "role_scan": 0,
+          "roles_due": false,
+          "roles_retry": false,
+          "view_force": false
+        },
+        "terrain": false,
+        "view_suppressed": false
+      },
+      "telemetry": {
+        "end": {
+          "footprint_mib": 817.971801757812,
+          "safety_state": "warning",
+          "thermal": "serious"
+        },
+        "start": {
+          "footprint_mib": 817.284301757812,
+          "safety_state": "warning",
+          "thermal": "serious"
+        }
+      },
+      "summary": {
+        "cpu_p50_ms": 0.9,
+        "cpu_p95_ms": 1.3,
+        "cpu_p99_ms": 1.7,
+        "cpu_samples": 1342,
+        "cpu_status": "AVAILABLE",
+        "frame_interval_source": "wall_clock_proxy",
+        "frame_max_ms": 25.021,
+        "frame_p50_ms": 22.4,
+        "frame_p95_ms": 23.3,
+        "frame_p99_ms": 24.1,
+        "frames": 1342,
+        "gpu_p50_ms": 21.5,
+        "gpu_p95_ms": 21.5,
+        "gpu_p99_ms": 21.5,
+        "gpu_samples": 1342,
+        "gpu_status": "AVAILABLE",
+        "histogram_resolution_ms": 0.1,
+        "hitches_over_50_ms": 0,
+        "missed_target": 1,
+        "over_100_ms": 0,
+        "over_16_7": 1342,
+        "over_250_ms": 0,
+        "over_33_4": 0,
+        "target_ms": 16.6666666666667
+      },
+      "classification_end": {
+        "evaluated": 0,
+        "generation": 20010,
+        "pass_requested": true,
+        "pinned_retries": 0,
+        "records": 10000,
+        "remaining": 0,
+        "retries": 0
+      },
+      "end_batch_pending": 0,
+      "end_visible_objects": 10000,
+      "end_scatter_submitted": 13,
+      "end_hlod_proxies": 0,
+      "end_render_service_ms": 0.489,
+      "end_service_overrun_ms": 0.0,
+      "view_state": {
+        "camera_generation": 2,
+        "objects_view_suppressed": false,
+        "view_state": "regional"
+      },
+      "terrain_material": "full"
+    },
+    {
+      "id": "mixed_world_10k-comparison_old_distance-shallow",
+      "measurement_status": "READY",
+      "settled": false,
+      "pending_at_settle": {
+        "cache": false,
+        "object_work": {
+          "awaiting_assets": 0,
+          "classification_pending": false,
+          "dirty_batches": 0,
+          "queued_batches": 889,
+          "rechecks": 0
+        },
+        "objects": true,
+        "overview": false,
+        "scatter": false,
+        "scatter_work": {
+          "awaiting_assets": 0,
+          "queued_cells": 0,
+          "role_scan": 0,
+          "roles_due": false,
+          "roles_retry": false,
+          "view_force": false
+        },
+        "terrain": false,
+        "view_suppressed": false
+      },
+      "pending_before_measure": {
+        "cache": false,
+        "object_work": {
+          "awaiting_assets": 0,
+          "classification_pending": false,
+          "dirty_batches": 0,
+          "queued_batches": 0,
+          "rechecks": 0
+        },
+        "objects": false,
+        "overview": false,
+        "scatter": false,
+        "scatter_work": {
+          "awaiting_assets": 0,
+          "queued_cells": 0,
+          "role_scan": 0,
+          "roles_due": false,
+          "roles_retry": false,
+          "view_force": false
+        },
+        "terrain": false,
+        "view_suppressed": false
+      },
+      "telemetry": {
+        "end": {
+          "footprint_mib": 815.393676757812,
+          "safety_state": "warning",
+          "thermal": "serious"
+        },
+        "start": {
+          "footprint_mib": 817.268676757812,
+          "safety_state": "warning",
+          "thermal": "serious"
+        }
+      },
+      "summary": {
+        "cpu_p50_ms": 1.4,
+        "cpu_p95_ms": 2.2,
+        "cpu_p99_ms": 2.5,
+        "cpu_samples": 1801,
+        "cpu_status": "AVAILABLE",
+        "frame_interval_source": "wall_clock_proxy",
+        "frame_max_ms": 17.453,
+        "frame_p50_ms": 16.7,
+        "frame_p95_ms": 17.2,
+        "frame_p99_ms": 17.3,
+        "frames": 1801,
+        "gpu_p50_ms": 14.7,
+        "gpu_p95_ms": 14.8,
+        "gpu_p99_ms": 14.9,
+        "gpu_samples": 1801,
+        "gpu_status": "AVAILABLE",
+        "histogram_resolution_ms": 0.1,
+        "hitches_over_50_ms": 0,
+        "missed_target": 0,
+        "over_100_ms": 0,
+        "over_16_7": 825,
+        "over_250_ms": 0,
+        "over_33_4": 0,
+        "target_ms": 16.6666666666667
+      },
+      "classification_end": {
+        "evaluated": 0,
+        "generation": 20014,
+        "pass_requested": true,
+        "pinned_retries": 0,
+        "records": 10000,
+        "remaining": 0,
+        "retries": 0
+      },
+      "end_batch_pending": 0,
+      "end_visible_objects": 10000,
+      "end_scatter_submitted": 13,
+      "end_hlod_proxies": 0,
+      "end_render_service_ms": 0.678,
+      "end_service_overrun_ms": 0.0,
+      "view_state": {
+        "camera_generation": 3,
+        "objects_view_suppressed": false,
+        "view_state": "regional"
+      },
+      "terrain_material": "full"
+    },
+    {
+      "id": "mixed_world_10k-comparison_size_only-overview",
+      "measurement_status": "NOT_READY",
+      "settled": false,
+      "pending_at_settle": {
+        "cache": false,
+        "object_work": {
+          "awaiting_assets": 0,
+          "classification_pending": true,
+          "dirty_batches": 0,
+          "queued_batches": 0,
+          "rechecks": 0
+        },
+        "objects": true,
+        "overview": false,
+        "scatter": false,
+        "scatter_work": {
+          "awaiting_assets": 0,
+          "queued_cells": 0,
+          "role_scan": 0,
+          "roles_due": false,
+          "roles_retry": false,
+          "view_force": false
+        },
+        "terrain": false,
+        "view_suppressed": false
+      },
+      "pending_before_measure": {
+        "cache": false,
+        "object_work": {
+          "awaiting_assets": 0,
+          "classification_pending": true,
+          "dirty_batches": 0,
+          "queued_batches": 0,
+          "rechecks": 0
+        },
+        "objects": true,
+        "overview": false,
+        "scatter": false,
+        "scatter_work": {
+          "awaiting_assets": 0,
+          "queued_cells": 0,
+          "role_scan": 0,
+          "roles_due": false,
+          "roles_retry": false,
+          "view_force": false
+        },
+        "terrain": false,
+        "view_suppressed": false
+      },
+      "telemetry": {
+        "end": {
+          "footprint_mib": 818.581176757812,
+          "safety_state": "warning",
+          "thermal": "serious"
+        },
+        "start": {
+          "footprint_mib": 817.721801757812,
+          "safety_state": "warning",
+          "thermal": "serious"
+        }
+      },
+      "summary": {
+        "cpu_p50_ms": 2.0,
+        "cpu_p95_ms": 2.2,
+        "cpu_p99_ms": 3.1,
+        "cpu_samples": 1801,
+        "cpu_status": "AVAILABLE",
+        "frame_interval_source": "wall_clock_proxy",
+        "frame_max_ms": 17.846,
+        "frame_p50_ms": 16.7,
+        "frame_p95_ms": 17.1,
+        "frame_p99_ms": 17.6,
+        "frames": 1801,
+        "gpu_p50_ms": 11.5,
+        "gpu_p95_ms": 12.0,
+        "gpu_p99_ms": 12.0,
+        "gpu_samples": 1801,
+        "gpu_status": "AVAILABLE",
+        "histogram_resolution_ms": 0.1,
+        "hitches_over_50_ms": 0,
+        "missed_target": 0,
+        "over_100_ms": 0,
+        "over_16_7": 723,
+        "over_250_ms": 0,
+        "over_33_4": 0,
+        "target_ms": 16.6666666666667
+      },
+      "classification_end": {
+        "evaluated": 10069,
+        "generation": 20020,
+        "pass_requested": false,
+        "pinned_retries": 0,
+        "records": 10000,
+        "remaining": 0,
+        "retries": 0
+      },
+      "end_batch_pending": 0,
+      "end_visible_objects": 8070,
+      "end_scatter_submitted": 0,
+      "end_hlod_proxies": 0,
+      "end_render_service_ms": 0.257,
+      "end_service_overrun_ms": 0.0,
+      "view_state": {
+        "camera_generation": 4,
+        "objects_view_suppressed": false,
+        "view_state": "regional"
+      },
+      "terrain_material": "full"
+    },
+    {
+      "id": "mixed_world_10k-comparison_size_only-focus",
+      "measurement_status": "NOT_READY",
+      "settled": false,
+      "pending_at_settle": {
+        "cache": false,
+        "object_work": {
+          "awaiting_assets": 0,
+          "classification_pending": true,
+          "dirty_batches": 0,
+          "queued_batches": 0,
+          "rechecks": 0
+        },
+        "objects": true,
+        "overview": false,
+        "scatter": false,
+        "scatter_work": {
+          "awaiting_assets": 0,
+          "queued_cells": 0,
+          "role_scan": 0,
+          "roles_due": false,
+          "roles_retry": false,
+          "view_force": false
+        },
+        "terrain": false,
+        "view_suppressed": false
+      },
+      "pending_before_measure": {
+        "cache": false,
+        "object_work": {
+          "awaiting_assets": 0,
+          "classification_pending": true,
+          "dirty_batches": 0,
+          "queued_batches": 0,
+          "rechecks": 0
+        },
+        "objects": true,
+        "overview": false,
+        "scatter": false,
+        "scatter_work": {
+          "awaiting_assets": 0,
+          "queued_cells": 0,
+          "role_scan": 0,
+          "roles_due": false,
+          "roles_retry": false,
+          "view_force": false
+        },
+        "terrain": false,
+        "view_suppressed": false
+      },
+      "telemetry": {
+        "end": {
+          "footprint_mib": 822.393676757812,
+          "safety_state": "warning",
+          "thermal": "serious"
+        },
+        "start": {
+          "footprint_mib": 820.674926757812,
+          "safety_state": "warning",
+          "thermal": "serious"
+        }
+      },
+      "summary": {
+        "cpu_p50_ms": 1.5,
+        "cpu_p95_ms": 2.1,
+        "cpu_p99_ms": 2.4,
+        "cpu_samples": 1276,
+        "cpu_status": "AVAILABLE",
+        "frame_interval_source": "wall_clock_proxy",
+        "frame_max_ms": 38.574,
+        "frame_p50_ms": 22.9,
+        "frame_p95_ms": 29.0,
+        "frame_p99_ms": 34.1,
+        "frames": 1276,
+        "gpu_p50_ms": 22.0,
+        "gpu_p95_ms": 22.1,
+        "gpu_p99_ms": 22.1,
+        "gpu_samples": 1276,
+        "gpu_status": "AVAILABLE",
+        "histogram_resolution_ms": 0.1,
+        "hitches_over_50_ms": 0,
+        "missed_target": 121,
+        "over_100_ms": 0,
+        "over_16_7": 1276,
+        "over_250_ms": 0,
+        "over_33_4": 15,
+        "target_ms": 16.6666666666667
+      },
+      "classification_end": {
+        "evaluated": 15793,
+        "generation": 20026,
+        "pass_requested": false,
+        "pinned_retries": 0,
+        "records": 10000,
+        "remaining": 4908,
+        "retries": 0
+      },
+      "end_batch_pending": 0,
+      "end_visible_objects": 6928,
+      "end_scatter_submitted": 0,
+      "end_hlod_proxies": 0,
+      "end_render_service_ms": 0.911,
+      "end_service_overrun_ms": 0.0,
+      "view_state": {
+        "camera_generation": 5,
+        "objects_view_suppressed": false,
+        "view_state": "regional"
+      },
+      "terrain_material": "full"
+    },
+    {
+      "id": "mixed_world_10k-comparison_size_only-shallow",
+      "measurement_status": "NOT_READY",
+      "settled": false,
+      "pending_at_settle": {
+        "cache": false,
+        "object_work": {
+          "awaiting_assets": 0,
+          "classification_pending": true,
+          "dirty_batches": 0,
+          "queued_batches": 0,
+          "rechecks": 0
+        },
+        "objects": true,
+        "overview": false,
+        "scatter": false,
+        "scatter_work": {
+          "awaiting_assets": 0,
+          "queued_cells": 0,
+          "role_scan": 0,
+          "roles_due": false,
+          "roles_retry": false,
+          "view_force": false
+        },
+        "terrain": false,
+        "view_suppressed": false
+      },
+      "pending_before_measure": {
+        "cache": false,
+        "object_work": {
+          "awaiting_assets": 0,
+          "classification_pending": true,
+          "dirty_batches": 0,
+          "queued_batches": 0,
+          "rechecks": 0
+        },
+        "objects": true,
+        "overview": false,
+        "scatter": false,
+        "scatter_work": {
+          "awaiting_assets": 0,
+          "queued_cells": 0,
+          "role_scan": 0,
+          "roles_due": false,
+          "roles_retry": false,
+          "view_force": false
+        },
+        "terrain": false,
+        "view_suppressed": false
+      },
+      "telemetry": {
+        "end": {
+          "footprint_mib": 824.674926757812,
+          "safety_state": "warning",
+          "thermal": "serious"
+        },
+        "start": {
+          "footprint_mib": 820.206176757812,
+          "safety_state": "warning",
+          "thermal": "serious"
+        }
+      },
+      "summary": {
+        "cpu_p50_ms": 1.4,
+        "cpu_p95_ms": 1.9,
+        "cpu_p99_ms": 2.1,
+        "cpu_samples": 1801,
+        "cpu_status": "AVAILABLE",
+        "frame_interval_source": "wall_clock_proxy",
+        "frame_max_ms": 17.491,
+        "frame_p50_ms": 16.7,
+        "frame_p95_ms": 17.1,
+        "frame_p99_ms": 17.2,
+        "frames": 1801,
+        "gpu_p50_ms": 15.6,
+        "gpu_p95_ms": 15.9,
+        "gpu_p99_ms": 15.9,
+        "gpu_samples": 1801,
+        "gpu_status": "AVAILABLE",
+        "histogram_resolution_ms": 0.1,
+        "hitches_over_50_ms": 0,
+        "missed_target": 0,
+        "over_100_ms": 0,
+        "over_16_7": 791,
+        "over_250_ms": 0,
+        "over_33_4": 0,
+        "target_ms": 16.6666666666667
+      },
+      "classification_end": {
+        "evaluated": 31122,
+        "generation": 20032,
+        "pass_requested": false,
+        "pinned_retries": 0,
+        "records": 10000,
+        "remaining": 208,
+        "retries": 0
+      },
+      "end_batch_pending": 0,
+      "end_visible_objects": 5082,
+      "end_scatter_submitted": 0,
+      "end_hlod_proxies": 0,
+      "end_render_service_ms": 0.723,
+      "end_service_overrun_ms": 0.0,
+      "view_state": {
+        "camera_generation": 6,
+        "objects_view_suppressed": false,
+        "view_state": "regional"
+      },
+      "terrain_material": "full"
+    },
+    {
+      "id": "mixed_world_10k-comparison_combined-overview",
+      "measurement_status": "READY",
+      "settled": true,
+      "pending_at_settle": {
+        "cache": false,
+        "object_work": {
+          "awaiting_assets": 0,
+          "classification_pending": true,
+          "dirty_batches": 0,
+          "queued_batches": 0,
+          "rechecks": 0
+        },
+        "objects": false,
+        "overview": false,
+        "scatter": false,
+        "scatter_work": {
+          "awaiting_assets": 0,
+          "queued_cells": 0,
+          "role_scan": 0,
+          "roles_due": true,
+          "roles_retry": false,
+          "view_force": true
+        },
+        "terrain": false,
+        "view_suppressed": true
+      },
+      "pending_before_measure": {
+        "cache": false,
+        "object_work": {
+          "awaiting_assets": 0,
+          "classification_pending": true,
+          "dirty_batches": 0,
+          "queued_batches": 0,
+          "rechecks": 0
+        },
+        "objects": false,
+        "overview": false,
+        "scatter": false,
+        "scatter_work": {
+          "awaiting_assets": 0,
+          "queued_cells": 0,
+          "role_scan": 0,
+          "roles_due": true,
+          "roles_retry": false,
+          "view_force": true
+        },
+        "terrain": false,
+        "view_suppressed": true
+      },
+      "telemetry": {
+        "end": {
+          "footprint_mib": 826.268676757812,
+          "safety_state": "warning",
+          "thermal": "serious"
+        },
+        "start": {
+          "footprint_mib": 824.674926757812,
+          "safety_state": "warning",
+          "thermal": "serious"
+        }
+      },
+      "summary": {
+        "cpu_p50_ms": 0.7,
+        "cpu_p95_ms": 1.3,
+        "cpu_p99_ms": 1.3,
+        "cpu_samples": 1801,
+        "cpu_status": "AVAILABLE",
+        "frame_interval_source": "wall_clock_proxy",
+        "frame_max_ms": 17.154,
+        "frame_p50_ms": 16.8,
+        "frame_p95_ms": 17.0,
+        "frame_p99_ms": 17.1,
+        "frames": 1801,
+        "gpu_p50_ms": 7.1,
+        "gpu_p95_ms": 10.5,
+        "gpu_p99_ms": 14.1,
+        "gpu_samples": 1801,
+        "gpu_status": "AVAILABLE",
+        "histogram_resolution_ms": 0.1,
+        "hitches_over_50_ms": 0,
+        "missed_target": 0,
+        "over_100_ms": 0,
+        "over_16_7": 986,
+        "over_250_ms": 0,
+        "over_33_4": 0,
+        "target_ms": 16.6666666666667
+      },
+      "classification_end": {
+        "evaluated": 31122,
+        "generation": 20036,
+        "pass_requested": true,
+        "pinned_retries": 0,
+        "records": 10000,
+        "remaining": 208,
+        "retries": 0
+      },
+      "end_batch_pending": 0,
+      "end_visible_objects": 0,
+      "end_scatter_submitted": 0,
+      "end_hlod_proxies": 0,
+      "end_render_service_ms": 0.876,
+      "end_service_overrun_ms": 0.0,
+      "view_state": {
+        "camera_generation": 7,
+        "objects_view_suppressed": true,
+        "view_state": "terrain_only"
+      },
+      "terrain_material": "full"
+    },
+    {
+      "id": "mixed_world_10k-comparison_combined-focus",
+      "measurement_status": "NOT_READY",
+      "settled": false,
+      "pending_at_settle": {
+        "cache": false,
+        "object_work": {
+          "awaiting_assets": 0,
+          "classification_pending": true,
+          "dirty_batches": 0,
+          "queued_batches": 0,
+          "rechecks": 0
+        },
+        "objects": true,
+        "overview": false,
+        "scatter": false,
+        "scatter_work": {
+          "awaiting_assets": 0,
+          "queued_cells": 0,
+          "role_scan": 0,
+          "roles_due": false,
+          "roles_retry": false,
+          "view_force": false
+        },
+        "terrain": false,
+        "view_suppressed": false
+      },
+      "pending_before_measure": {
+        "cache": false,
+        "object_work": {
+          "awaiting_assets": 0,
+          "classification_pending": true,
+          "dirty_batches": 0,
+          "queued_batches": 0,
+          "rechecks": 0
+        },
+        "objects": true,
+        "overview": false,
+        "scatter": false,
+        "scatter_work": {
+          "awaiting_assets": 0,
+          "queued_cells": 0,
+          "role_scan": 0,
+          "roles_due": false,
+          "roles_retry": false,
+          "view_force": false
+        },
+        "terrain": false,
+        "view_suppressed": false
+      },
+      "telemetry": {
+        "end": {
+          "footprint_mib": 827.268676757812,
+          "safety_state": "warning",
+          "thermal": "serious"
+        },
+        "start": {
+          "footprint_mib": 826.940551757812,
+          "safety_state": "warning",
+          "thermal": "serious"
+        }
+      },
+      "summary": {
+        "cpu_p50_ms": 1.0,
+        "cpu_p95_ms": 1.8,
+        "cpu_p99_ms": 1.9,
+        "cpu_samples": 1313,
+        "cpu_status": "AVAILABLE",
+        "frame_interval_source": "wall_clock_proxy",
+        "frame_max_ms": 31.222,
+        "frame_p50_ms": 22.8,
+        "frame_p95_ms": 23.9,
+        "frame_p99_ms": 24.9,
+        "frames": 1313,
+        "gpu_p50_ms": 21.9,
+        "gpu_p95_ms": 22.0,
+        "gpu_p99_ms": 22.0,
+        "gpu_samples": 1313,
+        "gpu_status": "AVAILABLE",
+        "histogram_resolution_ms": 0.1,
+        "hitches_over_50_ms": 0,
+        "missed_target": 13,
+        "over_100_ms": 0,
+        "over_16_7": 1313,
+        "over_250_ms": 0,
+        "over_33_4": 0,
+        "target_ms": 16.6666666666667
+      },
+      "classification_end": {
+        "evaluated": 41536,
+        "generation": 20043,
+        "pass_requested": false,
+        "pinned_retries": 0,
+        "records": 10000,
+        "remaining": 0,
+        "retries": 0
+      },
+      "end_batch_pending": 0,
+      "end_visible_objects": 5632,
+      "end_scatter_submitted": 0,
+      "end_hlod_proxies": 0,
+      "end_render_service_ms": 0.527,
+      "end_service_overrun_ms": 0.0,
+      "view_state": {
+        "camera_generation": 8,
+        "objects_view_suppressed": false,
+        "view_state": "regional"
+      },
+      "terrain_material": "full"
+    },
+    {
+      "id": "mixed_world_10k-comparison_combined-shallow",
+      "measurement_status": "READY",
+      "settled": false,
+      "pending_at_settle": {
+        "cache": false,
+        "object_work": {
+          "awaiting_assets": 0,
+          "classification_pending": true,
+          "dirty_batches": 0,
+          "queued_batches": 0,
+          "rechecks": 0
+        },
+        "objects": true,
+        "overview": false,
+        "scatter": false,
+        "scatter_work": {
+          "awaiting_assets": 0,
+          "queued_cells": 0,
+          "role_scan": 0,
+          "roles_due": false,
+          "roles_retry": false,
+          "view_force": false
+        },
+        "terrain": false,
+        "view_suppressed": false
+      },
+      "pending_before_measure": {
+        "cache": false,
+        "object_work": {
+          "awaiting_assets": 0,
+          "classification_pending": false,
+          "dirty_batches": 0,
+          "queued_batches": 0,
+          "rechecks": 0
+        },
+        "objects": false,
+        "overview": false,
+        "scatter": false,
+        "scatter_work": {
+          "awaiting_assets": 0,
+          "queued_cells": 0,
+          "role_scan": 0,
+          "roles_due": false,
+          "roles_retry": false,
+          "view_force": false
+        },
+        "terrain": false,
+        "view_suppressed": false
+      },
+      "telemetry": {
+        "end": {
+          "footprint_mib": 824.549926757812,
+          "safety_state": "warning",
+          "thermal": "serious"
+        },
+        "start": {
+          "footprint_mib": 824.549926757812,
+          "safety_state": "warning",
+          "thermal": "serious"
+        }
+      },
+      "summary": {
+        "cpu_p50_ms": 1.4,
+        "cpu_p95_ms": 2.2,
+        "cpu_p99_ms": 2.4,
+        "cpu_samples": 1801,
+        "cpu_status": "AVAILABLE",
+        "frame_interval_source": "wall_clock_proxy",
+        "frame_max_ms": 17.416,
+        "frame_p50_ms": 16.7,
+        "frame_p95_ms": 17.1,
+        "frame_p99_ms": 17.3,
+        "frames": 1801,
+        "gpu_p50_ms": 15.1,
+        "gpu_p95_ms": 15.2,
+        "gpu_p99_ms": 15.3,
+        "gpu_samples": 1801,
+        "gpu_status": "AVAILABLE",
+        "histogram_resolution_ms": 0.1,
+        "hitches_over_50_ms": 0,
+        "missed_target": 0,
+        "over_100_ms": 0,
+        "over_16_7": 802,
+        "over_250_ms": 0,
+        "over_33_4": 0,
+        "target_ms": 16.6666666666667
+      },
+      "classification_end": {
+        "evaluated": 51536,
+        "generation": 20049,
+        "pass_requested": false,
+        "pinned_retries": 0,
+        "records": 10000,
+        "remaining": 0,
+        "retries": 0
+      },
+      "end_batch_pending": 0,
+      "end_visible_objects": 5088,
+      "end_scatter_submitted": 0,
+      "end_hlod_proxies": 0,
+      "end_render_service_ms": 0.574,
+      "end_service_overrun_ms": 0.0,
+      "view_state": {
+        "camera_generation": 9,
+        "objects_view_suppressed": false,
+        "view_state": "regional"
+      },
+      "terrain_material": "full"
+    },
+    {
+      "id": "mixed_world_10k-comparison_old_distance-overview-repeat",
+      "measurement_status": "READY",
+      "settled": false,
+      "pending_at_settle": {
+        "cache": false,
+        "object_work": {
+          "awaiting_assets": 0,
+          "classification_pending": false,
+          "dirty_batches": 0,
+          "queued_batches": 887,
+          "rechecks": 0
+        },
+        "objects": true,
+        "overview": false,
+        "scatter": false,
+        "scatter_work": {
+          "awaiting_assets": 0,
+          "queued_cells": 0,
+          "role_scan": 0,
+          "roles_due": false,
+          "roles_retry": false,
+          "view_force": false
+        },
+        "terrain": false,
+        "view_suppressed": false
+      },
+      "pending_before_measure": {
+        "cache": false,
+        "object_work": {
+          "awaiting_assets": 0,
+          "classification_pending": false,
+          "dirty_batches": 0,
+          "queued_batches": 0,
+          "rechecks": 0
+        },
+        "objects": false,
+        "overview": false,
+        "scatter": false,
+        "scatter_work": {
+          "awaiting_assets": 0,
+          "queued_cells": 0,
+          "role_scan": 0,
+          "roles_due": false,
+          "roles_retry": false,
+          "view_force": false
+        },
+        "terrain": false,
+        "view_suppressed": false
+      },
+      "telemetry": {
+        "end": {
+          "footprint_mib": 827.190551757812,
+          "safety_state": "warning",
+          "thermal": "serious"
+        },
+        "start": {
+          "footprint_mib": 819.721801757812,
+          "safety_state": "warning",
+          "thermal": "serious"
+        }
+      },
+      "summary": {
+        "cpu_p50_ms": 2.4,
+        "cpu_p95_ms": 2.5,
+        "cpu_p99_ms": 2.5,
+        "cpu_samples": 1801,
+        "cpu_status": "AVAILABLE",
+        "frame_interval_source": "wall_clock_proxy",
+        "frame_max_ms": 16.853,
+        "frame_p50_ms": 16.7,
+        "frame_p95_ms": 16.8,
+        "frame_p99_ms": 16.8,
+        "frames": 1801,
+        "gpu_p50_ms": 12.4,
+        "gpu_p95_ms": 12.4,
+        "gpu_p99_ms": 12.5,
+        "gpu_samples": 1801,
+        "gpu_status": "AVAILABLE",
+        "histogram_resolution_ms": 0.1,
+        "hitches_over_50_ms": 0,
+        "missed_target": 0,
+        "over_100_ms": 0,
+        "over_16_7": 296,
+        "over_250_ms": 0,
+        "over_33_4": 0,
+        "target_ms": 16.6666666666667
+      },
+      "classification_end": {
+        "evaluated": 51536,
+        "generation": 20053,
+        "pass_requested": true,
+        "pinned_retries": 0,
+        "records": 10000,
+        "remaining": 0,
+        "retries": 0
+      },
+      "end_batch_pending": 0,
+      "end_visible_objects": 10000,
+      "end_scatter_submitted": 0,
+      "end_hlod_proxies": 0,
+      "end_render_service_ms": 0.274,
+      "end_service_overrun_ms": 0.0,
+      "view_state": {
+        "camera_generation": 10,
+        "objects_view_suppressed": false,
+        "view_state": "regional"
+      },
+      "terrain_material": "full"
+    }
+  ],
+  "limits": [
+    "All steps began and ended with serious thermal status and warning safety state. This is not a nominal thermal calibration.",
+    "NOT_READY rows had visible scheduled work at measurement start; end classification counters show progress but do not prove all frames were steady.",
+    "Render service and overrun values are last samples, not duration maxima.",
+    "All variants submitted zero HLOD proxies; this run does not establish an active-HLOD comparison.",
+    "One repeat is the first overview baseline only; three repeats per pose remain pending."
+  ]
+}

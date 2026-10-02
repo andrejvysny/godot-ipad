@@ -41,12 +41,15 @@ func test_profile_switch_reaches_the_per_cell_lod_and_the_overview() -> void:
 	var pos := s.document.get_object(id).get_position_v3()
 	s.rig.controller.set_pose({"pivot": pos, "distance": 15.0, "yaw": 0.3, "pitch": 0.8})
 	s.rig.reset_to(s.rig.controller.get_pose())
-	await _frames(40)
 	var world := s.presenter.render_world()
+	for i in 300:
+		await _frames(1)
+		if world.owner_of(id).ends_with("|mid"):
+			break
 	var role := world.owner_of(id).get_slice("|", 1)
 	assert_true(role == "mid", "Performance draws the object next to the camera as mid, got " + role)
 	assert_eq(s.request_profile("balanced").status, "applied")
-	for i in 120:
+	for i in 300:
 		await _frames(1)
 		if world.owner_of(id).ends_with("|near"):
 			break
@@ -62,3 +65,33 @@ func test_active_edit_pins_reach_the_object_lod_and_survive_a_presenter_reset() 
 	s.presenter.setup(s.catalog, s.render_state().registry(), s.render_cache())
 	assert_true(s.presenter.render_world()._pinned(Vector2i(0, 0)), "a new render world keeps the pin check")
 	s.render_state().active_edit.end("pin-test", "finished")
+
+
+func test_catalog_rebind_recreates_groups_for_the_same_world_extent() -> void:
+	var s := await _start("flat")
+	var overview := s.render_state().overview
+	var rect := overview.world_rect()
+	var groups := int(overview.stats().groups)
+	assert_true(groups > 0)
+	var attachment := BenchAttach.new(s)
+	assert_empty_string(attachment.attach("bench"))
+	s.render_state().service_frame(0.0)
+	assert_eq(overview.world_rect(), rect)
+	assert_eq(int(overview.stats().groups), groups, "same-sized catalog swaps retain the overview grid")
+	attachment.restore()
+	s.render_state().service_frame(0.0)
+	assert_eq(int(overview.stats().groups), groups, "restoring the editor also rebuilds the grid")
+
+
+func test_benchmark_readiness_rejects_an_enabled_missing_overview_grid() -> void:
+	var s := await _start("flat")
+	var overview := s.render_state().overview
+	var rect := overview.world_rect()
+	assert_empty_string(s.render_state().set_comparison_flags({"forced_view": "regional"}))
+	overview.reset()
+	var missing := BenchReadiness.capture(s)
+	assert_true(missing.overview)
+	assert_true(missing.overview_work.missing_grid)
+	assert_empty_string(s.render_state().set_comparison_flags({"hlod_enabled": false, "forced_view": "regional"}))
+	assert_false(BenchReadiness.capture(s).overview)
+	overview.set_world_rect(rect)

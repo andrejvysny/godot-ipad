@@ -21,6 +21,8 @@ var active_edit: ActiveEditArea
 var texture_preview: TexturePreviewController
 var safety: SessionSafety
 var overview: OverviewRenderer
+var view: SessionRenderView
+var _comparison := {"size_enabled": true, "hlod_enabled": true, "forced_view": "", "far_terrain": false}
 var warmup := PipelineWarmup.new()
 
 var _presented_rect := Rect2()  # world rect shown when the projections show a bench document
@@ -35,11 +37,13 @@ var _preview_ring_key := ""
 var _session: EditorSession
 var _slow_status: Dictionary = {}
 var _slow_status_msec := -1
+var _frame_work := {}
 
 
 func _init(session: EditorSession) -> void:
 	_session = session
 	config = RenderConfig.load_from()
+	_comparison.size_enabled = bool(config.section("size_visibility").enabled)
 	profiles = RenderProfileController.new(config)
 	profiles.set_apply_hook(_apply_profile)
 	profiles.profile_applied.connect(_on_profile_applied)
@@ -51,6 +55,7 @@ func _init(session: EditorSession) -> void:
 	active_edit = ActiveEditArea.new(float(config.section("cells").objects_m), int(config.section("stability").settle_ms))
 	texture_preview = TexturePreviewController.new(cache, config.section("texture_preview"))
 	safety = SessionSafety.new(session, self)
+	view = SessionRenderView.new(session, self)
 	session.world_replaced.connect(_on_world_replaced)
 
 
@@ -72,22 +77,31 @@ func registry() -> RenderAssetRegistry:
 ## Once per frame after the tools: polls the shared cache, then applies the presenter's render work.
 func service_frame(budget_ms: float = -1.0) -> void:
 	var budget := _budget_ms if budget_ms < 0.0 else budget_ms
-	# A tap or no-op finish ends an operation without a signal.
+	var started := Time.get_ticks_usec()
+	var deadline := started + int(budget * 1000.0)
 	if profiles.pending_name() != "" and not _session.tools.has_active_operation():
 		profiles.operation_ended()
-	cache.poll(budget)
 	safety.tick()
 	active_edit.tick(Time.get_ticks_msec())
 	if active_edit.is_active() and _tools != null:
 		var hit := _tools.last_hit()
 		if hit != null and hit.ok:
 			active_edit.update(_tools.active_operation_id(), hit.position, _op_radius)
-	texture_preview.service(budget)
+	view.update()
+	cache.poll(minf(_remaining(deadline), budget * 0.2))
+	texture_preview.service(minf(_remaining(deadline), budget * 0.1))
 	_sync_preview()
-	_session.presenter.service_frame(budget)
-	_session.layers.service_frame(budget)
-	_service_overview()
-	warmup.tick(_session.bench_active())
+	_session.presenter.service_frame(minf(_remaining(deadline), budget * 0.3))
+	_session.layers.service_frame(minf(_remaining(deadline), budget * 0.25))
+	_service_overview(_remaining(deadline))
+	warmup.tick(_session.bench_active() or view.policy.state == RenderViewState.TERRAIN_ONLY)
+	var elapsed := float(Time.get_ticks_usec() - started) / 1000.0
+	_frame_work = {"render_service_ms": elapsed, "scheduled_budget_ms": budget,
+		"service_overrun_ms": maxf(elapsed - budget, 0.0)}
+
+
+func _remaining(deadline: int) -> float:
+	return maxf(float(deadline - Time.get_ticks_usec()) / 1000.0, 0.0)
 
 
 ## Spec §17: skipped when a render bench was requested on the command line (it measures its own warm state).
@@ -99,7 +113,7 @@ func _start_warmup() -> void:
 			_session.presenter.render_world().placeholder_mesh(), overview.material())
 
 
-func _service_overview() -> void:
+func _service_overview(budget_ms: float = 1.0) -> void:
 	if overview == null:
 		return
 	var rect := _presented_rect if _presented_rect.has_area() else _session.document.layout.world_rect()
@@ -107,7 +121,7 @@ func _service_overview() -> void:
 		overview.set_world_rect(rect)
 	var bounds := _session.presenter.world_bounds(_tools.selected_id()) if _tools != null else AABB()
 	overview.set_blockers(active_edit.pinned_set(), bounds)
-	overview.service(_session.rig.get_camera())
+	overview.service(_session.rig.get_camera(), budget_ms)
 
 
 ## The projections show a document other than the session's (render bench) with world rect `rect`;
@@ -126,6 +140,8 @@ func rebind_overview(registry_: RenderAssetRegistry) -> void:
 	overview.clear_populations()
 	overview.setup(registry_, float(config.section("cells").objects_m), _overview_levels())
 	_add_overview_populations()
+	var rect := _presented_rect if _presented_rect.has_area() else _session.document.layout.world_rect()
+	overview.set_world_rect(rect)
 
 
 func _overview_levels() -> PackedFloat32Array:
@@ -162,10 +178,12 @@ func _build_overview(ctx: ToolContext) -> void:
 	overview.set_vegetation_hidden(vegetation_hidden)
 	ctx.area_pick = overview.pick
 	ctx.focus_area = focus_area
+	ctx.focus_before_object_action = view.focus_before_action
 
 
 ## Frames a grouped area: pivot on the terrain under its centre, far enough for individual cells to appear.
 func focus_area(area: AABB) -> void:
+	view.local_focus()
 	var c := area.get_center()
 	var h := _session.document.sample_height(c.x, c.z)
 	var pose := _session.rig.controller.get_pose()
@@ -179,13 +197,35 @@ func focus_area(area: AABB) -> void:
 func render_summary() -> Dictionary:
 	var out := _session.presenter.render_stats()
 	out["overview"] = overview.stats() if overview != null else {}
+	out.merge(view.status())
+	out.merge(_frame_work)
 	return out
 
 
 ## Profile dictionary plus the stability settings the LOD policy needs.
 func _lod_profile(p: Dictionary) -> Dictionary:
 	var stability := config.section("stability")
-	return p.merged({"lod_hysteresis_fraction": float(stability.lod_hysteresis_fraction), "settle_ms": int(stability.settle_ms)}, true)
+	var size := config.section("size_visibility")
+	size["size_policy_enabled"] = bool(_comparison.size_enabled)
+	return p.merged(stability, true).merged(size, true)
+
+
+## Developer benchmark overrides are captured and restored by RenderBench.
+func comparison_flags() -> Dictionary:
+	return _comparison.duplicate(true)
+
+
+func set_comparison_flags(flags: Dictionary) -> String:
+	_comparison = {"size_enabled": bool(flags.get("size_enabled", config.section("size_visibility").enabled)),
+		"hlod_enabled": bool(flags.get("hlod_enabled", true)),
+		"forced_view": str(flags.get("forced_view", "")), "far_terrain": bool(flags.get("far_terrain", false))}
+	view.force_state(str(_comparison.forced_view))
+	if overview != null:
+		overview.set_enabled(bool(_comparison.hlod_enabled))
+	var lod := _lod_profile(profiles.active_profile())
+	_session.presenter.set_lod_profile(lod)
+	_session.layers.set_lod_profile(lod)
+	return _session.terrain.set_material_mode("overview_experiment" if bool(_comparison.far_terrain) else "full")
 
 
 func _on_operation_started(_tool: String) -> void:
@@ -273,7 +313,7 @@ func profile_status(frame_p50_ms: float) -> Dictionary:
 	var p := profiles.active_profile()
 	return {"profile": profiles.active_name(), "profile_label": str(p.get("label", "")),
 		"profile_pending": profiles.pending_name(), "profile_target_fps": int(p.get("target_fps", 0)),
-		"vegetation_hidden": vegetation_hidden, "texture_preview": texture_preview.status(), "pipeline_warmup": warmup.status(), "fps": 1000.0 / frame_p50_ms if frame_p50_ms > 0.0 else 0.0}.merged(safety.status())
+		"view_state": view.policy.state, "vegetation_hidden": vegetation_hidden, "texture_preview": texture_preview.status(), "pipeline_warmup": warmup.status(), "fps": 1000.0 / frame_p50_ms if frame_p50_ms > 0.0 else 0.0}.merged(safety.status())
 
 
 ## Frame percentiles, render counters and stats that sort or query the RenderingServer, refreshed at
@@ -349,6 +389,7 @@ func suspend_texture_preview(cause: String) -> void:
 
 
 func _on_world_replaced() -> void:
+	view.reset()
 	if overview != null:
 		overview.set_world_rect(_session.document.layout.world_rect())
 	texture_preview.on_world_replaced()

@@ -136,8 +136,8 @@ func test_plan_steps() -> void:
 	var steps := BenchScenarios.plan_steps(["terrain_only_legacy", "mixed_world_10k"], ["performance", "detailed"], [])
 	var terrain_kinds := BenchScenarios.default_kinds("terrain_only_legacy")
 	assert_false(terrain_kinds.has("canopy") or terrain_kinds.has("edit_move"), "no objects, no canopy or move")
-	assert_eq(BenchScenarios.default_kinds("mixed_world_10k").size(), 9)
-	assert_eq(steps.size(), 2 * terrain_kinds.size() + 2 * 9 + 1)
+	assert_eq(BenchScenarios.default_kinds("mixed_world_10k").size(), 12)
+	assert_eq(steps.size(), 2 * terrain_kinds.size() + 2 * 12 + 1)
 	assert_true(steps[steps.size() - 1].repeat)
 	assert_eq(steps[steps.size() - 1].id, str(steps[0].id) + "-repeat")
 	var ids := {}
@@ -262,3 +262,48 @@ func test_parse_bench_args_rejects_invalid_values() -> void:
 	var ground := SessionWorldOps.parse_bench_args(PackedStringArray(["--render-bench",
 		"--bench-scenarios=grass_50k", "--bench-cameras=ground"]))
 	assert_true(str(ground.get("error", "")).contains("not valid"), "legacy camera names do not apply to scenarios")
+
+
+func test_size_transition_paths_keep_world_and_plan_identity() -> void:
+	var made := _build("mixed_world_10k", {"objects": 10, "scatter": 0})
+	var ctx := _ctx(made)
+	var before := CanonicalEncoder.authored_hash(made.doc)
+	ctx.threshold_distance = 700.0
+	for name in ["zoom_transition", "threshold_oscillation", "rotation"]:
+		assert_true(name in BenchScenarios.camera_names())
+		var steps := BenchScenarios.plan_steps(["mixed_world_10k"], ["performance"], [name])
+		assert_eq(steps.size(), 2)
+		assert_eq(steps[0].camera, name)
+		assert_eq(steps[0].workload, "camera_path")
+	var close := BenchCameraPaths.pose("zoom_transition", ctx, 0.0, 10.0)
+	var wide := BenchCameraPaths.pose("zoom_transition", ctx, 10.0, 10.0)
+	assert_eq(close.distance, BenchCameraPaths.FOCUS_DISTANCE_M)
+	assert_near(wide.distance, float(ctx.fit_distance), 0.001)
+	assert_eq(close.pivot, wide.pivot)
+	var rotation := BenchCameraPaths.pose("rotation", ctx, 5.0, 10.0)
+	assert_eq(rotation.distance, BenchCameraPaths.FOCUS_DISTANCE_M)
+	assert_ne(rotation.yaw, close.yaw)
+	var threshold_low := BenchCameraPaths.pose("threshold_oscillation", ctx, 1.5, 10.0)
+	var threshold_high := BenchCameraPaths.pose("threshold_oscillation", ctx, 0.5, 10.0)
+	assert_near(threshold_low.distance, float(ctx.threshold_distance) * 0.95, 0.001)
+	assert_near(threshold_high.distance, float(ctx.threshold_distance) * 1.05, 0.001)
+	assert_eq(CanonicalEncoder.authored_hash(made.doc), before)
+
+
+func test_oscillation_straddles_projected_overview_boundary() -> void:
+	var snapshot := RenderCameraSnapshot.new()
+	snapshot.valid = true
+	snapshot.viewport_size = Vector2(1180.0, 820.0)
+	snapshot.internal_size = snapshot.viewport_size
+	snapshot.projection = Projection.create_perspective(60.0, 1180.0 / 820.0, 0.05, 5000.0)
+	var bounds := AABB(Vector3(-500.0, -20.0, -500.0), Vector3(1000.0, 60.0, 1000.0))
+	var centered := BenchCameraPaths.threshold_distance(snapshot, bounds, Vector3.ZERO, 1500.0, 1.10)
+	var controller := OrbitCameraController.new()
+	controller.yaw = deg_to_rad(BenchCameraPaths.YAW_DEG)
+	controller.pitch = deg_to_rad(BenchCameraPaths.OVERVIEW_PITCH_DEG)
+	controller.distance = centered * 0.95
+	snapshot.transform = controller.camera_transform()
+	assert_true(ProjectedBounds.measure(bounds, snapshot).extent_ratio > 1.10)
+	controller.distance = centered * 1.05
+	snapshot.transform = controller.camera_transform()
+	assert_true(ProjectedBounds.measure(bounds, snapshot).extent_ratio < 1.10)

@@ -13,7 +13,6 @@ const GRID_DIVISOR := 32.0  # grid cell = max(MIN_GRID_M, group size / 32): 4 m 
 const MIN_GRID_M := 4.0
 const MAX_LEVELS := 4
 const NO_ROW := -1
-const CAPTURE_BUDGET_MS := 1.0
 
 var _registry: RenderAssetRegistry
 var _pops: Array[Object] = []
@@ -26,9 +25,14 @@ var _hysteresis: float = 0.2
 var _settle_ms: int = 250
 var _cell_m: float = 32.0
 var _cam := LodCameraTracker.new()
+var _snapshot: RenderCameraSnapshot
+var _view_suppressed := false
+var _last_service_ms := 0.0
+var _max_service_ms := 0.0
 var _blocked: Array[Dictionary] = [{}, {}]  # level -> Dictionary(Vector2i -> true)
 var _selected := AABB()
 var _veg_hidden := false
+var _enabled := true
 var _roles_dirty := true
 var _withheld := false  # an activation change waits for settled navigation
 var _jobs: Array[Dictionary] = []
@@ -98,6 +102,22 @@ func clear_populations() -> void:
 
 
 ## Profile dictionary of rendering_profiles.json plus optional lod_hysteresis_fraction and settle_ms.
+func set_enabled(enabled: bool) -> void:
+	if _enabled == enabled:
+		return
+	_enabled = enabled
+	_roles_dirty = true
+	if not enabled:
+		_withheld = false
+		if not _capture.is_empty():
+			(_capture.group as OverviewGroup).building = false
+			_capture = {}
+		for level: Dictionary in _groups:
+			for group_: OverviewGroup in level.values():
+				if group_.active:
+					_set_active(group_, false)
+
+
 func set_lod_profile(profile: Dictionary) -> void:
 	_profile = profile
 	_hysteresis = float(profile.get("lod_hysteresis_fraction", 0.2))
@@ -145,8 +165,20 @@ func set_vegetation_hidden(hidden: bool) -> void:
 	_veg_hidden = hidden
 	for lvl in _levels.size():
 		for g: OverviewGroup in _groups[lvl].values():
-			if g.active and g.canopy != null:
-				g.canopy.visible = not hidden
+			_update_visibility(g)
+
+
+func set_view_suppressed(suppressed: bool) -> void:
+	if _view_suppressed == suppressed:
+		return
+	_view_suppressed = suppressed
+	for lvl in _levels.size():
+		for g: OverviewGroup in _groups[lvl].values():
+			_update_visibility(g)
+
+
+func set_camera_snapshot(snapshot: RenderCameraSnapshot) -> void:
+	_snapshot = snapshot
 
 
 ## Cells (Vector2i, objects_m units) pinned by the ActiveEditArea and the selected object's world bounds
@@ -169,20 +201,31 @@ func set_blockers(pinned_cells: Dictionary, selected_bounds: AABB) -> void:
 
 ## Once per frame after the populations: collects finished builds, creates one mesh pair, refreshes roles,
 ## switches the cut and starts one build.
-func service(camera: Camera3D) -> void:
+func service(camera: Camera3D, budget_ms: float = 1.0) -> void:
+	var start := Time.get_ticks_usec()
+	var deadline := start + int(maxf(0.0, budget_ms) * 1000.0)
 	var now := Time.get_ticks_msec()
-	if _cam.update(camera, now):
+	var moved := _cam.update(camera, now) if _snapshot == null else _cam.update_snapshot(_snapshot, now)
+	if moved:
 		_roles_dirty = true
 	_collect_jobs()
-	_make_one_mesh()
-	if _roles_dirty:
-		_refresh_roles()
-	_apply_activation(_cam.settled(now, _settle_ms))
-	_advance_capture()
-	_start_capture(now)
+	if _enabled and not _view_suppressed and Time.get_ticks_usec() < deadline:
+		if _roles_dirty:
+			_refresh_roles()
+		var settled := _cam.settled(now, _settle_ms)
+		if Time.get_ticks_usec() < deadline:
+			_make_one_mesh(settled)
+		_apply_activation(settled)
+		_advance_capture(deadline, settled)
+		if Time.get_ticks_usec() < deadline:
+			_start_capture(now, settled)
+	_last_service_ms = (Time.get_ticks_usec() - start) / 1000.0
+	_max_service_ms = maxf(_max_service_ms, _last_service_ms)
 
 
 func has_pending_work() -> bool:
+	if not _enabled:
+		return false
 	if not _jobs.is_empty() or not _capture.is_empty() or _withheld:
 		return true
 	for lvl in _levels.size():
@@ -195,6 +238,8 @@ func has_pending_work() -> bool:
 ## {"area": AABB of the hit group, "distance": m, "level_m", "key"} for the nearest active proxy lobe along the
 ## ray, or {}. Only visible lobes count: canopy lobes are skipped while vegetation is hidden.
 func pick(origin: Vector3, dir: Vector3) -> Dictionary:
+	if _view_suppressed or not _enabled:
+		return {}
 	var best := {}
 	var best_d := INF
 	for lvl in _levels.size():
@@ -202,9 +247,9 @@ func pick(origin: Vector3, dir: Vector3) -> Dictionary:
 			if not g.active:
 				continue
 			var local := origin - Vector3(g.rect.position.x, 0.0, g.rect.position.y)
-			var d := _ray_lobes(local, dir, g.solid_boxes)
+			var d := OverviewMetrics.ray_lobes(local, dir, g.solid_boxes)
 			if not _veg_hidden:
-				d = minf(d, _ray_lobes(local, dir, g.canopy_boxes))
+				d = minf(d, OverviewMetrics.ray_lobes(local, dir, g.canopy_boxes))
 			if d < best_d:
 				best_d = d
 				best = {"area": g.world_aabb(), "distance": d, "level_m": g.level_m, "key": g.key}
@@ -229,37 +274,11 @@ func level_m(level: int) -> float:
 
 ## Counters for the bench and the status line. Triangle counts are estimates of the active proxies.
 func stats() -> Dictionary:
-	var out := {"groups": 0, "built": 0, "active": {}, "proxy_triangles": 0, "built_triangles": 0,
-		"cells_covered": 0, "pending_builds": 0, "jobs": _jobs.size(), "mesh_builds": int(_timing.mesh_builds),
-		"last_worker_ms": int(_timing.last_worker) / 1000.0, "max_worker_ms": int(_timing.max_worker) / 1000.0,
-		"last_mesh_ms": int(_timing.last_mesh) / 1000.0, "max_mesh_ms": int(_timing.max_mesh) / 1000.0}
-	for lvl in _levels.size():
-		out.active[int(_levels[lvl])] = 0
-		for g: OverviewGroup in _groups[lvl].values():
-			out.groups += 1
-			out.built += 1 if g.current else 0
-			out.pending_builds += 0 if g.current else 1
-			out.built_triangles += g.triangles
-			if g.active:
-				out.active[int(g.level_m)] = int(out.active.get(int(g.level_m), 0)) + 1
-				out.proxy_triangles += g.triangles
-				out.cells_covered += int(pow(g.level_m / _cell_m, 2.0))
+	var out := OverviewMetrics.stats(_groups, _levels, _cell_m, _jobs.size(), _timing, _view_suppressed)
+	out.last_service_ms = _last_service_ms
+	out.max_service_ms = _max_service_ms
 	return out
 
-
-func _ray_lobes(local_origin: Vector3, dir: Vector3, boxes: PackedVector3Array) -> float:
-	var best := INF
-	for i in range(0, boxes.size(), 2):
-		var box := AABB(boxes[i], boxes[i + 1])
-		if box.has_point(local_origin):
-			return 0.0
-		var hit: Variant = box.intersects_ray(local_origin, dir)
-		if hit != null:
-			best = minf(best, local_origin.distance_to(hit as Vector3))
-	return best
-
-
-# --- Invalidation ------------------------------------------------------------------------
 
 func _on_changed(rect: Rect2) -> void:
 	var now := Time.get_ticks_msec()
@@ -294,8 +313,6 @@ func _invalidate(g: OverviewGroup, now: int) -> void:
 	g.invalidated = true
 
 
-# --- Builds ------------------------------------------------------------------------------
-
 func _collect_jobs() -> void:
 	for i in range(_jobs.size() - 1, -1, -1):
 		var job := _jobs[i]
@@ -314,12 +331,14 @@ func _collect_jobs() -> void:
 		_timing.max_worker = maxi(int(_timing.max_worker), g.worker_usec)
 
 
-func _make_one_mesh() -> void:
+func _make_one_mesh(settled: bool) -> void:
+	if not _enabled:
+		return
 	var best: OverviewGroup = null
 	var best_score := INF
 	for lvl in _levels.size():
 		for g: OverviewGroup in _groups[lvl].values():
-			if g.result.is_empty():
+			if g.result.is_empty() or (not settled and not _wanted(g)):
 				continue
 			var score := _score(g)
 			if score < best_score:
@@ -328,21 +347,22 @@ func _make_one_mesh() -> void:
 	if best == null:
 		return
 	best.apply_result(self, _material)
+	_update_visibility(best)
 	_timing.mesh_builds = int(_timing.mesh_builds) + 1
 	_timing.last_mesh = best.mesh_usec
 	_timing.max_mesh = maxi(int(_timing.max_mesh), best.mesh_usec)
 
 
 ## Picks the most wanted group that needs a proxy and starts capturing its members (one capture at a time).
-func _start_capture(now: int) -> void:
-	if not _capture.is_empty() or _jobs.size() >= MAX_JOBS:
+func _start_capture(now: int, settled: bool) -> void:
+	if not _enabled or not _capture.is_empty() or _jobs.size() >= MAX_JOBS:
 		return
 	var best: OverviewGroup = null
 	var best_score := INF
 	for lvl in _levels.size():
 		for g: OverviewGroup in _groups[lvl].values():
 			if g.current or g.building or not g.result.is_empty() or now - g.dirty_ms < _settle_ms \
-					or _blocked[lvl].has(g.key):
+					or _blocked[lvl].has(g.key) or (not settled and not _wanted(g)):
 				continue
 			var score := _score(g)
 			if score < best_score:
@@ -364,21 +384,24 @@ func _start_capture(now: int) -> void:
 	_capture = {"group": best, "gen": best.gen, "epoch": _epoch, "cells": cells, "next": 0}
 
 
-## Reads members cell by cell within CAPTURE_BUDGET_MS per frame, then hands the plain arrays to a worker.
+## Reads members cell by cell within the caller's remaining deadline, then hands arrays to a worker.
 ## An invalidation (new generation) abandons the capture.
-func _advance_capture() -> void:
-	if _capture.is_empty():
+func _advance_capture(deadline: int, settled: bool) -> void:
+	if not _enabled or _capture.is_empty():
 		return
 	var g: OverviewGroup = _capture.group
 	if int(_capture.epoch) != _epoch or int(_capture.gen) != g.gen:
 		_capture = {}
 		return
-	var t0 := Time.get_ticks_usec()
+	if not settled and not _wanted(g):
+		g.building = false
+		_capture = {}
+		return
 	var cells: Array[Rect2] = _capture.cells
-	while int(_capture.next) < cells.size() and float(Time.get_ticks_usec() - t0) / 1000.0 < CAPTURE_BUDGET_MS:
+	while int(_capture.next) < cells.size() and Time.get_ticks_usec() < deadline:
 		_capture_cell(g, cells[int(_capture.next)])
 		_capture.next = int(_capture.next) + 1
-	if int(_capture.next) < cells.size():
+	if int(_capture.next) < cells.size() or Time.get_ticks_usec() >= deadline:
 		return
 	g.members = _cap_positions.size()
 	if _cap_positions.is_empty():
@@ -415,6 +438,15 @@ func _score(g: OverviewGroup) -> float:
 	return _effective(g) + (0.0 if wanted else 1.0e9)
 
 
+func _wanted(g: OverviewGroup) -> bool:
+	if g.group_level < g.level or _blocked[g.level].has(g.key):
+		return false
+	var projected := ProjectedBounds.measure(g.world_aabb(), _cam.snapshot)
+	if bool(projected.conservative):
+		return true
+	return not bool(projected.behind) and (projected.rect as Rect2).intersects(Rect2(Vector2.ZERO, _cam.snapshot.viewport_size))
+
+
 ## Table row of an asset's overview parameters; NO_ROW for assets without geometry (kind none or no descriptor).
 func _row_of(asset_id: String) -> int:
 	if _rows.has(asset_id):
@@ -427,8 +459,6 @@ func _row_of(asset_id: String) -> int:
 	_rows[asset_id] = row
 	return row
 
-
-# --- Roles and the hierarchy cut ---------------------------------------------------------
 
 func _effective(g: OverviewGroup) -> float:
 	return _cam.effective_to_box(Vector3(g.rect.position.x, g.y_lo, g.rect.position.y),
@@ -443,6 +473,8 @@ func _refresh_roles() -> void:
 
 
 func _apply_activation(settled: bool) -> void:
+	if not _enabled:
+		return
 	var off: Array[OverviewGroup] = []
 	var on: Array[OverviewGroup] = []
 	_withheld = OverviewCut.compute(_groups, _blocked, settled, off, on)
@@ -453,10 +485,15 @@ func _apply_activation(settled: bool) -> void:
 
 
 func _set_active(g: OverviewGroup, on: bool) -> void:
+	on = on and _enabled
 	g.active = on
 	for pop: Object in _pops:
 		pop.call("set_cells_covered", g.rect, on)
+	_update_visibility(g)
+
+
+func _update_visibility(g: OverviewGroup) -> void:
 	if g.canopy != null:
-		g.canopy.visible = on and not _veg_hidden
+		g.canopy.visible = _enabled and g.active and not _veg_hidden and not _view_suppressed
 	if g.solid != null:
-		g.solid.visible = on
+		g.solid.visible = _enabled and g.active and not _view_suppressed

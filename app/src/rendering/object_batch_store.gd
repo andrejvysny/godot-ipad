@@ -3,7 +3,8 @@ extends Node3D
 ## Ownership layer of ObjectRenderWorld (spec §5, §7, §8.3): per-(cell, asset, representation) MultiMesh
 ## batches. Every presented record has exactly one visible owner: a batch slot or the promoted selected-object
 ## node (`_owner[id]`: "" = still queued, "promoted", or the batch key "<asset>|<rep>" inside the record's
-## cell). Cells are floor(world XZ / cell_size) of the applied transform's origin; batch nodes sit at the
+## cell). Screen-size-hidden records retain canonical membership without a submitted slot. Cells are
+## floor(world XZ / cell_size) of the applied transform's origin; batch nodes sit at the
 ## cell origin and hold cell-local transforms. A batch is drawn only when its cell is not covered by an
 ## overview group and vegetation is not hidden. Scheduling, LOD and the public API live in ObjectRenderWorld.
 
@@ -16,6 +17,9 @@ const SELECTED_ROLE := "selected"
 const NEAR_PRIORITY_M := 96.0
 const EVERYTHING := Rect2(-1.0e7, -1.0e7, 2.0e7, 2.0e7)
 
+var _size_visibility: ObjectSizeVisibility
+var _size_policy_enabled := true
+var _view_suppressed := false
 var _res: RenderWorldResources
 var _catalog: AssetCatalog
 var _cell_size: float = 32.0
@@ -76,6 +80,8 @@ func set_cells_covered(rect: Rect2, covered: bool) -> void:
 			if cell != null:
 				for batch: InstanceBatch in cell.batches.values():
 					batch.node.visible = _batch_visible(batch)
+	if _promoted != null:
+		_promoted.visible = is_object_visible(_selected)
 	_preview.refresh_visibility()
 
 
@@ -130,11 +136,20 @@ func _inst_xf(id: String, rep: String) -> Transform3D:
 
 func _bounds(asset_id: String) -> AABB:
 	var asset := _catalog.get_asset(asset_id) if _catalog != null else null
-	return asset.bounds if asset != null else RenderWorldResources.UNIT_BOX
+	if asset != null:
+		return asset.bounds
+	var descriptor := _res.registry.descriptor(asset_id)
+	return descriptor.bounds if descriptor != null else RenderWorldResources.UNIT_BOX
 
 
 ## Adds an unowned record to its group: immediately when the group exists or the world is settled.
 func _attach_owner(id: String) -> void:
+	if _size_policy_enabled:
+		if _attaching and not _size_visibility.representations.has(id):
+			_size_visibility.request_pass()
+		else:
+			_size_visibility.attach(id)
+		return
 	var cell: RenderCell = _cells[_cell_of[id]]
 	var asset_id: String = _asset[id]
 	if cell.reps.has(asset_id):
@@ -260,9 +275,9 @@ func _promote(id: String) -> void:
 	_promoted.mesh = _res.mesh_of(asset_id, rep, 0)
 	_promoted_rep = rep
 	_promoted.transform = _inst_xf(id, rep)
-	_promoted.visible = not _hidden(id)
-	_preview.apply(_promoted, id)
 	_owner[id] = "promoted"
+	_promoted.visible = is_object_visible(id)
+	_preview.apply(_promoted, id)
 
 
 func _release_promoted() -> void:
@@ -284,7 +299,8 @@ func _upgrade_promoted() -> void:
 
 
 func _hidden(id: String) -> bool:
-	return _is_hidden.is_valid() and bool(_is_hidden.call(id))
+	return _view_suppressed or (_size_policy_enabled and id != _selected and _size_visibility.hidden.has(id)) \
+			or (_is_hidden.is_valid() and bool(_is_hidden.call(id)))
 
 
 func _batch_hidden(batch: InstanceBatch) -> bool:
@@ -293,7 +309,7 @@ func _batch_hidden(batch: InstanceBatch) -> bool:
 
 ## A batch is drawn only when no overview group covers its cell and vegetation is not hidden.
 func _batch_visible(batch: InstanceBatch) -> bool:
-	return not _covered.has(_cell_key(batch.origin)) and not _batch_hidden(batch)
+	return not _view_suppressed and not _covered.has(_cell_key(batch.origin)) and not _batch_hidden(batch)
 
 
 func _flush_dirty() -> void:
@@ -311,3 +327,34 @@ func _priority(cell: RenderCell) -> int:
 ## Implemented by ObjectRenderWorld: builds or switches one (cell, asset) group.
 func _build_group(_cell: RenderCell, _asset_id: String) -> void:
 	pass
+
+
+func is_object_visible(id: String) -> bool:
+	return _asset.has(id) and not _hidden(id) and not is_object_covered(id) and _has_submitted_owner(id)
+
+
+func _has_submitted_owner(id: String) -> bool:
+	var owner := owner_of(id)
+	if owner == "":
+		return false
+	if owner == "promoted":
+		return _promoted != null and _promoted.mesh != null
+	if owner == ObjectPreviewOwners.OWNER:
+		var node := _preview.node_of(id)
+		return node != null and node.mesh != null
+	var batch := batch_of(id)
+	return batch != null and batch.has(id) and batch.multimesh().mesh != null
+
+
+func set_view_suppressed(suppressed: bool) -> void:
+	if _view_suppressed == suppressed:
+		return
+	_view_suppressed = suppressed
+	for cell: RenderCell in _cells.values():
+		for batch: InstanceBatch in cell.batches.values():
+			batch.node.visible = _batch_visible(batch)
+	if _promoted != null:
+		_promoted.visible = is_object_visible(_selected)
+	_preview.refresh_visibility()
+	if not suppressed and _size_visibility != null:
+		_size_visibility.request_pass()

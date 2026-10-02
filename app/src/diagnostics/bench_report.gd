@@ -29,14 +29,25 @@ static func _file_sha256(path: String) -> Variant:
 
 
 static func fingerprints(catalog: AssetCatalog) -> Dictionary:
-	var source := "unknown"
+	var installed: Variant = null
+	var installed_validity := "UNAVAILABLE"
 	if FileAccess.file_exists(FINGERPRINT_PATH):
 		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(FINGERPRINT_PATH))
-		if typeof(parsed) == TYPE_DICTIONARY and (parsed as Dictionary).has("source_sha256"):
-			source = str(parsed.source_sha256)
-	return {"source_sha256": source, "godot": WorldCodec.default_created_with().godot,
-		"config_sha256": _file_sha256(CONFIG_PATH), "rendering_profiles_sha256": _file_sha256(PROFILES_PATH),
-		"catalog_sha256": catalog.sha256}
+		if typeof(parsed) == TYPE_DICTIONARY:
+			var candidate := str((parsed as Dictionary).get("source_sha256", ""))
+			if candidate.length() == 64 and candidate.is_valid_hex_number(false):
+				installed = candidate
+				installed_validity = "RECORDED_BUILD_INPUTS"
+	var identity := BenchSourceIdentity.capture()
+	var local := OS.has_feature("editor")
+	return {"source_sha256": identity.live_source_sha256 if local else installed,
+		"source_validity": identity.live_source_validity if local else installed_validity,
+		"installed_build_source_sha256": installed, "installed_build_validity": installed_validity,
+		"live_source_sha256": identity.live_source_sha256, "live_source_validity": identity.live_source_validity,
+		"live_source_scope": identity.live_source_scope, "source_commit": identity.source_commit,
+		"source_dirty": identity.source_dirty, "git_validity": identity.git_validity,
+		"godot": WorldCodec.default_created_with().godot, "config_sha256": _file_sha256(CONFIG_PATH),
+		"rendering_profiles_sha256": _file_sha256(PROFILES_PATH), "catalog_sha256": catalog.sha256}
 
 
 ## State that a rendering-only benchmark must leave untouched.

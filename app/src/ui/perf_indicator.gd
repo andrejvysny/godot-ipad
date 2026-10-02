@@ -61,6 +61,8 @@ func refresh(status: Dictionary) -> void:
 func caption(status: Dictionary) -> String:
 	var fps := float(status.fps)
 	var text := "%s · %s fps" % [status.profile_label, str(roundi(fps)) if fps > 0.0 else NO_FPS]
+	if str(status.get("view_state", "")) == RenderViewState.TERRAIN_ONLY:
+		text += " · Terrain overview — objects hidden"
 	var pending := str(status.profile_pending)
 	if pending != "":
 		text += " -> " + str(_session.render_config.profile(pending).get("label", pending))

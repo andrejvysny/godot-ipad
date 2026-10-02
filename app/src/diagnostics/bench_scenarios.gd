@@ -18,7 +18,9 @@ const NAMES: Array[String] = [TERRAIN_ONLY_LEGACY, TERRAIN_ONLY_1KM, PRIMITIVE_1
 	CARD_FOREST_10K, MIXED_WORLD_10K, MIXED_WORLD_50K, GRASS_50K]
 ## Listed in every report instead of being faked (spec §20.1: 1/8/16/32 resource families needed).
 const NOT_RUN := {ASSET_DIVERSITY: "needs 8-32 prepared resource/material families; only 6 bench assets are prepared"}
-const CAMERA_KINDS: Array[String] = ["overview", "focus", "shallow", "canopy", "path", "travel"]
+const CAMERA_KINDS: Array[String] = ["overview", "focus", "shallow", "canopy", "path", "travel",
+	"zoom_transition", "threshold_oscillation", "rotation"]
+const DYNAMIC_CAMERA_KINDS: Array[String] = ["path", "travel", "zoom_transition", "threshold_oscillation", "rotation"]
 const WORKLOAD_KINDS: Array[String] = ["edit_sculpt", "edit_move", "preview_cycles"]
 const BENCH_PROFILES: Array[String] = ["performance"]
 const SUSTAINED_SCENARIO := MIXED_WORLD_10K
@@ -46,6 +48,7 @@ static func kinds() -> Array[String]:
 static func profile_names() -> Array[String]:
 	var ablations: Array[String] = []
 	ablations.append_array(BenchPlan.MESH_ABLATIONS.keys())
+	ablations.append_array(BenchPlan.COMPARISONS.keys())
 	return _joined(_joined(BenchPlan.PROFILES, ablations), RenderConfig.PROFILE_NAMES)
 
 
@@ -121,7 +124,8 @@ static func plan_steps(scenarios: Array[String], profiles: Array[String], only_k
 static func step(scenario: String, profile: String, kind: String) -> Dictionary:
 	var workload := kind if kind in WORKLOAD_KINDS else "camera_path"
 	return {"id": "%s-%s-%s" % [scenario, profile, kind], "scenario": scenario, "profile": profile, "camera": kind,
-		"workload": workload, "diagnostic": profile == BenchPlan.PROFILES[BenchPlan.PROFILES.size() - 1], "repeat": false}
+		"workload": workload, "diagnostic": profile == BenchPlan.PROFILES[BenchPlan.PROFILES.size() - 1] or BenchPlan.COMPARISONS.has(profile),
+		"comparison_alias_of": "comparison_old_distance" if profile == "comparison_hlod_only" else "", "repeat": false}
 
 
 static func is_real_profile(profile: String) -> bool:

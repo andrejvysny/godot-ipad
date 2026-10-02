@@ -1,0 +1,8 @@
+{
+  "source_sha256": "d5a3ee36522857a80c350857e2bd0392cc94a5c13e9e24d592a32871c02ed4bc",
+  "native_artifacts_sha256": "ca7e0b3f0bc9239bd7bbf34038e7cdd716d5f0121033b573be529a3c063f8b23",
+  "pck_sha256": "e501c062dce964647d03355664547ab1e8936843e5829dfe4cfd38878e9f46bc",
+  "app_path": "build/ios/deriveddata-godotipad35-final/Build/Products/Release-iphoneos/WorldPainter.app",
+  "installed": true,
+  "launch_json": "admission-launch.json"
+}

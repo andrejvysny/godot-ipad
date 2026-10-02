@@ -1,0 +1,16 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.2.334 - Forward Mobile - Using Device #0: Apple - Apple M4 Pro
+
+Test user directory: /Users/andrejvysny/Library/Application Support/WorldPainterTests/terrain-final-proof-auqbc3k1
+  PASS test_terrain_overview_gpu::test_gpu_km1_max_zoom_preserves_finite_extent_holes_and_height_in_both_modes (1441.1 ms)
+  PASS test_terrain_overview_gpu::test_gpu_overview_material_keeps_paint_hues_and_terrain_slope_normals (1424.5 ms)
+
+2 tests, 0 failures (3.8 s)
+WARNING: instance_reset_physics_interpolation() is deprecated.
+     at: _instance_reset_physics_interpolation_bind_compat_104269 (servers/rendering/rendering_server.compat.inc:62)
+     GDScript backtrace (most recent call first):
+         [0] _create_terrain (res://src/terrain/terrain_adapter.gd:318)
+         [1] initialize (res://src/terrain/terrain_adapter.gd:58)
+         [2] _make (res://tests/integration/test_terrain_overview_gpu.gd:61)
+         [3] test_gpu_km1_max_zoom_preserves_finite_extent_holes_and_height_in_both_modes (res://tests/integration/test_terrain_overview_gpu.gd:139)
+         [4] _run (res://tests/run_tests.gd:53)

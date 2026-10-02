@@ -22,6 +22,10 @@ SCENARIOS = ["terrain_only_legacy", "terrain_only_1km", "primitive_1k", "primiti
 REAL_PROFILES = ["performance", "balanced", "detailed"]
 LEGACY_PROFILES = ["scale_100", "scale_075", "scale_065", "scale_050", "legacy_shadows_diagnostic",
                    "terrain_mesh_24", "terrain_mesh_32"]
+COMPARISON_PROFILES = ["comparison_old_distance", "comparison_size_only", "comparison_hlod_only",
+                      "comparison_terrain_only", "comparison_combined", "comparison_far_terrain"]
+CAMERAS = ["overview", "focus", "shallow", "canopy", "path", "travel", "zoom_transition",
+           "threshold_oscillation", "rotation", "edit_sculpt", "edit_move", "preview_cycles"]
 STORAGE_ARG = "--storage-root=user://render_bench_worlds"  # never the user's worlds
 DEFAULT_TIMEOUT_S = 3600
 POLL_S = 30
@@ -39,7 +43,8 @@ def split_names(value: str, allowed: list[str], what: str) -> list[str]:
 
 
 def build_user_args(scenarios: list[str], profiles: list[str], seconds: float | None, warmup: float | None,
-                    sustained_minutes: float | None, screenshots: bool = False) -> list[str]:
+                    sustained_minutes: float | None, screenshots: bool = False,
+                    cameras: list[str] | None = None) -> list[str]:
     """App user args (after `--`). Sustained mode and scenarios are exclusive (the app enforces it too)."""
     args = ["--render-bench"]
     if sustained_minutes is not None:
@@ -48,6 +53,8 @@ def build_user_args(scenarios: list[str], profiles: list[str], seconds: float | 
         args.append("--bench-scenarios=" + ",".join(scenarios))
     if profiles:
         args.append("--bench-profiles=" + ",".join(profiles))
+    if cameras:
+        args.append("--bench-cameras=" + ",".join(cameras))
     if seconds is not None:
         args.append("--bench-seconds=%g" % seconds)
     if warmup is not None:
@@ -60,7 +67,9 @@ def build_user_args(scenarios: list[str], profiles: list[str], seconds: float | 
 
 def validate(a) -> tuple[list[str], list[str]]:
     scenarios = split_names(a.scenario, SCENARIOS, "scenario") if a.scenario else []
-    profiles = split_names(a.profile, REAL_PROFILES + LEGACY_PROFILES, "profile") if a.profile else []
+    profiles = split_names(a.profile, REAL_PROFILES + LEGACY_PROFILES + COMPARISON_PROFILES, "profile") if a.profile else []
+    if getattr(a, "camera", ""):
+        split_names(a.camera, CAMERAS, "camera")
     if a.sustained_minutes is not None and scenarios:
         raise ValueError("--scenario and --sustained-minutes are exclusive")
     if a.sustained_minutes is None and not scenarios:
@@ -135,7 +144,7 @@ def run_host(a, user_args: list[str], launch: Callable[[list[str], list[str], in
 
 def device_commands(device_id: str, bundle_id: str, user_args: list[str]) -> tuple[list[str], list[str]]:
     launch = ["xcrun", "devicectl", "device", "process", "launch", "--device", device_id, "--terminate-existing",
-              bundle_id, "--"] + user_args
+              bundle_id, "--", "--"] + user_args
     pull = ["xcrun", "devicectl", "device", "copy", "from", "--device", device_id, "--domain-type",
             "appDataContainer", "--domain-identifier", bundle_id, "--source", "Documents/traces",
             "--destination", str(PULL_DIR)]
@@ -160,7 +169,8 @@ def run_device(a, user_args: list[str], run: Callable[[list[str], int], tuple[in
     if rc != 0:
         print("error: launch failed (rc=%d); no report pulled" % rc, file=sys.stderr)
         return rc
-    deadline = time.time() + (a.timeout or DEFAULT_TIMEOUT_S)
+    timeout = a.timeout or (int(a.sustained_minutes * 60) + 900 if a.sustained_minutes else DEFAULT_TIMEOUT_S)
+    deadline = time.time() + timeout
     while time.time() < deadline:
         time.sleep(POLL_S)
         run(pull, 180)
@@ -180,7 +190,8 @@ def cmd_render_bench(a, launch: Callable[[list[str], list[str], int], int], user
         print("error: %s" % error, file=sys.stderr)
         return 2
     user_args = build_user_args(scenarios, profiles, a.seconds, a.warmup_seconds, a.sustained_minutes,
-                                getattr(a, "screenshots", False))
+                                getattr(a, "screenshots", False),
+                                a.camera.split(",") if getattr(a, "camera", "") else None)
     if a.device:
         return run_device(a, user_args, run)
     return run_host(a, user_args, launch, user_dir)
@@ -189,7 +200,8 @@ def cmd_render_bench(a, launch: Callable[[list[str], list[str], int], int], user
 def add_parser(sub, handler) -> None:
     s = sub.add_parser("render-bench", help="representative render bench on the Mac (HOST evidence only) or device commands")
     s.add_argument("--scenario", default="", help="comma list: " + ", ".join(SCENARIOS))
-    s.add_argument("--profile", default="", help="comma list of performance|balanced|detailed (or legacy scale_* / terrain_mesh_24|32 ablation names)")
+    s.add_argument("--profile", default="", help="comma list: " + ", ".join(REAL_PROFILES + LEGACY_PROFILES + COMPARISON_PROFILES))
+    s.add_argument("--camera", default="", help="comma list: " + ", ".join(CAMERAS))
     s.add_argument("--seconds", type=float, default=None, help="measure window per step in seconds (app default 10)")
     s.add_argument("--warmup-seconds", type=float, default=None, dest="warmup_seconds")
     s.add_argument("--sustained-minutes", type=float, default=None, dest="sustained_minutes",

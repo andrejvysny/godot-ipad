@@ -12,7 +12,9 @@ var kind: int
 var xz := {}  # asset_id -> PackedFloat32Array
 var attr := {}  # asset_id -> PackedFloat32Array
 var keys := {}  # asset_id -> PackedInt64Array thinning keys (lazy cache, see ScatterDensity)
+var batch_chunks := {}  # Asset/chunk -> submitted batch keys, bounded per chunk.
 var batches := {}  # asset_id -> ScatterBatch
+var presentation := {}  # Stable instance keys -> visibility and requested role.
 var role := ""  # meaningful cells: current individual role
 var density := -1.0  # decorative cells: density of the current batches
 var wanted := false  # decorative cells: inside the ground-cover bands (or the active area)

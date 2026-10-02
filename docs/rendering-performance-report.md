@@ -97,3 +97,60 @@ calibration (far tier cost, group handoff distance).
   mixed_world_10k --profile performance --seconds 10 --screenshots --output build/bench/x.json`.
 - Device: `docs/device-test-checklist.md` §4a/§4a.1 (Release export, install, `--render-bench` with scenarios or
   `--bench-sustained-minutes`, pull `Documents/traces`).
+
+## 9. GODOTIPAD-35: size-aware visibility and extreme overview
+
+Decision: [ADR 0013](decisions/0013-size-aware-terrain-overview.md). Detailed scope, scene identity,
+acceptance matrix and rendered artifacts: [HOST evidence](evidence/godotipad-35-host-2026-10-01/README.md).
+This working-tree implementation extends the existing rendering owners; it does not establish a
+new iPad performance envelope.
+
+Shared camera snapshots and projected bounds drive ordinary-object/scatter classification,
+independent size/view/HLOD masks, moving downgrades and settled upgrades. `SessionRenderView`
+publishes the terrain-only mask before work, retains selected identity, suspends preview requests
+and provides first-contact area focus. Existing overview cuts and shared resource budgets remain
+the ownership and scheduling mechanism. Initial thresholds are recorded in the spec and ADR.
+
+Object classification now prioritizes a bounded neighborhood around focus and the selected edit
+cell while retaining turns for background records and held retries. Per-record generation tags
+invalidate old-camera decisions without clearing world maps or restarting the background cursor.
+Regressions cover nearby records appended last, one-record scheduling turns, move/delete/reinsert
+and zoom returns before the unfinished background pass completes. Sustained benchmarks explicitly
+switch static overview/focus cameras, honor warm-up and record their actual initial poses.
+
+Developer comparison profiles expose old distance, size-only, HLOD-only, terrain-only, combined,
+and experimental far-terrain interventions on the same scenario population. HLOD-only aliases the
+old distance variant; size-only includes projected tiers as well as size culling. Neither label
+claims an independent ablation of every policy dimension. Full terrain material remains default.
+
+Rendered Vulkan host tests reproduced missing maximum-zoom km1 corners at 15-degree pitch with
+default mesh size 48 and seven rings. Increasing to 64/10 still missed a corner. App-owned vertex
+sample clamping plus strict fragment bounds fixed those probes without changing the default mesh,
+canonical buffers or finite world extent. New drawn-frame tests cover negative/raised edges, a hole,
+region seams, four material slots, partial overlays and slope normals in both material modes.
+
+The separate fantasy-game valley at `ce478c479b101ad21fa98bf5bbb5690fdf9997d5` remains unchanged.
+Its custom mesh/direct MultiMesh populations bypass this policy. Its old bench terrain range is
+320 m, while the overview camera is 450 m out and 550 m up; far1500 alone does not establish
+terrain coverage. The user explicitly chose godot-ipad-only implementation scope; no external files
+were changed. Exact-valley integration and acceptance remain **NOT RUN**, pending by user choice.
+
+Physical Air 4 Release diagnostics are recorded in the [device evidence](evidence/godotipad-35-device-2026-10-01/README.md).
+The initial matrix had unfinished work in every row and an invalid size-only ablation: its disabled
+HLOD service reactivated proxies. The corrected readiness smoke measured two seconds per row;
+combined overview and the final baseline repeat were ready, while five local/initial rows retained
+object work. The current native matrix remains diagnostic while camera-generation scheduling
+priority corrections are under evaluation. Combined overview proved zero object, scatter and HLOD submissions. Thermal state
+was fair. These runs establish invariants and expose cold-classification latency; they do not
+establish a controlled speedup or a three-repeat performance envelope. Later scheduler changes
+require their own installed identity and fresh measurements. Required continuous transitions,
+physical editing/preview checks, 30/60-minute sessions and exact-valley parity remain open.
+No appearance cache was added because its profiling prerequisite remains open.
+
+Final isolated host validation: 19 rendered filtered checks and 222 Python tests passed; headless
+validation: 1,079 Godot tests, zero failures, and 222 Python tests passed. Doctor:29 OK/1 WARN/0 FAIL;
+three fixtures byte-identical; Release export:117 entries, zero missing/unexpected. Concurrent host
+rendering previously produced stale-image failures, while the isolated rerun passed. Baseline
+ObjectDB/RID/resource shutdown leak noise remains. The linked host evidence documents these
+limits and a Debug Metal terrain-floor diagnostic whose GPU timing is unavailable/null.
+Prior report counts above remain historical results rather than current totals.

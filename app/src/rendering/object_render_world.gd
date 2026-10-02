@@ -2,14 +2,16 @@ class_name ObjectRenderWorld
 extends ObjectBatchStore
 ## Draws presented object records through per-(cell, asset, representation) MultiMesh batches (spec §5, §7,
 ## §8.1, §8.3); ownership and batch primitives are in ObjectBatchStore.
-## Work is split: CPU state and removals/updates of existing slots are applied immediately and flushed in
-## the next service_frame regardless of budget; building batches for a newly attached world (clear() then
-## upserts) is scheduled, nearest cells first, within the frame budget. Each 32 m cell has its own role
-## (ObjectLodDirector); role changes of built cells wait for settled navigation and never touch pinned cells.
+## Record updates apply immediately. Projected-size classification and first attachment run in bounded
+## chunks; READY downgrades apply during navigation, upgrades wait for settling, and pinned records retain
+## their tier. The optional distance comparison policy uses ObjectLodDirector's cell roles.
 
 signal placeholders_reported(text: String)
 
 var _pin_check := Callable()
+var _camera_snapshot: RenderCameraSnapshot
+var _shared_snapshot := false
+var _size_tracker := LodCameraTracker.new()
 var _camera: Camera3D
 var _lod: ObjectLodDirector
 var _recheck: Dictionary = {}  # Vector2i -> true: pinned cells whose representation is re-evaluated once unpinned
@@ -23,6 +25,7 @@ func setup(registry: RenderAssetRegistry, cache: RenderAssetCache, cell_size_m: 
 	_is_hidden = is_hidden
 	_catalog = catalog
 	_queue = RenderWorkQueue.new(_cell_size)
+	_size_visibility = ObjectSizeVisibility.new(self)
 	_lod = ObjectLodDirector.new(_cell_size)
 	_lod.set_profile({})
 	_pool = PromotedNodePool.new(self, POOL_MAX)
@@ -34,6 +37,13 @@ func set_camera(camera: Camera3D) -> void:
 	_camera = camera
 
 
+func set_camera_snapshot(snapshot: RenderCameraSnapshot) -> void:
+	if snapshot != null and not snapshot.same_inputs(_camera_snapshot):
+		_size_visibility.request_pass()
+	_camera_snapshot = snapshot
+	_shared_snapshot = true
+
+
 func set_pin_check(check: Callable) -> void:
 	_pin_check = check
 
@@ -42,6 +52,12 @@ func set_pin_check(check: Callable) -> void:
 ## lod_hysteresis_fraction and settle_ms of its stability section.
 func set_lod_profile(profile: Dictionary) -> void:
 	_lod.set_profile(profile)
+	var enabled := bool(profile.get("size_policy_enabled", true))
+	if enabled != _size_policy_enabled:
+		_reset_policy_owners(enabled)
+	_size_policy_enabled = enabled
+	_size_visibility.profile = profile
+	_size_visibility.request_pass()
 
 
 ## Compatibility: only the minimum unselected role of the current profile changes.
@@ -70,6 +86,7 @@ func clear() -> void:
 		dict.clear()
 	_queue.clear()
 	_lod.reset()
+	_size_visibility.clear()
 	_res.next_epoch()
 	_attaching = true
 	_notice_sent = false
@@ -77,6 +94,7 @@ func clear() -> void:
 
 
 func upsert(id: String, asset_id: String, world_xf: Transform3D) -> void:
+	_size_visibility.upsert(id, world_xf.origin)
 	var key := _cell_key(world_xf.origin)
 	var old_key := key
 	if _asset.has(id):
@@ -88,6 +106,8 @@ func upsert(id: String, asset_id: String, world_xf: Transform3D) -> void:
 				_emit_changed(key)
 			return
 		_detach(id, id == _selected and _asset[id] == asset_id)
+		_size_visibility.representations.erase(id)
+		_size_visibility.roles.erase(id)
 	_asset[id] = asset_id
 	_xf[id] = world_xf
 	_cell_of[id] = key
@@ -123,6 +143,7 @@ func upsert(id: String, asset_id: String, world_xf: Transform3D) -> void:
 func remove(id: String) -> void:
 	if not _asset.has(id):
 		return
+	_size_visibility.remove(id)
 	var key: Vector2i = _cell_of[id]
 	_detach(id, false)
 	for dict: Dictionary in [_asset, _xf, _cell_of, _owner]:
@@ -140,6 +161,7 @@ func set_selected(id: String) -> void:
 		return
 	var prev := _selected
 	_selected = want
+	_size_visibility.request_pass()
 	if prev != "":
 		_release_promoted()
 		_owner[prev] = ""
@@ -155,35 +177,53 @@ func set_vegetation_visibility_changed() -> void:
 		for batch: InstanceBatch in cell.batches.values():
 			batch.node.visible = _batch_visible(batch)
 	if _promoted != null:
-		_promoted.visible = not _hidden(_selected)
+		_promoted.visible = is_object_visible(_selected)
 	_preview.refresh_visibility()
 
 
 ## Applies pending slot updates, then builds queued groups until `budget_ms` is spent (at least one).
 func service_frame(budget_ms: float) -> Dictionary:
 	var t0 := Time.get_ticks_usec()
+	if _view_suppressed:
+		return {"built": 0, "pending": _queue.size()}
 	_update_focus()
 	_flush_dirty()
 	for asset_id in _res.poll_ready():
-		_queue_asset(asset_id)
-	_service_lod()
+		if _size_policy_enabled:
+			_size_visibility.request_pass()
+		else:
+			_queue_asset(asset_id)
+	if _size_policy_enabled:
+		_service_size(t0 + int(maxf(budget_ms, 0.0) * 1000.0))
+	else:
+		_service_lod()
 	_upgrade_promoted()
-	var built := _run_queue(t0, budget_ms)
+	var built := 0
+	if _size_policy_enabled:
+		_attaching = _size_visibility.busy()
+	else:
+		built = _run_queue(t0, budget_ms)
 	_report_placeholders()
 	return {"built": built, "pending": _queue.size()}
 
 
 func has_pending_work() -> bool:
 	return not _queue.is_empty() or not _res.awaiting.is_empty() or not _dirty.is_empty() \
-			or _lod.busy() or not _recheck.is_empty()
+			or (_size_visibility.busy() if _size_policy_enabled else _lod.busy()) or not _recheck.is_empty()
 
 
 func stats() -> Dictionary:
 	var promoted := {"asset": _asset[_selected], "rep": _promoted_rep} if _promoted != null else {}
 	var out := RenderWorldStats.collect(_cells, _res, {"full_uploads": _retired_full, "partial_uploads": _retired_partial,
 		"batch_builds": _builds, "pending_builds": _queue.size(), "world_epoch": _res.epoch,
-		"covered_cells": _covered.size(), "lod_evaluations": _lod.evaluated,
+		"classification": _size_visibility.pending_state(),
+		"canonical_instances": _asset.size(), "size_hidden_instances": _size_visibility.size_hidden_count - int(_size_visibility.hidden.get(_selected) == "size_hidden"),
+		"behind_hidden_instances": _size_visibility.behind_hidden_count - int(_size_visibility.hidden.get(_selected) == "behind"),
+		"view_suppressed": _view_suppressed, "covered_cells": _covered.size(), "lod_evaluations": _size_visibility.evaluated if _size_policy_enabled else _lod.evaluated,
 		"pooled_nodes": _pool.total + _preview.pool_total()}, promoted)
+	if _promoted != null and not _promoted.visible:
+		out.visible_instances -= 1
+		out.visible_triangles -= _res.triangles(_asset[_selected], _promoted_rep)
 	_preview.add_stats(out)
 	return out
 
@@ -325,6 +365,10 @@ func _run_queue(t0: int, budget_ms: float) -> int:
 ## Builds or switches one (cell, asset) group atomically: the new batch is complete and uploaded before the
 ## old one is retired, all within one call.
 func _build_group(cell: RenderCell, asset_id: String) -> void:
+	if _size_policy_enabled:
+		_queue.erase(cell.key, asset_id)
+		_size_visibility.request_pass()
+		return
 	_queue.erase(cell.key, asset_id)
 	var cur: String = cell.reps.get(asset_id, "")
 	if cell.reps.is_empty():
@@ -365,3 +409,38 @@ func _report_placeholders() -> void:
 	if text != "":
 		_notice_sent = true
 		placeholders_reported.emit(text)
+
+
+func _service_size(deadline_usec: int) -> void:
+	var now := Time.get_ticks_msec()
+	if not _shared_snapshot:
+		_camera_snapshot = RenderCameraSnapshot.capture(_camera, _size_tracker.generation)
+	if _size_tracker.update_snapshot(_camera_snapshot, now):
+		_size_visibility.request_pass()
+	if _camera_snapshot != null:
+		_size_visibility.step(_camera_snapshot, _lod.profile,
+				_size_tracker.settled(now, _lod.settle_ms), deadline_usec)
+	_flush_dirty()
+
+
+func _reset_policy_owners(enabled: bool) -> void:
+	_queue.clear()
+	_attaching = true
+	_size_visibility.clear_visibility()
+	_size_visibility.roles.clear()
+	_size_visibility.representations.clear()
+	_recheck.clear()
+	for cell: RenderCell in _cells.values():
+		for key: String in cell.batches.keys():
+			_retire_batch(cell, key)
+		cell.reps.clear()
+		for asset_id: String in cell.members:
+			for id: String in (cell.members[asset_id] as Dictionary):
+				if owner_of(id) != "promoted" and owner_of(id) != ObjectPreviewOwners.OWNER:
+					_owner[id] = ""
+			if not enabled:
+				_queue.push(cell.key, asset_id)
+		if not enabled:
+			cell.role = _lod.initial_role(cell)
+			cell.wanted = cell.role
+	_preview.refresh_visibility()

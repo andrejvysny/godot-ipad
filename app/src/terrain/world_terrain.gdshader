@@ -32,6 +32,10 @@ render_mode blend_mix,depth_draw_opaque,cull_back,diffuse_burley,specular_schlic
 //      of the LOW-tier sample, control, overlay, auto-paint rules) are untouched.
 //  10. Colour map: the redundant textureLod before the bilinear-corner path is skipped when the
 //      4-corner path replaces it.
+//  11. Developer-only overview experiment skips normal/roughness lookups only when they do not
+//      drive painted blend weights. Preview pixels retain the full path. Default remains full.
+//  12. Coarse clipmap triangles retain edge vertices with clamped height samples; strict fragment
+//      bounds avoid losing authored corners when a triangle straddles the finite world edge.
 //
 // Upstream: Terrain3D 1.0.2-stable@0077405b, MIT license (app/addons/terrain_3d/LICENSE.txt).
 //
@@ -45,6 +49,8 @@ render_mode blend_mix,depth_draw_opaque,cull_back,diffuse_burley,specular_schlic
 //           nearest: 7..13 ; bilinear: 24..48. Saves 2 (nearest) / 3 (bilinear) lookups per fragment.
 //   preview area (opt-in, only while the preview is active and only for slots with a preview layer):
 //           +2 per sampled slot per corner (preview albedo + preview normal).
+//   overview experiment outside preview: saves one normal lookup per overlay corner, or
+//           (r or 1) normal lookups for corners without overlays. Albedo/height lookups unchanged.
 
 /* The terrain depends on this shader to function. Don't change most things in vertex() or 
  * terrain normal calculations in fragment(). You probably only want to customize the 
@@ -111,6 +117,10 @@ uniform highp sampler2DArray _texture_array_normal : hint_normal, filter_linear_
 // Public uniforms
 uniform float blend_sharpness : hint_range(0, 1) = 0.5;
 uniform bool flat_terrain_normals = false;
+// WP: experimental benchmark mode only; texture normals that drive paint weights remain sampled.
+uniform bool terrain_overview_experiment = false;
+// WP: authored sample bounds, XZ minimum then maximum; supplied from the document layout.
+uniform vec4 terrain_world_bounds = vec4(-128.0, -128.0, 127.5, 127.5);
 
 uniform bool enable_projection = true;
 uniform float projection_threshold : hint_range(0.0, 0.99, 0.01) = 0.8;
@@ -160,35 +170,7 @@ varying vec3 v_vertex;
 // Vertex
 ////////////////////////
 
-// Takes in world space XZ (UV) coordinates & search depth (only applicable for background mode none)
-// Returns ivec3 with:
-// XY: (0 to _region_size - 1) coordinates within a region
-// Z: layer index used for texturearrays, -1 if not in a region
-ivec3 get_index_coord(const vec2 uv, const int search) {
-	vec2 r_uv = round(uv);
-	vec2 o_uv = mod(r_uv,_region_size);
-	ivec2 pos;
-	int bounds, layer_index = -1;
-	for (int i = -1; i < clamp(search, SKIP_PASS, FRAGMENT_PASS); i++) {
-		if ((layer_index == -1 && _background_mode == 0u ) || i < 0) {
-			r_uv -= i == -1 ? vec2(0.0) : vec2(float(o_uv.x <= o_uv.y), float(o_uv.y <= o_uv.x));
-			pos = ivec2(floor((r_uv) * _region_texel_size)) + (_region_map_size / 2);
-			bounds = int(uint(pos.x | pos.y) < uint(_region_map_size));
-			layer_index = (_region_map[ pos.y * _region_map_size + pos.x ] * bounds - 1);
-		}
-	}
-	return ivec3(ivec2(mod(r_uv,_region_size)), layer_index);
-}
-
-// Takes in descaled (world_space / region_size) world to region space XZ (UV2) coordinates, returns vec3 with:
-// XY: (0. to 1.) coordinates within a region
-// Z: layer index used for texturearrays, -1 if not in a region
-vec3 get_index_uv(const vec2 uv2) {
-	ivec2 pos = ivec2(floor(uv2)) + (_region_map_size / 2);
-	int bounds = int(uint(pos.x | pos.y) < uint(_region_map_size));
-	int layer_index = _region_map[ pos.y * _region_map_size + pos.x ] * bounds - 1;
-	return vec3(uv2 - _region_locations[layer_index], float(layer_index));
-}
+#include "res://src/terrain/world_terrain_region.gdshaderinc"
 
 void vertex() {
 	// Get vertex of flat plane in world coordinates and set world UV
@@ -221,7 +203,13 @@ void vertex() {
 	UV2 = fma(UV, vec2(_region_texel_size), vec2(0.5 * _region_texel_size));
 
 	// Discard vertices for Holes. 1 lookup
-	ivec3 v_region = get_index_coord(start_pos, VERTEX_PASS);
+	// WP: outside vertices still support triangles crossing the world boundary. Sampling clamps,
+	// not geometry; the fragment pass clips the true bounds. Missing interior regions stay absent.
+	vec2 sample_start = clamp(start_pos, terrain_world_bounds.xy * _vertex_density,
+		terrain_world_bounds.zw * _vertex_density);
+	vec2 sample_end = clamp(end_pos, terrain_world_bounds.xy * _vertex_density,
+		terrain_world_bounds.zw * _vertex_density);
+	ivec3 v_region = get_index_coord(sample_start, VERTEX_PASS);
 	uint control = floatBitsToUint(texelFetch(_control_maps, v_region, 0)).r;
 	bool hole = DECODE_HOLE(control);
 
@@ -231,8 +219,8 @@ void vertex() {
 		v_vertex.x = 0. / 0.;
 	} else {		
 		// Set final vertex height & calculate vertex normals. 3 lookups
-		ivec3 coord_a = get_index_coord(start_pos, VERTEX_PASS);
-		ivec3 coord_b = get_index_coord(end_pos, VERTEX_PASS);
+		ivec3 coord_a = get_index_coord(sample_start, VERTEX_PASS);
+		ivec3 coord_b = get_index_coord(sample_end, VERTEX_PASS);
 		float h = mix(texelFetch(_height_maps, coord_a, 0).r,texelFetch(_height_maps, coord_b, 0).r,vertex_lerp);
 		v_vertex.y = h;
 	}
@@ -248,146 +236,14 @@ void vertex() {
 // Fragment
 ////////////////////////
 
-vec2 rotate_vec2(const vec2 v, const vec2 cs) {
-	return vec2(fma(cs.x, v.x,  cs.y * v.y), fma(cs.x, v.y, -cs.y * v.x));
-}
-
-// WP: samples one material slot (control rotation only; detiling removed). The low-tier sample
-// decides the blend height (alb.a); inside the preview area its RGB and normal/roughness are mixed
-// toward the preview layer using the same UV and gradients (explicit, so the area-dependent branch
-// cannot break derivatives).
-void sample_slot(const int id, const vec2 i_uv, const vec4 i_dd, const vec2 c_cs_angle, const mat2 p_align, const float pmask,
-			out vec4 alb, out vec4 nrm) {
-	float id_scale = _texture_uv_scale_array[id];
-	vec4 id_dd = i_dd * id_scale;
-	vec2 id_uv = fma(i_uv, vec2(id_scale), vec2(-0.5));
-	id_dd.xy = rotate_vec2(id_dd.xy, c_cs_angle);
-	id_dd.zw = rotate_vec2(id_dd.zw, c_cs_angle);
-	alb = textureGrad(_texture_array_albedo, vec3(id_uv, float(id)), id_dd.xy, id_dd.zw);
-	nrm = textureGrad(_texture_array_normal, vec3(id_uv, float(id)), id_dd.xy, id_dd.zw);
-	if (pmask > 0.0 && id < 4 && preview_layer[id] >= 0) {
-		vec3 puv = vec3(id_uv, float(preview_layer[id]));
-		vec4 p_alb = textureGrad(preview_albedo_array, puv, id_dd.xy, id_dd.zw);
-		vec4 p_nrm = textureGrad(preview_normal_array, puv, id_dd.xy, id_dd.zw);
-		alb.rgb = mix(alb.rgb, p_alb.rgb, pmask);
-		nrm = mix(nrm, p_nrm, pmask);
-	}
-	alb.rgb *= _texture_color_array[id].rgb;
-	nrm.a = clamp(nrm.a + _texture_roughness_mod_array[id], 0., 1.);
-	nrm.xyz = fma(nrm.xzy, vec3(2.0), vec3(-1.0));
-	nrm.xz = rotate_vec2(nrm.xz, c_cs_angle) * p_align;
-}
-
-// 2-4 lookups per corner (+2 per previewed slot inside the preview area)
-void accumulate_material(const vec3 base_ddx, const vec3 base_ddy, const float weight,
-			const uint control, const vec2 texture_weight, const ivec2 texture_id, const vec3 i_normal,
-			const vec4 rule, const float pmask, inout material mat) { // WP: rule = (w_grass, w_sand, w_rock, highlight)
-
-	// Projection on steep slopes; the preview samples with the same projected UVs and gradients.
-	vec2 i_uv = v_vertex.xz;
-	vec4 i_dd = vec4(base_ddx.xz, base_ddy.xz);
-	mat2 p_align = mat2(1.);
-	if (i_normal.y <= projection_threshold && enable_projection) {
-		p_align = mat2(vec2(i_normal.z, -i_normal.x), vec2(i_normal.x, i_normal.z));
-		vec2 xz = round(normalize(-i_normal.xz) * 1.3065629648763765);
-		xz *= abs(xz.x) + abs(xz.y) > 1.5 ? 0.7071067811865475 : 1.0;
-		xz = vec2(-xz.y, xz.x);
-		i_uv = vec2(dot(v_vertex.xz, xz), -v_vertex.y);
-		i_dd.xy = vec2(dot(base_ddx.xz, xz), -base_ddx.y);
-		i_dd.zw = vec2(dot(base_ddy.xz, xz), -base_ddy.y);
-	}
-
-	// Control map scale
-	float control_scale = DECODE_SCALE(control);
-	i_dd *= control_scale;
-	i_uv *= control_scale;
-
-	// Control map rotation.
-	float c_angle = DECODE_ANGLE(control);
-	vec2 c_cs_angle = vec2(cos(c_angle), sin(c_angle));
-	i_uv = rotate_vec2(i_uv, c_cs_angle);
-
-	// Blend adjustment of Higher ID from Lower ID normal map in world space.
-	float world_normal = 1.;
-	vec3 T = normalize(base_ddx), B = -normalize(base_ddy);
-	// mat3 multiply, reduced to 2x fma and 1x mult.
-	#define FAST_WORLD_NORMAL(n) fma(T, vec3(n.x), fma(B, vec3(n.z), i_normal * vec3(n.y)))
-	
-	float blend = DECODE_BLEND(control); // only used for branching.
-	float sharpness = fma(56., blend_sharpness, 8.);
-
-
-	// 1st Texture Asset ID
-	// WP: auto corners use the per-pixel rule material instead of the stored base id.
-	bool is_auto = DECODE_AUTO(control);
-	if (blend < 1.0
-			) {
-		int id = texture_id[0];
-		float id_w = texture_weight[0];
-		vec4 alb = vec4(0.0);
-		vec4 nrm = vec4(0.0);
-		float id_depth = 0.0;
-		float id_ao = 0.0;
-		if (is_auto) {
-			// WP: weights are zero for unused rule slots; skip their lookups.
-			if (rule.x > 0.0) {
-				vec4 a; vec4 n;
-				sample_slot(SLOT_GRASS, i_uv, i_dd, c_cs_angle, p_align, pmask, a, n);
-				alb += a * rule.x; nrm += n * rule.x;
-				id_depth += _texture_normal_depth_array[SLOT_GRASS] * rule.x;
-				id_ao += _texture_ao_strength_array[SLOT_GRASS] * rule.x;
-			}
-			if (rule.y > 0.0) {
-				vec4 a; vec4 n;
-				sample_slot(SLOT_SAND, i_uv, i_dd, c_cs_angle, p_align, pmask, a, n);
-				alb += a * rule.y; nrm += n * rule.y;
-				id_depth += _texture_normal_depth_array[SLOT_SAND] * rule.y;
-				id_ao += _texture_ao_strength_array[SLOT_SAND] * rule.y;
-			}
-			if (rule.z > 0.0) {
-				vec4 a; vec4 n;
-				sample_slot(SLOT_ROCK, i_uv, i_dd, c_cs_angle, p_align, pmask, a, n);
-				alb += a * rule.z; nrm += n * rule.z;
-				id_depth += _texture_normal_depth_array[SLOT_ROCK] * rule.z;
-				id_ao += _texture_ao_strength_array[SLOT_ROCK] * rule.z;
-			}
-		} else {
-			sample_slot(id, i_uv, i_dd, c_cs_angle, p_align, pmask, alb, nrm);
-			id_depth = _texture_normal_depth_array[id];
-			id_ao = _texture_ao_strength_array[id];
-		}
-
-		world_normal = FAST_WORLD_NORMAL(nrm).y;
-
-		float id_weight = exp2(sharpness * log2(weight + id_w + alb.a)) * weight;
-		mat.albedo_height = fma(alb, vec4(id_weight), mat.albedo_height);
-		mat.normal_rough = fma(nrm, vec4(id_weight), mat.normal_rough);
-		mat.normal_map_depth = fma(id_depth, id_weight, mat.normal_map_depth);
-		mat.ao_strength = fma(id_ao, id_weight, mat.ao_strength);
-		mat.total_weight += id_weight;
-		if (is_auto) {
-			mat.highlight += rule.w * id_weight;
-		}
-	}
-
-	// 2nd Texture Asset ID
-	if (blend > 0.0 && (texture_id[1] != texture_id[0] || is_auto) // WP: overlay always applies over the rule material
-		) {
-		int id = texture_id[1];
-		float id_w = texture_weight[1];
-		vec4 alb; vec4 nrm;
-		sample_slot(id, i_uv, i_dd, c_cs_angle, p_align, pmask, alb, nrm);
-
-		float id_weight = exp2(sharpness * log2(weight + id_w + alb.a * clamp(world_normal, 0., 1.))) * weight;
-		mat.albedo_height = fma(alb, vec4(id_weight), mat.albedo_height);
-		mat.normal_rough = fma(nrm, vec4(id_weight), mat.normal_rough);
-		mat.normal_map_depth = fma(_texture_normal_depth_array[id], id_weight, mat.normal_map_depth);
-		mat.ao_strength = fma(_texture_ao_strength_array[id], id_weight, mat.ao_strength);
-		mat.total_weight += id_weight;
-	}
-}
+#include "res://src/terrain/world_terrain_material.gdshaderinc"
 
 void fragment() {
+	// WP: clip before region lookups, including triangles supported by outside edge vertices.
+	if (any(lessThan(v_vertex.xz, terrain_world_bounds.xy)) ||
+			any(greaterThan(v_vertex.xz, terrain_world_bounds.zw))) {
+		discard;
+	}
 	// Recover UVs
 	vec2 uv = UV;
 	vec2 uv2 = UV2;
@@ -637,4 +493,3 @@ void fragment() {
 	AO_LIGHT_AFFECT = (1.0 - mat.albedo_height.a) * clamp(mat.normal_rough.y, 0., 1.);
 
 }
-

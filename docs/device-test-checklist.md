@@ -82,7 +82,7 @@ The report never claims acceptance (`evidence.acceptance` is `NOT_ACCEPTANCE_RUN
 1. Release export: `venv/bin/python scripts/dev.py export-ios --project-only --release`, then `xcodebuild`
    with `-configuration Release` (same signing setup as section 0); install on the iPad.
 2. Cold device: rested, unplugged (or note "charging"), screen brightness fixed, no other apps running.
-3. Start with `xcrun devicectl device process launch --device <device-id> --terminate-existing <bundle id> -- --render-bench`
+3. Start with `xcrun devicectl device process launch --device <device-id> --terminate-existing <bundle id> -- -- --render-bench`
    (optional `--bench-counts=0,1000 --bench-frames=300 --bench-warmup=90 --bench-seed=1234
    --bench-profiles=scale_100,scale_050 --bench-cameras=overview,ground --bench-quit`), or tap
    Diagnostics -> **Render bench**.
@@ -112,8 +112,8 @@ turned back on).
 | Flag | Meaning |
 |---|---|
 | `--bench-scenarios=a,b` | `terrain_only_legacy`, `terrain_only_1km`, `primitive_1k`, `primitive_5k`, `geometry_forest_10k`, `card_forest_10k`, `mixed_world_10k`, `mixed_world_50k`, `grass_50k`. `asset_diversity` is accepted and reported `NOT_RUN` (only 6 prepared bench assets). |
-| `--bench-profiles=` | real profiles `performance`, `balanced`, `detailed` (default `performance`; budget per step is 1000 / profile target fps), or the legacy `scale_*` / `legacy_shadows_diagnostic` ablations |
-| `--bench-cameras=` | camera paths `overview`, `focus`, `shallow`, `canopy`, `path`, `travel` and workloads `edit_sculpt`, `edit_move`, `preview_cycles` (default: all that fit the scenario) |
+| `--bench-profiles=` | real profiles `performance`, `balanced`, `detailed` (default `performance`; budget per step is 1000 / profile target fps), legacy `scale_*` / `legacy_shadows_diagnostic`, or the `comparison_*` interventions in §4a.2 |
+| `--bench-cameras=` | camera paths `overview`, `focus`, `shallow`, `canopy`, `path`, `travel`, `zoom_transition`, `threshold_oscillation`, `rotation` and workloads `edit_sculpt`, `edit_move`, `preview_cycles` (default: all that fit the scenario) |
 | `--bench-seconds=S` | measure window per step (default 10 smoke; acceptance >= 60) |
 | `--bench-warmup-seconds=S` | warm-up per step (default 2) |
 | `--bench-sustained-minutes=N` | `mixed_world_10k` x `performance`: overview, focus, path, edit_sculpt, preview_cycles, travel, repeated for N minutes (N <= 120). Per-minute aggregates only; `steps` is empty and `sustained.minutes` holds frame p50/p95/p99, hitches, missed, GPU status/p95, thermal, footprint, cache bytes, nodes. |
@@ -156,6 +156,59 @@ Texture Preview, drops queued speculative loads, trims the cache and refuses re-
 profile never changes. It clears 60 s after the last trigger; the preview stays off. `status()` exposes
 `safety_state`, `safety_reason`, `thermal` and `footprint_mib` (null when unavailable, never 0). Backgrounding
 the app also cancels queued loads; returning does not re-enable the preview.
+
+### 4a.2 GODOTIPAD-35 zoom and terrain-only acceptance
+
+Status: **NOT RUN** for this task's physical iPad Release acceptance matrix. A connected device or
+a host GPU test does not satisfy these measurements. The external fantasy-game valley must first
+be integrated with the shared projection/view policy; the unchanged standalone bench is not proof
+of production entry-point parity. See the [task evidence matrix](evidence/godotipad-35-host-2026-10-01/README.md).
+
+Use the existing scenario runner with `comparison_old_distance`, `comparison_size_only`,
+`comparison_hlod_only`, `comparison_terrain_only`, `comparison_combined`, and
+`comparison_far_terrain`. HLOD-only aliases old distance; size-only also changes tiers. Far-terrain
+requests the experimental material explicitly; it is not a user profile. Record returned flags and
+actual material mode rather than inferring them from a label.
+
+An initial diagnostic command after installing the current Release build is:
+
+```sh
+xcrun devicectl device process launch --device <device-id> --terminate-existing <bundle-id> -- -- \
+  --render-bench --bench-scenarios=mixed_world_10k \
+  --bench-profiles=comparison_old_distance,comparison_size_only,comparison_hlod_only,comparison_terrain_only,comparison_combined,comparison_far_terrain \
+  --bench-cameras=overview,focus,zoom_transition,threshold_oscillation,rotation \
+  --bench-seconds=30 --bench-warmup-seconds=10 \
+  --storage-root=user://render_bench_worlds --bench-quit
+```
+
+Repeat core poses at least three times after warm-up, keeping the same authored world and camera.
+The first `--` ends devicectl options; the second passes Godot's user-argument separator to the app.
+Repeat at 1.0/0.65/0.5 scale using existing scale interventions and verify display/internal dimensions.
+Keep screenshots/readbacks outside timed windows. Record p50/p95/p99 frame intervals, valid CPU/GPU
+timing, hitches, represented/submitted counts, queue cost and memory/thermal validity. Confirm zero
+ordinary object/scatter/HLOD/ghost/object-preview geometry during terrain-only, then compare against
+the same-camera terrain/background-only baseline.
+
+Exercise continuous zoom in both directions, threshold oscillation, rotation, pan/teleport,
+altitude/pitch changes, local edits/selection, cancellation/undo/redo, preview suspension/return,
+background/resume and pressure handling. Verify finite terrain, raised/lowered edges, holes, seams,
+all material slots and unchanged exported entry bytes. Run the existing 30- and 60-minute Release
+procedure separately. Host correctness does not establish a speedup or achieved device envelope.
+
+Record live source identity separately from installed build inputs. On an exported device build,
+live checkout identity may legitimately be unavailable. Keep unavailable measurements unavailable;
+never substitute zero or the previous export fingerprint.
+
+The host/device wrapper also accepts these comparison profiles and `--camera` paths:
+
+```sh
+venv/bin/python scripts/dev.py render-bench --scenario mixed_world_10k \
+  --profile comparison_old_distance,comparison_combined --camera overview,focus,zoom_transition \
+  --seconds 30 --warmup-seconds 10 --output build/bench/zoom-host.json
+```
+
+Add `--device --run --device-id <device-id> --bundle-id <bundle-id>` for an installed current Release
+build. The wrapper uses separate benchmark storage and pulls a report before claiming a completed run.
 
 ## 5. Evidence record template
 

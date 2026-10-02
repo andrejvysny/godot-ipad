@@ -8,7 +8,8 @@
 
 > Repository copy of the specification handed over on 2026-10-01. Implementation notes, the
 > mapping to the repository state at `191b2da` and the approved deviations live in
-> `docs/decisions/0010-rendering-performance.md` and `TODO.md` ("Rendering performance").
+> `docs/decisions/0010-rendering-performance.md` and the Plane GODOTIPAD project. GODOTIPAD-35
+> amends size-aware visibility and extreme overview as recorded in ADR 0013.
 
 ---
 
@@ -650,6 +651,35 @@ Existing selected IDs can remain selected during zoom-out, with a bounded select
 
 Keep all authored records accessible to undo, save, and queries even when represented by one proxy. HLOD is a cache, not a document edit or a file-format replacement.
 
+### 9.5 Size-aware visibility and terrain-only overview (GODOTIPAD-35)
+
+Individual objects and scatter use one captured camera projection and conservative transformed asset
+bounds. Project all eight AABB corners without clipping the projected footprint to the viewport. Invalid
+bounds/projections and near-plane intersections must retain useful geometry conservatively. Normalize
+display-pixel size to an 820 px reference viewport height; internal 3D size is reported separately and
+changing render scale alone must not change authored-object visibility.
+
+Initial ordinary-object hide/show thresholds are 2/3 reference px; decorative thresholds are 3/4 px.
+Initial far/mid and mid/near thresholds are 32 and 160 reference px, with 20% tier hysteresis.
+The configured fraction spans both sides: upgrades require size above 1.10 times the boundary;
+downgrades require size below 0.90 times the boundary. Exact boundary ties retain the current tier.
+Ready
+downgrades and hiding progress during movement; upgrades wait for 250 ms navigation settling and
+bounded work. Selected and actively edited content use local exemptions rather than exempting the world.
+
+Extreme overview deliberately amends PREF-06, PREF-07 and PREF-21: terrain and painted appearance
+remain visible while ordinary objects, decorative scatter and 3D overview proxies are suppressed.
+Enter when the unclipped world footprint is at most 1.10 viewport extent and downward pitch is at
+least 45 degrees; exit above 1.30 extent or below 35 degrees. These are initial tuning values, not
+established iPad limits. Derive the world footprint from actual layout and height bounds. Do not
+activate terrain-only merely because distance is large in an oblique view.
+
+Publish the composed view mask before scheduled renderer work. Clearing size, HLOD or vegetation
+suppression must not clear another reason. Keep document identity, selection and undo state intact;
+ordinary picking must not hit hidden geometry. First contact in terrain-only focuses an area, while a
+later local action performs placement. Suspend object Texture Preview work while retaining its request.
+See ADR 0013 and the GODOTIPAD-35 matrix in the rendering report for tested scope and open gates.
+
 ---
 
 ## 10. Decorative vegetation density
@@ -852,6 +882,24 @@ Do not change the canonical 0.5 m sample spacing, height encoding, world elevati
 Disable costly generated world-noise backgrounds and unnecessary advanced material features. Use correct height bounds rather than oversized cull margins.
 
 Keep collision disabled. Keep the current `free_editor_textures=false` behavior for the procedural-resource arrangement unless a replacement is validated; the adapter documents why the default otherwise clears its generated textures. [R-TERRAIN]
+
+### 13.3.1 GODOTIPAD-35 finite bounds and material experiment
+
+The app-owned shader's `overview_experiment` mode is a developer benchmark intervention, not an
+adopted production default. It branches before lighting-only normal/roughness samples, but retains base
+normal samples when they contribute to an overlay's height-blend weight. Albedo alpha, control, rules,
+tint, terrain normals and preview-area sampling keep their established semantics. Full mode remains
+the default until controlled device A/B and visual evidence support adoption.
+
+Finite world bounds are the layout's actual minimum and maximum sample coordinates. Coarse clipmap
+vertices outside those bounds clamp their height/control sample coordinates without clamping their
+geometry; fragments outside the authored bounds are discarded before region lookups. This preserves
+edge-crossing triangles without adding an infinite ground plane or changing canonical terrain bytes.
+Default mesh size 48 and seven LOD rings remain unchanged; increasing to 64/10 alone did not fix the
+observed maximum-zoom corner clipping.
+
+No terrain appearance cache was added. Its evidence prerequisite remains unmeasured after object
+suppression on the target device; this is not a measured `NOT_NEEDED` finding.
 
 ### 13.4 Terrain resources versus object streaming
 
@@ -1347,11 +1395,11 @@ Keep per-asset representations in the render registry, world layout in the docum
 
 Validate numeric ranges and dependencies at load time. Invalid rendering configuration falls back to a known safe Performance configuration and reports an error, rather than disabling resource limits.
 
-Suggested high-level structure:
+Schema 2 high-level structure (abbreviated; the synchronized files contain the full validated fields):
 
 ```json
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "startup_profile": "performance",
   "profiles": {
     "performance": {"target_fps": 60, "scale_3d": 0.65, "shadows": false},
@@ -1368,7 +1416,10 @@ Suggested high-level structure:
     "upload_soft_mib_per_frame": 2,
     "inflight_loads": 2
   },
-  "texture_preview": {"radius_m": 20, "max_texture_edge": 2048, "max_terrain_materials": 4},
+  "texture_preview": {"radius_m": 20, "max_texture_edge_px": 2048, "fallback_texture_edge_px": 1024, "max_terrain_materials": 4},
+  "size_visibility": {"enabled": true, "reference_height_px": 820, "object_hide_px": 2, "object_show_px": 3,
+    "decorative_hide_px": 3, "decorative_show_px": 4, "far_mid_px": 32, "mid_near_px": 160},
+  "overview_view": {"enter_extent_ratio": 1.10, "exit_extent_ratio": 1.30, "enter_pitch_deg": 45, "exit_pitch_deg": 35},
   "stability": {"lod_hysteresis_fraction": 0.2, "settle_ms": 250}
 }
 ```
@@ -1552,7 +1603,7 @@ Implement sequentially where dependencies require it. Every work package include
 **Dependencies:** previous implemented packages.
 
 - [ ] Remove obsolete production node-per-object/ghost paths once parity is proven; retain an explicit debug comparison only where useful.
-- [ ] Update CURRENT_STATE/TODO/HANDOFF and relevant architecture/format documentation.
+- [ ] Update the canonical Plane Current state Page with approval and relevant Git architecture/format documentation.
 - [ ] Document render descriptor schema, preparation commands, profile settings, benchmark recipes, and safety states.
 - [ ] Add rendering architecture and profile ADRs, including the no-shadows/manual-profile decision.
 - [ ] Verify clean export and no missing shader/resource dependencies.

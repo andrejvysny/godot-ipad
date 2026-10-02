@@ -126,8 +126,24 @@ func test_highlight_toggle_and_replace_document_reapplies_rules() -> void:
 	_check_uniform("rules_highlight", false)
 
 
+func test_material_experiment_changes_uniform_without_rebuilding_terrain() -> void:
+	var a := _make(WorldDocument.create_flat(0.0, AUTO))
+	var terrain := a.get_terrain()
+	assert_empty_string(a.set_material_mode("overview_experiment"))
+	assert_empty_string(a.replace_document(WorldDocument.create_flat(2.0, AUTO)))
+	assert_eq(a.get_terrain(), terrain)
+	assert_eq(a.material_uniforms(), {"terrain_overview_experiment": true})
+	var live: Variant = terrain.material.get_shader_param("terrain_overview_experiment")
+	if live != null:
+		assert_eq(live, true)
+	assert_empty_string(a.set_material_mode("full"))
+	assert_eq(a.material_uniforms(), {"terrain_overview_experiment": false})
+
+
 func test_trimmed_shader_drops_unused_features_and_keeps_the_app_ones() -> void:
 	var full := (load(TerrainAdapter.SHADER_PATH) as Shader).code
+	full += FileAccess.get_file_as_string("res://src/terrain/world_terrain_material.gdshaderinc")
+	full += FileAccess.get_file_as_string("res://src/terrain/world_terrain_region.gdshaderinc")
 	var code := full.substr(full.find("/* The terrain depends"))  # the header only names what was removed
 	for removed in ["enable_macro_variation", "macro_variation1",
 			"noise_texture", "noise1_scale", "_texture_detile_array", "depth_blur", "bias_distance"]:

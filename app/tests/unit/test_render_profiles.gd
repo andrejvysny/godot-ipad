@@ -114,7 +114,7 @@ func test_invalid_configs_fall_back_with_error() -> void:
 	d.vegetation.categories = []
 	_assert_rejected(d, "empty categories")
 	d = _shipped()
-	d.schema_version = 2
+	d.schema_version = RenderConfig.SCHEMA_VERSION + 1
 	_assert_rejected(d, "schema version")
 
 
@@ -203,3 +203,18 @@ func test_unknown_profile() -> void:
 	assert_eq(c.request_profile("", true).status, "unknown")
 	assert_eq(c.active_name(), "performance")
 	assert_eq(c.pending_name(), "")
+
+
+func test_size_and_overview_thresholds_validate() -> void:
+	var d := _shipped()
+	d.size_visibility.object_show_px = d.size_visibility.object_hide_px
+	_assert_rejected(d, "show must exceed hide")
+	d = _shipped()
+	d.overview_view.exit_pitch_deg = d.overview_view.enter_pitch_deg
+	_assert_rejected(d, "pitch hysteresis")
+	d = _shipped()
+	d.size_visibility.mid_near_px = d.size_visibility.far_mid_px
+	_assert_rejected(d, "tier order")
+	d = _shipped()
+	d.size_visibility.object_hide_px = NAN
+	assert_ne(RenderConfig.validate(d), "")

@@ -168,3 +168,40 @@ func test_frame_stats_p99_in_snapshot() -> void:
 		fs.add(float(i))
 	assert_near(fs.p99(), 99.0, 1e-9)
 	assert_near(fs.snapshot().p99_ms, 99.0, 1e-9)
+
+
+func test_comparison_variants_are_explicit_and_do_not_change_defaults() -> void:
+	assert_eq(BenchPlan.PROFILES.size(), 5)
+	assert_eq(BenchScenarios.BENCH_PROFILES, ["performance"])
+	for name: String in BenchPlan.COMPARISONS:
+		assert_true(name in BenchScenarios.profile_names())
+		var step := BenchScenarios.step("mixed_world_10k", name, "zoom_transition")
+		assert_true(step.diagnostic)
+		assert_eq(step.scenario, "mixed_world_10k")
+		assert_eq(step.camera, "zoom_transition")
+	var size_only := BenchPlan.comparison_flags("comparison_size_only")
+	assert_true(size_only.size_enabled)
+	assert_false(size_only.hlod_enabled)
+	assert_eq(size_only.forced_view, "regional")
+	var terrain_only := BenchPlan.comparison_flags("comparison_terrain_only")
+	assert_eq(terrain_only.forced_view, "terrain_only")
+	assert_false(terrain_only.far_terrain)
+	var combined := BenchPlan.comparison_flags("comparison_combined")
+	assert_true(combined.size_enabled and combined.hlod_enabled)
+	assert_eq(combined.forced_view, "")
+	assert_false(combined.far_terrain)
+	assert_true(BenchPlan.comparison_flags("comparison_far_terrain").far_terrain)
+	size_only.size_enabled = false
+	assert_true(BenchPlan.comparison_flags("comparison_size_only").size_enabled)
+
+
+func test_measurement_admission_distinguishes_unready_static_and_expected_dynamic_work() -> void:
+	var pending := {"objects": true, "terrain": false, "scatter": false, "overview": false, "cache": false}
+	assert_eq(BenchPlan.measurement_status("focus", pending), "NOT_READY")
+	assert_eq(BenchPlan.measurement_status("overview", pending), "NOT_READY")
+	assert_eq(BenchPlan.measurement_status("zoom_transition", pending), "PENDING_ALLOWED")
+	assert_eq(BenchPlan.measurement_status("edit_sculpt", pending), "PENDING_ALLOWED")
+	pending.objects = false
+	assert_eq(BenchPlan.measurement_status("overview", pending), "READY")
+	pending.cache = true
+	assert_eq(BenchPlan.measurement_status("focus", pending), "NOT_READY")

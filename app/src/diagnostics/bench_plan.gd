@@ -9,6 +9,17 @@ const CAMERAS: Array[String] = ["overview", "ground"]
 const HIDDEN_PROFILE := "terrain_hidden"
 ## Terrain clipmap mesh_size ablations (spec §13.3, §20.5): accepted like the scale_* names, applied and restored by RenderBench.
 const MESH_ABLATIONS := {"terrain_mesh_24": 24, "terrain_mesh_32": 32}
+## Explicit same-world diagnostic variants; normal production profile defaults stay unchanged.
+## HLOD-only aliases the existing distance-policy baseline: projected tiers and size culling are coupled.
+## Size-only combines projected tiers and size culling with HLOD disabled; these are developer interventions.
+const COMPARISONS := {
+	"comparison_old_distance": {"size_enabled": false, "hlod_enabled": true, "forced_view": "regional", "far_terrain": false},
+	"comparison_size_only": {"size_enabled": true, "hlod_enabled": false, "forced_view": "regional", "far_terrain": false},
+	"comparison_hlod_only": {"size_enabled": false, "hlod_enabled": true, "forced_view": "regional", "far_terrain": false},
+	"comparison_terrain_only": {"size_enabled": true, "hlod_enabled": true, "forced_view": "terrain_only", "far_terrain": false},
+	"comparison_combined": {"size_enabled": true, "hlod_enabled": true, "forced_view": "", "far_terrain": false},
+	"comparison_far_terrain": {"size_enabled": true, "hlod_enabled": true, "forced_view": "", "far_terrain": true},
+}
 ## Workloads: terrain_only (no objects), primitive (primitive catalog assets), empty_scene_diagnostic
 ## (terrain hidden). "vegetation" is reserved for the vegetation work package and not produced yet.
 const WORKLOAD_TERRAIN_ONLY := "terrain_only"
@@ -49,7 +60,8 @@ static func _step(count: int, profile: String, camera: String) -> Dictionary:
 		workload = WORKLOAD_EMPTY
 	return {"id": "c%d-%s-%s" % [count, profile, camera], "count": count, "profile": profile,
 		"camera": camera, "workload": workload,
-		"diagnostic": profile == HIDDEN_PROFILE or profile == PROFILES[PROFILES.size() - 1],
+		"diagnostic": profile == HIDDEN_PROFILE or profile == PROFILES[PROFILES.size() - 1] or COMPARISONS.has(profile),
+		"comparison_alias_of": "comparison_old_distance" if profile == "comparison_hlod_only" else "",
 		"repeat": false}
 
 
@@ -71,6 +83,10 @@ static func profile_settings(profile: String) -> Dictionary:
 	if MESH_ABLATIONS.has(profile):
 		s["mesh_size"] = int(MESH_ABLATIONS[profile])
 	return s
+
+
+static func comparison_flags(profile: String) -> Dictionary:
+	return (COMPARISONS.get(profile, {}) as Dictionary).duplicate()
 
 
 ## Stable lowercase UUID v4 from sha256("wp-bench:<seed>:<index>"): the same inputs always give the
@@ -154,3 +170,11 @@ static func summarize(frame_ms: PackedFloat64Array, gpu_ms: PackedFloat64Array, 
 		out["gpu_%s_ms" % q[0]] = percentile_or_null(gpu_ms, q[1])
 		out["cpu_%s_ms" % q[0]] = percentile_or_null(cpu_ms, q[1])
 	return out
+
+
+## Static views are not comparable until scheduled visible work has drained; dynamic paths expose their pending state.
+static func measurement_status(camera: String, pending: Dictionary) -> String:
+	for key: String in ["objects", "terrain", "scatter", "overview", "cache"]:
+		if bool(pending.get(key, false)):
+			return "PENDING_ALLOWED" if camera in BenchScenarios.DYNAMIC_CAMERA_KINDS or camera in BenchScenarios.WORKLOAD_KINDS else "NOT_READY"
+	return "READY"

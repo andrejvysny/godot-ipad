@@ -30,6 +30,7 @@ func _add_scatter(s: EditorSession, ids: Array) -> void:
 		s.document.scatter.add(id, s.catalog.get_asset(id).version, x, 10.0, 0.0, 1.0, 0)
 		x += 25.0
 	var wide := s.render_config.profile("performance")  # ground cover is drawn near the camera and thinned: draw all
+	wide.size_policy_enabled = false  # isolate vegetation and shadow rules from size eligibility
 	wide.ground_cover_radius_m = 100000.0
 	wide.decorative_density_outside = 1.0
 	wide.decorative_density_active = 1.0

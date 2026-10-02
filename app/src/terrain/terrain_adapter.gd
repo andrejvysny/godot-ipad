@@ -33,6 +33,7 @@ var _preview: Dictionary = TerrainPreviewUniforms.off()
 var _debug_view := "normal"
 var _region_grid := false
 var _original_render_layers := -1
+var _material_mode := "full"
 
 
 func _init() -> void:
@@ -194,6 +195,23 @@ func mesh_config() -> Dictionary:
 	return {} if _terrain == null else {"mesh_size": _terrain.mesh_size, "lods": _terrain.mesh_lods}
 
 
+## Experimental lighting simplification for developer A/B runs; never selected automatically.
+func set_material_mode(mode: String) -> String:
+	if mode not in ["full", "overview_experiment"]:
+		return "unknown terrain material mode '%s'" % mode
+	_material_mode = mode
+	_apply_uniforms(material_uniforms())
+	return ""
+
+
+func material_mode() -> String:
+	return _material_mode
+
+
+func material_uniforms() -> Dictionary:
+	return {"terrain_overview_experiment": _material_mode == "overview_experiment"}
+
+
 ## Binds the fixed-area preview: inside the circle the shader samples `albedo`/`normal` layers chosen
 ## by `layer_map` (material slot -> layer, -1 = low tier). Heights, control, holes and blend weights
 ## are untouched. Returns "" or why the preview was not bound (nothing changes then).
@@ -304,6 +322,7 @@ func _create_terrain() -> void:
 	_apply_debug_state()
 	_apply_rule_uniforms()
 	_apply_uniforms(_preview)
+	_apply_uniforms(material_uniforms())
 
 
 func _load_regions(doc: WorldDocument) -> void:
@@ -320,9 +339,18 @@ func _load_regions(doc: WorldDocument) -> void:
 	data.update_maps(Terrain3DRegion.TYPE_MAX, true, false)
 	data.calc_height_range(true)
 	_doc = doc
+	_apply_uniforms(geometry_uniforms())
 	_dirty = [{}, {}, {}]
 	_last_upload_frame = PackedInt64Array([-1, -1, -1])
 	_stats = TerrainUploadStats.new()
+
+
+## Sample bounds prevent coarse clipmap vertices outside the world from cutting off edge triangles.
+func geometry_uniforms() -> Dictionary:
+	var layout := _doc.layout if _doc != null else WorldLayout.legacy()
+	var minimum := layout.world_min()
+	var maximum := layout.world_max_sample()
+	return {"terrain_world_bounds": Vector4(minimum.x, minimum.y, maximum.x, maximum.y)}
 
 
 func _build_region(rb: RegionBuffers) -> Terrain3DRegion:
@@ -456,4 +484,3 @@ func _compare_map(out: PackedStringArray, loc: Vector2i, label: String, img: Ima
 			first = i >> 2
 			break
 	out.append("region %s %s bytes differ (first sample index %d)" % [loc, label, first])
-
