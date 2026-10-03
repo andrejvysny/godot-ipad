@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.world-painter.invalid/world-v4/objects.schema.json",
   "title": "WorldObjectsV4",
-  "description": "DRAFT. objects.json for world schema 4 (INT-SPEC-1.1 §9.2). Identical to schema 3 records except asset_id/asset_version are replaced by binding_id. Semantic checks (docs/world-format.md §4): records sorted by object_id; unique IDs; f64le bits authoritative and within 1e-9 relative of the decimals; rotation unit length within 1e-6; X/Z inside the layout's bilinear extent; uniform_scale and height_offset_m inside the binding's effective policy ranges; binding_id present in asset_locks.json; count and byte limits per §9.4.",
+  "description": "objects.json for world schema 4 (INT-SPEC-1.1 §9.2). Identical to schema 3 records except asset_id/asset_version are replaced by binding_id. Semantic checks (docs/world-format.md §4): records sorted by object_id; unique IDs; f64le bits authoritative and within 1e-9 relative of the decimals; rotation unit length within 1e-6; X/Z inside the layout's bilinear extent; uniform_scale and height_offset_m inside the binding's effective policy ranges; binding_id present in asset_locks.json; count and byte limits per §9.4.",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema_version", "objects"],

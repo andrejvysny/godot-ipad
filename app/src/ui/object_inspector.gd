@@ -4,6 +4,8 @@ extends PanelContainer
 ## header (asset name, first 8 characters of the id), Yaw and Scale rows (minus / value / plus) and
 ## Duplicate and Delete. Every button is one history action through ToolController.
 
+signal update_requested(binding_id: String)
+
 const GAP := 24.0
 const AVOID_MARGIN := 24.0
 const STEP_SIZE := Vector2(40, 40)
@@ -15,6 +17,7 @@ var _title := UiKit.bold_label("", 11)
 var _id := UiKit.label("", 10)
 var _rows: Dictionary = {}  # kind -> {minus, plus, value}
 var _duplicate: Button
+var _update: Button
 var _delete: Button
 var _controls: Array[Control] = []
 var _last_choice := -1
@@ -39,9 +42,11 @@ func setup(session: EditorSession) -> void:
 	var steps: Dictionary = session.defaults.placement
 	_add_row(column, "yaw", "Yaw", float(steps.yaw_step_deg))
 	_add_row(column, "scale", "Scale", float(steps.scale_step))
+	column.add_child(_build_update())
 	column.add_child(_build_actions())
 	for signal_ref: Signal in [_tools.tool_changed, _tools.selection_changed, _tools.settings_changed,
-			_tools.operation_finished, _tools.operation_cancelled, _session.world_replaced]:
+			_tools.operation_finished, _tools.operation_cancelled, _session.world_replaced,
+			_session.assets().remote.updates.changed]:
 		signal_ref.connect(_on_any_signal)
 	refresh()
 
@@ -86,6 +91,17 @@ func _step_button(icon_name: String, on_pressed: Callable) -> Button:
 	b.add_theme_constant_override("icon_max_width", 16)
 	_controls.append(b)
 	return b
+
+
+## "Update available": opens the review of the selected object's binding (never a modal by itself).
+func _build_update() -> Control:
+	_update = UiKit.variant_button("Update available", "AccentButton", func() -> void:
+			update_requested.emit(_tools.selected_record().binding_id))
+	_update.custom_minimum_size.y = 36
+	_update.add_theme_font_size_override("font_size", 11)
+	_update.visible = false
+	_controls.append(_update)
+	return _update
 
 
 func _build_actions() -> Control:
@@ -144,6 +160,10 @@ func duplicate_button() -> Button:
 
 func delete_button() -> Button:
 	return _delete
+
+
+func update_button() -> Button:
+	return _update
 
 
 ## Anchored beside/below/above the object rect, kept inside `free`; avoids the anchor itself and the
@@ -216,7 +236,10 @@ func refresh() -> void:
 	var rec := _tools.selected_record()
 	if rec == null or _tools.has_object_edit():
 		return
-	_title.text = _session.catalog.get_asset(rec.asset_id).display_name
+	var def := _session.document.assets.definition(rec.binding_id)
+	var known := _session.assets().remote.prep.name_of(rec.binding_id)
+	_title.text = known if known != "" else def.display_name
+	_update.visible = _session.assets().remote.updates.has_offer(rec.binding_id)
 	_id.text = rec.object_id.substr(0, 8)
 	(_rows.yaw.value as Label).text = "%d°" % roundi(wrapf(rad_to_deg(rec.get_yaw()), -180.0, 180.0))
 	(_rows.scale.value as Label).text = "%.1f×" % rec.uniform_scale

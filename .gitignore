@@ -37,3 +37,13 @@ venv/
 # Agent-local state
 .claude/agent-memory/
 .claude/worktrees/
+
+# AssetStudio managed deliveries (restored from assetstudio.lock.json) and addon journal
+app/assets/library/
+app/.assetstudio/
+
+# Built addon/catalog archives (scripts/package_world_painter.py)
+dist/
+
+# World Painter Apply: editor-owned staging and machine-local installation receipts
+app/.world_painter/

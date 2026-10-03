@@ -2,101 +2,329 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.world-painter.invalid/live-v1/delta.schema.json",
   "title": "WorldDeltaV1",
-  "description": "DRAFT. delta.json inside a world-delta-v1 ZIP (INT-SPEC-1.1 §10.4-§10.5). Semantic checks: identities agree with blob_begin; commit target_revision = base_revision + 1; tile regions inside the layout; every referenced file is a declared archive member with matching bytes/sha256; tile files exactly 16384 bytes; preview-only and commit-only members never mixed; no duplicate object IDs across upserts/deletes.",
+  "description": "delta.json inside a world-delta-v1 ZIP (INT-SPEC-1.1 §10.4-§10.5). Semantic checks: identities agree with blob_begin; commit target_revision = base_revision + 1; tile regions inside the layout; every referenced file is a declared archive member with matching bytes/sha256; tile files exactly 16384 bytes; preview-only and commit-only members never mixed; no duplicate object IDs across upserts/deletes. Archive members: delta.json; tiles/r_<x>_<z>.t<tx>_<tz>.<map_kind>; scatter/r_<x>_<z>.t<tx>_<tz>.wpst; files/{asset_locks.json,scatter.bin,paths.bin}. Directory entries tiles/, scatter/, files/ (size 0) are tolerated; nothing else.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "kind", "world_id", "stream_id", "operation_id", "base_revision", "object_upserts", "object_deletes", "tiles"],
+  "required": [
+    "schema_version",
+    "kind",
+    "world_id",
+    "stream_id",
+    "operation_id",
+    "base_revision",
+    "object_upserts",
+    "object_deletes",
+    "tiles"
+  ],
   "properties": {
-    "schema_version": {"const": 1},
-    "kind": {"enum": ["commit", "preview"]},
-    "world_id": {"type": "string"},
-    "stream_id": {"type": "string", "pattern": "^[0-9a-f]{32}$"},
-    "operation_id": {"type": "string", "minLength": 1, "maxLength": 64},
-    "base_revision": {"type": "integer", "minimum": 0},
-    "base_authored_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
-    "target_revision": {"type": "integer", "minimum": 1},
-    "target_authored_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
-    "preview_seq": {"type": "integer", "minimum": 0},
-    "object_upserts": {"type": "array", "items": {"$ref": "../world-v4/objects.schema.json#/$defs/record"}},
-    "object_deletes": {"type": "array", "items": {"$ref": "../world-v4/objects.schema.json#/$defs/uuid"}},
-    "tiles": {"type": "array", "items": {"$ref": "#/$defs/tile"}},
-    "asset_lock_file": {"$ref": "#/$defs/file_ref"},
-    "scatter_file": {"$ref": "#/$defs/file_ref"},
-    "paths_file": {"$ref": "#/$defs/file_ref"},
+    "schema_version": {
+      "const": 1
+    },
+    "kind": {
+      "enum": [
+        "commit",
+        "preview"
+      ]
+    },
+    "world_id": {
+      "type": "string"
+    },
+    "stream_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$"
+    },
+    "operation_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "base_revision": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "base_authored_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "target_revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "target_authored_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "preview_seq": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "object_upserts": {
+      "type": "array",
+      "items": {
+        "$ref": "../world-v4/objects.schema.json#/$defs/record"
+      }
+    },
+    "object_deletes": {
+      "type": "array",
+      "items": {
+        "$ref": "../world-v4/objects.schema.json#/$defs/uuid"
+      }
+    },
+    "tiles": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/tile"
+      }
+    },
+    "asset_lock_file": {
+      "$ref": "#/$defs/file_ref"
+    },
+    "scatter_file": {
+      "$ref": "#/$defs/file_ref"
+    },
+    "paths_file": {
+      "$ref": "#/$defs/file_ref"
+    },
     "terrain_rules": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["rock_enabled", "rock_slope_deg", "sand_enabled", "sand_height_dm"],
+      "required": [
+        "rock_enabled",
+        "rock_slope_deg",
+        "sand_enabled",
+        "sand_height_dm"
+      ],
       "properties": {
-        "rock_enabled": {"type": "boolean"},
-        "rock_slope_deg": {"type": "integer", "minimum": 10, "maximum": 60},
-        "sand_enabled": {"type": "boolean"},
-        "sand_height_dm": {"type": "integer", "minimum": -30, "maximum": 30}
+        "rock_enabled": {
+          "type": "boolean"
+        },
+        "rock_slope_deg": {
+          "type": "integer",
+          "minimum": 10,
+          "maximum": 60
+        },
+        "sand_enabled": {
+          "type": "boolean"
+        },
+        "sand_height_dm": {
+          "type": "integer",
+          "minimum": -30,
+          "maximum": 30
+        }
       }
     },
-    "scatter_tiles": {"type": "array", "items": {"$ref": "#/$defs/scatter_tile"}},
+    "scatter_tiles": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/scatter_tile"
+      }
+    },
     "provisional_bindings": {
       "type": "array",
-      "items": {"$ref": "../world-v4/asset-locks.schema.json#/properties/bindings/items"}
+      "items": {
+        "$ref": "../world-v4/asset-locks.schema.json#/properties/bindings/items"
+      }
     }
   },
   "allOf": [
     {
-      "if": {"properties": {"kind": {"const": "commit"}}},
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "commit"
+          }
+        }
+      },
       "then": {
-        "required": ["base_authored_hash", "target_revision", "target_authored_hash"],
-        "not": {"anyOf": [{"required": ["preview_seq"]}, {"required": ["scatter_tiles"]}, {"required": ["provisional_bindings"]}]}
+        "required": [
+          "base_authored_hash",
+          "target_revision",
+          "target_authored_hash"
+        ],
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "preview_seq"
+              ]
+            },
+            {
+              "required": [
+                "scatter_tiles"
+              ]
+            },
+            {
+              "required": [
+                "provisional_bindings"
+              ]
+            }
+          ]
+        }
       }
     },
     {
-      "if": {"properties": {"kind": {"const": "preview"}}},
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "preview"
+          }
+        }
+      },
       "then": {
-        "required": ["preview_seq"],
-        "not": {"anyOf": [
-          {"required": ["target_authored_hash"]}, {"required": ["target_revision"]},
-          {"required": ["asset_lock_file"]}, {"required": ["scatter_file"]},
-          {"required": ["paths_file"]}, {"required": ["terrain_rules"]}
-        ]}
+        "required": [
+          "preview_seq"
+        ],
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "target_authored_hash"
+              ]
+            },
+            {
+              "required": [
+                "target_revision"
+              ]
+            },
+            {
+              "required": [
+                "asset_lock_file"
+              ]
+            },
+            {
+              "required": [
+                "scatter_file"
+              ]
+            },
+            {
+              "required": [
+                "paths_file"
+              ]
+            },
+            {
+              "required": [
+                "terrain_rules"
+              ]
+            }
+          ]
+        }
       }
     }
   ],
   "$defs": {
-    "region": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "integer", "minimum": -8, "maximum": 7}},
-    "local_tile": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "integer", "minimum": 0, "maximum": 3}},
-    "safe_member": {"type": "string", "pattern": "^[a-z0-9_]+(/[a-z0-9_.-]+)*$", "maxLength": 128},
+    "region": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "type": "integer",
+        "minimum": -8,
+        "maximum": 7
+      }
+    },
+    "local_tile": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 3
+      }
+    },
+    "safe_member": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+(/[a-z0-9_.-]+)*$",
+      "maxLength": 128
+    },
     "file_ref": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["path", "bytes", "sha256"],
+      "required": [
+        "path",
+        "bytes",
+        "sha256"
+      ],
       "properties": {
-        "path": {"$ref": "#/$defs/safe_member"},
-        "bytes": {"type": "integer", "minimum": 0},
-        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        "path": {
+          "$ref": "#/$defs/safe_member"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
       }
     },
     "tile": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["region", "tile", "map_kind", "path", "bytes", "sha256"],
+      "required": [
+        "region",
+        "tile",
+        "map_kind",
+        "path",
+        "bytes",
+        "sha256"
+      ],
       "properties": {
-        "region": {"$ref": "#/$defs/region"},
-        "tile": {"$ref": "#/$defs/local_tile"},
-        "map_kind": {"enum": ["height_f32le", "control_u32le", "color_rgba8"]},
-        "path": {"$ref": "#/$defs/safe_member"},
-        "bytes": {"const": 16384},
-        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        "region": {
+          "$ref": "#/$defs/region"
+        },
+        "tile": {
+          "$ref": "#/$defs/local_tile"
+        },
+        "map_kind": {
+          "enum": [
+            "height_f32le",
+            "control_u32le",
+            "color_rgba8"
+          ]
+        },
+        "path": {
+          "$ref": "#/$defs/safe_member"
+        },
+        "bytes": {
+          "const": 16384
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
       }
     },
     "scatter_tile": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["region", "tile", "path", "bytes", "sha256"],
+      "required": [
+        "region",
+        "tile",
+        "path",
+        "bytes",
+        "sha256"
+      ],
       "properties": {
-        "region": {"$ref": "#/$defs/region"},
-        "tile": {"$ref": "#/$defs/local_tile"},
-        "path": {"$ref": "#/$defs/safe_member"},
-        "bytes": {"type": "integer", "minimum": 16, "maximum": 4194304},
-        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        "region": {
+          "$ref": "#/$defs/region"
+        },
+        "tile": {
+          "$ref": "#/$defs/local_tile"
+        },
+        "path": {
+          "$ref": "#/$defs/safe_member"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 16,
+          "maximum": 4194304
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
       }
     }
   }

@@ -2,8 +2,8 @@ class_name BenchSourceIdentity
 extends RefCounted
 ## Runtime source identity is distinct from the installed export fingerprint. Capture outside timing windows.
 
-const ROOTS: Array[String] = ["src", "scenes", "assets", "config"]
-const SCOPE := "res://src,scenes,assets,config,project.godot; excludes uid/import/cache/build_fingerprint"
+const ROOTS: Array[String] = ["src", "addons/world_painter", "scenes", "assets", "config"]
+const SCOPE := "res://src,addons/world_painter,scenes,assets,config,project.godot; excludes uid/import/cache/build_fingerprint"
 
 
 static func capture(project_root: String = "res://", local_sources: bool = OS.has_feature("editor")) -> Dictionary:

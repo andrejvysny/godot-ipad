@@ -124,7 +124,7 @@ func test_world_layers_follow_tool_and_selection_and_history() -> void:
 	var layers := WorldLayers.new()
 	layers.setup(h.catalog)
 	layers.rebuild(h.doc)
-	layers.bind_tools(h.ctrl)
+	SessionRender.bind_path_selection(layers, h.ctrl)
 	h.ctx.path_changed = layers.path_changed
 	h.ctx.scatter_changed = layers.scatter_changed
 	var id := h.doc.sorted_path_ids()[0]

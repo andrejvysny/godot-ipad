@@ -1,0 +1,17 @@
+200
+{
+ "cursor": "eyJlIjoiMThkYWNkN2IxNDMyYmYxOC0zYjRiOTE3NiIsInMiOjh9",
+ "events": [
+  {
+   "type": "delivery_ready",
+   "library_id": "prj_cfp3pxzs9c8ym9v2",
+   "asset_id": "ast_3vhxm0xd3ps0c5rd"
+  },
+  {
+   "type": "asset_current_changed",
+   "library_id": "prj_cfp3pxzs9c8ym9v2",
+   "asset_id": "ast_3vhxm0xd3ps0c5rd"
+  }
+ ],
+ "reset_required": false
+}

@@ -289,6 +289,19 @@ hints and toasts do not. No Unicode symbol glyphs in text (iPad font): icons onl
   quick mix" + clear button. Sets: cards (name, Edit, thumbnails, weight bar, "density D ·
   spacing S m · slope A–B°"), selected ring, "+ New set". Collapsible via the Library toggle;
   mirrored when left-handed.
+  **AssetStudio libraries (IP-04)**: with a server set up, source chips (Bundled + one per granted
+  library) sit above the grid, plus a search field, category chips, connectivity text and a "Load
+  more" button (pages of 60). A remote tile shows its readiness: Remote, Downloading n %, Ready,
+  Failed (reason) or Over budget, loader disclosures (e.g. "1 blended material(s) became cutout"),
+  and Download / Cancel / Retry. Only a Ready tile can be dragged or armed; a download never starts
+  a placement or changes the tool. A drop keeps the Pencil contract: one successful drop = one
+  record = one history action; cancel, release over UI, world switch, backgrounding or provider
+  loss leave no object. The third tab "Server" holds the device-local connection (URL, server id,
+  token field that never shows the token, cleartext-LAN switch with a persistent warning). A newer
+  exact version of a bound asset is only a badge ("Update available" on the tile and the inspector);
+  "Review update" lists the descriptor differences (anchor, bounds, limits, slots, collision),
+  requires an explicit choice for a placed scale or height offset outside the new limits (never a
+  clamp), and applies one history action; undo needs no download. Declining records that version.
 - **Set editor** full-screen overlay: Cancel · name field · Delete set · Save set; left: asset
   rows (thumbnail, name, colour, Weight scrub 0.5–10 step 0.5, remove), add chips for
   scatter_allowed assets not in the set, scrubs Density, Min spacing, Slope from, Slope to,

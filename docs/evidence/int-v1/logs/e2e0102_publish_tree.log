@@ -1,0 +1,172 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+{
+  "capabilities": [
+    "godot_text_scene_v1",
+    "alpha_mask",
+    "pbr_textures"
+  ],
+  "conversion_report": {
+    "approximations": [],
+    "omissions": [],
+    "portable_status": "exact"
+  },
+  "descriptor_draft": {
+    "collision": null,
+    "default_grounding": "FOLLOW_TERRAIN",
+    "footprint_radius_m": "1.5",
+    "height_offset_range_m": [
+      "-0.1",
+      "0.5"
+    ],
+    "material_slots": [
+      {
+        "role": "bark",
+        "slot_id": "bark",
+        "surfaces": {
+          "godot_static_source_v1": [
+            {
+              "node_path": "Trunk",
+              "surface": 0
+            }
+          ],
+          "portable_glb_v1": [
+            {
+              "mesh": 0,
+              "primitive": 0
+            }
+          ]
+        }
+      },
+      {
+        "role": "leaf",
+        "slot_id": "leaf",
+        "surfaces": {
+          "godot_static_source_v1": [
+            {
+              "node_path": "Crown",
+              "surface": 0
+            }
+          ],
+          "portable_glb_v1": [
+            {
+              "mesh": 1,
+              "primitive": 0
+            }
+          ]
+        }
+      }
+    ],
+    "placement_anchor": [
+      "0",
+      "0",
+      "0"
+    ],
+    "preview_warnings": [],
+    "scale_range": [
+      "0.5",
+      "2"
+    ],
+    "schema_version": 1
+  },
+  "expires_at": "2026-10-04T08:55:42.254Z",
+  "files": 5,
+  "hashes": {
+    "descriptor_draft_sha256": "d81c373890501dae3ae901d35b6edbae4fcb40688d3330b5863407a42c6615a6",
+    "package_sha256": "aeb29b8a7beddd8a889dde1b38ee3d60fdcb49fdad35ed3e878b6e644b708b30",
+    "portable_sha256": "134ce89a3814bce92e31d1a749e6eedb5223b50cadf221937520b63e14bed45d"
+  },
+  "idempotency_key": "asp_a95f7bbd358a28ae6d2f616662215931",
+  "local_warnings": [],
+  "phase": "previewed",
+  "portable": {
+    "bytes": 165237,
+    "materials": 2,
+    "max_texture_px": 32,
+    "nodes": 3,
+    "triangles": 4992
+  },
+  "preview_id": "ipv_eck5d026dg6wm2m7",
+  "server": {
+    "bounds": {
+      "max": [
+        "0.998868",
+        "4",
+        "0.998868"
+      ],
+      "min": [
+        "-0.998868",
+        "0",
+        "-0.998868"
+      ]
+    },
+    "budget": {
+      "exceeded": [],
+      "glb_bytes": 165237.0,
+      "materials": 2.0,
+      "max_texture_px": 32.0,
+      "nodes": 3.0,
+      "triangles": 4992.0,
+      "warnings": [],
+      "within_ipad_budget": true
+    },
+    "source": {
+      "asset_dependencies": [],
+      "dependency_closure": [
+        "materials/bark.tres",
+        "materials/leaf.tres",
+        "scenes/tree.tscn",
+        "textures/bark.png",
+        "textures/leaf.png"
+      ],
+      "detected_capabilities": [
+        "godot_text_scene_v1"
+      ],
+      "evidence": {
+        "collision": "absent",
+        "conversion_report": "publisher_declared",
+        "source_surfaces": {
+          "node_only": 0.0,
+          "unverified": 0.0,
+          "verified": 2.0
+        }
+      },
+      "manifest_sha256": "4637bf6b916d69d268b4457b7b20c75b818a98354eaccd8f4509451b60ef8d50",
+      "source_godot_version": "4.7.2-stable",
+      "source_surfaces": {
+        "bark": [
+          {
+            "node_path": "Trunk",
+            "surface": 0.0
+          }
+        ],
+        "leaf": [
+          {
+            "node_path": "Crown",
+            "surface": 0.0
+          }
+        ]
+      },
+      "warnings": []
+    },
+    "warnings": []
+  },
+  "target": {
+    "expected_current_version": null,
+    "library": "prj_cfp3pxzs9c8ym9v2",
+    "mode": "new_asset",
+    "name": "Textured Tree",
+    "target_asset_id": null
+  }
+}
+{
+  "outcome": {
+    "asset_id": "ast_cqw5phmvjamgaa2y",
+    "descriptor_sha256": "e56c2aec2cce2ba50ee753f71d2f268b455990f1875ea30d093650e0f13246ec",
+    "display_version": 1.0,
+    "library_id": "prj_cfp3pxzs9c8ym9v2",
+    "version_id": "ver_4kxdjjn5z5qwn46c",
+    "via": "commit"
+  },
+  "phase": "committed"
+}

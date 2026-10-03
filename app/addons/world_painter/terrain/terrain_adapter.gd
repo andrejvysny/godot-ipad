@@ -1,0 +1,495 @@
+class_name TerrainAdapter
+extends TerrainView
+## The only code that mutates Terrain3D (spec §4.1, §11.1). Terrain3D region Images are
+## a runtime projection of WorldDocument bytes: the document is edited first, callers then
+## mark_dirty(kind, region) and the adapter copies the document bytes into the region
+## Image in place and re-uploads only the edited regions of that map kind.
+##
+## Pinned Terrain3D 1.0.2 behavior this relies on (terrain_3d_data.cpp update_maps):
+## update_maps(type, false, false) re-uploads only regions whose `edited` flag is set and
+## emits height_maps_changed / control_maps_changed once per such region; it does not
+## recompute height ranges, so the adapter does that before uploading heights.
+## Changing an Image alone never refreshes the GPU texture array.
+
+## Index = value of the shader's debug_view uniform.
+const DEBUG_VIEWS := ["normal", "control_blend", "heightmap", "normals"]
+const UPLOAD_TYPES := [Terrain3DRegion.TYPE_HEIGHT, Terrain3DRegion.TYPE_CONTROL, Terrain3DRegion.TYPE_COLOR]
+## Each region layer is 256 x 256 x 4 bytes in every map kind (R32F height/control, RGBA8 tint).
+const REGION_LAYER_BYTES := WorldConstants.REGION_MAP_BYTES
+const MESH_SIZE_RANGE := Vector2i(8, 64)  # Terrain3D 1.0.2 mesh_size hint 8..64 step 2
+const MESH_LODS_RANGE := Vector2i(1, 10)
+const SHADER_PATH := "res://addons/world_painter/terrain/world_terrain.gdshader"
+
+var _terrain: Terrain3D
+var _camera: Camera3D
+var _doc: WorldDocument
+var _regions: Dictionary = {}  # Vector2i -> Terrain3DRegion
+var _dirty: Array[Dictionary] = [{}, {}, {}]  # per map kind: Vector2i -> usec of the first mark
+var _last_upload_frame: PackedInt64Array = PackedInt64Array([-1, -1, -1])
+var _rules: TerrainRules = TerrainRules.defaults()
+var _rule_highlight := false
+var _stats := TerrainUploadStats.new()
+var _preview: Dictionary = TerrainPreviewUniforms.off()
+var _debug_view := "normal"
+var _region_grid := false
+var _original_render_layers := -1
+var _material_mode := "full"
+
+
+func _init() -> void:
+	# Deferred uploads run from _process; they must not stall while the tree is paused.
+	process_mode = Node.PROCESS_MODE_ALWAYS
+
+
+func _process(_delta: float) -> void:
+	if has_pending_uploads():
+		flush()
+
+
+## Builds (or rebuilds) all Terrain3D regions from `doc`. Must be called inside the tree.
+## Call set_camera() before the first physics frame; Terrain3D logs an error otherwise.
+func initialize(doc: WorldDocument) -> String:
+	if not is_inside_tree():
+		return "TerrainAdapter must be inside the scene tree before initialize()"
+	var err := _validate_document(doc)
+	if err != "":
+		return err
+	if _terrain == null:
+		_create_terrain()
+	_load_regions(doc)
+	set_rules(doc.rules)
+	return ""
+
+
+## Loads another world into the existing Terrain3D node.
+func replace_document(doc: WorldDocument) -> String:
+	return initialize(doc)
+
+
+func mark_dirty(kind: int, loc: Vector2i) -> String:
+	if not MAP_KINDS.has(kind):
+		return "unknown map kind %d" % kind
+	if not _regions.has(loc):
+		return "region %s is not loaded" % loc
+	if _dirty[kind].has(loc):
+		_stats.coalesced[kind] += 1
+	else:
+		_dirty[kind][loc] = Time.get_ticks_usec()
+	return ""
+
+
+func has_pending_uploads() -> bool:
+	return not (_dirty[MAP_HEIGHT].is_empty() and _dirty[MAP_CONTROL].is_empty() and _dirty[MAP_COLOR].is_empty())
+
+
+## Uploads dirty regions, at most once per map kind per process frame. Work for a kind that
+## already uploaded this frame stays pending and is flushed by _process on the next frame.
+func flush() -> void:
+	if not has_pending_uploads() or _terrain == null:
+		return
+	var t0 := Time.get_ticks_usec()
+	var frame := Engine.get_process_frames()
+	var uploaded := false
+	for kind: int in MAP_KINDS:
+		if _dirty[kind].is_empty() or _last_upload_frame[kind] == frame:
+			continue
+		_upload(kind)
+		_last_upload_frame[kind] = frame
+		uploaded = true
+	if uploaded:
+		_stats.last_flush_ms = (Time.get_ticks_usec() - t0) / 1000.0
+
+
+## Pushes the world's auto-paint rules to the shader. Cheap; call on every rules change.
+func set_rules(rules: TerrainRules) -> void:
+	_rules = rules.clone() if rules != null else TerrainRules.defaults()
+	_apply_rule_uniforms()
+
+
+func set_rule_highlight(on: bool) -> void:
+	_rule_highlight = on
+	_apply_rule_uniforms()
+
+
+func get_rule_highlight() -> bool:
+	return _rule_highlight
+
+
+func set_camera(cam: Camera3D) -> void:
+	_camera = cam
+	if _terrain != null and cam != null:
+		_terrain.set_camera(cam)
+
+
+func set_debug_view(mode: String) -> String:
+	if not DEBUG_VIEWS.has(mode):
+		return "unknown debug view '%s' (expected one of %s)" % [mode, DEBUG_VIEWS]
+	_debug_view = mode
+	_apply_debug_state()
+	return ""
+
+
+func get_debug_view() -> String:
+	return _debug_view
+
+
+func set_region_grid(on: bool) -> void:
+	_region_grid = on
+	_apply_debug_state()
+
+
+func get_terrain() -> Terrain3D:
+	return _terrain
+
+
+func get_document() -> WorldDocument:
+	return _doc
+
+
+## Render benchmark hook: hides the terrain (render_layers 0, original restored) and/or stops
+## it casting shadows.
+func set_render_probe(visible_now: bool, cast_shadows: bool) -> String:
+	if _terrain == null:
+		return "Terrain is not initialized."
+	if _original_render_layers < 0:
+		_original_render_layers = _terrain.render_layers
+	_terrain.render_layers = _original_render_layers if visible_now else 0
+	_terrain.cast_shadows = RenderingServer.SHADOW_CASTING_SETTING_ON if cast_shadows \
+			else RenderingServer.SHADOW_CASTING_SETTING_OFF
+	return ""
+
+
+## Real Terrain3D state, not what set_render_probe last asked for.
+func get_render_probe() -> Dictionary:
+	if _terrain == null:
+		return super.get_render_probe()
+	return {"visible": _terrain.render_layers != 0,
+		"cast_shadows": _terrain.cast_shadows == RenderingServer.SHADOW_CASTING_SETTING_ON}
+
+
+## uploads_* count region layers re-uploaded by partial flushes since initialize; see
+## TerrainUploadStats for bytes_uploaded_*, coalesced_*, regions_pending, oldest_pending_ms and timings.
+func stats() -> Dictionary:
+	return _stats.to_dict(_dirty, Time.get_ticks_usec())
+
+
+## Edit-to-upload age distribution for the bench report (ms, first mark to update_maps).
+func presentation_latency() -> Dictionary:
+	return _stats.latency(_dirty, Time.get_ticks_usec())
+
+
+## Terrain3D clipmap mesh tuning for benchmarks. mesh_size 8..64 (even), lods 1..10.
+func set_mesh_config(mesh_size: int, lods: int) -> String:
+	if mesh_size < MESH_SIZE_RANGE.x or mesh_size > MESH_SIZE_RANGE.y or mesh_size % 2 != 0:
+		return "mesh_size must be an even value in %d..%d" % [MESH_SIZE_RANGE.x, MESH_SIZE_RANGE.y]
+	if lods < MESH_LODS_RANGE.x or lods > MESH_LODS_RANGE.y:
+		return "lods must be in %d..%d" % [MESH_LODS_RANGE.x, MESH_LODS_RANGE.y]
+	if _terrain == null:
+		return "Terrain is not initialized."
+	_terrain.mesh_size = mesh_size
+	_terrain.mesh_lods = lods
+	return ""
+
+
+func mesh_config() -> Dictionary:
+	return {} if _terrain == null else {"mesh_size": _terrain.mesh_size, "lods": _terrain.mesh_lods}
+
+
+## Experimental lighting simplification for developer A/B runs; never selected automatically.
+func set_material_mode(mode: String) -> String:
+	if mode not in ["full", "overview_experiment"]:
+		return "unknown terrain material mode '%s'" % mode
+	_material_mode = mode
+	_apply_uniforms(material_uniforms())
+	return ""
+
+
+func material_mode() -> String:
+	return _material_mode
+
+
+func material_uniforms() -> Dictionary:
+	return {"terrain_overview_experiment": _material_mode == "overview_experiment"}
+
+
+## Binds the fixed-area preview: inside the circle the shader samples `albedo`/`normal` layers chosen
+## by `layer_map` (material slot -> layer, -1 = low tier). Heights, control, holes and blend weights
+## are untouched. Returns "" or why the preview was not bound (nothing changes then).
+func set_texture_preview(center: Vector2, radius: float, feather: float, albedo: Texture2DArray,
+		normal: Texture2DArray, layer_map: PackedInt32Array) -> String:
+	var err := TerrainPreviewUniforms.validate(center, radius, feather, albedo, normal, layer_map)
+	if err != "":
+		return err
+	_preview = TerrainPreviewUniforms.build(center, radius, feather, albedo, normal, layer_map)
+	_apply_uniforms(_preview)
+	return ""
+
+
+func clear_texture_preview() -> void:
+	_preview = TerrainPreviewUniforms.off()
+	_apply_uniforms(_preview)
+
+
+## Shader uniforms of the preview; observable headless like rule_uniforms().
+func preview_uniforms() -> Dictionary:
+	return _preview.duplicate()
+
+
+## Compares every Terrain3D region image with the document bytes. Pending (unflushed)
+## edits are reported as mismatches by design.
+func verify_matches_document(doc: WorldDocument) -> PackedStringArray:
+	var out := PackedStringArray()
+	if _terrain == null or _terrain.data == null:
+		out.append("terrain is not initialized")
+		return out
+	var data := _terrain.data
+	for loc in data.get_region_locations():
+		if not doc.regions.has(loc):
+			out.append("Terrain3D has region %s that the document does not" % loc)
+	for loc in doc.sorted_region_locations():
+		var region: Terrain3DRegion = data.get_region(loc)
+		if region == null or region.deleted:
+			out.append("region %s missing in Terrain3D" % loc)
+			continue
+		var rb := doc.get_region(loc)
+		_compare_map(out, loc, "height", region.get_height_map(), rb.height_bytes())
+		_compare_map(out, loc, "control", region.get_control_map(), rb.control_bytes())
+		_compare_map(out, loc, "color", region.get_color_map(), rb.color_bytes(), Image.FORMAT_RGBA8)
+	return out
+
+
+## Reads back every uploaded Terrain3D texture-array layer and compares it with the document
+## bytes. Proves the GPU texture layers == document (upload path); it does not prove shader
+## binding or rendered pixels. Layer i belongs to data.get_region_locations()[i].
+## Empty = verified; "NOT RUN: ..." entries mean the check could not run.
+func verify_gpu() -> PackedStringArray:
+	if _terrain == null or _terrain.data == null or _doc == null:
+		return PackedStringArray(["NOT RUN: terrain is not initialized"])
+	if has_pending_uploads():
+		flush()
+	if has_pending_uploads():
+		return PackedStringArray(["NOT RUN: uploads pending; retry next frame"])
+	var data := _terrain.data
+	var h_rid := data.get_height_maps_rid()
+	var c_rid := data.get_control_maps_rid()
+	if RenderingServer.get_rendering_device() == null or not h_rid.is_valid() or not c_rid.is_valid():
+		return PackedStringArray(["NOT RUN: no rendering device (headless)"])
+	var out := PackedStringArray()
+	var locs := data.get_region_locations()
+	for i in locs.size():
+		var loc: Vector2i = locs[i]
+		var rb := _doc.get_region(loc)
+		if rb == null:
+			out.append("region %s exists in Terrain3D but not in the document" % loc)
+			continue
+		_compare_map(out, loc, "GPU height", RenderingServer.texture_2d_layer_get(h_rid, i), rb.height_bytes())
+		_compare_map(out, loc, "GPU control", RenderingServer.texture_2d_layer_get(c_rid, i), rb.control_bytes())
+	for loc: Vector2i in _doc.regions:
+		if not locs.has(loc):
+			out.append("region %s is in the document but missing from Terrain3D" % loc)
+	return out
+
+
+# --- internals ---------------------------------------------------------------------------
+
+func _create_terrain() -> void:
+	var t := Terrain3D.new()
+	t.name = "Terrain3D"
+	# Default true would reload assets from their (empty) resource path on enter-tree and
+	# clear the procedural textures on ready.
+	t.free_editor_textures = false
+	t.region_size = Terrain3D.SIZE_256
+	t.vertex_spacing = WorldConstants.SAMPLE_SPACING
+	var mat := create_material()
+	mat.set_shader_param("blend_sharpness", TerrainMaterials.BLEND_SHARPNESS)
+	# set_material/set_assets create the collision manager, so the mode sticks before the
+	# node enters the tree and no collision shapes are ever built.
+	t.material = mat
+	t.assets = TerrainMaterials.create_assets()
+	t.collision_mode = Terrain3DCollision.DISABLED
+	t.cast_shadows = RenderingServer.SHADOW_CASTING_SETTING_OFF
+	add_child(t)
+	_terrain = t
+	if _camera != null:
+		t.set_camera(_camera)
+	_apply_debug_state()
+	_apply_rule_uniforms()
+	_apply_uniforms(_preview)
+	_apply_uniforms(material_uniforms())
+
+
+## The world material (the consumer's TerrainMaterials.SETTING resource when valid): the project shader before any parameter (parameters belong to the active shader).
+## Shared with the Apply bake (WorldBaker), which saves it into the accepted world.
+static func create_material() -> Terrain3DMaterial:
+	var custom := TerrainMaterials.load_custom()
+	if custom[0] != null:
+		return custom[0]
+	var mat := Terrain3DMaterial.new()
+	mat.auto_shader = false
+	mat.shader_override = load(SHADER_PATH) as Shader
+	mat.shader_override_enabled = true
+	# NONE: no terrain outside the authored regions (the shader discards those vertices), so
+	# the world ends at its edge instead of an endless flat ground. Picking is already NaN there.
+	mat.world_background = Terrain3DMaterial.NONE
+	return mat
+
+
+func _load_regions(doc: WorldDocument) -> void:
+	var data := _terrain.data
+	for loc in _regions:
+		if not doc.regions.has(loc):
+			data.remove_region(_regions[loc], false)
+	_regions.clear()
+	for loc in doc.sorted_region_locations():
+		var region := build_region(doc.get_region(loc))
+		# Replaces any region already stored at loc; the old one is released.
+		data.add_region(region, false)
+		_regions[loc] = region
+	data.update_maps(Terrain3DRegion.TYPE_MAX, true, false)
+	data.calc_height_range(true)
+	_doc = doc
+	_apply_uniforms(geometry_uniforms())
+	_dirty = [{}, {}, {}]
+	_last_upload_frame = PackedInt64Array([-1, -1, -1])
+	_stats = TerrainUploadStats.new()
+
+
+## Sample bounds prevent coarse clipmap vertices outside the world from cutting off edge triangles.
+func geometry_uniforms() -> Dictionary:
+	var layout := _doc.layout if _doc != null else WorldLayout.legacy()
+	var minimum := layout.world_min()
+	var maximum := layout.world_max_sample()
+	return {"terrain_world_bounds": Vector4(minimum.x, minimum.y, maximum.x, maximum.y)}
+
+
+static func build_region(rb: RegionBuffers) -> Terrain3DRegion:
+	var n := WorldConstants.REGION_SAMPLES
+	var region := Terrain3DRegion.new()
+	region.location = rb.location
+	region.region_size = n
+	region.vertex_spacing = WorldConstants.SAMPLE_SPACING
+	region.set_height_map(Image.create_from_data(n, n, false, Image.FORMAT_RF, rb.height_bytes()))
+	region.set_control_map(ControlCodec.control_to_image(rb.control))
+	region.set_color_map(Image.create_from_data(n, n, false, Image.FORMAT_RGBA8, rb.color_bytes()))
+	return region
+
+
+## Copies document bytes into the existing region Images (same objects Terrain3DData
+## holds), then uploads only those layers. A dirty mark is dropped only after the update_maps
+## call of its own map kind.
+func _upload(kind: int) -> void:
+	var n := WorldConstants.REGION_SAMPLES
+	var marks: Dictionary = _dirty[kind]
+	var locs: Array = marks.keys()
+	var copy_us := 0
+	var range_us := 0
+	var t := Time.get_ticks_usec()
+	for loc in locs:
+		var region: Terrain3DRegion = _regions[loc]
+		var rb := _doc.get_region(loc)
+		if kind == MAP_HEIGHT:
+			region.get_height_map().set_data(n, n, false, Image.FORMAT_RF, rb.height_bytes())
+		elif kind == MAP_CONTROL:
+			region.get_control_map().set_data(n, n, false, Image.FORMAT_RF, rb.control_bytes())
+		else:
+			# The GPU color array expects the mip chain Terrain3D built; set_data(false) drops it.
+			var tint := region.get_color_map()
+			tint.set_data(n, n, false, Image.FORMAT_RGBA8, rb.color_bytes())
+			tint.generate_mipmaps()
+		copy_us += Time.get_ticks_usec() - t
+		t = Time.get_ticks_usec()
+		if kind == MAP_HEIGHT:
+			region.calc_height_range()
+		region.edited = true
+		range_us += Time.get_ticks_usec() - t
+		t = Time.get_ticks_usec()
+	if kind == MAP_HEIGHT:
+		_terrain.data.calc_height_range(false)
+	range_us += Time.get_ticks_usec() - t
+	t = Time.get_ticks_usec()
+	_terrain.data.update_maps(UPLOAD_TYPES[kind], false, false)
+	var update_us := Time.get_ticks_usec() - t
+	var now := Time.get_ticks_usec()
+	var ages := PackedFloat32Array()
+	var max_age := 0.0
+	for loc in locs:
+		(_regions[loc] as Terrain3DRegion).edited = false
+		var age := float(now - int(marks[loc])) / 1000.0
+		ages.append(age)
+		max_age = maxf(max_age, age)
+		marks.erase(loc)
+	_stats.record_upload(kind, locs.size(), REGION_LAYER_BYTES, copy_us / 1000.0, range_us / 1000.0,
+		update_us / 1000.0, max_age, ages)
+
+
+## Shader uniforms of the debug views; observable headless like rule_uniforms().
+func debug_uniforms() -> Dictionary:
+	return {"debug_view": DEBUG_VIEWS.find(_debug_view), "debug_region_grid": _region_grid}
+
+
+func _apply_debug_state() -> void:
+	if _terrain == null or _terrain.material == null:
+		return
+	# Terrain3D's show_* flags are injections into its generated shader and do nothing under the
+	# project shader, so the views are uniforms of world_terrain.gdshader.
+	var uniforms := debug_uniforms()
+	for key: String in uniforms:
+		_terrain.material.set_shader_param(key, uniforms[key])
+
+
+func _validate_document(doc: WorldDocument) -> String:
+	if doc == null:
+		return "document is null"
+	if doc.regions.is_empty():
+		return "document has no terrain regions"
+	if not WorldConstants.host_is_little_endian():
+		return "host is not little-endian; region bytes cannot be uploaded verbatim"
+	for loc in doc.regions:
+		if not doc.layout.is_valid_region(loc):
+			return "document region %s is outside the document layout" % loc
+		var rb: RegionBuffers = doc.regions[loc]
+		if rb.heights.size() != WorldConstants.REGION_SAMPLE_COUNT or rb.control.size() != WorldConstants.REGION_SAMPLE_COUNT:
+			return "region %s buffers must hold %d samples" % [loc, WorldConstants.REGION_SAMPLE_COUNT]
+	return ""
+
+
+## Shader parameters derived from the rules and highlight flag (degrees, metres). Headless
+## runs have no shader parameter list, so this is also the observable source of truth.
+func rule_uniforms() -> Dictionary:
+	return {
+		"rules_rock_enabled": _rules.rock_enabled,
+		"rules_rock_slope_deg": float(_rules.rock_slope_deg),
+		"rules_sand_enabled": _rules.sand_enabled,
+		"rules_sand_height_m": _rules.sand_height_dm / 10.0,
+		"rules_highlight": _rule_highlight,
+	}
+
+
+func _apply_rule_uniforms() -> void:
+	_apply_uniforms(rule_uniforms())
+
+
+func _apply_uniforms(uniforms: Dictionary) -> void:
+	if _terrain == null or _terrain.material == null:
+		return
+	for key: String in uniforms:
+		_terrain.material.set_shader_param(key, uniforms[key])
+
+
+func _compare_map(out: PackedStringArray, loc: Vector2i, label: String, img: Image, expected: PackedByteArray,
+		format: Image.Format = Image.FORMAT_RF) -> void:
+	var n := WorldConstants.REGION_SAMPLES
+	if img == null or img.get_format() != format or img.get_width() != n or img.get_height() != n:
+		out.append("region %s %s map has wrong format or size" % [loc, label])
+		return
+	var actual := img.get_data()
+	if actual.size() > expected.size():
+		actual = actual.slice(0, expected.size())  # Terrain3D appends color-map mip levels
+	if actual == expected:
+		return
+	var first := -1
+	for i in mini(actual.size(), expected.size()):
+		if actual[i] != expected[i]:
+			first = i >> 2
+			break
+	out.append("region %s %s bytes differ (first sample index %d)" % [loc, label, first])

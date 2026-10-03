@@ -18,13 +18,16 @@ func _make(kind: String, seed_value: int = HillsTerrain.DEFAULT_SEED) -> WorldDo
 func test_flat_world_is_a_valid_km1_world() -> void:
 	var doc := _make("flat")
 	assert_true(doc.layout.equals(WorldLayout.km1()))
-	assert_eq(doc.schema_version, 3)
+	assert_eq(doc.schema_version, 4)
+	assert_eq(doc.source_schema, 4)
 	assert_eq(doc.regions.size(), 64)
 	assert_eq(doc.document_revision, 0)
 	assert_eq(doc.source_label, "new:km1-flat")
 	assert_true(ObjectRecord.is_uuid(doc.world_id))
-	assert_eq([doc.catalog_id, doc.catalog_version, doc.catalog_sha256],
-			[_catalog.catalog_id, _catalog.catalog_version, _catalog.sha256])
+	assert_true(doc.assets.catalog == _catalog, "bundled bindings resolve against the trusted catalog")
+	assert_eq(doc.assets.size(), 0)
+	assert_eq(CanonicalEncoder.authored_hash(doc), "6295548902d79118d95fcac7c1c9940a326533456dc8edf0b50b5aa0f87b205e",
+			"the km1_flat_empty vector of contracts/world-painter/world-v4")
 	assert_true(doc.rules.equals(TerrainRules.defaults()), "default rules")
 	assert_true(doc.objects.is_empty() and doc.paths.is_empty() and doc.scatter.count() == 0)
 	assert_eq(doc.height_range(), Vector2(0.0, 0.0), "height 0 everywhere")

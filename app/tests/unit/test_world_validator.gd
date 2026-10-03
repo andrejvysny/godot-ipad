@@ -11,23 +11,19 @@ func before_each() -> void:
 	_catalog = AssetCatalog.load_from()[0]
 
 
-func _record(id: String, asset_id: String, x: float, y: float, z: float) -> ObjectRecord:
+func _record(doc: WorldDocument, id: String, asset_id: String, x: float, y: float, z: float) -> ObjectRecord:
 	var r := ObjectRecord.new()
 	r.object_id = id
-	r.asset_id = asset_id
-	r.asset_version = 1
+	r.binding_id = doc.assets.bundled_binding_for(asset_id)
 	r.set_position(x, y, z)
 	r.set_yaw(0.5)
 	return r
 
 
 func _valid_doc() -> WorldDocument:
-	var doc := WorldDocument.create_flat(2.0, ControlCodec.grass_value())
-	doc.catalog_id = _catalog.catalog_id
-	doc.catalog_version = _catalog.catalog_version
-	doc.catalog_sha256 = _catalog.sha256
-	doc.put_object(_record(SPRUCE_ID, "nature.tree.spruce_a", 10.0, 2.0, -5.0))
-	var boulder := _record(BOULDER_ID, "nature.rock.boulder_a", -100.0, 2.5, 100.0)
+	var doc := WorldDocument.create_flat(2.0, ControlCodec.grass_value(), null, _catalog)
+	doc.put_object(_record(doc, SPRUCE_ID, "nature.tree.spruce_a", 10.0, 2.0, -5.0))
+	var boulder := _record(doc, BOULDER_ID, "nature.rock.boulder_a", -100.0, 2.5, 100.0)
 	boulder.height_offset_m = 0.5
 	doc.put_object(boulder)
 	return doc
@@ -81,8 +77,7 @@ func test_rejects_bad_objects() -> void:
 		"uniform_scale": func(r: ObjectRecord) -> void: r.uniform_scale = 2.5,
 		"uniform_scale ": func(r: ObjectRecord) -> void: r.uniform_scale = 0.0,
 		"height_offset_m": func(r: ObjectRecord) -> void: r.height_offset_m = 5.0,
-		"unknown asset": func(r: ObjectRecord) -> void: r.asset_id = "nature.tree.baobab",
-		"incompatible": func(r: ObjectRecord) -> void: r.asset_version = 2,
+		"unknown binding": func(r: ObjectRecord) -> void: r.binding_id = "b" + "0".repeat(32),
 		"outside the world extent": func(r: ObjectRecord) -> void: r.position[0] = 127.75,
 		"outside the world extent ": func(r: ObjectRecord) -> void: r.position[2] = -128.5,
 		"non-finite": func(r: ObjectRecord) -> void: r.position[1] = NAN,
@@ -97,17 +92,8 @@ func test_rejects_bad_objects() -> void:
 		_expect_rejected(doc, String(key).strip_edges())
 
 
-func test_rejects_catalog_identity_and_region_set() -> void:
+func test_rejects_region_set_and_schema() -> void:
 	var doc := _valid_doc()
-	doc.catalog_sha256 = "ab".repeat(32)
-	_expect_rejected(doc, "incompatible catalog content hash")
-	doc = _valid_doc()
-	doc.catalog_version = 3
-	_expect_rejected(doc, "incompatible catalog")
-	doc = _valid_doc()
-	doc.catalog_id = "other"
-	_expect_rejected(doc, "incompatible catalog")
-	doc = _valid_doc()
 	doc.regions.erase(Vector2i(0, 0))
 	_expect_rejected(doc, "missing region")
 	doc = _valid_doc()
@@ -120,6 +106,49 @@ func test_rejects_catalog_identity_and_region_set() -> void:
 	doc.schema_version = 1
 	_expect_rejected(doc, "schema_version")
 	assert_false(WorldValidator.validate(_valid_doc(), null).is_empty(), "null catalog rejected")
+
+
+func _bundled_binding(doc: WorldDocument, asset_id: String, sha: String, scale_lo: String, scale_hi: String) -> String:
+	var b := AssetBinding.new()
+	b.catalog_id = _catalog.catalog_id
+	b.catalog_version = _catalog.catalog_version
+	b.catalog_sha256 = sha
+	b.asset_id = asset_id
+	b.asset_version = 1
+	b.set_policy(false, scale_lo, scale_hi, "-1", "2")
+	return doc.assets.add(b)
+
+
+func test_policy_ranges_are_the_effective_limits() -> void:
+	var doc := _valid_doc()
+	doc.get_object(SPRUCE_ID).binding_id = _bundled_binding(doc, "nature.tree.spruce_a", _catalog.sha256, "1", "1.2")
+	doc.get_object(SPRUCE_ID).uniform_scale = 1.2
+	assert_eq(WorldValidator.validate(doc, _catalog), PackedStringArray(), "inclusive upper bound")
+	doc.get_object(SPRUCE_ID).uniform_scale = 1.2 + 1e-7
+	assert_eq(WorldValidator.validate(doc, _catalog), PackedStringArray(), "within eps of the bound")
+	doc.get_object(SPRUCE_ID).uniform_scale = 1.5
+	_expect_rejected(doc, "uniform_scale 1.5 outside [1.0, 1.2]")
+	doc.get_object(SPRUCE_ID).uniform_scale = 0.99
+	_expect_rejected(doc, "uniform_scale 0.99 outside")
+
+
+func test_policy_beyond_the_catalog_entry_is_structural() -> void:
+	var doc := _valid_doc()
+	doc.get_object(SPRUCE_ID).binding_id = _bundled_binding(doc, "nature.tree.spruce_a", _catalog.sha256, "0.1", "2")
+	_expect_rejected(doc, "policy scale_range outside catalog limits")
+
+
+func test_foreign_catalog_is_availability_not_structure() -> void:
+	var doc := _valid_doc()
+	var foreign := _bundled_binding(doc, "nature.tree.spruce_a", "ab".repeat(32), "0.5", "2")
+	doc.get_object(SPRUCE_ID).binding_id = foreign
+	assert_eq(WorldValidator.validate(doc, _catalog), PackedStringArray(), "structurally valid")
+	var unavailable: Dictionary = WorldValidator.availability(doc).unavailable
+	assert_eq(unavailable.keys(), [foreign], "only the foreign binding is unavailable")
+	assert_error_contains(unavailable[foreign], "is not the trusted catalog")
+	doc.get_object(SPRUCE_ID).uniform_scale = 2.5
+	_expect_rejected(doc, "uniform_scale")
+	assert_eq(WorldValidator.availability(_valid_doc()).unavailable, {}, "bundled bindings of the trusted catalog are available")
 
 
 func test_grounding_report_only_reports() -> void:

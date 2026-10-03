@@ -6,7 +6,7 @@ extends SceneTree
 ## Run via `python3 scripts/dev.py prepare-terrain-preview` (hard timeout, stdin=/dev/null).
 ## The .png.import files next to the outputs are committed; this script never rewrites them.
 
-const TM := preload("res://src/terrain/terrain_materials.gd")
+const TM := preload("res://addons/world_painter/terrain/terrain_materials.gd")
 const OUT_DIR := "res://assets/terrain/preview/"
 const SIZE := 1024
 const SEED := 20261001

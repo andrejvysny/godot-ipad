@@ -43,6 +43,7 @@ var _banner := UiKit.pill(UiKit.PANEL_BG_STRONG.blend(UiKit.DANGER_BG), 12, 10)
 var _banner_label := UiKit.bold_label("", 14, UiKit.DANGER_TEXT)
 var _diagnostics := DiagnosticsOverlay.new()
 var _confirm := ConfirmDialog.new()
+var _update_dialog := UpdateReviewDialog.new()
 var _left := false
 var _registered: Array[Control] = []
 var _avoid_key: Array = []
@@ -65,7 +66,7 @@ func setup(session: EditorSession) -> void:
 	_banner_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	for c: Control in [_library, _rail, _popover, _inspector, _chip, _hints, _ghost_label, _toast, _banner, _pill,
-			_history, _actions, _perf, _menu, _perf_menu, _diagnostics, _set_editor, _confirm]:
+			_history, _actions, _perf, _menu, _perf_menu, _diagnostics, _set_editor, _confirm, _update_dialog]:
 		_root.add_child(c)
 	_setup_components(session)
 	_banner.visible = false
@@ -83,6 +84,7 @@ func setup(session: EditorSession) -> void:
 
 func _setup_components(session: EditorSession) -> void:
 	_confirm.setup(session)
+	_update_dialog.setup(session)
 	_diagnostics.setup(session)
 	_library.setup(session)
 	_set_editor.setup(session, _library)
@@ -117,6 +119,8 @@ func _connect_signals() -> void:
 	_popover.edit_set_requested.connect(_on_edit_set)
 	_library.edit_set_requested.connect(_on_library_edit)
 	_library.quick_mix_used.connect(func() -> void: _popover.set_open(true))
+	_library.update_requested.connect(func(binding_id: String) -> void: _update_dialog.open_for(binding_id))
+	_inspector.update_requested.connect(func(binding_id: String) -> void: _update_dialog.open_for(binding_id))
 	_library.open_changed.connect(func(_open: bool) -> void: layout())
 	_popover.opened_changed.connect(func(_open: bool) -> void: layout())
 
@@ -243,6 +247,10 @@ func banner_label() -> Label:
 
 func confirm_dialog() -> ConfirmDialog:
 	return _confirm
+
+
+func update_dialog() -> UpdateReviewDialog:
+	return _update_dialog
 
 
 func diagnostics_overlay() -> DiagnosticsOverlay:

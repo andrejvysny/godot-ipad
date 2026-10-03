@@ -23,7 +23,7 @@ func _signature(doc: WorldDocument) -> Array:
 	var out := []
 	for id in doc.sorted_object_ids():
 		var r := doc.get_object(id)
-		out.append([id, r.asset_id, r.position, r.rotation_xyzw, r.uniform_scale])
+		out.append([id, doc.assets.definition(r.binding_id).asset_id, r.position, r.rotation_xyzw, r.uniform_scale])
 	return out
 
 
@@ -57,7 +57,7 @@ func test_mixed_world_is_deterministic_with_exact_counts_and_consistent_heights(
 		assert_eq(r.origin, WorldConstants.ORIGIN_MANUAL)
 	var layer := doc.scatter
 	for i in layer.count():
-		assert_eq(layer.asset_of(i), "bench.cover.grass_cards")
+		assert_eq(doc.assets.definition(layer.binding_of(i)).asset_id, "bench.cover.grass_cards")
 		assert_true(_inside(doc, layer.x[i], layer.z[i]), "grass inside the layout")
 
 
@@ -121,7 +121,7 @@ func test_terrain_only_and_primitive_scenarios() -> void:
 	assert_eq(primitive.doc.objects.size(), 40)
 	assert_eq(primitive.catalog_kind, "editor")
 	var first: ObjectRecord = (primitive.doc as WorldDocument).get_object(BenchPlan.bench_object_id(SEED, 0))
-	assert_true(first != null and _editor.get_asset(first.asset_id) != null, "editor catalog primitives with deterministic ids")
+	assert_true(first != null and _editor.get_asset((primitive.doc as WorldDocument).assets.definition(first.binding_id).asset_id) != null, "editor catalog primitives with deterministic ids")
 	assert_eq(BenchScenarios.definition("primitive_5k").primitive, 5000)
 	assert_error_contains(str(BenchWorlds.build("nope", _editor, _bench, SEED).error), "Unknown bench scenario")
 

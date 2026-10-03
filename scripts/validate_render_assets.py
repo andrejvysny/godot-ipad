@@ -5,7 +5,7 @@ Usage: python3 scripts/validate_render_assets.py [--index PATH] [--catalog-dir P
 Prints one line per catalog asset: READY or NOT_READY <reason>. Exit 0 when the index and every
 asset listed in it are valid (catalog assets absent from the index are reported, not failures),
 1 otherwise, 2 for usage errors. Same checks and stable reasons as the runtime
-(app/src/rendering/render_asset_registry.gd) plus sha256 of every dependency incl. .png, PNG
+(app/addons/world_painter/presentation/rendering/render_asset_registry.gd) plus sha256 of every dependency incl. .png, PNG
 IHDR sizes vs the descriptor, and the .png.import compression settings.
 """
 from __future__ import annotations

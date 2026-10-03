@@ -26,7 +26,7 @@ class RequiredEntriesTests(unittest.TestCase):
     def test_fixed_files_are_required(self) -> None:
         for path in v.FIXED_FILES:
             self.assertIn(path, self.alternatives)
-        self.assertIn("res://src/terrain/world_terrain.gdshader", self.alternatives)
+        self.assertIn("res://addons/world_painter/terrain/world_terrain.gdshader", self.alternatives)
 
     def test_every_registry_dependency_is_required(self) -> None:
         for index, _name in v.REGISTRIES:

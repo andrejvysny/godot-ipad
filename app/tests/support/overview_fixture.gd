@@ -29,6 +29,7 @@ var _rng := RandomNumberGenerator.new()
 func _init(tree_: SceneTree, rect: Rect2 = WORLD, levels: PackedFloat32Array = PackedFloat32Array([128.0, 256.0])) -> void:
 	tree = tree_
 	catalog = AssetCatalog.load_from()[0]
+	doc.assets.catalog = catalog
 	registry = RenderAssetRegistry.load_from(ObjectPresenter.REGISTRY_INDEX, catalog)
 	presenter = ObjectPresenter.new()
 	presenter.setup(catalog, registry)
@@ -64,8 +65,7 @@ func set_profile(p: Dictionary) -> void:
 func add(asset_id: String, pos: Vector3, yaw: float = 0.0, scale: float = 1.0) -> ObjectRecord:
 	var r := ObjectRecord.new()
 	r.object_id = ObjectRecord.new_uuid_v4()
-	r.asset_id = asset_id
-	r.asset_version = 1
+	r.binding_id = doc.assets.bundled_binding_for(asset_id)
 	r.set_position(pos.x, pos.y, pos.z)
 	r.set_yaw(yaw)
 	r.uniform_scale = scale
@@ -90,6 +90,12 @@ func add_patches(patches: int, per_patch: int, radius_m: float, clearing_m: floa
 				kind = CABIN
 			add(kind, c + Vector3(cos(a) * d, 0.0, sin(a) * d), _rng.randf() * TAU, _rng.randf_range(0.8, 1.4))
 	return centres
+
+
+## A new empty world (the catalog stays trusted).
+func replace_doc() -> void:
+	doc = WorldDocument.new()
+	doc.assets.catalog = catalog
 
 
 func sync_all() -> void:

@@ -156,6 +156,14 @@ func _add_overview_populations() -> void:
 	overview.add_population(_session.layers.scatter)
 
 
+## Shows the selected path's handles in `layers` while the Path tool is active (editor session only).
+static func bind_path_selection(layers: WorldLayers, tools: ToolController) -> void:
+	var update := func() -> void: layers.set_path_selection(tools.selected_path_id(), tools.active_tool() == "path")
+	tools.path_selection_changed.connect(func(_id: String) -> void: update.call())
+	tools.tool_changed.connect(func(_id: String) -> void: update.call())
+	update.call()
+
+
 ## Creates the overview proxies (after the presenter and layers exist) and hooks the area-focus tap.
 func bind_tools(tools: ToolController, ctx: ToolContext) -> void:
 	_tools = tools

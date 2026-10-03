@@ -87,8 +87,7 @@ func add_object(asset_id: String, x: float, z: float, offset: float = 0.0) -> Ob
 	var asset := catalog.get_asset(asset_id)
 	var r := ObjectRecord.new()
 	r.object_id = ObjectRecord.new_uuid_v4()
-	r.asset_id = asset_id
-	r.asset_version = asset.version
+	r.binding_id = doc.assets.bundled_binding_for(asset_id)
 	r.grounding = asset.default_grounding
 	r.height_offset_m = offset
 	r.set_position(x, doc.sample_height(x, z) + offset, z)

@@ -29,6 +29,10 @@ func after_each() -> void:
 		camera = null
 
 
+func _asset_of(layer: ScatterLayer, i: int) -> String:
+	return doc.assets.definition(layer.binding_of(i)).asset_id
+
+
 func _new_renderer() -> ScatterRenderer:
 	var r := ScatterRenderer.new()
 	r.setup(catalog)
@@ -50,7 +54,7 @@ func _scatter(ids: Array, n: int, seed_value: int = 3, extent: float = 60.0) -> 
 	var layer := ScatterLayer.new()
 	for i in n:
 		var id: String = ids[i % ids.size()]
-		layer.add(id, catalog.get_asset(id).version, rng.randf_range(-extent, extent), rng.randf_range(-extent, extent),
+		layer.add(doc.assets.bundled_binding_for(id), rng.randf_range(-extent, extent), rng.randf_range(-extent, extent),
 				rng.randf_range(-PI, PI), 1.0, 0)
 	return layer
 
@@ -131,6 +135,7 @@ func test_densities_form_nested_subsets_stable_across_rebuilds_and_sessions() ->
 	renderer.rebuild_all(doc)
 	assert_eq(_render_at(renderer, _profile(0.5, 0.5), GRASS), d50, "same subset after a rebuild")
 	var reloaded := WorldCodec.read_generation("res://fixtures/flat", catalog)[0] as WorldDocument
+	reloaded.assets.bundled_binding_for(GRASS)  # bundled bindings are content-addressed: same ids
 	reloaded.scatter = doc.scatter.clone()
 	var session2 := _new_renderer()
 	session2.rebuild_all(reloaded)
@@ -150,7 +155,7 @@ func test_keys_do_not_depend_on_unrelated_instances() -> void:
 	var before := _drawn(renderer, GRASS)
 	var extra := _scatter([GRASS], 300, 99)
 	for i in extra.count():
-		layer.add(GRASS, catalog.get_asset(GRASS).version, extra.x[i], extra.z[i], 0.0, 1.0, 0)
+		layer.add(doc.assets.bundled_binding_for(GRASS), extra.x[i], extra.z[i], 0.0, 1.0, 0)
 	renderer.mark_rect(doc.layout.extent_rect())
 	renderer.flush()
 	var added := _drawn(renderer, GRASS)
@@ -177,16 +182,15 @@ func test_meaningful_scatter_and_manual_objects_are_never_thinned() -> void:
 	var spruces := 0
 	var boulders := 0
 	for i in layer.count():
-		spruces += 1 if layer.asset_of(i) == SPRUCE else 0
-		boulders += 1 if layer.asset_of(i) == BOULDER else 0
+		spruces += 1 if _asset_of(layer, i) == SPRUCE else 0
+		boulders += 1 if _asset_of(layer, i) == BOULDER else 0
 	var presenter := ObjectPresenter.new()
 	presenter.setup(catalog)
 	tree.root.add_child(presenter)
 	for k in 20:
 		var rec := ObjectRecord.new()
 		rec.object_id = ObjectRecord.new_uuid_v4()
-		rec.asset_id = SPRUCE
-		rec.asset_version = 1
+		rec.binding_id = doc.assets.bundled_binding_for(SPRUCE)
 		rec.set_position(-50.0 + float(k) * 4.0, 0.0, 70.0)
 		doc.put_object(rec)
 	presenter.rebuild(doc)
@@ -297,7 +301,7 @@ func _count_authored_in(cells: Dictionary) -> int:
 func test_ground_cover_density_bands_follow_the_distance_with_hysteresis() -> void:
 	var layer := ScatterLayer.new()
 	for i in 400:
-		layer.add(GRASS, catalog.get_asset(GRASS).version, 32.5 + (i % 20) * 0.75, 0.5 + (i / 20) * 0.75, 0.0, 1.0, 0)
+		layer.add(doc.assets.bundled_binding_for(GRASS), 32.5 + (i % 20) * 0.75, 0.5 + (i / 20) * 0.75, 0.0, 1.0, 0)
 	doc.scatter = layer  # one 16 m cell: x 32..48, z 0..16
 	var cam := _camera(Vector3(-400.0, 1.0, 8.0), Vector3(40.0, 1.0, 8.0))
 	renderer.set_camera(cam)

@@ -18,18 +18,15 @@ func after_each() -> void:
 
 
 func _doc() -> WorldDocument:
-	var doc := WorldDocument.create_flat(3.0, ControlCodec.grass_value())
+	var doc := WorldDocument.create_flat(3.0, ControlCodec.grass_value(), null, _catalog)
 	doc.document_revision = 12
-	doc.catalog_id = _catalog.catalog_id
-	doc.catalog_version = _catalog.catalog_version
-	doc.catalog_sha256 = _catalog.sha256
 	for i in 20:
 		doc.get_region(WorldLayout.legacy().region_locations()[i % 4]).heights[i * 997] = -0.0 if i == 0 else i * 0.013
 		doc.get_region(WorldLayout.legacy().region_locations()[i % 4]).control[i * 131] = ControlCodec.encode_paint(0x7C, i * 12)
 	doc.get_region(Vector2i(0, -1)).color[40] = 99
 	doc.rules.rock_slope_deg = 41
 	for i in 4:
-		doc.scatter.add("nature.tree.spruce_a", 1, i * 3.1 - 5.0, 0.7 * i, 0.3 * i, 0.6 + 0.1 * i, i % 2)
+		doc.scatter.add(doc.assets.bundled_binding_for("nature.tree.spruce_a"), i * 3.1 - 5.0, 0.7 * i, 0.3 * i, 0.6 + 0.1 * i, i % 2)
 	var path := PathRecord.new()
 	path.path_id = ObjectRecord.new_uuid_v4()
 	path.width_m = 3.3
@@ -38,8 +35,7 @@ func _doc() -> WorldDocument:
 	for i in 5:
 		var r := ObjectRecord.new()
 		r.object_id = ObjectRecord.new_uuid_v4()
-		r.asset_id = ["nature.tree.spruce_a", "nature.rock.boulder_a", "built.lodge.cabin_a"][i % 3]
-		r.asset_version = 1
+		r.binding_id = doc.assets.bundled_binding_for(["nature.tree.spruce_a", "nature.rock.boulder_a", "built.lodge.cabin_a"][i % 3])
 		r.set_position(i * 17.123456789 - 60.0, 3.0 + i * 0.1, 0.1 * i - 0.3)
 		r.set_yaw(i * 0.7)
 		r.uniform_scale = 0.75 + i * 0.1
@@ -134,11 +130,43 @@ func test_import_rejects_malicious_package_before_extraction() -> void:
 	assert_false(FileAccess.file_exists(_tmp_root().path_join("escape.txt")), "no escape")
 
 
-func test_import_rejects_wrong_catalog() -> void:
-	var other := _doc()
-	other.catalog_sha256 = "cd".repeat(32)
+## A world bound to another bundled catalog: v4 files stay structurally valid (read-only recovery), while a
+## schema 2/3 package of it cannot be converted (its catalog block must be the trusted one).
+func _foreign_doc() -> WorldDocument:
+	var doc := _doc()
+	var foreign := {}
+	for id in doc.assets.referenced_ids(doc):
+		var old := doc.assets.get_binding(id)
+		var b := AssetBinding.bundled_default(_catalog, _catalog.get_asset(old.asset_id))
+		b.catalog_sha256 = "cd".repeat(32)
+		b.finalize()
+		foreign[id] = doc.assets.add(b)
+	for object_id in doc.sorted_object_ids():
+		doc.get_object(object_id).binding_id = foreign[doc.get_object(object_id).binding_id]
+	for i in doc.scatter.binding_ids.size():
+		doc.scatter.binding_ids[i] = foreign[doc.scatter.binding_ids[i]]
+	return doc
+
+
+func test_v4_import_of_another_catalog_is_valid_but_unavailable() -> void:
+	var other := _foreign_doc()
 	var out := _dir.path_join("other.worldpoc")
 	assert_empty_string(WorldPackage.export_package(_gen(other), out))
+	var r := WorldPackage.import_package(out, _catalog, _tmp_root())
+	assert_empty_string(r[1], "availability is not structure")
+	if r[0] == null:
+		return
+	var back: WorldDocument = r[0]
+	assert_eq(CanonicalEncoder.authored_hash(back), CanonicalEncoder.authored_hash(other))
+	assert_false(WorldValidator.availability(back).unavailable.is_empty(), "reported as unavailable")
+
+
+func test_legacy_import_rejects_wrong_catalog() -> void:
+	var other := _foreign_doc()
+	var legacy := _dir.path_join("legacy")
+	assert_empty_string(LegacyWorldWriter.write(legacy, other))
+	var out := _dir.path_join("other.worldpoc")
+	assert_empty_string(WorldPackage.export_package(legacy, out))
 	var package_bytes := FileAccess.get_file_as_bytes(out)
 	var before := _import_tmp_count()
 	var r := WorldPackage.import_package(out, _catalog, _tmp_root())
@@ -148,8 +176,6 @@ func test_import_rejects_wrong_catalog() -> void:
 	assert_eq(_import_tmp_count(), before, "temporary import directory removed on failure")
 
 
-## A real export with a second, oversized directory hidden in its comment (the directory
-## ZIPReader would use) is rejected by inspection, before any decompression.
 func test_import_rejects_directory_hidden_in_comment() -> void:
 	var out := _dir.path_join("real.worldpoc")
 	if not assert_empty_string(WorldPackage.export_package(_gen(_doc()), out), "export"):

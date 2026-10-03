@@ -4,7 +4,7 @@ extends TestCase
 ## with all four channels preserved, and an export configuration that ships the shader and the textures.
 
 const DIR := "res://assets/terrain/preview/"
-const SHADER := "res://src/terrain/world_terrain.gdshader"
+const SHADER := "res://addons/world_painter/terrain/world_terrain.gdshader"
 const MAX_PNG_BYTES := 10 * 1048576
 
 

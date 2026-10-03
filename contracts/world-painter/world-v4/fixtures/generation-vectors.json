@@ -1,0 +1,131 @@
+{
+ "fixture_snapshots": [
+  {
+   "files": 8,
+   "fixture": "one_bundled_object.worldpoc",
+   "source_snapshot_hash": "29d9cbd813ee6abc50f38949aae38a3fc079d0c163cc7ba6130409d82ca210b3"
+  },
+  {
+   "files": 8,
+   "fixture": "holes.worldpoc",
+   "source_snapshot_hash": "da841c56160d9db9a0376e21ffd989c45e51da8e5d44804eeeb62d5169206b92"
+  },
+  {
+   "files": 8,
+   "fixture": "remote_scatter.worldpoc",
+   "source_snapshot_hash": "48eecf5165723f32e5c709bc87ba686a5cbaffa4ec4620c7af51cf4180bfee24"
+  }
+ ],
+ "generations": [
+  {
+   "consumer_profile_hash": "626ed0d4380a1acf43c11a02dee80f805c475b0c39e48a62a1244165deddc65f",
+   "directory_name": "63b269d6118cf10611a7966be3dd9aa9",
+   "generation_id": "63b269d6118cf10611a7966be3dd9aa9c0cb4440236e05b7c9ccc3dc6b7b41b4",
+   "name": "base",
+   "pins": {
+    "assetstudio_pin": "b716f5c47a7c3682ecbde02df44f7621de9e90ecac9840bb3d561395b85ad555",
+    "godot_build": "ed1daf0bf",
+    "installer_version": "1.0.0",
+    "terrain3d_build": "1.0.2-stable@0077405b",
+    "world_painter_pin": "0.1.0:2183c7743787d64818748ab440536c67457e123973138c38d0676440dc0416be"
+   },
+   "source_snapshot_hash": "9418fccdbe768ce76397fef9ff3069c4b059b22308be76e1921e043907d32fe7"
+  },
+  {
+   "consumer_profile_hash": "626ed0d4380a1acf43c11a02dee80f805c475b0c39e48a62a1244165deddc65f",
+   "directory_name": "1e3a9ef46658a6b00188266e80393302",
+   "generation_id": "1e3a9ef46658a6b00188266e8039330294f1cbf038d58c278931c563d85a5a02",
+   "name": "other_godot_build",
+   "pins": {
+    "assetstudio_pin": "b716f5c47a7c3682ecbde02df44f7621de9e90ecac9840bb3d561395b85ad555",
+    "godot_build": "ffffffff0",
+    "installer_version": "1.0.0",
+    "terrain3d_build": "1.0.2-stable@0077405b",
+    "world_painter_pin": "0.1.0:2183c7743787d64818748ab440536c67457e123973138c38d0676440dc0416be"
+   },
+   "source_snapshot_hash": "9418fccdbe768ce76397fef9ff3069c4b059b22308be76e1921e043907d32fe7"
+  },
+  {
+   "consumer_profile_hash": "206afc32fb558c70d3a3d088a7d63b0f097ac63e8a443ef28fe4fc7f53198d96",
+   "directory_name": "62f3a68ddb182e2a4ab823896ec4a63f",
+   "generation_id": "62f3a68ddb182e2a4ab823896ec4a63f872430cd638460252ae2569c84211f52",
+   "name": "other_profile",
+   "pins": {
+    "assetstudio_pin": "b716f5c47a7c3682ecbde02df44f7621de9e90ecac9840bb3d561395b85ad555",
+    "godot_build": "ed1daf0bf",
+    "installer_version": "1.0.0",
+    "terrain3d_build": "1.0.2-stable@0077405b",
+    "world_painter_pin": "0.1.0:2183c7743787d64818748ab440536c67457e123973138c38d0676440dc0416be"
+   },
+   "source_snapshot_hash": "9418fccdbe768ce76397fef9ff3069c4b059b22308be76e1921e043907d32fe7"
+  },
+  {
+   "consumer_profile_hash": "626ed0d4380a1acf43c11a02dee80f805c475b0c39e48a62a1244165deddc65f",
+   "directory_name": "a2db0eb08e7b3a67c72413e1988b16a9",
+   "generation_id": "a2db0eb08e7b3a67c72413e1988b16a9c0f817446b7bf15ea87d78d2434f2120",
+   "name": "other_snapshot",
+   "pins": {
+    "assetstudio_pin": "b716f5c47a7c3682ecbde02df44f7621de9e90ecac9840bb3d561395b85ad555",
+    "godot_build": "ed1daf0bf",
+    "installer_version": "1.0.0",
+    "terrain3d_build": "1.0.2-stable@0077405b",
+    "world_painter_pin": "0.1.0:2183c7743787d64818748ab440536c67457e123973138c38d0676440dc0416be"
+   },
+   "source_snapshot_hash": "2e718fcc22ab1334e0f5edebd27db05b406c1cd04c92567bce0a495048081f78"
+  }
+ ],
+ "note": "str = u32 little-endian byte length + UTF-8. source_snapshot_hash = sha256('WPSNAPSHOT1\\n' + for each file in code point order of its relative path: str(path) + raw sha256) over manifest.json and every declared payload. consumer_profile_hash = sha256(canonical_v1(profile)). generation_id = sha256('WPBAKE1\\n' + raw snapshot hash + raw profile hash + str(installer_version) + str(godot_build) + str(terrain3d_build) + str(assetstudio_pin) + str(world_painter_pin)); the directory name is its first 32 hex digits.",
+ "profiles": [
+  {
+   "canonical_json": "{\"accepted_world_root\":\"res://worlds\",\"scatter_collision_bindings\":[],\"terrain_mapping_sha256\":\"37a8eec1ce19687d132fe29051dca629d164e2c4958ba141d5f4133a33f0688f\"}",
+   "consumer_profile_hash": "626ed0d4380a1acf43c11a02dee80f805c475b0c39e48a62a1244165deddc65f",
+   "profile": {
+    "accepted_world_root": "res://worlds",
+    "scatter_collision_bindings": [],
+    "terrain_mapping_sha256": "37a8eec1ce19687d132fe29051dca629d164e2c4958ba141d5f4133a33f0688f"
+   }
+  },
+  {
+   "canonical_json": "{\"accepted_world_root\":\"res://painted_worlds\",\"scatter_collision_bindings\":[\"b00000000000000000000000000000000\",\"b11111111111111111111111111111111\"],\"terrain_mapping_sha256\":\"5b1ca6bbe7e61813683d10f87df9142792956b3654247408eba048756aac2f19\"}",
+   "consumer_profile_hash": "206afc32fb558c70d3a3d088a7d63b0f097ac63e8a443ef28fe4fc7f53198d96",
+   "profile": {
+    "accepted_world_root": "res://painted_worlds",
+    "scatter_collision_bindings": [
+     "b00000000000000000000000000000000",
+     "b11111111111111111111111111111111"
+    ],
+    "terrain_mapping_sha256": "5b1ca6bbe7e61813683d10f87df9142792956b3654247408eba048756aac2f19"
+   }
+  }
+ ],
+ "schema": "world-painter/world-v4/generation-vectors",
+ "snapshots": [
+  {
+   "digests": {
+    "manifest.json": "05b3abf2579a5eb66403cd78be557fd860633a1fe2103c7642030defe32c657f",
+    "objects.json": "e4cd302972b0cf4e227de8277f328e7631b1cd98655ebf610b401514d47338f7"
+   },
+   "name": "manifest_and_objects",
+   "source_snapshot_hash": "9418fccdbe768ce76397fef9ff3069c4b059b22308be76e1921e043907d32fe7"
+  },
+  {
+   "digests": {
+    "asset_locks.json": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb",
+    "manifest.json": "62c66a7a5dd70c3146618063c344e531e6d4b59e379808443ce962b3abd63c5a",
+    "objects.json": "65c74c15a686187bb6bbf9958f494fc6b80068034a659a9ad44991b08c58f2d2",
+    "paths.bin": "148de9c5a7a44d19e56cd9ae1a554bf67847afb0c58f6e12fa29ac7ddfca9940",
+    "regions/r_-1_-1.height.f32le": "54f50aff0c05f509a804604b776c85a23969272c57b2f3054b6e05c7fc6e543f",
+    "regions/r_0_0.height.f32le": "db87cee52504ca5732bad49ddb1d5b8551c011c1891996d58aacae47f66585ed",
+    "regions/r_10_0.height.f32le": "3a90f3117605bf14d72634bc1b5c7bf55ec7321e474351c53bfd4fd926e1044b",
+    "scatter.bin": "043a718774c572bd8a25adbeb1bfcd5c0256ae11cecf9f9c3f925d0e52beaf89"
+   },
+   "name": "code_point_order_with_regions",
+   "source_snapshot_hash": "2e718fcc22ab1334e0f5edebd27db05b406c1cd04c92567bce0a495048081f78"
+  },
+  {
+   "digests": {},
+   "name": "empty",
+   "source_snapshot_hash": "a940f3f8a58b67958bf0ad6822dc9cc4b1ebaf3d26604a0c71342ca2a3ab53a9"
+  }
+ ]
+}

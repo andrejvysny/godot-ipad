@@ -1,6 +1,6 @@
-# World format (schemas 2 and 3)
+# World format (schemas 2, 3 and 4)
 
-Contract shared by the Godot app (`app/src/storage`, `app/src/document`) and the Python
+Contract shared by the Godot app (`app/addons/world_painter/core/storage`, `app/addons/world_painter/core/document`) and the Python
 tools (`scripts/worldpoc_format.py`). Any change here requires a schema bump and matching
 changes and tests on both sides. Schema 2 (ADR 0009) adds four material slots with auto-paint
 rules, a tint map, scatter instances and spline paths. Schema 1 data is rejected as an
@@ -8,8 +8,14 @@ unknown schema; there is no migration.
 
 Schema 3 (ADR 0010, §11) is schema 2 plus a rectangular terrain layout of 1–64 regions (the
 "1 km" preset is 8 × 8 regions) and larger, centralized limits. Sections 1–10 describe schema 2;
-§11 lists every schema 3 difference. Worlds on the legacy 2 × 2 layout are always written as
-schema 2, byte-identical to before; schema 3 is only used for other layouts.
+§11 lists every schema 3 difference.
+
+Schema 4 (ADR 0014, §12) is schema 3 plus a world-specific asset lock (`asset_locks.json`) that replaces the
+single bundled catalog reference. Writers always emit schema 4, on every layout including the legacy 2 × 2
+layout. Readers accept schemas 2, 3 and 4; schema 2/3 generations keep their V2/V3 authored hashes and are
+converted to bundled bindings in memory or offline (`validate_world.py migrate`, §12.7). The older text of
+§§1–11 still describes those schemas (a schema 2/3 world on the legacy layout is schema 2, byte-identical to
+before).
 
 ## 1. Terrain layout
 
@@ -357,3 +363,78 @@ the document's layout (legacy → 2, anything else → 3); opening a file never 
 `km1` flat vector (tested in both languages against one hard-coded hash): layout `km1`, every
 height `0.0`, every control `0x00000001`, every tint `FF FF FF 00`, default rules, no objects,
 empty `scatter.bin` and `paths.bin` (§5, §6 empty files), catalog identity of the bundled catalog.
+
+## 12. Schema 4: asset bindings
+
+Contract files (normative, frozen): [`contracts/world-painter/world-v4/`](../contracts/world-painter/world-v4/)
+(`asset-locks.schema.json`, `objects.schema.json`, `binary-formats.md`, `authored-hash-v4.md`); decisions D1–D10
+in [ADR 0014](decisions/0014-world-schema-4.md); shared spec INT-SPEC-1.1 §9. Schema 4 changes only the items below;
+terrain, region files, rules, `paths.bin` v1, exact floats, ZIP rules and endianness are schema 3.
+
+### 12.1 Files and manifest
+
+- Generation: `manifest.json`, `asset_locks.json`, `objects.json`, `scatter.bin` (version 2), `paths.bin`,
+  `regions/r_<x>_<z>.{height.f32le,control.u32le,color.rgba8}`. Every valid layout is allowed, including the legacy
+  2 × 2 layout.
+- `manifest.json`: `"schema_version": 4`; `terrain` is the schema 3 object and **always** has `layout`; `catalog` is
+  replaced by `"asset_lock": {"path": "asset_locks.json", "sha256": "<hex of the stored bytes>"}`; `payload_files`
+  lists `asset_locks.json`, `objects.json`, `paths.bin`, `scatter.bin` and 3 files per region (`4 + 3n`), sorted byte-wise.
+- `objects.json`: `{"schema_version": 4, ...}`; each record has `binding_id` instead of `asset_id`/`asset_version`.
+
+### 12.2 asset_locks.json
+
+Stored bytes are exactly `canonical_v1(lock)` (AssetStudio canonical JSON: no floats, sorted keys, no whitespace,
+UTF-8; escapes `\"`, `\\`, `\n \r \t \b \f`, other code points below U+0020 as lowercase `\u00xx`, nothing else).
+Readers hash the received bytes and reject bytes that differ from re-encoding the parsed value. Fields:
+`schema_version` (1), `bindings` (sorted by `binding_id`, unique, ≤ 4,096), `dependencies` (the exact AssetStudio asset-key
+structure). A binding is `bundled` (`catalog {id, version, sha256}`, `asset_id`, `asset_version`, `policy`) or
+`assetstudio` (`asset_key`, `asset_ref`, `descriptor_json`, `descriptor_sha256`, `deliveries`, `policy`); see the schema.
+Bundled `asset_id` uses the catalog grammar `[a-z0-9_.]{1,64}` (catalog ids contain dots).
+
+- `binding_id = "b" + sha256_hex("WPBIND1\n" + canonical_v1(binding without binding_id))[0:32]`; readers recompute it.
+- `policy = {scatter_allowed, scale_range, height_offset_range_m}` with canonical decimal strings (`dec(x)`: six
+  fractional digits, trailing zeros removed, `-0` written `0`). The default bundled policy of a catalog entry is
+  `[dec(scale_min), dec(scale_max)]`, `[dec(height_offset_min_m), dec(height_offset_max_m)]` and
+  `scatter_allowed = catalog.scatter_allowed AND catalog.scatter_mesh != null`. Policy ranges lie within the catalog
+  entry's limits (when the entry is available) or the descriptor's ranges.
+- AssetStudio bindings: `asset_key` equals the key of `asset_ref`; `descriptor_sha256` is checked over the UTF-8 bytes
+  of `descriptor_json` before it is parsed; `dependencies` equal exactly the closure of the referenced bindings
+  (matching `asset_ref`, `descriptor_sha256`, delivery pins; `requires` sorted, present, acyclic).
+- Every binding is referenced by an object record or scatter instance.
+
+Python: `scripts/worldpoc_locks.py`, `worldpoc_lockcheck.py`; vectors: `fixtures/canonical-lock-vectors.json`.
+
+### 12.3 Records and scatter
+
+`uniform_scale` and `height_offset_m` of an object, and `scale` of a scatter instance, lie within the binding's effective
+policy range: `lo - eps(lo) <= v <= hi + eps(hi)` with `eps(b) = 1e-6 * max(1, |b|)`. A scatter binding needs
+`policy.scatter_allowed = true`. `scatter.bin` version 2 (`binary-formats.md`) stores a sorted binding table instead of
+the asset table; the 20-byte instance record is unchanged.
+
+### 12.4 Limits
+
+Schema 3 limits (§11.3) plus `asset_locks.json` ≤ 8 MiB, ≤ 4,096 bindings and ≤ 198 archive entries (197 without
+the lock). ZIP inspection runs before the manifest is read: it accepts the `asset_locks.json` entry (≤ 8 MiB) and 198
+entries; an archive without that entry is held to 197.
+
+### 12.5 Authored content hash V4
+
+`authored-hash-v4.md` (`"WPOC-AUTHORED-V4\n"`): the V3 stream with the catalog identity replaced by the raw SHA-256 of
+the lock bytes and `asset_id`/`asset_version` replaced by `binding_id`.
+
+### 12.6 Structure versus availability
+
+Structural errors reject a generation. Availability is reported separately and never fails validation: a bundled
+binding whose catalog identity differs from the trusted catalog or whose asset/version is not in it, and every
+AssetStudio binding (no resolver yet). `validate_world.py` prints it as `Availability`, `--json` as `availability`.
+
+### 12.7 Migration and fixtures
+
+`python3 scripts/validate_world.py migrate SRC DEST [--package OUT.worldpoc]` converts a schema 2/3 generation
+directory or package into a new schema 4 generation directory (DEST must not exist): each catalog asset in use becomes a
+bundled binding with the default policy; region bytes, rules, `paths.bin`, object IDs, transform bits, and scatter
+records (order, positions, yaw, scale, flags) are unchanged. Authored hashes change by design.
+
+Golden fixtures and vectors: `contracts/world-painter/world-v4/fixtures/` (`INDEX.json`, regenerated and verified by
+`python3 scripts/generate_world_v4_fixtures.py [--check]`). The `km1_flat_empty` vector is procedural (recipe in
+`INDEX.json`), like §11.5.

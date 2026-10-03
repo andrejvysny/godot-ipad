@@ -152,14 +152,14 @@ The following findings refer to the pinned source baseline, not speculative miss
 |---|---|---|
 | `app/project.godot` | Mobile renderer; Vulkan on iOS; Metal on macOS; ETC2/ASTC import enabled | Retain the tested renderer/driver defaults. Add explicit rendering profiles. [R-PROJECT] |
 | `config/toolchain.lock.json` | Pins Godot `4.7.2.stable.official`, Terrain3D `v1.0.2-stable`, and device/build evidence | Verify APIs against this toolchain; do not opportunistically upgrade it. [R-LOCK] |
-| `app/src/objects/object_presenter.gd` | Complete preview scene per object; full rebuild frees/recreates nodes | Replace population rendering with spatial batches and bounded construction. [R-OBJECT] |
+| `app/addons/world_painter/presentation/objects/object_presenter.gd` | Complete preview scene per object; full rebuild frees/recreates nodes | Replace population rendering with spatial batches and bounded construction. [R-OBJECT] |
 | Presenter picking | Iterates all transforms and calculates inverse transforms in the query | Add a spatial broad phase and cached transforms/bounds. [R-OBJECT] |
 | Selection decoration | Rebuilds overlay geometry during selected-object synchronization | Reuse overlay resources and update transforms. [R-OBJECT] |
 | Placement ghost | Full scene with a shared alpha-blended material override | Use a cheap prepared ghost/footprint; do not alpha-blend the original complex plant. [R-OBJECT] |
 | `app/src/ui/editor_ui.gd` | Inspector avoidance obtains sorted IDs and projects other objects each frame | Replace with invalidated, bounded visible-neighbor queries. [R-UI] |
-| `app/src/document/asset_catalog.gd` | Trusted catalog with synchronous preview instantiation and strict self-contained geometry rules | Preserve existing validation; add a separate versioned render-derivative registry. [R-CATALOG] |
+| `app/addons/world_painter/core/document/asset_catalog.gd` | Trusted catalog with synchronous preview instantiation and strict self-contained geometry rules | Preserve existing validation; add a separate versioned render-derivative registry. [R-CATALOG] |
 | `app/assets/models/spruce_a.tscn` | Primitive trunk/crown with different local translations | Preserve multipart hierarchy transforms; add genuinely complex benchmark fixtures. [R-SPRUCE] |
-| `app/src/terrain/terrain_adapter.gd` | Canonical-data projection; dirty region-layer uploads; collision disabled | Extend its budgeting; do not replace it or re-add collision. [R-TERRAIN] |
+| `app/addons/world_painter/terrain/terrain_adapter.gd` | Canonical-data projection; dirty region-layer uploads; collision disabled | Extend its budgeting; do not replace it or re-add collision. [R-TERRAIN] |
 | `WorldConstants` / `WorldDocument` | Fixed four-region extent and fixed sampling boundaries | Minimal bounded world-layout integration is necessary for the 1 km target. [R-CONSTANTS] [R-DOCUMENT] |
 | Config | Specifies 2,000 objects and an 8 MiB package limit | Audit actual enforcement in both languages; add deliberate target-size limits rather than disabling checks. [R-CONFIG] |
 | `app/src/app/scene_lighting.gd` | New shared lighting setup still enables shadows | Turn production shadows off here and in every relevant presenter/material path. [R-COMMIT] |
@@ -292,7 +292,7 @@ There is no arrow from rendering settings back into authored data. Selection its
 
 ### 5.2 Modules
 
-Create an `app/src/rendering/` area where no equivalent exists. These are logical responsibilities; small tightly coupled helpers may share a file. Avoid a Node per record, a service locator, or a separate event bus for every helper.
+Create an `app/addons/world_painter/presentation/rendering/` area where no equivalent exists. These are logical responsibilities; small tightly coupled helpers may share a file. Avoid a Node per record, a service locator, or a separate event bus for every helper.
 
 | Component | Responsibility |
 |---|---|
@@ -1043,7 +1043,7 @@ Audit and update all consumers of fixed world constants, including:
 - `WorldDocument.create_flat`, bounds checks, sample interpolation, region membership, and duplication.
 - TerrainAdapter validation/loading, terrain picking bounds, brush clipping, paths, and grounding candidate queries.
 - `ObjectRecord` validation and any assumed placement limits.
-- `app/src/storage/world_codec.gd`, package validation/extraction, manifest encoding, and export verification.
+- `app/addons/world_painter/core/storage/world_codec.gd`, package validation/extraction, manifest encoding, and export verification.
 - Python `worldpoc_format.py`, `validate_world.py`, `generate_fixtures.py`, and associated tests.
 - Config source and synchronized `app/config/` copy.
 - Benchmark scene generation and the Mac consumer's loading/validation path.
@@ -1734,14 +1734,14 @@ The implementation design, budgets, module names, fixture proposals, and accepta
 [R-COMMIT]: https://github.com/andrejvysny/godot-ipad/commit/762f079860f76dcf8b71e01d65406e6598fe2e0d
 [R-LOCK]: https://github.com/andrejvysny/godot-ipad/blob/762f079860f76dcf8b71e01d65406e6598fe2e0d/config/toolchain.lock.json
 [R-PROJECT]: https://github.com/andrejvysny/godot-ipad/blob/762f079860f76dcf8b71e01d65406e6598fe2e0d/app/project.godot
-[R-OBJECT]: https://github.com/andrejvysny/godot-ipad/blob/762f079860f76dcf8b71e01d65406e6598fe2e0d/app/src/objects/object_presenter.gd
+[R-OBJECT]: https://github.com/andrejvysny/godot-ipad/blob/762f079860f76dcf8b71e01d65406e6598fe2e0d/app/addons/world_painter/presentation/objects/object_presenter.gd
 [R-UI]: https://github.com/andrejvysny/godot-ipad/blob/762f079860f76dcf8b71e01d65406e6598fe2e0d/app/src/ui/editor_ui.gd
-[R-CATALOG]: https://github.com/andrejvysny/godot-ipad/blob/762f079860f76dcf8b71e01d65406e6598fe2e0d/app/src/document/asset_catalog.gd
+[R-CATALOG]: https://github.com/andrejvysny/godot-ipad/blob/762f079860f76dcf8b71e01d65406e6598fe2e0d/app/addons/world_painter/core/document/asset_catalog.gd
 [R-SPRUCE]: https://github.com/andrejvysny/godot-ipad/blob/762f079860f76dcf8b71e01d65406e6598fe2e0d/app/assets/models/spruce_a.tscn
-[R-TERRAIN]: https://github.com/andrejvysny/godot-ipad/blob/762f079860f76dcf8b71e01d65406e6598fe2e0d/app/src/terrain/terrain_adapter.gd
-[R-TERRAIN-MATERIALS]: https://github.com/andrejvysny/godot-ipad/blob/762f079860f76dcf8b71e01d65406e6598fe2e0d/app/src/terrain/terrain_materials.gd
-[R-CONSTANTS]: https://github.com/andrejvysny/godot-ipad/blob/762f079860f76dcf8b71e01d65406e6598fe2e0d/app/src/document/world_constants.gd
-[R-DOCUMENT]: https://github.com/andrejvysny/godot-ipad/blob/762f079860f76dcf8b71e01d65406e6598fe2e0d/app/src/document/world_document.gd
+[R-TERRAIN]: https://github.com/andrejvysny/godot-ipad/blob/762f079860f76dcf8b71e01d65406e6598fe2e0d/app/addons/world_painter/terrain/terrain_adapter.gd
+[R-TERRAIN-MATERIALS]: https://github.com/andrejvysny/godot-ipad/blob/762f079860f76dcf8b71e01d65406e6598fe2e0d/app/addons/world_painter/terrain/terrain_materials.gd
+[R-CONSTANTS]: https://github.com/andrejvysny/godot-ipad/blob/762f079860f76dcf8b71e01d65406e6598fe2e0d/app/addons/world_painter/core/document/world_constants.gd
+[R-DOCUMENT]: https://github.com/andrejvysny/godot-ipad/blob/762f079860f76dcf8b71e01d65406e6598fe2e0d/app/addons/world_painter/core/document/world_document.gd
 [R-CONFIG]: https://github.com/andrejvysny/godot-ipad/blob/762f079860f76dcf8b71e01d65406e6598fe2e0d/app/config/poc_defaults.json
 [R-COUNTERS]: https://github.com/andrejvysny/godot-ipad/blob/762f079860f76dcf8b71e01d65406e6598fe2e0d/app/src/diagnostics/render_counters.gd
 [R-BENCH]: https://github.com/andrejvysny/godot-ipad/blob/762f079860f76dcf8b71e01d65406e6598fe2e0d/app/src/diagnostics/render_bench.gd

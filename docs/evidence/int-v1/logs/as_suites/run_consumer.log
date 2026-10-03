@@ -1,0 +1,160 @@
+PASS no command -> exit 2
+PASS unknown command -> exit 2
+PASS restore without --locked -> exit 2
+PASS verify without --offline -> exit 2
+PASS tokens are not accepted in argv -> exit 2
+PASS --profile with --preserve -> exit 2
+PASS set-policy without a mode -> exit 2
+PASS set-policy with two modes -> exit 2
+PASS update without --version -> exit 2
+PASS rollback without --binding -> exit 2
+PASS prune --dry-run with --apply -> exit 2
+PASS connect exit 0 (Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+connected to server 6f1c2a52-3c2e-4d4b-9a57-0b6f6f0c1d2e
+)
+PASS connect wrote assetstudio.project.json
+PASS add ver_00000000000000v1 exit 0 (Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+added ast_00000000000000aa-3e4cecab (3e4cecab): run `godot --headless --editor --path . --import`, then `finalize`
+)
+PASS add ver_00000000000000v2 exit 0 (Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+added ast_00000000000000aa-19c1fc59 (19c1fc59): run `godot --headless --editor --path . --import`, then `finalize`
+)
+PASS lock bytes are canonical (match the Python writer)
+PASS two bindings, two dependencies
+PASS two wrapper scenes written
+PASS bindings marked pending_import
+PASS mutex released
+PASS adding the same exact version twice -> exit 1
+PASS headless import exit 0 ()
+PASS pre-seeded import params survive Godot's import
+PASS wrappers load, Model at -anchor, mesh present (Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+OK res://assets/prefabs/ast_00000000000000aa-19c1fc59.tscn 
+OK res://assets/prefabs/ast_00000000000000aa-3e4cecab.tscn 
+CHECK_OK
+)
+PASS finalize exit 0 (000000000000aa-19c1fc59: 0 surface override(s), 0 unmapped slot(s), 0 unresolved surface(s)
+finalized ast_00000000000000aa-3e4cecab: 0 surface override(s), 0 unmapped slot(s), 0 unresolved surface(s)
+)
+PASS pending_import cleared
+PASS restore refuses a lock whose delivery_id the server does not offer (error: integrity_mismatch: server does not offer the locked delivery dlv_00000000000000d9)
+PASS restore refuses a locked descriptor sha256 mismatch (error: integrity_mismatch: descriptor does not match the locked descriptor_sha256)
+PASS restore --locked exit 0 (Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+restored: 2 installed, 0 already present
+)
+PASS restored files are byte-identical to the first install
+PASS restore never rewrites the lock
+PASS policy: reimport after restore
+PASS set-policy --profile mixed (v1) exit 0 (Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ast_00000000000000aa-3e4cecab: material policy project_mapping, 1 surface override(s), 0 unmapped slot(s)
+)
+PASS set-policy --profile mixed (v2): every slot mapped (Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ast_00000000000000aa-19c1fc59: material policy project_mapping, 2 surface override(s), 0 unmapped slot(s)
+)
+PASS lock records profile id + sha256
+PASS lock canonical after set-policy
+PASS v1 body surface patched ({'world/geometry_0': [{'albedo': 'ffffff', 'metallic': 0.1, 'path': 'res://assets/prefabs/ast_00000000000000aa-3e4cecab.tscn::patched_body_0', 'roughness': 0.25}]})
+PASS v2: lid gets the material rule, body the patch ({'world/Crate': [{'albedo': 'ffffff', 'metallic': 0.1, 'path': 'res://assets/prefabs/ast_00000000000000aa-19c1fc59.tscn::patched_body_0', 'roughness': 0.25}], 'world/Lid': [{'albedo': '336699', 'metallic': 0.0, 'path': 'res://materials/lid_mat.tres', 'roughness': 1.0}]})
+PASS wrapper marks Model editable with overrides
+PASS Model still at -anchor
+PASS lid_only leaves one slot unmapped (Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ast_00000000000000aa-19c1fc59: material policy project_mapping, 1 surface override(s), 1 unmapped slot(s)
+)
+PASS only the lid is overridden
+PASS set-policy --preserve
+PASS preserve: overrides are gone
+PASS preserve: no editable instance
+PASS override without its file -> exit 1 (error: invalid_project_file: material profile file overrides/ast_00000000000000aa-19c1fc59.json not found)
+PASS same inputs give the same wrapper bytes (deterministic)
+PASS set-policy --override with its file (Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ast_00000000000000aa-19c1fc59: material policy override, 2 surface override(s), 0 unmapped slot(s)
+)
+PASS override mode keeps profile fields null
+PASS override file applied to every role=surface slot
+PASS back to the mixed profile
+PASS changed profile is refused without --reapply (error: ast_00000000000000aa-3e4cecab: profile_changed: profile mixed changed since it was locked (re-apply to accept))
+PASS refused finalize leaves the wrapper untouched
+PASS finalize --reapply accepts the new profile
+PASS reapply updates profile_sha256
+PASS the re-applied profile is in the wrapper
+PASS profile restored and re-applied
+PASS a hand-edited wrapper is a conflict and is never overwritten (error: ast_00000000000000aa-3e4cecab: conflict: assets/prefabs/ast_00000000000000aa-3e4cecab.tscn was modified since the addon wrote it)
+PASS finalize works again once the wrapper is the recorded one
+PASS unknown binding -> exit 1
+PASS update --new-binding exit 0 (Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+updated crate-v2 to ver_00000000000000v2: run the headless import, then `finalize`
+)
+PASS new binding added, old ones kept
+PASS policy carried over
+PASS old binding's wrapper is intact
+PASS old binding's dependency is untouched
+PASS new-binding: headless import
+PASS new-binding: finalize exit 0 (Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+finalized crate-v2: 2 surface override(s), 0 unmapped slot(s), 0 unresolved surface(s)
+)
+PASS new binding wrapper has the profile applied to v2 ({'world/Crate': [{'albedo': 'ffffff', 'metallic': 0.1, 'path': 'res://assets/prefabs/crate-v2.tscn::patched_body_0', 'roughness': 0.25}], 'world/Lid': [{'albedo': '336699', 'metallic': 0.0, 'path': 'res://materials/lid_mat.tres', 'roughness': 1.0}]})
+PASS update in place exit 0 (Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+updated ast_00000000000000aa-3e4cecab to ver_00000000000000v2: run the headless import, then `finalize`
+)
+PASS binding now points at v2
+PASS the v1 dependency was pruned: nothing references it
+PASS lock canonical after update
+PASS updated binding awaits finalize
+PASS in-place update: headless import
+PASS in-place update: finalize exit 0 (Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+finalized ast_00000000000000aa-3e4cecab: 2 surface override(s), 0 unmapped slot(s), 0 unresolved surface(s)
+)
+PASS in-place update: profile re-applied on v2 (lid + body)
+PASS rollback exit 0 (Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+rolled ast_00000000000000aa-3e4cecab back to 3e4cecab: run the headless import, then `finalize`
+)
+PASS rollback: headless import
+PASS rollback: finalize exit 0 (Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+finalized ast_00000000000000aa-3e4cecab: 1 surface override(s), 0 unmapped slot(s), 0 unresolved surface(s)
+)
+PASS rollback restores the previous lock byte-for-byte
+PASS rollback regenerates the identical previous wrapper
+PASS nothing to roll back -> exit 1
+PASS history keeps summaries ([None, 'add', 'add', 'finalize', None, 'finalize', 'finalize', 'finalize', 'finalize', 'finalize', 'finalize', 'finalize', 'finalize', 'finalize', 'finalize', 'update', 'finalize', 'update', 'finalize', 'rollback', 'finalize'])
+PASS restore from clean exit 0 (Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+restored: 2 installed, 0 already present
+)
+PASS restore from clean gives identical delivery hashes
+PASS restore leaves the lock byte-identical
+PASS verify passes after the clean restore
+PASS prune-deliveries dry run keeps the orphan
+PASS prune-deliveries --apply removes the orphan ()
+PASS prune keeps every locked delivery and the lock
+PASS verify passes after prune
+PASS lock parses and re-serializes identically with the Python validator (b'')
+PASS verify --locked --offline exit 0 with the server stopped (Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+verified 2 delivery(ies)
+)
+PASS verify fails when deliveries are missing
+PASS restore --offline from the blob cache exit 0 (Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+restored: 2 installed, 0 already present
+)
+PASS offline restore is byte-identical too
+PASS tampered file -> verify exit 1 naming the file (error: integrity_mismatch: 1 problem(s): 3e4cecabdb6c/portable_glb_v1: portable.glb is missing or modified)
+PASS restore reports tampering and never overwrites it
+PASS bearer token never appears in Godot output
+PASS no GDScript runtime errors in output
+
+ALL PASSED: 0 failure(s)

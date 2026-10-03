@@ -84,7 +84,7 @@ are projections; changing a rule only updates shader uniforms.
 
 ## Rendering (rendering performance spec, ADR 0010)
 
-`app/src/rendering/` holds the render-side modules; none of them mutates the document.
+`app/addons/world_painter/presentation/rendering/` holds the render-side modules; none of them mutates the document.
 
 | Module | Role |
 |---|---|

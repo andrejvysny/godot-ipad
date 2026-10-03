@@ -17,6 +17,7 @@ var _doc: WorldDocument
 var _index: ScatterIndex
 var _rng := RandomNumberGenerator.new()
 var _assets: Array[AssetDefinition] = []
+var _bindings := PackedStringArray()  # binding id per _assets entry
 var _cumulative := PackedFloat64Array()
 var _slope_min := 0.0
 var _slope_max := 90.0
@@ -29,7 +30,7 @@ var _avoid: Array[Vector3] = []  # x, z, footprint radius of manual objects
 func _init(doc: WorldDocument, catalog: AssetCatalog, config: Dictionary, avoid: bool,
 		seed_value: int, index: ScatterIndex = null) -> void:
 	_doc = doc
-	max_instances = int(WorldLimits.for_schema(doc.layout.schema_version()).max_scatter_instances)
+	max_instances = int(WorldLimits.for_schema(doc.schema_version).max_scatter_instances)
 	_index = index if index != null else ScatterIndex.new(doc.scatter)
 	_rng.seed = seed_value
 	_slope_min = float(config.get("slope_min", 0.0))
@@ -39,12 +40,14 @@ func _init(doc: WorldDocument, catalog: AssetCatalog, config: Dictionary, avoid:
 	var total := 0.0
 	for item: Dictionary in config.get("items", []):
 		var asset := catalog.get_asset(str(item.asset_id))
-		if asset != null and asset.scatter_allowed:
+		var binding_id := doc.assets.bundled_binding_for(asset.asset_id) if asset != null else ""
+		if asset != null and asset.scatter_allowed and binding_id != "":
 			total += float(item.weight)
 			_assets.append(asset)
+			_bindings.append(binding_id)
 			_cumulative.append(total)
 	if avoid:
-		_collect_objects(catalog)
+		_collect_objects()
 
 
 func limit_message() -> String:
@@ -88,11 +91,12 @@ func try_add(x: float, z: float) -> Result:
 
 
 func _insert(asset: AssetDefinition, x: float, z: float) -> void:
+	var binding_id := _bindings[_assets.find(asset)]
 	var scale_value := _rng.randf_range(asset.scale_min, asset.scale_max)
 	scale_value = clampf(scale_value, asset.scale_min + SCALE_MARGIN, asset.scale_max - SCALE_MARGIN)
 	var yaw := _rng.randf_range(-PI, PI)
 	var flags := ScatterLayer.FLAG_TILT if _align else 0
-	if _doc.scatter.add(asset.asset_id, asset.version, x, z, yaw, scale_value, flags, max_instances):
+	if _doc.scatter.add(binding_id, x, z, yaw, scale_value, flags, max_instances):
 		_index.add_last()
 		added += 1
 
@@ -115,11 +119,11 @@ func _near_object(x: float, z: float, min_dist: float) -> bool:
 	return false
 
 
-func _collect_objects(catalog: AssetCatalog) -> void:
+func _collect_objects() -> void:
 	for id in _doc.sorted_object_ids():
 		var rec := _doc.get_object(id)
 		if rec.origin != WorldConstants.ORIGIN_MANUAL:
 			continue
-		var asset := catalog.get_asset(rec.asset_id)
+		var asset := _doc.assets.definition(rec.binding_id)
 		var footprint := asset.footprint_radius_m if asset != null else 0.0
 		_avoid.append(Vector3(rec.position[0], rec.position[2], footprint * rec.uniform_scale))

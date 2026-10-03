@@ -79,6 +79,9 @@ func cancel_scrub() -> void:
 
 
 func _open(label: String) -> String:
+	var refused := _ctx.read_only_refusal()
+	if refused != "":
+		return refused
 	if _tx != null or (_busy.is_valid() and bool(_busy.call())):
 		return ToolModel.BUSY
 	var tx := EditTransaction.new()

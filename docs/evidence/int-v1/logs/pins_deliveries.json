@@ -1,0 +1,266 @@
+[
+ {
+  "name": "Neutral PBR Crate",
+  "asset_id": "ast_3vhxm0xd3ps0c5rd",
+  "version_id": "ver_dmsh83v96cga1q7t",
+  "display_version": 1,
+  "descriptor_sha256": "47d12bee2e44ad5402fa547297f580a495d370c4610f6b8257cb7f0bd2761dc1",
+  "deliveries": [
+   {
+    "representation": "godot_static_source_v1",
+    "delivery_id": "dlv_q1vq9axskc063yv5",
+    "manifest_sha256": "511797c57b91758565740758620a71e97ed12c9f5e82ae0ea5eb6cca59ab3211",
+    "files": [
+     {
+      "path": "source.zip",
+      "sha256": "c69e5f64fa84a39ca9d81a5b1da9dbaf691c2a826e182a64b65d65e51fb7a6ac",
+      "size": 1320
+     }
+    ]
+   },
+   {
+    "representation": "portable_glb_v1",
+    "delivery_id": "dlv_5qamrs4m3bpfcf8w",
+    "manifest_sha256": "1e256703f82e2c2c033fcab5a628717e373d44fe270f88fb16c5b76d70eb6698",
+    "files": [
+     {
+      "path": "model.glb",
+      "sha256": "36bdce844dce4b4f3f654f87c59030fc551cb6ea8494de681a17c195ce54cf3f",
+      "size": 2884
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "name": "Neutral PBR Crate",
+  "asset_id": "ast_3vhxm0xd3ps0c5rd",
+  "version_id": "ver_pf5wjayvpf8d3k91",
+  "display_version": 2,
+  "descriptor_sha256": "99eea599659f640730022953f8bd190f820912dbd2dfa6c30f64cf9aeff588cb",
+  "deliveries": [
+   {
+    "representation": "godot_static_source_v1",
+    "delivery_id": "dlv_gxmt028ydwm60tnp",
+    "manifest_sha256": "32d93bc115c10d36442066055159598910413816c420da287eb4f583c05d6c1e",
+    "files": [
+     {
+      "path": "source.zip",
+      "sha256": "d6e99f48e3cd7a7898402e7b9fab2f15734645c7f6196b4d7477159b0a1f7ab7",
+      "size": 1322
+     }
+    ]
+   },
+   {
+    "representation": "portable_glb_v1",
+    "delivery_id": "dlv_hxb8gjncfcxr9f40",
+    "manifest_sha256": "b2efbcb27181fc379970143d326990a4138eff2952038dc257f1b2860b1cced6",
+    "files": [
+     {
+      "path": "model.glb",
+      "sha256": "3a0e3980e73aa60099132f0f1a7dcd663f366e19a58bb266cc27fcc3b2d73827",
+      "size": 3656
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "name": "Shared UID Blue",
+  "asset_id": "ast_nfykyd4ybvzsjh6h",
+  "version_id": "ver_ja5f7w0gj3y7thxh",
+  "display_version": 1,
+  "descriptor_sha256": "379c96d980148554c9e1d168f12617bd968866ec1327cbd21a4d5ff82c7586dc",
+  "deliveries": [
+   {
+    "representation": "godot_static_source_v1",
+    "delivery_id": "dlv_m31ac7xh7hg2mb5k",
+    "manifest_sha256": "b6dee37b10e5eda5198da8864c166e0994de88ac87dcf3e499dc731864750d71",
+    "files": [
+     {
+      "path": "source.zip",
+      "sha256": "10991a5f2a84767686e8f7ebd132d0c897edcb04244921937f740755dac07f59",
+      "size": 1330
+     }
+    ]
+   },
+   {
+    "representation": "portable_glb_v1",
+    "delivery_id": "dlv_8sgnh4f3wtffqrjj",
+    "manifest_sha256": "2b536050ea7c8eb9ea92a9a6a532784bb7d0e0d1299ab3e3f8e3a855574992d2",
+    "files": [
+     {
+      "path": "model.glb",
+      "sha256": "aee201004229c5eb43f7d70d644f9c6d93b66690fefd85092d8fd2dbe8a74347",
+      "size": 2860
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "name": "Shared UID Red",
+  "asset_id": "ast_39tqk1fyhpg2qwjp",
+  "version_id": "ver_y6e1mn4qjny48wd4",
+  "display_version": 1,
+  "descriptor_sha256": "d263ea011e03285a0e549e0a0f724b8d2976d025c3bc7890fc44ca99aea65512",
+  "deliveries": [
+   {
+    "representation": "godot_static_source_v1",
+    "delivery_id": "dlv_j2csndn2hvhvv07k",
+    "manifest_sha256": "048fc77d3f95422f286b56ad9a4f9e19e772b84d4035e13152dc0af35771d68f",
+    "files": [
+     {
+      "path": "source.zip",
+      "sha256": "e04269e52bd82f3d5a44218ccd996d4da0596f0bd67fe9425779472b09149558",
+      "size": 1324
+     }
+    ]
+   },
+   {
+    "representation": "portable_glb_v1",
+    "delivery_id": "dlv_n4xscdppygmb50cj",
+    "manifest_sha256": "029e3e174311834b3f9ec54eb87cb942af42d68d0f6b2c58308771f93456553a",
+    "files": [
+     {
+      "path": "model.glb",
+      "sha256": "79e59cd314a4af843a7ad31e2df141f083fa4bf3b691ddf2c57f05835c39e0d3",
+      "size": 2856
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "name": "Textured Tree",
+  "asset_id": "ast_cqw5phmvjamgaa2y",
+  "version_id": "ver_4kxdjjn5z5qwn46c",
+  "display_version": 1,
+  "descriptor_sha256": "e56c2aec2cce2ba50ee753f71d2f268b455990f1875ea30d093650e0f13246ec",
+  "deliveries": [
+   {
+    "representation": "godot_static_source_v1",
+    "delivery_id": "dlv_hgd05ykvv3wd0jza",
+    "manifest_sha256": "9132532ef05767dcd354bcdd55d27c2d53ec1ff5fd699d28ddcd515c036a51e1",
+    "files": [
+     {
+      "path": "source.zip",
+      "sha256": "aeb29b8a7beddd8a889dde1b38ee3d60fdcb49fdad35ed3e878b6e644b708b30",
+      "size": 2602
+     }
+    ]
+   },
+   {
+    "representation": "portable_glb_v1",
+    "delivery_id": "dlv_vr6bdd8a9m0bk2nz",
+    "manifest_sha256": "0c640990a76f3cc77540cad6bcf273448ae928316223b9744e8c8a9691298ccc",
+    "files": [
+     {
+      "path": "model.glb",
+      "sha256": "134ce89a3814bce92e31d1a749e6eedb5223b50cadf221937520b63e14bed45d",
+      "size": 165237
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "name": "Textured Tree",
+  "asset_id": "ast_cqw5phmvjamgaa2y",
+  "version_id": "ver_mmmazdryk51txyss",
+  "display_version": 2,
+  "descriptor_sha256": "b8b5519159ba1db5c5635265ea1f90bcf34d90c58d58fa72c96efa504ea6404d",
+  "deliveries": [
+   {
+    "representation": "godot_static_source_v1",
+    "delivery_id": "dlv_7xyap8949sgz6ftc",
+    "manifest_sha256": "20300ac8f33c1da2f4a2335dbc611c792284fb82f4663aa353421d41d1dea24a",
+    "files": [
+     {
+      "path": "source.zip",
+      "sha256": "ade80a71cac7120dbec59186ccef147a149006903972616083109bc7f587100b",
+      "size": 2601
+     }
+    ]
+   },
+   {
+    "representation": "portable_glb_v1",
+    "delivery_id": "dlv_9y81517ezjtrvpxh",
+    "manifest_sha256": "c8517d2587720e8f2f3df5fec1b7a4f0e0c54f0c568ea555b3c1b6d8411e7e5a",
+    "files": [
+     {
+      "path": "model.glb",
+      "sha256": "ec9c17c8725ba6944afcd22c4db5fc9a4a9836ea95198d8fd9494251de0d21d7",
+      "size": 165221
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "name": "Textured Tree",
+  "asset_id": "ast_cqw5phmvjamgaa2y",
+  "version_id": "ver_gb7c280cfv720e6j",
+  "display_version": 3,
+  "descriptor_sha256": "ab87d8dc1373d93c6fdfd30ad1e0978decd42007c38de7b306adadef6aca2ee2",
+  "deliveries": [
+   {
+    "representation": "godot_static_source_v1",
+    "delivery_id": "dlv_rat5da8ze82q2kt2",
+    "manifest_sha256": "78bf195950321cbc4e8b0355f5cb6f22b6962e6c05937b725b7b7bee26e19007",
+    "files": [
+     {
+      "path": "source.zip",
+      "sha256": "7da5edb9bb227c476134b34689ee2166f0b11fc9fcf985844eeb0d36f48a8288",
+      "size": 2604
+     }
+    ]
+   },
+   {
+    "representation": "portable_glb_v1",
+    "delivery_id": "dlv_59hp6566w9v5ksrm",
+    "manifest_sha256": "c3021998fc16081612813d3d0e2dda9613723e5bf204db52921389f30d2b6e8f",
+    "files": [
+     {
+      "path": "model.glb",
+      "sha256": "0f3f9b1e63fef73e5eef2ac3eb39280ecc4edefd9bb3a9657c7df238da57e3f5",
+      "size": 165253
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "name": "Vertex Color Foliage",
+  "asset_id": "ast_38fhqc22bza1tjcd",
+  "version_id": "ver_99ewvmvg162ynn2c",
+  "display_version": 1,
+  "descriptor_sha256": "df0ad4269b1de404bb03ee0b364752330e8dfd32de959618c1106ea2adedb356",
+  "deliveries": [
+   {
+    "representation": "godot_static_source_v1",
+    "delivery_id": "dlv_15s5mgqd79xyw3py",
+    "manifest_sha256": "6f5aad755c4889a697fd2b5e546603b01d1f9352e38b72bfc6a0ac7f5619c7f3",
+    "files": [
+     {
+      "path": "source.zip",
+      "sha256": "5f393959e60b4c9d55fa78ae8b40718ea62f6e02c6613d12aafc16a2de2bdad0",
+      "size": 2538
+     }
+    ]
+   },
+   {
+    "representation": "portable_glb_v1",
+    "delivery_id": "dlv_5t75fbvdcpd5152h",
+    "manifest_sha256": "ef86133eb59cfd28544b334a4e51ccd4be3f4e990ff2605a9f1727e547904bc6",
+    "files": [
+     {
+      "path": "model.glb",
+      "sha256": "5a1e35ff25cf492a61989df6f13ae904918c790f8d4fdee3967ee9da1cb4b9d3",
+      "size": 3268
+     }
+    ]
+   }
+  ]
+ }
+]

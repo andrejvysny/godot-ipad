@@ -1,0 +1,127 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+[   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+[   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+[  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+[  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+[  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+[  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+[  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+[92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+[0m
+[   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+[   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+[  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+[  33% ] [90m[1mloading_editor_layout[22m | Reopening scenes...[39m[0m
+[  50% ] [90m[1mloading_editor_layout[22m | Loading central editor layout...[39m[0m
+[  66% ] [90m[1mloading_editor_layout[22m | Loading plugin window layout...[39m[0m
+[  83% ] [90m[1mloading_editor_layout[22m | Editor layout ready.[39m[0m
+[92m[ DONE ][39m [1mloading_editor_layout[22m
+[0m
+DRV preview child launched by the editor plugin PASS 
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+DRV child running PASS 
+DRV child listener up PASS 
+DRV iPad world ready signal PASS 
+WARNING: instance_reset_physics_interpolation() is deprecated.
+     at: _instance_reset_physics_interpolation_bind_compat_104269 (servers/rendering/rendering_server.compat.inc:62)
+     GDScript backtrace (most recent call first):
+         [0] _create_terrain (res://addons/world_painter/terrain/terrain_adapter.gd:311)
+         [1] initialize (res://addons/world_painter/terrain/terrain_adapter.gd:58)
+         [2] replace_document (res://addons/world_painter/terrain/terrain_adapter.gd:66)
+         [3] _present_snapshot (res://addons/world_painter/preview/world_preview_root.gd:99)
+         [4] _process (res://addons/world_painter/preview/world_preview_root.gd:74)
+DRV child replica hash equals the iPad hash PASS 
+DRV child visual ready, nothing missing PASS 
+DRV freeze1 review built PASS 
+DRV review blockers empty PASS 
+DRV review is the committed revision, not the overlay PASS 
+DRV_INFO dependencies ["ast_3vhxm0xd3ps0c5rd:unchanged/ok", "ast_cqw5phmvjamgaa2y:unchanged/ok", "ast_38fhqc22bza1tjcd:unchanged/ok"]
+DRV project content unchanged by preview + freeze + review (E2E-12) PASS 
+DRV iPad later edits signal PASS 
+DRV live replica moved on from the frozen revision PASS 
+Terrain3DRegion#5141:save:226: Writing region (-1, -1) to res://.world_painter/staging/c5b131b6c8cd7b8b/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#2764:save:226: Writing region (0, -1) to res://.world_painter/staging/c5b131b6c8cd7b8b/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#0376:save:226: Writing region (-1, 0) to res://.world_painter/staging/c5b131b6c8cd7b8b/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#7997:save:226: Writing region (0, 0) to res://.world_painter/staging/c5b131b6c8cd7b8b/generated/terrain/terrain3d_00_00.res
+DRV apply 1 ok PASS 
+DRV accepted snapshot is the reviewed (frozen) revision PASS 
+DRV generated world matches the frozen document, later edits absent PASS 
+DRV game scene saved PASS 
+DRV iPad edit 2 signal PASS 
+DRV freeze2 review built PASS 
+DRV second review applicable over an untouched generated directory PASS 
+Terrain3DRegion#7270:save:226: Writing region (-1, -1) to res://.world_painter/staging/4b9fcdfc4edd1c7f/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#4893:save:226: Writing region (0, -1) to res://.world_painter/staging/4b9fcdfc4edd1c7f/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#2505:save:226: Writing region (-1, 0) to res://.world_painter/staging/4b9fcdfc4edd1c7f/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#0126:save:226: Writing region (0, 0) to res://.world_painter/staging/4b9fcdfc4edd1c7f/generated/terrain/terrain3d_00_00.res
+DRV apply 2 ok (existing world replaced by a new complete generation) PASS 
+DRV game siblings (scene, script, light, player) byte-identical PASS 
+DRV binding points at generation 2 PASS 
+ERROR: res://worlds/6cf363cc-1c60-4c85-8549-c7b2aa4c9d3d/revisions/0588ceb10e24649bc4227d0405f188d0/generated/world.tscn:2 - Parse Error: Unexpected end of file.
+   at: _printerr (scene/resources/resource_format_text.cpp:41)
+ERROR: Condition "error != OK" is true.
+   at: get_dependencies (scene/resources/resource_format_text.cpp:929)
+DRV iPad edit 3 signal PASS 
+DRV freeze3 review built PASS 
+DRV modified generated content blocks the replacement PASS 
+DRV refused without explicit discard, binding untouched PASS 
+ERROR: res://worlds/6cf363cc-1c60-4c85-8549-c7b2aa4c9d3d/revisions/0588ceb10e24649bc4227d0405f188d0/generated/world.tscn:2 - Parse Error: Unexpected end of file.
+   at: _printerr (scene/resources/resource_format_text.cpp:41)
+ERROR: Condition "error != OK" is true.
+   at: get_dependencies (scene/resources/resource_format_text.cpp:929)
+Terrain3DRegion#7356:save:226: Writing region (-1, -1) to res://.world_painter/staging/c6279473260d1cf2/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#4979:save:226: Writing region (0, -1) to res://.world_painter/staging/c6279473260d1cf2/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#2591:save:226: Writing region (-1, 0) to res://.world_painter/staging/c6279473260d1cf2/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#0212:save:226: Writing region (0, 0) to res://.world_painter/staging/c6279473260d1cf2/generated/terrain/terrain3d_00_00.res
+DRV explicit discard allows the replacement PASS 
+DRV game siblings still byte-identical PASS 
+DRV iPad edit 4 signal PASS 
+Terrain3DRegion#7806:save:226: Writing region (-1, -1) to res://.world_painter/staging/91f9b0cbbe88366f/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#5640:save:226: Writing region (0, -1) to res://.world_painter/staging/91f9b0cbbe88366f/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#3007:save:226: Writing region (-1, 0) to res://.world_painter/staging/91f9b0cbbe88366f/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#0875:save:226: Writing region (0, 0) to res://.world_painter/staging/91f9b0cbbe88366f/generated/terrain/terrain3d_00_00.res
+Terrain3DRegion#7256:save:226: Writing region (-1, -1) to res://.world_painter/staging/36d037eabea0d2db/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#4845:save:226: Writing region (0, -1) to res://.world_painter/staging/36d037eabea0d2db/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#2463:save:226: Writing region (-1, 0) to res://.world_painter/staging/36d037eabea0d2db/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#0152:save:226: Writing region (0, 0) to res://.world_painter/staging/36d037eabea0d2db/generated/terrain/terrain3d_00_00.res
+Terrain3DRegion#5788:save:226: Writing region (-1, -1) to res://.world_painter/staging/381605a0505a4b08/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#3480:save:226: Writing region (0, -1) to res://.world_painter/staging/381605a0505a4b08/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#1031:save:226: Writing region (-1, 0) to res://.world_painter/staging/381605a0505a4b08/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#8742:save:226: Writing region (0, 0) to res://.world_painter/staging/381605a0505a4b08/generated/terrain/terrain3d_00_00.res
+Terrain3DRegion#7666:save:226: Writing region (-1, -1) to res://.world_painter/staging/1088dc8f738ce64b/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#5366:save:226: Writing region (0, -1) to res://.world_painter/staging/1088dc8f738ce64b/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#2973:save:226: Writing region (-1, 0) to res://.world_painter/staging/1088dc8f738ce64b/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#0484:save:226: Writing region (0, 0) to res://.world_painter/staging/1088dc8f738ce64b/generated/terrain/terrain3d_00_00.res
+Terrain3DRegion#6811:save:226: Writing region (-1, -1) to res://.world_painter/staging/ead75cb1d18b10d0/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#4324:save:226: Writing region (0, -1) to res://.world_painter/staging/ead75cb1d18b10d0/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#1872:save:226: Writing region (-1, 0) to res://.world_painter/staging/ead75cb1d18b10d0/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#9591:save:226: Writing region (0, 0) to res://.world_painter/staging/ead75cb1d18b10d0/generated/terrain/terrain3d_00_00.res
+Terrain3DRegion#8982:save:226: Writing region (-1, -1) to res://.world_painter/staging/0a074cb52eaa8499/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#6615:save:226: Writing region (0, -1) to res://.world_painter/staging/0a074cb52eaa8499/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#3933:save:226: Writing region (-1, 0) to res://.world_painter/staging/0a074cb52eaa8499/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#1838:save:226: Writing region (0, 0) to res://.world_painter/staging/0a074cb52eaa8499/generated/terrain/terrain3d_00_00.res
+Terrain3DRegion#7811:save:226: Writing region (-1, -1) to res://.world_painter/staging/98100e65a90d977a/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#5454:save:226: Writing region (0, -1) to res://.world_painter/staging/98100e65a90d977a/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#3030:save:226: Writing region (-1, 0) to res://.world_painter/staging/98100e65a90d977a/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#0657:save:226: Writing region (0, 0) to res://.world_painter/staging/98100e65a90d977a/generated/terrain/terrain3d_00_00.res
+Terrain3DRegion#2711:save:226: Writing region (-1, -1) to res://.world_painter/staging/6f92bec369d1dd46/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#0353:save:226: Writing region (0, -1) to res://.world_painter/staging/6f92bec369d1dd46/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#8090:save:226: Writing region (-1, 0) to res://.world_painter/staging/6f92bec369d1dd46/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#5584:save:226: Writing region (0, 0) to res://.world_painter/staging/6f92bec369d1dd46/generated/terrain/terrain3d_00_00.res
+Terrain3DRegion#2105:save:226: Writing region (-1, -1) to res://.world_painter/staging/5d638d8b62157c01/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#9712:save:226: Writing region (0, -1) to res://.world_painter/staging/5d638d8b62157c01/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#7335:save:226: Writing region (-1, 0) to res://.world_painter/staging/5d638d8b62157c01/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#5061:save:226: Writing region (0, 0) to res://.world_painter/staging/5d638d8b62157c01/generated/terrain/terrain3d_00_00.res
+Terrain3DRegion#6009:save:226: Writing region (-1, -1) to res://.world_painter/staging/8fa420abaca6601c/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#3621:save:226: Writing region (0, -1) to res://.world_painter/staging/8fa420abaca6601c/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#1245:save:226: Writing region (-1, 0) to res://.world_painter/staging/8fa420abaca6601c/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#8855:save:226: Writing region (0, 0) to res://.world_painter/staging/8fa420abaca6601c/generated/terrain/terrain3d_00_00.res
+Terrain3DRegion#4147:save:226: Writing region (-1, -1) to res://.world_painter/staging/aaca60376cf42c1d/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#1847:save:226: Writing region (0, -1) to res://.world_painter/staging/aaca60376cf42c1d/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#9446:save:226: Writing region (-1, 0) to res://.world_painter/staging/aaca60376cf42c1d/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#7091:save:226: Writing region (0, 0) to res://.world_painter/staging/aaca60376cf42c1d/generated/terrain/terrain3d_00_00.res
+DRV crash at every coordinator step leaves the old or the new complete generation (11 crash points, finished=true) PASS 
+DRV_INFO failed_steps=0
+DRV_OK

@@ -38,9 +38,10 @@ func test_package_round_trip_matches_source_bytes_and_transforms() -> void:
 	var doc: WorldDocument = loaded[0]
 	assert_eq(doc.objects.size(), 100)
 	var manifest: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(STRESS + "/manifest.json"))
-	assert_eq(CanonicalEncoder.authored_hash(doc), manifest.authored_content_hash)
+	assert_eq(CanonicalEncoder.authored_hash(doc), CanonicalEncoder.authored_hash(source), "schema 4 content hash")
 	var report := WorldLoader.report(doc, catalog)
-	assert_eq(report.authored_hash, manifest.authored_content_hash)
+	assert_eq(report.authored_hash, manifest.authored_content_hash, "stored hash of the source schema")
+	assert_eq(report.authored_hash_v4, CanonicalEncoder.authored_hash(doc))
 	assert_eq(report.regions.size(), source.regions.size())
 	for loc in source.regions:
 		var key := "%d,%d" % [loc.x, loc.y]
@@ -50,7 +51,7 @@ func test_package_round_trip_matches_source_bytes_and_transforms() -> void:
 	assert_eq(report.object_ids, Array(source.sorted_object_ids()))
 	for id in source.objects:
 		var a: ObjectRecord = source.objects[id]
-		var asset := catalog.get_asset(a.asset_id)
+		var asset := catalog.get_asset(source.assets.definition(a.binding_id).asset_id)
 		var b: ObjectRecord = doc.objects[id]
 		assert_true(a.node_transform(asset.anchor_local) == b.node_transform(asset.anchor_local), id)
 

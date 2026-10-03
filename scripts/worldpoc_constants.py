@@ -13,7 +13,9 @@ APP_DIR = REPO / "app"
 FORMAT = "world-painter-poc"
 SCHEMA_VERSION = 2  # legacy 2x2 layout; also the schema every pre-layout world uses
 SCHEMA_VERSION_LAYOUT = 3  # layout worlds (world-format §11)
-SUPPORTED_SCHEMAS = (SCHEMA_VERSION, SCHEMA_VERSION_LAYOUT)
+SCHEMA_VERSION_LOCK = 4  # schema 3 plus asset bindings (world-format §12, ADR 0014)
+SUPPORTED_SCHEMAS = (SCHEMA_VERSION, SCHEMA_VERSION_LAYOUT, SCHEMA_VERSION_LOCK)
+LOCK_PATH = "asset_locks.json"
 SAMPLE_SPACING = 0.5
 REGION_SAMPLES = 256
 REGION_SAMPLE_COUNT = REGION_SAMPLES * REGION_SAMPLES
@@ -52,6 +54,7 @@ DEFAULT_RULES: dict[str, bool | int] = {
 SCATTER_MAGIC = b"WPSC"
 PATHS_MAGIC = b"WPPA"
 SCATTER_VERSION = 1
+SCATTER_VERSION_V2 = 2  # schema 4 binding table
 PATHS_VERSION = 1
 SCATTER_INSTANCE_BYTES = 20
 SCATTER_FLAG_TILT = 1
@@ -147,7 +150,7 @@ def _is_integral(v: Any) -> bool:
 	return isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v) and v == math.floor(v) and abs(v) <= 1024
 
 
-# --- Limits (world-format §11.3; mirrors app/src/document/world_limits.gd) -------------
+# --- Limits (world-format §11.3; mirrors app/addons/world_painter/core/document/world_limits.gd) -------------
 _LIMITS_V2: dict[str, int] = {
 	"max_regions": 4,
 	"max_objects": 2000,
@@ -174,13 +177,18 @@ _LIMITS_V3: dict[str, int] = {
 }
 
 
+_LIMITS_V4: dict[str, int] = dict(_LIMITS_V3, max_entries=198, max_lock_bytes=8 * 1024 * 1024, max_bindings=4096)
+
+
 def limits_for_schema(schema: int) -> dict[str, int]:
 	"""Admission limits of a supported schema (a copy); raises KeyError for any other."""
-	return dict({SCHEMA_VERSION: _LIMITS_V2, SCHEMA_VERSION_LAYOUT: _LIMITS_V3}[schema])
+	return dict({SCHEMA_VERSION: _LIMITS_V2, SCHEMA_VERSION_LAYOUT: _LIMITS_V3, SCHEMA_VERSION_LOCK: _LIMITS_V4}[schema])
 
 
-# Package inspection runs before the manifest is read, so it applies the largest schema.
+# Package inspection runs before the manifest is read. ZIP_ENVELOPE is the schema 3 envelope (kept for
+# schema 2/3 call sites); ZIP_ENVELOPE_V4 adds the lock (one more entry, 8 MiB).
 ZIP_ENVELOPE: dict[str, int] = limits_for_schema(SCHEMA_VERSION_LAYOUT)
+ZIP_ENVELOPE_V4: dict[str, int] = limits_for_schema(SCHEMA_VERSION_LOCK)
 
 # Schema 2 aliases kept for older call sites.
 SCATTER_MAX_INSTANCES = _LIMITS_V2["max_scatter_instances"]
@@ -198,14 +206,16 @@ HEX16_RE = re.compile(r"^[0-9a-fA-F]{16}$")
 
 AUTHORED_MAGIC = b"WPOC-AUTHORED-V2\n"
 AUTHORED_MAGIC_V3 = b"WPOC-AUTHORED-V3\n"
+AUTHORED_MAGIC_V4 = b"WPOC-AUTHORED-V4\n"
+BINDING_ID_RE = re.compile(r"^b[0-9a-f]{32}$")
 CATALOG_MAGIC = b"WPOC-CATALOG-V1\n"
 
 
-def terrain_block(layout: Layout = LEGACY_LAYOUT) -> dict[str, Any]:
-	"""Manifest terrain block with the default rules; schema 3 adds terrain.layout."""
+def terrain_block(layout: Layout = LEGACY_LAYOUT, always_layout: bool = False) -> dict[str, Any]:
+	"""Manifest terrain block with the default rules; schema 3 adds terrain.layout (schema 4: always)."""
 	block = dict(TERRAIN_BLOCK)
 	block["region_locations"] = [list(loc) for loc in layout_regions(*layout)]
-	if layout != LEGACY_LAYOUT:
+	if layout != LEGACY_LAYOUT or always_layout:
 		block["layout"] = layout_to_manifest(layout)
 	return block
 
@@ -230,15 +240,17 @@ SCATTER_PATH = "scatter.bin"
 PATHS_PATH = "paths.bin"
 
 
-def payload_paths(layout: Layout = LEGACY_LAYOUT) -> list[str]:
-	"""Payload paths of a layout (3 + 3 per region), sorted byte-wise (ASCII str sort is byte-wise)."""
+def payload_paths(layout: Layout = LEGACY_LAYOUT, schema: int = 0) -> list[str]:
+	"""Payload paths of a layout (3 + 3 per region; schema 4 adds the lock), sorted byte-wise (ASCII str
+	sort is byte-wise)."""
 	locs = layout_regions(*layout)
-	return sorted(["objects.json", PATHS_PATH, SCATTER_PATH] + [height_path(l) for l in locs]
-		+ [control_path(l) for l in locs] + [color_path(l) for l in locs])
+	fixed = ["objects.json", PATHS_PATH, SCATTER_PATH] + ([LOCK_PATH] if schema == SCHEMA_VERSION_LOCK else [])
+	return sorted(fixed + [height_path(l) for l in locs] + [control_path(l) for l in locs]
+		+ [color_path(l) for l in locs])
 
 
-def generation_files(layout: Layout = LEGACY_LAYOUT) -> set[str]:
-	return set(payload_paths(layout)) | {"manifest.json"}
+def generation_files(layout: Layout = LEGACY_LAYOUT, schema: int = 0) -> set[str]:
+	return set(payload_paths(layout, schema)) | {"manifest.json"}
 
 
 PAYLOAD_PATHS: list[str] = payload_paths()  # legacy layout

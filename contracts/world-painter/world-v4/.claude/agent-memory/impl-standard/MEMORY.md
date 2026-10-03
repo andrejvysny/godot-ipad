@@ -1,0 +1,1 @@
+- [godot-ipad schema 4 gotchas](godot_ipad_schema4.md) — test runner/sandbox pitfalls

@@ -125,8 +125,7 @@ static func _synth_one(doc: WorldDocument, catalog: AssetCatalog, rng: RandomNum
 			continue
 		var rec := ObjectRecord.new()
 		rec.object_id = id
-		rec.asset_id = asset.asset_id
-		rec.asset_version = asset.version
+		rec.binding_id = doc.assets.bundled_binding_for(asset.asset_id)
 		rec.set_position(x, y, z)
 		var q := Quaternion(Vector3.UP, rng.randf_range(0.0, TAU))
 		rec.rotation_xyzw = PackedFloat64Array([q.x, q.y, q.z, q.w])

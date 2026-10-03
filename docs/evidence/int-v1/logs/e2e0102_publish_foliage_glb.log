@@ -1,0 +1,146 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+{
+  "capabilities": [
+    "godot_text_scene_v1",
+    "vertex_colors",
+    "alpha_mask",
+    "pbr_textures"
+  ],
+  "conversion_report": {
+    "approximations": [],
+    "omissions": [],
+    "portable_status": "exact"
+  },
+  "descriptor_draft": {
+    "collision": null,
+    "default_grounding": "FOLLOW_TERRAIN",
+    "footprint_radius_m": "0.8",
+    "height_offset_range_m": [
+      "-0.1",
+      "0.5"
+    ],
+    "material_slots": [
+      {
+        "role": "foliage_vc",
+        "slot_id": "foliage_vc",
+        "surfaces": {
+          "godot_static_source_v1": [
+            {
+              "node_path": "Mesh",
+              "surface": 0
+            }
+          ],
+          "portable_glb_v1": [
+            {
+              "mesh": 0,
+              "primitive": 0
+            }
+          ]
+        }
+      }
+    ],
+    "placement_anchor": [
+      "0",
+      "0",
+      "0"
+    ],
+    "preview_warnings": [],
+    "scale_range": [
+      "0.5",
+      "2"
+    ],
+    "schema_version": 1
+  },
+  "expires_at": "2026-10-04T08:55:43.297Z",
+  "files": 2,
+  "hashes": {
+    "descriptor_draft_sha256": "371c698c60efdcd3c5c740017100963f70c79f3415b7b2985b448ad4d51322d3",
+    "package_sha256": "5f393959e60b4c9d55fa78ae8b40718ea62f6e02c6613d12aafc16a2de2bdad0",
+    "portable_sha256": "5a1e35ff25cf492a61989df6f13ae904918c790f8d4fdee3967ee9da1cb4b9d3"
+  },
+  "idempotency_key": "asp_d3c84a912dc769d1778a734cd269e171",
+  "local_warnings": [],
+  "phase": "previewed",
+  "portable": {
+    "bytes": 3268,
+    "materials": 1,
+    "max_texture_px": 32,
+    "nodes": 3,
+    "triangles": 4
+  },
+  "preview_id": "ipv_c22k390ajgya8avs",
+  "server": {
+    "bounds": {
+      "max": [
+        "0.5",
+        "1",
+        "0.5"
+      ],
+      "min": [
+        "-0.5",
+        "0",
+        "-0.5"
+      ]
+    },
+    "budget": {
+      "exceeded": [],
+      "glb_bytes": 3268.0,
+      "materials": 1.0,
+      "max_texture_px": 32.0,
+      "nodes": 3.0,
+      "triangles": 4.0,
+      "warnings": [],
+      "within_ipad_budget": true
+    },
+    "source": {
+      "asset_dependencies": [],
+      "dependency_closure": [
+        "models/foliage.glb",
+        "scenes/foliage_glb.tscn"
+      ],
+      "detected_capabilities": [
+        "godot_text_scene_v1"
+      ],
+      "evidence": {
+        "collision": "absent",
+        "conversion_report": "publisher_declared",
+        "source_surfaces": {
+          "node_only": 0.0,
+          "unverified": 1.0,
+          "verified": 0.0
+        }
+      },
+      "manifest_sha256": "7593ebdf2e98e24310de8162323aa5a7bddfd81df28920402fe950bb11ef160d",
+      "source_godot_version": "4.7.2-stable",
+      "source_surfaces": {
+        "foliage_vc": [
+          {
+            "node_path": "Mesh",
+            "surface": 0.0
+          }
+        ]
+      },
+      "warnings": []
+    },
+    "warnings": []
+  },
+  "target": {
+    "expected_current_version": null,
+    "library": "prj_cfp3pxzs9c8ym9v2",
+    "mode": "new_asset",
+    "name": "Vertex Color Foliage",
+    "target_asset_id": null
+  }
+}
+{
+  "outcome": {
+    "asset_id": "ast_38fhqc22bza1tjcd",
+    "descriptor_sha256": "df0ad4269b1de404bb03ee0b364752330e8dfd32de959618c1106ea2adedb356",
+    "display_version": 1.0,
+    "library_id": "prj_cfp3pxzs9c8ym9v2",
+    "version_id": "ver_99ewvmvg162ynn2c",
+    "via": "commit"
+  },
+  "phase": "committed"
+}

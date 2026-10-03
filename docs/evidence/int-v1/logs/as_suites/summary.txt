@@ -1,0 +1,9 @@
+run_tests.gd exit 0
+run_client_tests.py exit 0
+run_consumer_tests.py exit 0
+run_source_tests.py exit 0
+run_publish_tests.py exit 0
+run_export_tests.py exit 0
+run_plugin_tests.py exit 0
+pytest exit 0
+DONE

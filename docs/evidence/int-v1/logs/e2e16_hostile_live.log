@@ -1,0 +1,22 @@
+fixture                      sha256[:12]   expected         http  got              detail(got/expected)
+absolute_path                eed14fc3bab0  unsafe_package   422   unsafe_package   absolute_path/absolute_path OK
+backslash_path               bd73551c4a0c  unsafe_package   422   unsafe_package   backslash_path/backslash_path OK
+binary_scn                   d4d730e02abe  unsafe_package   422   unsafe_package   binary_resource/binary_resource OK
+casefold_duplicate           0ac99ea8acf3  unsafe_package   422   unsafe_package   casefold_collision/casefold_collision OK
+connection_in_scene          31681b9ffe79  unsafe_package   422   unsafe_package   connection/connection OK
+custom_class_node            7dc396fbcaa3  unsafe_package   422   unsafe_package   type_not_allowed/type_not_allowed OK
+encrypted_flag               5c79bfab0cb4  unsafe_package   422   unsafe_package   encrypted/encrypted OK
+glb_external_buffer          cd7edfd7ae73  unsafe_package   422   unsafe_package   glb_external_uri/glb_external_uri OK
+manifest_hash_mismatch       5f79a0f61588  integrity_mismatch 422   integrity_mismatch sha256/sha256 OK
+path_traversal               4b67d883da02  unsafe_package   422   unsafe_package   path_traversal/path_traversal OK
+project_godot                40eb51447d79  unsafe_package   422   unsafe_package   forbidden_file/forbidden_file OK
+script_file                  2dc624a7c7ac  unsafe_package   422   unsafe_package   forbidden_extension/forbidden_extension OK
+shader_include_escape        789d7d3a21a6  unsafe_package   422   unsafe_package   shader_include_escape/shader_include_escape OK
+symlink_member               c9f563d6cd2a  unsafe_package   422   unsafe_package   symlink/symlink OK
+tres_script_property         b892f1cfb74e  unsafe_package   422   unsafe_package   script_property/script_property OK
+unavailable_dependency       e841edb52ca3  unsupported_source_dependency 422   unsupported_source_dependency unknown_asset_key/unknown_asset_key OK
+undeclared_member            2415ad403ffe  unsafe_package   422   unsafe_package   undeclared_member/undeclared_member OK
+zip_bomb                     fa9ca3d6d255  resource_limit   422   resource_limit   compression_ratio/compression_ratio OK
+huge_decoded_image(generated) e1e22c4b0461  resource_limit   422   resource_limit   image_dimensions/image_dimensions OK
+staging previews unchanged by hostile uploads: True
+library asset list unchanged: True | all refused: True

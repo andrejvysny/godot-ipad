@@ -3,7 +3,7 @@
 Product contract: `Godot_iPad_World_Editor_PoC_Specification.md` (Core PoC = WP00–WP06). The user authorized the
 World Editor v2 redesign incl. PoC+ features on 2026-10-01: `docs/decisions/0009-world-editor-v2.md`, behaviour spec
 `docs/editor-v2.md`, design source `docs/design/`. Report PoC+ results separately from Core results.
-Format contract: `docs/world-format.md` (schemas 2/3). Input contract: `docs/input-contract.md`. Decisions: `docs/decisions/`.
+Format contract: `docs/world-format.md` (reads schemas 2/3/4, writes 4; ADR 0014). Integration ADRs 0014–0017; contracts `contracts/world-painter/`. Input contract: `docs/input-contract.md`. Decisions: `docs/decisions/`.
 
 Tracking: Plane project `GODOTIPAD` (work items, "Current state" page). No TODO/HANDOFF files in the repo.
 
@@ -12,6 +12,8 @@ Tracking: Plane project `GODOTIPAD` (work items, "Current state" page). No TODO/
 - `native/ios_input/` GDExtension source (Obj-C++, godot-cpp 10.0.0 api 4.7); built xcframeworks land in `app/addons/wp_native_input/bin/`.
 - `scripts/` Python 3 stdlib-only tooling (`dev.py`, `validate_world.py`, `generate_fixtures.py`, shared `worldpoc_format.py`), tests in `scripts/tests/`.
 - `app/addons/terrain_3d/` vendored Terrain3D 1.0.2-stable (macOS + iOS binaries only). Do not edit.
+- `app/addons/world_painter/` reusable addon (core, terrain, presentation, live, editor, preview, apply, runtime, cli); must not reference `res://src/`. Packaged by `scripts/package_world_painter.py`.
+- `app/addons/assetstudio/` vendored AssetStudio addon, pinned in `app/integration.lock.json`. Do not edit; fix upstream and re-vendor.
 
 ## Commands
 - `python3 scripts/dev.py test` — Godot import + GDScript tests + Python tests (nonzero on failure).

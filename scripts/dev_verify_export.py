@@ -27,7 +27,7 @@ REGISTRIES = (
 )
 CATALOGS = (APP / "assets" / "catalog.json", APP / "assets" / "bench" / "catalog.json")
 FIXED_FILES = (
-	"res://src/terrain/world_terrain.gdshader",
+	"res://addons/world_painter/terrain/world_terrain.gdshader",
 	"res://config/rendering_profiles.json",
 	"res://config/poc_defaults.json",
 )

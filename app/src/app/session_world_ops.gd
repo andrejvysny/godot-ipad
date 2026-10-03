@@ -29,10 +29,7 @@ static func new_layout_world(layout: WorldLayout, kind: String, catalog: AssetCa
 		return [null, "Unknown world kind '%s'." % kind]
 	if catalog == null:
 		return [null, "No trusted catalog loaded."]
-	var doc := WorldDocument.create_flat(0.0, WorldConstants.DEFAULT_CONTROL, layout)
-	doc.catalog_id = catalog.catalog_id
-	doc.catalog_version = catalog.catalog_version
-	doc.catalog_sha256 = catalog.sha256
+	var doc := WorldDocument.create_flat(0.0, WorldConstants.DEFAULT_CONTROL, layout, catalog)
 	doc.source_label = "new:%s-%s" % [layout.name(), kind]
 	if kind == "hills":
 		HillsTerrain.fill(doc, seed_value)
@@ -57,6 +54,8 @@ static func open_replacing(session: EditorSession, make: Callable, opened_text: 
 		return error
 	session._replace_document(opened[0])
 	session.post_message(opened_text)
+	if session.read_only_reason != "":
+		session.post_message(session.read_only_reason, true)
 	return ""
 
 
@@ -90,6 +89,17 @@ static func open_start_world(storage: WorldStorage, catalog: AssetCatalog, fixtu
 		"message": note + "Opened %s as a new world" % fixture.capitalize()}
 
 
+## "" when every referenced asset binding is available; else the read-only recovery reason (ADR 0014 D8).
+static func read_only_text(doc: WorldDocument) -> String:
+	var unavailable: Dictionary = WorldValidator.availability(doc).unavailable
+	if unavailable.is_empty():
+		return ""
+	var ids := PackedStringArray(unavailable.keys())
+	ids.sort()
+	return "Read-only recovery: %d asset binding(s) unavailable (%s: %s). Editing is disabled; navigation and export stay available." % [
+		ids.size(), ids[0], unavailable[ids[0]]]
+
+
 ## The ToolContext of the session's tools (document, projections, commit and cancel plumbing).
 static func make_tool_context(session: EditorSession) -> ToolContext:
 	var ctx := ToolContext.new()
@@ -104,9 +114,13 @@ static func make_tool_context(session: EditorSession) -> ToolContext:
 	ctx.diagnostic = session.post_message
 	ctx.units_per_point = session.input.mapper.viewport_units_per_point
 	ctx.stats = session.frames
-	ctx.scatter_changed = session.layers.scatter_changed
+	ctx.scatter_changed = func(rect: Rect2, heights_only: bool) -> void:
+		session.layers.scatter_changed(rect, heights_only)
+		if not heights_only:
+			session.scatter_touched.emit(rect)
 	ctx.path_changed = session.layers.path_changed
 	ctx.render_ready = session.render_state().registry().is_ready
+	ctx.display_name = session.assets().remote.prep.name_of
 	return ctx
 
 
@@ -316,9 +330,10 @@ static func history_status(history: CommandHistory) -> Dictionary:
 		"history_oldest": history.oldest_label()}
 
 
-static func input_status(input: InputSystem) -> Dictionary:
+static func input_status(input: InputSystem, read_only_reason: String = "") -> Dictionary:
 	return {"provider_label": input.provider_label(), "banner": input.banner_text(),
-		"editing_enabled": input.editing_enabled(), "development_input": input.is_development_input(),
+		"editing_enabled": input.editing_enabled() and read_only_reason == "", "read_only_reason": read_only_reason,
+		"development_input": input.is_development_input(),
 		"router_state": input.router.state_name(), "contacts": input.router.contacts().size(),
 		"pressure_available": bool(input.active_provider().capabilities().get("pressure", false))}
 

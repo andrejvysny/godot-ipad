@@ -29,7 +29,7 @@ static func duplicate_object(ctx: ToolContext, source: ObjectRecord) -> Dictiona
 	var h := doc.sample_height(x, z)
 	if is_nan(h):
 		return {"error": "No terrain under the copy.", "id": "", "change": null}
-	var asset := ctx.catalog.get_asset(source.asset_id)
+	var asset := doc.assets.definition(source.binding_id)
 	if asset != null and ctx.not_ready_error(asset) != "":
 		return {"error": ctx.not_ready_error(asset), "id": "", "change": null}
 	var copy := source.clone()
@@ -38,13 +38,51 @@ static func duplicate_object(ctx: ToolContext, source: ObjectRecord) -> Dictiona
 	copy.scatter_operation_id = ""
 	copy.set_position(x, h + source.height_offset_m, z)
 	var tx := EditTransaction.new()
-	tx.begin(doc, "duplicate", "Duplicate %s" % (asset.display_name if asset != null else source.asset_id))
+	tx.begin(doc, "duplicate", "Duplicate %s" % (asset.display_name if asset != null else source.binding_id))
 	if not tx.capture_object(copy.object_id):
 		tx.rollback()
 		return {"error": "Action memory budget exceeded.", "id": "", "change": null}
 	doc.put_object(copy)
 	ctx.presenter.sync_object(doc, copy.object_id)
 	return {"error": "", "id": copy.object_id, "change": tx.finish()}
+
+
+## {error, change}: one history action that re-points the records `ids` to the prepared binding `binding_id`
+## (position, rotation, scale and height offset are kept). `overrides` maps object id -> {uniform_scale,
+## height_offset_m} values the user picked explicitly; a record whose kept or picked value lies outside the new
+## binding's limits fails the whole action, nothing is clamped.
+static func rebind_objects(ctx: ToolContext, ids: Array, binding_id: String, overrides: Dictionary) -> Dictionary:
+	var doc := ctx.document
+	var target := doc.assets.get_binding(binding_id)
+	if target == null or target.is_bundled() or doc.assets.unavailable_reason(binding_id) != "":
+		return {"error": "The new version is not prepared yet.", "change": null}
+	if ids.is_empty():
+		return {"error": "No object to update.", "change": null}
+	var tx := EditTransaction.new()
+	tx.begin(doc, "update_asset", "Update %d object(s) to the new version" % ids.size())
+	var error := ""
+	for id: String in ids:
+		if doc.get_object(id) == null or not tx.capture_object(id):
+			error = "Action memory budget exceeded." if doc.get_object(id) != null else "An object changed; review the update again."
+			break
+	var edited: Array[ObjectRecord] = []
+	for id: String in ids:
+		if error != "":
+			break
+		var rec := doc.get_object(id).clone()
+		rec.binding_id = binding_id
+		for field: String in (overrides.get(id, {}) as Dictionary):
+			rec.set(field, overrides[id][field])
+		if not target.in_scale(rec.uniform_scale) or not target.in_height_offset(rec.height_offset_m):
+			error = "An object's scale or height offset is outside the new version's limits; pick an alternative."
+		edited.append(rec)
+	if error != "":
+		ctx.mark_touched(tx.rollback())
+		return {"error": error, "change": null}
+	for rec in edited:
+		doc.put_object(rec)
+		ctx.presenter.sync_object(doc, rec.object_id)
+	return {"error": "", "change": tx.finish()}
 
 
 ## {error, change}.

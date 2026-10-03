@@ -1,0 +1,7 @@
+shared prj_cfp3pxzs9c8ym9v2 Neutral PBR Crate ast_3vhxm0xd3ps0c5rd current ver_pf5wjayvpf8d3k91 versions ['ver_dmsh83v96cga1q7t', 'ver_pf5wjayvpf8d3k91']
+shared prj_cfp3pxzs9c8ym9v2 Shared UID Blue ast_nfykyd4ybvzsjh6h current ver_ja5f7w0gj3y7thxh versions ['ver_ja5f7w0gj3y7thxh']
+shared prj_cfp3pxzs9c8ym9v2 Shared UID Red ast_39tqk1fyhpg2qwjp current ver_y6e1mn4qjny48wd4 versions ['ver_y6e1mn4qjny48wd4']
+shared prj_cfp3pxzs9c8ym9v2 Textured Tree ast_cqw5phmvjamgaa2y current ver_gb7c280cfv720e6j versions ['ver_4kxdjjn5z5qwn46c', 'ver_mmmazdryk51txyss', 'ver_gb7c280cfv720e6j']
+shared prj_cfp3pxzs9c8ym9v2 Vertex Color Foliage ast_38fhqc22bza1tjcd current ver_99ewvmvg162ynn2c versions ['ver_99ewvmvg162ynn2c']
+game prj_51djjh5barey2c1w Game Library Prop ast_3j8ynfsv39vmx389 current ver_t0dcymwbgv6gwkt5 versions ['ver_t0dcymwbgv6gwkt5']
+ipad token cross-library read ok: 200 | desktop publish scoped to granted libs only

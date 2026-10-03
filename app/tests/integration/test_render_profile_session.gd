@@ -27,7 +27,7 @@ func _end_stroke(s: EditorSession) -> void:
 func _add_scatter(s: EditorSession, ids: Array) -> void:
 	var x := -60.0
 	for id: String in ids:
-		s.document.scatter.add(id, s.catalog.get_asset(id).version, x, 10.0, 0.0, 1.0, 0)
+		s.document.scatter.add(s.document.assets.bundled_binding_for(id), x, 10.0, 0.0, 1.0, 0)
 		x += 25.0
 	var wide := s.render_config.profile("performance")  # ground cover is drawn near the camera and thinned: draw all
 	wide.size_policy_enabled = false  # isolate vegetation and shadow rules from size eligibility

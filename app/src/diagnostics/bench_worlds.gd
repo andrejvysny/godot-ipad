@@ -173,8 +173,7 @@ static func _record(doc: WorldDocument, asset: AssetDefinition, rng: RandomNumbe
 	var p := _patch_point(rng, layout_data, asset.asset_id == "bench.structure.tower_a")
 	var rec := ObjectRecord.new()
 	rec.object_id = id
-	rec.asset_id = asset.asset_id
-	rec.asset_version = asset.version
+	rec.binding_id = doc.assets.bundled_binding_for(asset.asset_id)
 	var y := doc.sample_height(p.x, p.z)
 	rec.set_position(p.x, 0.0 if is_nan(y) else y, p.z)
 	var q := Quaternion(Vector3.UP, rng.randf_range(0.0, TAU))
@@ -195,7 +194,8 @@ static func _place_grass(doc: WorldDocument, catalog: AssetCatalog, count: int, 
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_value ^ 0x6A55
 	var rect := doc.layout.world_rect().grow(-GRASS_CLUSTER_RADIUS_M)
-	var limit := int(WorldLimits.for_schema(doc.layout.schema_version()).max_scatter_instances)
+	var limit := int(WorldLimits.for_schema(doc.schema_version).max_scatter_instances)
+	var binding_id := doc.assets.bundled_binding_for(asset.asset_id)
 	var center := Vector2.ZERO
 	var in_cluster := GRASS_CLUSTER_SIZE
 	for _i in count:
@@ -204,7 +204,7 @@ static func _place_grass(doc: WorldDocument, catalog: AssetCatalog, count: int, 
 			in_cluster = 0
 		in_cluster += 1
 		var p := _open_point_near(rng, center, rect, layout_data)
-		doc.scatter.add(asset.asset_id, asset.version, p.x, p.y, rng.randf_range(0.0, TAU),
+		doc.scatter.add(binding_id, p.x, p.y, rng.randf_range(0.0, TAU),
 				rng.randf_range(asset.scale_min, asset.scale_max), 0, limit)
 
 

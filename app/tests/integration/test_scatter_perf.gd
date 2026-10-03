@@ -9,7 +9,7 @@ func test_perf_rebuild_all_20000_instances() -> void:
 	rng.seed = 9
 	for i in WorldConstants.MAX_SCATTER_INSTANCES:
 		var id: String = ids[i % ids.size()]
-		layer.add(id, catalog.get_asset(id).version, rng.randf_range(-127.0, 127.0), rng.randf_range(-127.0, 127.0),
+		layer.add(doc.assets.bundled_binding_for(id), rng.randf_range(-127.0, 127.0), rng.randf_range(-127.0, 127.0),
 				rng.randf_range(-PI, PI), 1.0, ScatterLayer.FLAG_TILT if i % 2 == 0 else 0)
 	doc.scatter = layer
 	var t0 := Time.get_ticks_usec()
@@ -46,7 +46,7 @@ func test_perf_scatter_dab_cost() -> void:
 ## Per-frame renderer cost of a scatter brush stroke, an erase stroke and a sculpt stroke on a 1 km world with
 ## about 100,000 scatter instances (HOST measurement, printed; spec §14).
 func test_perf_edit_path_frame_cost_on_km1_100k() -> void:
-	var km := WorldDocument.create_flat(0.0, ControlCodec.grass_value(), WorldLayout.km1())
+	var km := WorldDocument.create_flat(0.0, ControlCodec.grass_value(), WorldLayout.km1(), catalog)
 	var rect := km.layout.world_rect()
 	var limit := int(WorldLimits.for_schema(km.layout.schema_version()).max_scatter_instances)
 	var ids := [SPRUCE, GRASS, PEBBLES, FERN, BOULDER, WILD]
@@ -55,7 +55,7 @@ func test_perf_edit_path_frame_cost_on_km1_100k() -> void:
 	var layer := ScatterLayer.new()
 	for i in limit - 1500:
 		var id: String = ids[i % ids.size()]
-		layer.add(id, catalog.get_asset(id).version, rng.randf_range(rect.position.x, rect.end.x - 1.0),
+		layer.add(km.assets.bundled_binding_for(id), rng.randf_range(rect.position.x, rect.end.x - 1.0),
 				rng.randf_range(rect.position.y, rect.end.y - 1.0), rng.randf_range(-PI, PI), 1.0, ScatterLayer.FLAG_TILT, limit)
 	km.scatter = layer
 	var center := Vector3(0.0, 0.0, 0.0)

@@ -1,0 +1,6 @@
+fixture                        src    src intact  migrate rc out schema out hash == INDEX  validate(out) hash == INDEX 
+migrate_v2                     2      True        0          4          True               True                        
+migrate_v3                     3      True        0          4          True               True                        
+migrate_v2_app_flat            2      True        0          4          True               True                        
+migrate_v2_app_gentle_hills    2      True        0          4          True               True                        
+ALL_OK

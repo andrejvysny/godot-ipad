@@ -5,8 +5,7 @@ extends UiTestCase
 func _record(s: EditorSession) -> ObjectRecord:
 	var record := ObjectRecord.new()
 	record.object_id = ObjectRecord.new_uuid_v4()
-	record.asset_id = BOULDER
-	record.asset_version = s.catalog.get_asset(BOULDER).version
+	record.binding_id = s.document.assets.bundled_binding_for(BOULDER)
 	record.set_position(0.0, 0.0, 0.0)
 	s.document.put_object(record)
 	s.presenter.sync_object(s.document, record.object_id)

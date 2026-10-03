@@ -57,9 +57,9 @@ func _limit_messages() -> int:
 
 
 func _prefill(n: int) -> void:
-	var version := h.catalog.get_asset(PEBBLES).version
+	var binding := h.doc.assets.bundled_binding_for(PEBBLES)
 	for i in n:
-		h.doc.scatter.add(PEBBLES, version, -120.0 + float(i % 200), -120.0 + float(i / 200), 0.0, 1.0, 0)
+		h.doc.scatter.add(binding, -120.0 + float(i % 200), -120.0 + float(i / 200), 0.0, 1.0, 0)
 
 
 func test_scatter_stroke_is_one_undoable_change() -> void:
@@ -86,7 +86,7 @@ func test_scatter_stroke_is_one_undoable_change() -> void:
 	h.history.redo(h.doc)
 	assert_eq(h.doc.scatter.encode(), after, "redo restores exact bytes")
 	for i in h.doc.scatter.count():
-		assert_true(["nature.tree.spruce_a", "nature.cover.fern_a", "nature.rock.boulder_a"].has(h.doc.scatter.asset_of(i)))
+		assert_true(["nature.tree.spruce_a", "nature.cover.fern_a", "nature.rock.boulder_a"].has(h.doc.assets.definition(h.doc.scatter.binding_of(i)).asset_id))
 
 
 func test_empty_source_reports_and_creates_no_operation() -> void:
@@ -111,7 +111,7 @@ func test_empty_source_reports_and_creates_no_operation() -> void:
 func test_erase_brush_removes_scatter_only_and_undoes_exactly() -> void:
 	var rock := h.add_object(ToolHarness.BOULDER, 40.0, 40.0)
 	var rock_before := rock.clone()
-	h.doc.scatter.add("nature.rock.pebbles_a", h.catalog.get_asset(PEBBLES).version, -100.0, -100.0, 0.0, 1.0, 0)
+	h.doc.scatter.add(h.doc.assets.bundled_binding_for("nature.rock.pebbles_a"), -100.0, -100.0, 0.0, 1.0, 0)
 	h.ctrl.set_tool("scatter")
 	_drag(40.0, 20.0, 60.0)
 	var populated := h.doc.scatter.count()
@@ -203,8 +203,7 @@ func test_invalid_hit_pauses_without_bridging() -> void:
 
 
 func test_fill_fills_inside_the_loop_only() -> void:
-	var version := h.catalog.get_asset(PEBBLES).version
-	h.doc.scatter.add(PEBBLES, version, 0.0, 0.0, 0.0, 1.0, 0)
+	h.doc.scatter.add(h.doc.assets.bundled_binding_for(PEBBLES), 0.0, 0.0, 0.0, 1.0, 0)
 	h.ctrl.set_tool("fill")
 	h.act("tool_begin", h.at(30, 30, 1.0))
 	assert_eq(h.ctrl.stroke_state(), "Filling")
@@ -228,9 +227,9 @@ func test_fill_fills_inside_the_loop_only() -> void:
 
 
 func test_clear_removes_instances_inside_the_loop_only() -> void:
-	var version := h.catalog.get_asset(PEBBLES).version
+	var binding := h.doc.assets.bundled_binding_for(PEBBLES)
 	for p in [Vector2(40, 40), Vector2(35, 45), Vector2(55, 40), Vector2(10, 10)]:
-		h.doc.scatter.add(PEBBLES, version, p.x, p.y, 0.0, 1.0, 0)
+		h.doc.scatter.add(binding, p.x, p.y, 0.0, 1.0, 0)
 	var bytes := h.doc.scatter.encode()
 	h.ctrl.set_tool("fill")
 	assert_empty_string(h.ctrl.set_inverted(true))
@@ -254,6 +253,7 @@ func test_fill_needs_three_points() -> void:
 
 
 func test_limit_reports_once_for_fill_and_brush() -> void:
+	h.doc.schema_version = 2  # documents are schema 4 in memory; the 20000 limit is the schema 2 one
 	_prefill(WorldConstants.MAX_SCATTER_INSTANCES - 5)
 	assert_empty_string(h.ctrl.set_setting("scatter", "source", "set:meadow"))
 	h.ctrl.set_tool("fill")

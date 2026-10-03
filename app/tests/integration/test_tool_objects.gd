@@ -91,6 +91,7 @@ func test_place_released_over_ui_or_sky_creates_nothing() -> void:
 
 func test_place_and_duplicate_are_refused_at_the_object_limit() -> void:
 	var source := _selected_boulder()
+	h.doc.schema_version = 2  # documents are schema 4 in memory; the 2000 limit is the schema 2 one
 	var limit := h.doc.max_objects()
 	assert_eq(limit, 2000)
 	for i in limit - h.doc.objects.size():

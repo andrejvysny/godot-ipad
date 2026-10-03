@@ -1,0 +1,14 @@
+; Minimal World Painter consumer. No addons are committed: scripts/make_minimal_consumer.py installs the published
+; archives (AssetStudio, World Painter addon, bundled catalog) and the pinned Terrain3D package into a copy.
+
+config_version=5
+
+[application]
+
+config/name="World Painter Minimal Consumer"
+config/features=PackedStringArray("4.7", "Mobile")
+run/main_scene="res://scenes/main.tscn"
+
+[rendering]
+
+renderer/rendering_method="mobile"

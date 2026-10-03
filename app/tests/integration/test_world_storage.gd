@@ -39,17 +39,26 @@ func _drop_storage() -> void:
 
 
 func _doc(revision: int = 1) -> WorldDocument:
-	var doc := WorldDocument.create_flat(4.0, ControlCodec.grass_value())
+	var doc := WorldDocument.create_flat(4.0, ControlCodec.grass_value(), null, _catalog)
 	doc.document_revision = revision
-	doc.catalog_id = _catalog.catalog_id
-	doc.catalog_version = _catalog.catalog_version
-	doc.catalog_sha256 = _catalog.sha256
 	var r := ObjectRecord.new()
 	r.object_id = "33333333-3333-4333-8333-333333333333"
-	r.asset_id = "nature.rock.boulder_a"
-	r.asset_version = 1
+	r.binding_id = doc.assets.bundled_binding_for("nature.rock.boulder_a")
 	r.set_position(1.25, 4.0, -2.5)
 	doc.put_object(r)
+	return doc
+
+
+## `doc` with every bundled binding replaced by the same asset of a catalog with another content hash.
+func _foreign_catalog(doc: WorldDocument) -> WorldDocument:
+	var foreign := {}
+	for id in doc.assets.referenced_ids(doc):
+		var b := AssetBinding.bundled_default(_catalog, _catalog.get_asset(doc.assets.get_binding(id).asset_id))
+		b.catalog_sha256 = "cd".repeat(32)
+		b.finalize()
+		foreign[id] = doc.assets.add(b)
+	for object_id in doc.sorted_object_ids():
+		doc.get_object(object_id).binding_id = foreign[doc.get_object(object_id).binding_id]
 	return doc
 
 
@@ -394,12 +403,11 @@ func test_invalid_content_is_not_saved_or_counted_by_prune() -> void:
 		assert_true(s.status_text(doc.document_revision).ends_with("Your last valid save (revision 1) is unchanged."))
 	assert_eq(_gens(doc.world_id), [1] as Array[int])
 	assert_eq(StorageFs.list_dirs(GenerationStore.generations_dir(_root, doc.world_id)).size(), 1, "no .tmp left")
-	# Generations that verify by hash but fail recovery (catalog mismatch) do not count as kept.
-	var bad := _doc(2)
+	# Generations that verify by hash but fail recovery (a schema 2 file of another catalog) do not count as kept.
+	var bad := _foreign_catalog(_doc(2))
 	bad.world_id = doc.world_id
-	bad.catalog_sha256 = "cd".repeat(32)
 	for n in [2, 3, 4]:
-		assert_empty_string(WorldCodec.write_generation(_gen_dir(doc.world_id, n), bad, WorldCodec.default_created_with()))
+		assert_empty_string(LegacyWorldWriter.write(_gen_dir(doc.world_id, n), bad))
 	var good := _doc(10)
 	good.world_id = doc.world_id
 	assert_true(s.checkpoint_now(good).ok)

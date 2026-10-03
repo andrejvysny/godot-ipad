@@ -76,10 +76,15 @@ func refresh(status: Dictionary) -> void:
 	if _tools == null:
 		return
 	var asset := _session.catalog.get_asset(_tools.armed_asset())
+	var remote_name := ""
+	if asset == null and _tools.armed_asset() != "":
+		var def := _session.document.assets.definition(_tools.armed_asset())
+		var known := _session.assets().remote.prep.name_of(_tools.armed_asset())
+		remote_name = known if known != "" else (def.display_name if def != null else "")
 	var tool_id := _tools.active_tool()
-	var invertible := asset == null and tool_id in ToolModel.INVERT_LABELS
-	if asset != null:
-		_label.text = asset.display_name
+	var invertible := asset == null and remote_name == "" and tool_id in ToolModel.INVERT_LABELS
+	if asset != null or remote_name != "":
+		_label.text = asset.display_name if asset != null else remote_name
 		_sub.text = "tap terrain to place"
 		_icon.texture = UiKit.tool_icon("multimesh")
 	else:

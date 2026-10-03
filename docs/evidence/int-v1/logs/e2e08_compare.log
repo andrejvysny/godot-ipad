@@ -1,0 +1,4 @@
+library files cons: 18  clone1: 18
+same file set: True  identical bytes: True
+export members with token/credential/.assetstudio/export_presets/addons/assetstudio: []
+export contains pck: ['cons.app/Contents/Resources/cons.pck'] members: 6

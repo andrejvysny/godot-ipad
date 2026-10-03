@@ -1,0 +1,71 @@
+PASS connect
+PASS prop: preview only (exit 0) 
+PASS prop: the server's own publication checks accept it 
+PASS prop: detected capabilities are declared
+PASS hut: preview only (exit 0) 
+PASS hut: the server's own publication checks accept it 
+PASS hut: detected capabilities are declared
+PASS tree: preview only (exit 0) 
+PASS tree: the server's own publication checks accept it 
+PASS tree: detected capabilities are declared
+PASS crystal: preview only (exit 0) 
+PASS crystal: the server's own publication checks accept it 
+PASS crystal: detected capabilities are declared
+PASS rock: preview only (exit 0) 
+PASS rock: the server's own publication checks accept it 
+PASS rock: detected capabilities are declared
+PASS every portable.glb re-imports
+PASS prop: one mesh, normals and UVs
+PASS csg hut: baked to ONE mesh with 3 surfaces
+PASS tree: two meshes, textures and alpha mode kept
+PASS tree: two stable material slots
+PASS rock: vertex colors survive
+PASS crystal: ShaderMaterial replaced by a tinted approximation
+PASS crystal: the shader approximation is disclosed
+PASS rock: static collision declared
+PASS prop: deterministic zip layout
+PASS prop: manifest top-level names are exact
+PASS hut: deterministic zip layout
+PASS hut: manifest top-level names are exact
+PASS tree: deterministic zip layout
+PASS tree: manifest top-level names are exact
+PASS crystal: deterministic zip layout
+PASS crystal: manifest top-level names are exact
+PASS rock: deterministic zip layout
+PASS rock: manifest top-level names are exact
+PASS tree: package is byte-identical on rebuild
+PASS tree: portable.glb is byte-identical on rebuild
+PASS hut: package is byte-identical on rebuild
+PASS hut: portable.glb is byte-identical on rebuild
+PASS cluster: instances of an installed delivery publish ()
+PASS cluster: the delivery is an asset_dependency, not a package file
+PASS cluster: the dependency pins the locked ref and delivery
+PASS cluster: the delivery's files are not copied
+PASS cluster: the server's checks accept it ()
+PASS cluster: a delivery that is not in the lock blocks publication
+PASS stale path + valid uid: resolved through the uid ()
+PASS stale: resource_map keeps the written path and maps it to the real file
+PASS stale: the server's checks accept it ()
+PASS blocked: scripted (exit 1; wants 'scripts are not supported')
+PASS blocked: animated (exit 1; wants 'AnimationPlayer')
+PASS blocked: custom (exit 1; wants 'MyProp')
+PASS blocked: camera (exit 1; wants 'Camera3D')
+PASS blocked: missing (exit 1; wants 'does not exist')
+PASS blocked: audio (exit 1; wants 'AudioStream')
+PASS blocked: skinned (exit 1; wants 'contains skins')
+PASS blocked scenes are never uploaded
+PASS a scene that is not saved is refused
+PASS new asset: preview then commit
+PASS the commit carries name, tags and licence
+PASS the same reviewed publication is answered from the journal, not published twice
+PASS new version of an existing asset with the expected base version
+PASS stale base version -> stale_pointer conflict, nothing published
+PASS lost commit response: recovered through the operation query, exactly one version
+PASS the operation endpoint was queried
+PASS admission refusal names its reason
+PASS --new-version-of without --expected-current is a usage error
+PASS no script errors in any Godot output
+PASS the bearer token never appears in output
+PASS the project (scenes, resources, lock, config) is unchanged by publishing
+
+ALL PASSED: 0 failure(s)

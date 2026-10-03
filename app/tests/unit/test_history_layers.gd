@@ -6,9 +6,9 @@ const PATH_B := "44444444-4444-4444-8444-444444444444"
 
 
 func _doc() -> WorldDocument:
-	var doc := WorldDocument.create_flat(0.0, ControlCodec.default_value())
-	doc.scatter.add("nature.tree.spruce_a", 1, 1.0, 2.0, 0.5, 1.0, 0)
-	doc.scatter.add("nature.tree.spruce_a", 1, 3.0, 4.0, 0.25, 1.5, 1)
+	var doc := WorldDocument.create_flat(0.0, ControlCodec.default_value(), null, AssetCatalog.load_from()[0])
+	doc.scatter.add(doc.assets.bundled_binding_for("nature.tree.spruce_a"), 1.0, 2.0, 0.5, 1.0, 0)
+	doc.scatter.add(doc.assets.bundled_binding_for("nature.tree.spruce_a"), 3.0, 4.0, 0.25, 1.5, 1)
 	var p := PathRecord.new()
 	p.path_id = PATH_A
 	p.width_m = 2.0
@@ -59,7 +59,7 @@ func test_scatter_undo_redo_restores_order() -> void:
 	var tx := EditTransaction.new()
 	tx.begin(doc, "scatter", "Scatter")
 	assert_true(tx.capture_scatter())
-	doc.scatter.add("nature.tree.spruce_a", 1, -5.0, 5.0, 0.0, 1.0, 0)
+	doc.scatter.add(doc.assets.bundled_binding_for("nature.tree.spruce_a"), -5.0, 5.0, 0.0, 1.0, 0)
 	doc.scatter.remove_indices(PackedInt32Array([0]))
 	var c := _commit(doc, hist, tx)
 	assert_true(c.has_scatter())
@@ -139,7 +139,7 @@ func test_noop_captures_produce_no_change() -> void:
 	tx.capture_path(PATH_A)
 	tx.capture_path(PATH_B)
 	tx.capture_rules()
-	doc.scatter.add("nature.tree.spruce_a", 1, 9.0, 9.0, 0.0, 1.0, 0)
+	doc.scatter.add(doc.assets.bundled_binding_for("nature.tree.spruce_a"), 9.0, 9.0, 0.0, 1.0, 0)
 	doc.scatter.remove_indices(PackedInt32Array([2]))  # add + remove: semantically unchanged
 	assert_true(tx.finish() == null, "unchanged captures -> null")
 

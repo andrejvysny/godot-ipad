@@ -6,7 +6,7 @@ const SAMPLE_HZ := 229.0
 
 
 func _doc() -> WorldDocument:
-	return WorldDocument.create_flat(0.0, ControlCodec.grass_value())
+	return WorldDocument.create_flat(0.0, ControlCodec.grass_value(), null, AssetCatalog.load_from()[0])
 
 
 func _settings(radius: float = 6.0, direction: float = 1.0, pressure: bool = true) -> Dictionary:
@@ -330,8 +330,7 @@ func test_te12_cancel_after_touching_four_regions_restores_hash() -> void:
 	var doc := _doc()
 	var rec := ObjectRecord.new()
 	rec.object_id = ObjectRecord.new_uuid_v4()
-	rec.asset_id = "nature.rock.boulder_a"
-	rec.asset_version = 1
+	rec.binding_id = doc.assets.bundled_binding_for("nature.rock.boulder_a")
 	rec.set_position(1.0, 0.0, 1.0)
 	doc.put_object(rec)
 	var before := CanonicalEncoder.authored_hash(doc)

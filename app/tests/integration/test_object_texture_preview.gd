@@ -53,6 +53,7 @@ func _setup_env(preview_mib: float = -1.0) -> void:
 		budgets.preview_mib = preview_mib
 	_cache = RenderAssetCache.new(budgets)
 	var catalog: AssetCatalog = AssetCatalog.load_from("res://assets/bench")[0]
+	_doc.assets.catalog = catalog
 	var registry := RenderAssetRegistry.load_from("res://assets/bench/render_assets/index.json", catalog)
 	_presenter = ObjectPresenter.new()
 	_presenter.setup(catalog, registry, _cache)
@@ -66,8 +67,7 @@ func _setup_env(preview_mib: float = -1.0) -> void:
 func _add(asset_id: String, x: float, z: float) -> String:
 	var r := ObjectRecord.new()
 	r.object_id = ObjectRecord.new_uuid_v4()
-	r.asset_id = asset_id
-	r.asset_version = 1
+	r.binding_id = _doc.assets.bundled_binding_for(asset_id)
 	r.set_position(x, 0.0, z)
 	_doc.put_object(r)
 	return r.object_id

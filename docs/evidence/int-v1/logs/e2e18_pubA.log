@@ -1,0 +1,143 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+{
+  "capabilities": [
+    "godot_text_scene_v1"
+  ],
+  "conversion_report": {
+    "approximations": [],
+    "omissions": [],
+    "portable_status": "exact"
+  },
+  "descriptor_draft": {
+    "collision": null,
+    "default_grounding": "FOLLOW_TERRAIN",
+    "footprint_radius_m": "0.8",
+    "height_offset_range_m": [
+      "-0.1",
+      "0.5"
+    ],
+    "material_slots": [
+      {
+        "role": "shared_mat",
+        "slot_id": "shared_mat",
+        "surfaces": {
+          "godot_static_source_v1": [
+            {
+              "node_path": "Body",
+              "surface": 0
+            }
+          ],
+          "portable_glb_v1": [
+            {
+              "mesh": 0,
+              "primitive": 0
+            }
+          ]
+        }
+      }
+    ],
+    "placement_anchor": [
+      "0",
+      "0",
+      "0"
+    ],
+    "preview_warnings": [],
+    "scale_range": [
+      "0.5",
+      "2"
+    ],
+    "schema_version": 1
+  },
+  "expires_at": "2026-10-04T09:05:18.038Z",
+  "files": 2,
+  "hashes": {
+    "descriptor_draft_sha256": "c0f200460bbc969d6ad108d293690fd2676800df19b69f8e73028deafce57d9d",
+    "package_sha256": "e04269e52bd82f3d5a44218ccd996d4da0596f0bd67fe9425779472b09149558",
+    "portable_sha256": "79e59cd314a4af843a7ad31e2df141f083fa4bf3b691ddf2c57f05835c39e0d3"
+  },
+  "idempotency_key": "asp_ae16674d2eae3a75d609138634aee1fd",
+  "local_warnings": [],
+  "phase": "previewed",
+  "portable": {
+    "bytes": 2856,
+    "materials": 1,
+    "max_texture_px": 0,
+    "nodes": 2,
+    "triangles": 12
+  },
+  "preview_id": "ipv_1c9756zc0wyw5kry",
+  "server": {
+    "bounds": {
+      "max": [
+        "0.5",
+        "0.5",
+        "0.5"
+      ],
+      "min": [
+        "-0.5",
+        "-0.5",
+        "-0.5"
+      ]
+    },
+    "budget": {
+      "exceeded": [],
+      "glb_bytes": 2856.0,
+      "materials": 1.0,
+      "max_texture_px": null,
+      "nodes": 2.0,
+      "triangles": 12.0,
+      "warnings": [],
+      "within_ipad_budget": true
+    },
+    "source": {
+      "asset_dependencies": [],
+      "dependency_closure": [
+        "materials/shared_mat.tres",
+        "scenes/shared.tscn"
+      ],
+      "detected_capabilities": [
+        "godot_text_scene_v1"
+      ],
+      "evidence": {
+        "collision": "absent",
+        "conversion_report": "publisher_declared",
+        "source_surfaces": {
+          "node_only": 0.0,
+          "unverified": 0.0,
+          "verified": 1.0
+        }
+      },
+      "manifest_sha256": "5a59ea76832536da73cf1c3d2f4fcff4e97586fe1963597850bdcecf4df1f4d6",
+      "source_godot_version": "4.7.2-stable",
+      "source_surfaces": {
+        "shared_mat": [
+          {
+            "node_path": "Body",
+            "surface": 0.0
+          }
+        ]
+      },
+      "warnings": []
+    },
+    "warnings": []
+  },
+  "target": {
+    "expected_current_version": null,
+    "library": "prj_cfp3pxzs9c8ym9v2",
+    "mode": "new_asset",
+    "name": "Shared UID Red",
+    "target_asset_id": null
+  }
+}
+{
+  "outcome": {
+    "asset_id": "ast_39tqk1fyhpg2qwjp",
+    "descriptor_sha256": "d263ea011e03285a0e549e0a0f724b8d2976d025c3bc7890fc44ca99aea65512",
+    "display_version": 1.0,
+    "library_id": "prj_cfp3pxzs9c8ym9v2",
+    "version_id": "ver_y6e1mn4qjny48wd4",
+    "via": "commit"
+  },
+  "phase": "committed"
+}

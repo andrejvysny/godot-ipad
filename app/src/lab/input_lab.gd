@@ -128,8 +128,7 @@ func _load_document() -> bool:
 	var record := ObjectRecord.new()
 	var asset := catalog.get_asset("nature.rock.boulder_a")
 	record.object_id = ObjectRecord.new_uuid_v4()
-	record.asset_id = asset.asset_id
-	record.asset_version = asset.version
+	record.binding_id = document.assets.bundled_binding_for(asset.asset_id)
 	record.set_position(0, document.sample_height(0, 0), 0)
 	document.objects.clear()
 	document.put_object(record)
@@ -156,8 +155,8 @@ func _show_object() -> void:
 	if is_instance_valid(_object):
 		_object.queue_free()
 	var record := document.get_object(document.sorted_object_ids()[0])
-	var asset := catalog.get_asset(record.asset_id)
-	_object = catalog.instantiate_preview(record.asset_id)
+	var asset := document.assets.definition(record.binding_id)
+	_object = catalog.instantiate_preview(asset.asset_id)
 	_object.transform = record.node_transform(asset.anchor_local)
 	add_child(_object)
 

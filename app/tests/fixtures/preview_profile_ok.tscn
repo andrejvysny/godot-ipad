@@ -1,0 +1,7 @@
+[gd_scene format=3]
+
+[node name="Profile" type="Node3D"]
+
+[node name="Light" type="DirectionalLight3D" parent="."]
+
+[node name="Mount" type="Node3D" parent="." groups=["world_painter_mount"]]

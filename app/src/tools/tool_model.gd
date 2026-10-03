@@ -38,11 +38,21 @@ var _mix := PackedStringArray()
 var _mode := "paint"
 var _tool_by_mode: Dictionary = DEFAULT_TOOLS.duplicate()
 var _inverted := false
-var _armed := ""
+var _armed := ""  # catalog asset id, or the binding id of an armed AssetStudio asset
+var _armed_selection: Dictionary = {}
 var _picking := false
 var _pick_contact := false
 var _snap := true
 var _rule_edits: RuleEdits
+
+
+## Read-only recovery (ADR 0014 D8): every authoring operation is refused with `reason` until it is "".
+func set_read_only(reason: String) -> void:
+	_ctx.read_only_reason = reason
+
+
+func read_only_reason() -> String:
+	return _ctx.read_only_reason
 
 
 ## Overridden by ToolController: a world operation or object edit is open.
@@ -61,6 +71,7 @@ func _setup_model(ctx: ToolContext) -> void:
 	_tool_by_mode = DEFAULT_TOOLS.duplicate()
 	_inverted = false
 	_armed = ""
+	_armed_selection = {}
 	_picking = false
 	_rule_edits = RuleEdits.new(ctx, has_active_operation)
 
@@ -158,29 +169,38 @@ func set_snap_enabled(on: bool) -> void:
 
 # --- Armed asset, height pick, ghost -----------------------------------------------------
 
-func arm_asset(asset_id: String) -> String:
-	var asset := _ctx.catalog.get_asset(asset_id)
-	if asset == null:
-		return "Unknown asset '%s'." % asset_id
-	var not_ready := _ctx.not_ready_error(asset)
-	if not_ready != "":
-		return not_ready
+## `selection`: a bundled asset id, or a LibrarySelection ({provider: bundled, asset_id} / {provider: assetstudio,
+## binding}); a remote binding must be prepared.
+func arm_asset(selection: Variant) -> String:
+	var refused := _ctx.read_only_refusal()
+	if refused != "":
+		return refused
+	var res := LibrarySelection.resolve(_ctx, selection)
+	if res.error != "":
+		return res.error
 	if has_active_operation():
 		return BUSY
 	_cancel_height_pick()
-	if _armed != asset_id:
-		_armed = asset_id
+	if _armed != res.id:
+		_armed = str(res.id)
+		_armed_selection = res.selection
 		settings_changed.emit("armed")
 	return ""
 
 
+## Catalog asset id, or the binding id of an armed AssetStudio asset; "" when nothing is armed.
 func armed_asset() -> String:
 	return _armed
+
+
+func armed_selection() -> Dictionary:
+	return _armed_selection.duplicate()
 
 
 func disarm() -> void:
 	if _armed != "":
 		_armed = ""
+		_armed_selection = {}
 		settings_changed.emit("armed")
 
 
@@ -190,6 +210,9 @@ func begin_height_pick() -> String:
 		return "Select the Flatten tool first."
 	if not editing_enabled:
 		return "Editing is disabled."
+	var refused := _ctx.read_only_refusal()
+	if refused != "":
+		return refused
 	if has_active_operation():
 		return BUSY
 	if not _picking:

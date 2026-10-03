@@ -39,9 +39,12 @@ static func valid_layout() -> ZipTestBuilder:
 	return b
 
 
-## The accepted package shape for any layout: regions/ dir, fixed files, 3 region files per region.
-static func layout_package(layout: WorldLayout) -> ZipTestBuilder:
+## The accepted package shape for any layout: regions/ dir, fixed files, 3 region files per region; with
+## `with_lock` also the schema 4 asset_locks.json.
+static func layout_package(layout: WorldLayout, with_lock: bool = false) -> ZipTestBuilder:
 	var b := ZipTestBuilder.new()
+	if with_lock:
+		b.add("asset_locks.json", "{}".to_utf8_buffer())
 	b.add("manifest.json", "{}".to_utf8_buffer())
 	b.add("objects.json", "{}".to_utf8_buffer())
 	b.add("scatter.bin", "WPSC".to_utf8_buffer())

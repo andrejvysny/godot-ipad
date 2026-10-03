@@ -1,0 +1,37 @@
+PASS install probe installs seven packages (Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+INSTALLED 7
+)
+PASS project starts without .godot (fresh import)
+PASS fresh import: headless import exit 0
+PASS fresh import: no script errors during import
+PASS fresh import: import prints no UID warning or error ([])
+PASS fresh import: scenes load without script errors
+PASS fresh import: loading prints no UID warning or error ([])
+PASS fresh import: all seven entry scenes load
+PASS fresh import: no scene failed to load
+PASS fresh import: no original (foreign) UID is registered
+PASS fresh import: v1 mesh and package-file material resolve ({'materials': [{'albedo': 'cc4d33', 'class': 'StandardMaterial3D', 'texture': 0}], 'mesh': 'BoxMesh', 'type': 'MeshInstance3D'})
+PASS fresh import: v2 resolves its own materials side by side with v1
+PASS fresh import: csg_hut instantiates its CSG tree
+PASS fresh import: textured_tree materials resolve their relocated textures
+PASS fresh import: crystal ShaderMaterial loads its relocated shader
+PASS fresh import: prop_cluster instances the installed portable entrypoint
+PASS fresh import: rock glb instance and collision shape
+PASS reimport after deleting .godot: headless import exit 0
+PASS reimport after deleting .godot: no script errors during import
+PASS reimport after deleting .godot: import prints no UID warning or error ([])
+PASS reimport after deleting .godot: scenes load without script errors
+PASS reimport after deleting .godot: loading prints no UID warning or error ([])
+PASS reimport after deleting .godot: all seven entry scenes load
+PASS reimport after deleting .godot: no scene failed to load
+PASS reimport after deleting .godot: no original (foreign) UID is registered
+PASS reimport after deleting .godot: v1 mesh and package-file material resolve ({'materials': [{'albedo': 'cc4d33', 'class': 'StandardMaterial3D', 'texture': 0}], 'mesh': 'BoxMesh', 'type': 'MeshInstance3D'})
+PASS reimport after deleting .godot: v2 resolves its own materials side by side with v1
+PASS reimport after deleting .godot: csg_hut instantiates its CSG tree
+PASS reimport after deleting .godot: textured_tree materials resolve their relocated textures
+PASS reimport after deleting .godot: crystal ShaderMaterial loads its relocated shader
+PASS reimport after deleting .godot: prop_cluster instances the installed portable entrypoint
+PASS reimport after deleting .godot: rock glb instance and collision shape
+
+ALL PASSED: 0 failure(s)

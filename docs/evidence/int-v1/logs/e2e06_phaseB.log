@@ -1,0 +1,63 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+[   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+[   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+[  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+[  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+[  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+[  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+[  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+[92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+[0m
+[   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+[   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+[  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+[  33% ] [90m[1mloading_editor_layout[22m | Reopening scenes...[39m[0m
+[  50% ] [90m[1mloading_editor_layout[22m | Loading central editor layout...[39m[0m
+[  66% ] [90m[1mloading_editor_layout[22m | Loading plugin window layout...[39m[0m
+[  83% ] [90m[1mloading_editor_layout[22m | Editor layout ready.[39m[0m
+[92m[ DONE ][39m [1mloading_editor_layout[22m
+[0m
+E2E connected PASS 
+E2E scene open PASS 
+E2E update badge shown for crate (v2 on server) PASS 
+E2E scene still on v1 before approval (2 crate instances, v1 binding) PASS 
+E2E review available PASS 
+E2E_INFO review diff: ["bounds_min: [-0.5, 0, -1] -> [-0.550001, 0, -1.05]", "bounds_max: [0.5, 0.5, 1] -> [0.550001, 0.600001, 1.05]"]
+updated ast_3vhxm0xd3ps0c5rd-2cdb9673 to ver_pf5wjayvpf8d3k91: run the headless import, then `finalize`
+[   0% ] [90m[1mreimport[22m | Started (Re)Importing Assets (1 steps)[39m[0m
+[   0% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[   0% ] [90m[1mreimport[22m | Executing pre-reimport operations...[39m[0m
+[   0% ] [90m[1mreimport[22m | model.glb[39m[0m
+[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
+[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
+[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
+[  99% ] [90m[1mimport[22m | Saving...[39m[0m
+[92m[ DONE ][39m [1mimport[22m
+[0m
+[  50% ] [90m[1mreimport[22m | Finalizing Asset Import...[39m[0m
+[92m[ DONE ][39m [1mreimport[22m
+[0m
+[   0% ] [90m[1mreimport[22m | Started (Re)Importing Assets (1 steps)[39m[0m
+[   0% ] [90m[1mreimport[22m | Executing post-reimport operations...[39m[0m
+[92m[ DONE ][39m [1mreimport[22m
+[0m
+E2E update selected instance PASS 
+E2E one instance moved to v2 binding, other crate remains valid on v1 PASS 
+E2E undo reverts the update (both crates on v1) PASS 
+[   0% ] [90m[1msave[22m | Started Saving Scene (4 steps)[39m[0m
+[   0% ] [90m[1msave[22m | Analyzing[39m[0m
+[  20% ] [90m[1msave[22m | Creating Thumbnail[39m[0m
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (./servers/rendering/dummy/storage/texture_storage.h:110)
+   GDScript backtrace (most recent call first):
+       [0] _phase_b (res://addons/e2e_plugin/plugin.gd:117)
+       [1] apply_update_instances (res://addons/assetstudio/editor/as_dock_actions.gd:291)
+       [2] import_and_finalize (res://addons/assetstudio/editor/as_dock_actions.gd:141)
+[  80% ] [90m[1msave[22m | Saving Scene[39m[0m
+[92m[ DONE ][39m [1msave[22m
+[0m
+E2E save scene after update PASS 
+E2E_OK
+WARNING: Scan thread aborted...
+     at: _notification (editor/file_system/editor_file_system.cpp:1757)

@@ -9,6 +9,8 @@ from worldpoc_constants import (
 	FORMAT,
 	SCHEMA_VERSION,
 	SCHEMA_VERSION_LAYOUT,
+	SCHEMA_VERSION_LOCK,
+	LOCK_PATH,
 	SUPPORTED_SCHEMAS,
 	LEGACY_LAYOUT,
 	Layout,
@@ -24,8 +26,8 @@ from worldpoc_values import is_finite_number, is_json_int, sha256_file, show
 
 
 def _unknown_schema(v: Any) -> str:
-	return "unknown schema_version %s (supported: %d and %d; older schemas are not migrated)" % (
-		show(v), SCHEMA_VERSION, SCHEMA_VERSION_LAYOUT)
+	return "unknown schema_version %s (supported: %d, %d and %d; older schemas are not migrated)" % (
+		show(v), SCHEMA_VERSION, SCHEMA_VERSION_LAYOUT, SCHEMA_VERSION_LOCK)
 
 
 def is_supported_schema(v: Any) -> bool:
@@ -34,7 +36,8 @@ def is_supported_schema(v: Any) -> bool:
 
 def manifest_layout(m: Any) -> tuple[Layout | None, str]:
 	"""Layout of a manifest with a supported schema: schema 2 is always the legacy layout, schema 3
-	reads terrain.layout and rejects the legacy one. (None, error) when schema 3 has no valid layout."""
+	reads terrain.layout and rejects the legacy one, schema 4 reads terrain.layout and accepts every valid
+	layout. (None, error) when schema 3/4 has no valid layout."""
 	if not isinstance(m, dict) or not is_supported_schema(m.get("schema_version")):
 		return LEGACY_LAYOUT, ""
 	if m["schema_version"] == SCHEMA_VERSION:
@@ -45,7 +48,7 @@ def manifest_layout(m: Any) -> tuple[Layout | None, str]:
 	layout, err = layout_from_manifest(t["layout"])
 	if layout is None:
 		return None, err
-	if layout == LEGACY_LAYOUT:
+	if layout == LEGACY_LAYOUT and m["schema_version"] == SCHEMA_VERSION_LAYOUT:
 		return None, "schema 3 must not use the legacy 2x2 layout"
 	return layout, ""
 
@@ -69,7 +72,9 @@ def _check_manifest_header(m: Any, trusted: dict[str, Any]) -> list[str]:
 	if not isinstance(cw, dict) or not all(isinstance(cw.get(k), str) and cw[k] for k in ("godot", "terrain3d", "world_painter")):
 		errors.append("created_with must name godot, terrain3d and world_painter")
 	cat = m.get("catalog")
-	if not isinstance(cat, dict):
+	if m["schema_version"] == SCHEMA_VERSION_LOCK:
+		errors += _check_asset_lock_block(m)
+	elif not isinstance(cat, dict):
 		errors.append("catalog block missing")
 	else:
 		if cat.get("id") != trusted["id"]:
@@ -78,15 +83,30 @@ def _check_manifest_header(m: Any, trusted: dict[str, Any]) -> list[str]:
 			errors.append("catalog version %s does not match trusted version %d" % (show(cat.get("version")), trusted["version"]))
 		if cat.get("sha256") != trusted["sha256"]:
 			errors.append("catalog sha256 %s does not match trusted catalog %s" % (show(cat.get("sha256")), trusted["sha256"]))
-	errors += _check_terrain_block(m.get("terrain"), layout)
+	errors += _check_terrain_block(m.get("terrain"), layout, m["schema_version"] == SCHEMA_VERSION_LOCK)
 	return errors
 
 
-def _check_terrain_block(t: Any, layout: Layout = LEGACY_LAYOUT) -> list[str]:
+def _check_asset_lock_block(m: dict[str, Any]) -> list[str]:
+	"""Schema 4 manifest: `asset_lock {path, sha256}` replaces `catalog`. The hash is compared to the file later."""
+	lock = m.get("asset_lock")
+	if not isinstance(lock, dict) or set(lock) != {"path", "sha256"}:
+		return ["asset_lock must be an object with exactly path and sha256"]
+	errors = []
+	if lock["path"] != LOCK_PATH:
+		errors.append("asset_lock.path is %s, expected %r" % (show(lock["path"]), LOCK_PATH))
+	if not isinstance(lock["sha256"], str) or not SHA256_RE.match(lock["sha256"]):
+		errors.append("asset_lock.sha256 is malformed")
+	if "catalog" in m:
+		errors.append("schema 4 manifest must not have a catalog block")
+	return errors
+
+
+def _check_terrain_block(t: Any, layout: Layout = LEGACY_LAYOUT, always_layout: bool = False) -> list[str]:
 	if not isinstance(t, dict):
 		return ["terrain block missing"]
 	errors = []
-	block = terrain_block(layout)
+	block = terrain_block(layout, always_layout)
 	for key in sorted(set(t) - set(block)):
 		errors.append("terrain block has unknown field %s" % show(key))
 	for key, expected in block.items():
@@ -141,7 +161,7 @@ def _check_payload_files(m: dict[str, Any], gen_dir: Path, layout: Layout = LEGA
 	pf = m.get("payload_files")
 	if not isinstance(pf, list):
 		return ["payload_files missing"]
-	expected_paths = payload_paths(layout)
+	expected_paths = payload_paths(layout, m["schema_version"])
 	errors: list[str] = []
 	paths = [e.get("path") if isinstance(e, dict) else None for e in pf]
 	if sorted(p for p in paths if isinstance(p, str)) != expected_paths or len(paths) != len(expected_paths):

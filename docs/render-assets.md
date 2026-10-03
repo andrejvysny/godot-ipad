@@ -1,7 +1,7 @@
 # Render asset derivatives (schema 1)
 
 Contract for prepared mobile representations of catalog assets (spec
-`docs/rendering-performance-spec.md` §6, §12). Shared by the runtime (`app/src/rendering/`), the
+`docs/rendering-performance-spec.md` §6, §12). Shared by the runtime (`app/addons/world_painter/presentation/rendering/`), the
 offline preparation tool (`app/devtools/prepare_render_assets.gd`) and the Python validator
 (`scripts/validate_render_assets.py`). Render derivatives are derived state: they never enter a
 world file or an authored hash, and changing them never changes the logical catalog hash.
@@ -204,3 +204,18 @@ Manifest keys: `catalog_dir`, `output_dir`, `report` (project-relative,
 `provenance`/`license`. A material whose `resource_name` equals a texture key is bound to that texture's
 LOW png; other materials are keyed by `resource_name` or `m_<8 hex of the whitelisted property hash>`.
 The source scene's root transform is ignored (the root is the asset frame).
+
+## 8. Runtime-registered derivatives (AssetStudio bindings)
+
+AssetStudio bindings have no committed derivative. After the exact portable GLB is verified (resolver: sha256 and size
+per file, delivery pinned to `deliveries.portable_glb_v1`, manifest and descriptor hashes equal to the lock),
+`RuntimeGlbValidator` judges the GLB JSON chunk before any scene exists (no external URIs, no skins or animations, no
+required extensions, <= 1024 nodes, <= 64 materials, <= 200k triangles, textures <= 4096 px and <= 128 MiB decoded,
+file <= 128 MiB), `RuntimeGlbLoader` bakes it into one asset-space `ArrayMesh` (blend materials become cutout) on the
+main thread while no editing operation is active, and `RuntimeAssetTiers` registers a descriptor in memory:
+`RenderAssetRegistry.register_runtime` + `RenderAssetCache.put_runtime` under the render key (the binding id).
+`selected`/`near`/`mid` are the baked mesh, `far`/`ghost` and the overview (`solid` box) a box of the frozen descriptor
+bounds. Runtime keys are resident while pinned, counted in the cache budgets, not listed by `ready_ids()` and never
+written to world files or hashes. Scatter draws a runtime key only when `policy.scatter_allowed` and the structural
+scatter budget (<= 2000 triangles, <= 2 materials, <= 1024 px textures) hold; otherwise its scatter instances stay
+placeholders and new scatter placement with it is refused (`WorldAssetLock.definition().scatter_allowed`).

@@ -1,4 +1,4 @@
-# Authored content hash V4 (DRAFT)
+# Authored content hash V4
 
 Source of truth: INT-SPEC-1.1 §9.3. The stream is the schema 3 stream (`docs/world-format.md` §11.4) with two substitutions. The catalog identity is replaced by the lock hash, and `asset_id`/`asset_version` are replaced by `binding_id`.
 

@@ -26,23 +26,19 @@ func after_each() -> void:
 
 
 func _doc() -> WorldDocument:
-	var doc := WorldDocument.create_flat(0.0, WorldConstants.DEFAULT_CONTROL, WorldLayout.km1())
+	var doc := WorldDocument.create_flat(0.0, WorldConstants.DEFAULT_CONTROL, WorldLayout.km1(), _catalog)
 	doc.document_revision = 5
-	doc.catalog_id = _catalog.catalog_id
-	doc.catalog_version = _catalog.catalog_version
-	doc.catalog_sha256 = _catalog.sha256
 	doc.get_region(Vector2i(3, 3)).heights[5] = 7.5
 	doc.get_region(Vector2i(-4, -4)).control[9] = ControlCodec.encode_paint(0x78, 200)
 	for i in 100:
 		var r := ObjectRecord.new()
 		r.object_id = "00000000-0000-4000-8000-%012d" % i
-		r.asset_id = "nature.rock.boulder_a"
-		r.asset_version = 1
+		r.binding_id = doc.assets.bundled_binding_for("nature.rock.boulder_a")
 		r.grounding = WorldConstants.GROUNDING_FIXED
 		r.set_position(-500.0 + 9.7 * i, 0.5, 511.5 - 9.9 * i)
 		doc.put_object(r)
 	for i in 50:
-		doc.scatter.add(SPRUCE, 1, -511.0 + 20.5 * i, 400.0 - 17.25 * i, 0.5, 1.0, 1)
+		doc.scatter.add(doc.assets.bundled_binding_for(SPRUCE), -511.0 + 20.5 * i, 400.0 - 17.25 * i, 0.5, 1.0, 1)
 	for k in 3:
 		var p := PathRecord.new()
 		p.path_id = "33333333-3333-4333-8333-33333333333%d" % k
@@ -64,8 +60,8 @@ func test_km1_checkpoint_recover_export_import_round_trip() -> void:
 		return
 	var gen_dir: String = res.path
 	var manifest: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(gen_dir.path_join("manifest.json")))
-	assert_eq(manifest.schema_version, 3.0)
-	assert_eq(manifest.payload_files.size(), 3 + 3 * 64)
+	assert_eq(manifest.schema_version, 4.0)
+	assert_eq(manifest.payload_files.size(), 4 + 3 * 64)
 	assert_eq(manifest.authored_content_hash, hash)
 	var rec := _storage.recover_latest_valid(doc.world_id, _catalog)
 	assert_empty_string(rec.error, "recover")

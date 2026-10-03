@@ -5,6 +5,7 @@ const SPRUCE := "nature.tree.spruce_a"
 const FERN := "nature.cover.fern_a"
 const BOULDER := "nature.rock.boulder_a"
 const PEBBLES := "nature.rock.pebbles_a"
+const BINDING := "b00000000000000000000000000000000"  # index tests never resolve it
 
 var catalog: AssetCatalog
 
@@ -14,7 +15,7 @@ func before_each() -> void:
 
 
 func _flat() -> WorldDocument:
-	return WorldDocument.create_flat(0.0, ControlCodec.grass_value())
+	return WorldDocument.create_flat(0.0, ControlCodec.grass_value(), null, catalog)
 
 
 ## Terrain rising `slope` m per m along +X (tan of the surface angle).
@@ -85,18 +86,19 @@ func test_avoid_objects_clearance_and_toggle() -> void:
 	var doc := _flat()
 	var rec := ObjectRecord.new()
 	rec.object_id = ObjectRecord.new_uuid_v4()
-	rec.asset_id = BOULDER
-	rec.asset_version = catalog.get_asset(BOULDER).version
+	rec.binding_id = doc.assets.bundled_binding_for(BOULDER)
 	rec.set_position(20.0, 0.0, 20.0)
 	doc.put_object(rec)
 	var config := _config([[SPRUCE, 1.0]], 1.4)  # reach = 1.2 + 0.5 * 1.4 = 1.9 m
 	assert_eq(_placer(doc, config, true).try_add(21.5, 20.0), ScatterPlacer.Result.OBJECT)
 	assert_eq(_placer(doc, config, true).try_add(22.5, 20.0), ScatterPlacer.Result.ADDED)
 	var off := _flat()
+	off.assets.bundled_binding_for(BOULDER)
 	off.put_object(rec.clone())
 	assert_eq(_placer(off, config, false).try_add(21.5, 20.0), ScatterPlacer.Result.ADDED, "avoid off")
 	rec.uniform_scale = 2.0
 	var big := _flat()
+	big.assets.bundled_binding_for(BOULDER)
 	big.put_object(rec.clone())
 	assert_eq(_placer(big, config, true).try_add(22.5, 20.0), ScatterPlacer.Result.OBJECT, "footprint scales")
 
@@ -120,7 +122,8 @@ func test_weighted_pick_follows_weights() -> void:
 		p.try_add(float(i % 40) * 3.0 - 60.0, float(i / 40) * 3.0 - 60.0)
 	var counts := {}
 	for i in doc.scatter.count():
-		counts[doc.scatter.asset_of(i)] = int(counts.get(doc.scatter.asset_of(i), 0)) + 1
+		var asset_id := doc.assets.definition(doc.scatter.binding_of(i)).asset_id
+		counts[asset_id] = int(counts.get(asset_id, 0)) + 1
 	var spruce_share := float(counts[SPRUCE]) / 1600.0
 	assert_true(spruce_share > 0.5 and spruce_share < 0.7, "spruce share %.2f" % spruce_share)
 	assert_true(int(counts[FERN]) > int(counts[BOULDER]), "fern outweighs boulder")
@@ -128,9 +131,10 @@ func test_weighted_pick_follows_weights() -> void:
 
 func test_limit_stops_adding_and_flags_once() -> void:
 	var doc := _flat()
-	var version := catalog.get_asset(PEBBLES).version
+	doc.schema_version = 2  # in-memory schema is 4 now; the 20000 limit is the schema 2 one
+	var binding := doc.assets.bundled_binding_for(PEBBLES)
 	for i in WorldConstants.MAX_SCATTER_INSTANCES:
-		doc.scatter.add(PEBBLES, version, -120.0 + float(i % 200), -120.0 + float(i / 200), 0.0, 1.0, 0)
+		doc.scatter.add(binding, -120.0 + float(i % 200), -120.0 + float(i / 200), 0.0, 1.0, 0)
 	var p := _placer(doc, _config([[PEBBLES, 1.0]], 0.2))
 	assert_false(p.limit_reached)
 	assert_eq(p.try_add(50.0, 50.0), ScatterPlacer.Result.LIMIT)
@@ -162,7 +166,7 @@ func test_index_queries_match_brute_force_and_survive_removal() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 5
 	for i in 300:
-		layer.add(PEBBLES, 1, rng.randf_range(-30.0, 30.0), rng.randf_range(-30.0, 30.0), 0.0, 1.0, 0)
+		layer.add(BINDING, rng.randf_range(-30.0, 30.0), rng.randf_range(-30.0, 30.0), 0.0, 1.0, 0)
 	var index := ScatterIndex.new(layer)
 	var found := index.indices_in_disc(3.0, -4.0, 9.0)
 	var expected := PackedInt32Array()
@@ -177,6 +181,6 @@ func test_index_queries_match_brute_force_and_survive_removal() -> void:
 	assert_eq(layer.count(), 300 - expected.size())
 	assert_eq(index.indices_in_disc(3.0, -4.0, 9.0).size(), 0, "removed instances are gone from the index")
 	assert_eq(index.indices_in_disc(0.0, 0.0, 100.0).size(), layer.count())
-	layer.add(PEBBLES, 1, 3.0, -4.0, 0.0, 1.0, 0)
+	layer.add(BINDING, 3.0, -4.0, 0.0, 1.0, 0)
 	index.add_last()
 	assert_eq(index.indices_in_disc(3.0, -4.0, 1.0).size(), 1)

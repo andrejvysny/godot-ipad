@@ -1,0 +1,33 @@
+PASS plugin loads without a connection ()
+PASS plugin loads with a configured connection ()
+PASS selftest project: connect
+PASS STEP connected PASS 
+PASS STEP scene open PASS 
+PASS STEP dock lists the server asset with its state badge PASS 
+PASS STEP install (add, import, finalize) PASS 
+PASS STEP binding is Ready with a wrapper PASS 
+PASS STEP place adds an owned instance PASS 
+PASS STEP undo removes the placed instance PASS 
+PASS STEP redo restores it PASS 
+PASS STEP update badge (server current is v2) PASS 
+PASS STEP review shows the descriptor diff PASS 
+PASS STEP update selected instances PASS 
+PASS STEP instance now uses the new binding, old binding intact PASS 
+PASS STEP undo swaps back PASS 
+PASS STEP update binding (all instances) PASS 
+PASS STEP restore previous is offered PASS 
+PASS STEP restore previous version PASS 
+PASS STEP dismiss hides the badge PASS 
+PASS STEP publish scene is open PASS 
+PASS STEP the publish form opens for a saved scene PASS 
+PASS STEP build + preview from the edited scene PASS 
+PASS STEP review shows validation and requires an explicit commit PASS 
+PASS STEP explicit commit publishes PASS 
+PASS STEP the open scene is unchanged and not marked unsaved PASS 
+PASS STEP a selected subtree is published from a temporary scene PASS 
+PASS STEP selection commit PASS 
+PASS STEP the open scene is still unchanged after a selection publish PASS 
+PASS editor self-test finished OK (exit 0)
+PASS editor self-test output has no script errors ([])
+
+ALL PASSED: 0 failure(s)

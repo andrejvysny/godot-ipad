@@ -12,7 +12,7 @@ func _expected(layer: ScatterLayer) -> Dictionary:
 	for i in layer.count():
 		if is_nan(doc.sample_height(layer.x[i], layer.z[i])):
 			continue
-		var key := "%s|%s" % [renderer.cell_for(layer.asset_of(i), layer.x[i], layer.z[i]), layer.asset_of(i)]
+		var key := "%s|%s" % [renderer.cell_for(_asset_of(layer, i), layer.x[i], layer.z[i]), _asset_of(layer, i)]
 		out[key] = int(out.get(key, 0)) + 1
 	return out
 
@@ -58,7 +58,7 @@ func test_add_erase_and_undo_keep_counts_in_sync_with_dirty_only_rebuilds() -> v
 	_build()
 	var far_cell := Vector2i.ZERO
 	for i in doc.scatter.count():
-		if doc.scatter.asset_of(i) == GRASS and Vector2(doc.scatter.x[i] - 68.0, doc.scatter.z[i] - 64.0).length() > 50.0:
+		if _asset_of(doc.scatter, i) == GRASS and Vector2(doc.scatter.x[i] - 68.0, doc.scatter.z[i] - 64.0).length() > 50.0:
 			far_cell = renderer.cell_for(GRASS, doc.scatter.x[i], doc.scatter.z[i])
 			break
 	var untouched := renderer.multimesh_for(far_cell, GRASS)
@@ -88,8 +88,8 @@ func test_add_erase_and_undo_keep_counts_in_sync_with_dirty_only_rebuilds() -> v
 
 func test_height_change_redrapes_y_and_nan_is_skipped() -> void:
 	var layer := ScatterLayer.new()
-	layer.add(PEBBLES, catalog.get_asset(PEBBLES).version, 10.0, 10.0, 0.0, 1.0, 0)
-	layer.add(PEBBLES, catalog.get_asset(PEBBLES).version, 11.0, 10.0, 0.0, 1.0, 0)
+	layer.add(doc.assets.bundled_binding_for(PEBBLES), 10.0, 10.0, 0.0, 1.0, 0)
+	layer.add(doc.assets.bundled_binding_for(PEBBLES), 11.0, 10.0, 0.0, 1.0, 0)
 	doc.scatter = layer
 	_build()
 	var cell := renderer.cell_for(PEBBLES, 10.0, 10.0)
@@ -113,11 +113,11 @@ func test_height_change_redrapes_y_and_nan_is_skipped() -> void:
 
 func test_align_flag_tilts_to_terrain_and_nothing_casts_shadows() -> void:
 	var layer := ScatterLayer.new()
-	var v := catalog.get_asset(PEBBLES).version
-	layer.add(PEBBLES, v, 10.0, 10.0, 0.0, 1.0, 0)
-	layer.add(PEBBLES, v, 16.0, 10.0, 0.0, 1.0, ScatterLayer.FLAG_TILT)
-	layer.add(GRASS, catalog.get_asset(GRASS).version, 10.0, 16.0, 0.0, 1.0, 0)
-	layer.add(SPRUCE, catalog.get_asset(SPRUCE).version, 16.0, 16.0, 0.0, 1.0, 0)
+	var v := doc.assets.bundled_binding_for(PEBBLES)
+	layer.add(v, 10.0, 10.0, 0.0, 1.0, 0)
+	layer.add(v, 16.0, 10.0, 0.0, 1.0, ScatterLayer.FLAG_TILT)
+	layer.add(doc.assets.bundled_binding_for(GRASS), 10.0, 16.0, 0.0, 1.0, 0)
+	layer.add(doc.assets.bundled_binding_for(SPRUCE), 16.0, 16.0, 0.0, 1.0, 0)
 	doc.scatter = layer
 	var region := doc.get_region(Vector2i(0, 0))
 	for i in region.heights.size():
@@ -144,7 +144,7 @@ func test_hidden_vegetation_follows_the_descriptor_including_later_cells() -> vo
 	for id: String in [PEBBLES, BOULDER]:
 		assert_true(renderer.multimesh_for(renderer.cell_for(id, 10.0, 10.0), id).visible, id + " stays")
 	var bytes := doc.scatter.encode()
-	doc.scatter.add(SPRUCE, catalog.get_asset(SPRUCE).version, 100.0, 100.0, 0.0, 1.0, 0)
+	doc.scatter.add(doc.assets.bundled_binding_for(SPRUCE), 100.0, 100.0, 0.0, 1.0, 0)
 	renderer.mark_all()
 	renderer.flush()
 	assert_false(renderer.multimesh_for(renderer.cell_for(SPRUCE, 100.0, 100.0), SPRUCE).visible, "cell built while hidden")
@@ -159,13 +159,13 @@ func test_world_layers_present_change_marks_scatter_and_height_cells() -> void:
 	var layers := WorldLayers.new()
 	layers.setup(catalog)
 	layers.set_lod_profile(full_profile())
-	doc.scatter.add(SPRUCE, catalog.get_asset(SPRUCE).version, 5.0, 5.0, 0.0, 1.0, 0)
+	doc.scatter.add(doc.assets.bundled_binding_for(SPRUCE), 5.0, 5.0, 0.0, 1.0, 0)
 	layers.rebuild(doc)
 	assert_true(layers.settle_now())
 	assert_eq(layers.stats().authored, 551)
 	var change := WorldChange.new()
 	change.before_scatter = doc.scatter.clone()
-	doc.scatter.add(SPRUCE, catalog.get_asset(SPRUCE).version, 60.0, 60.0, 0.0, 1.0, 0)
+	doc.scatter.add(doc.assets.bundled_binding_for(SPRUCE), 60.0, 60.0, 0.0, 1.0, 0)
 	change.after_scatter = doc.scatter.clone()
 	layers.present_change(doc, change)
 	assert_true(layers.scatter.has_dirty(), "a scatter change marks cells")

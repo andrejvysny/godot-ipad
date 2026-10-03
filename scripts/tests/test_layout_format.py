@@ -20,7 +20,7 @@ import generate_fixtures as gf
 # Same literal as KM1_FLAT_VECTOR in app/tests/unit/test_world_layout.gd (computed here first).
 KM1_FLAT_VECTOR = "f1357e481f58e3076704020e211bea87471db121c067170e50b8de88d1816d92"
 SMALL = ((0, 0), (2, 1))  # x in [0, 255.5], z in [0, 127.5]
-LIMITS_GD = wf.APP_DIR / "src" / "document" / "world_limits.gd"
+LIMITS_GD = wf.APP_DIR / "addons" / "world_painter" / "core" / "document" / "world_limits.gd"
 
 
 def km1_flat_hash() -> str:

@@ -226,7 +226,7 @@ func test_armed_asset_places_in_any_mode_then_selects_and_disarms() -> void:
 	assert_true(h.presenter.has_ghost_visible())
 	h.act("tool_end", h.at(41, 40, 1.04))
 	assert_eq(h.doc.objects.size(), 1)
-	assert_eq(h.doc.get_object(h.ctrl.selected_id()).asset_id, ToolHarness.BOULDER)
+	assert_eq(h.doc.assets.definition(h.doc.get_object(h.ctrl.selected_id()).binding_id).asset_id, ToolHarness.BOULDER)
 	assert_eq([h.ctrl.mode(), h.ctrl.active_tool(), h.ctrl.armed_asset()], ["place", "select", ""])
 	assert_eq(h.commits[0].label, "Place " + h.catalog.get_asset(ToolHarness.BOULDER).display_name)
 	h.act("tool_begin", h.at(60, 60, 2.0))
@@ -264,7 +264,7 @@ func test_library_drop_also_selects_resets_mode_and_disarms() -> void:
 	h.ctrl.update_drop(pos, false)
 	h.ctrl.finish_drop(pos, false)
 	assert_eq(h.doc.objects.size(), 1)
-	assert_eq(h.doc.get_object(h.ctrl.selected_id()).asset_id, ToolHarness.BOULDER)
+	assert_eq(h.doc.assets.definition(h.doc.get_object(h.ctrl.selected_id()).binding_id).asset_id, ToolHarness.BOULDER)
 	assert_eq([h.ctrl.mode(), h.ctrl.active_tool(), h.ctrl.armed_asset()], ["place", "select", ""])
 
 

@@ -1,0 +1,1967 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Test user directory: /Users/andrejvysny/Library/Application Support/WorldPainterTests/tests-voezcj8a
+  PASS test_asset_binding::test_assetstudio_binding_round_trip (3.2 ms)
+  PASS test_asset_binding::test_assetstudio_binding_validation (5.7 ms)
+  PASS test_asset_binding::test_dec_cases (1.3 ms)
+  PASS test_asset_binding::test_default_bundled_binding_follows_the_catalog_entry (1.4 ms)
+  PASS test_asset_binding::test_every_field_changes_the_id (2.0 ms)
+  PASS test_asset_binding::test_from_dict_is_strict (2.2 ms)
+  PASS test_asset_binding::test_from_dict_round_trip_and_id_mismatch (1.5 ms)
+  PASS test_asset_binding::test_ids_are_deterministic_and_match_the_contract (1.8 ms)
+  PASS test_asset_binding::test_policy_comparisons_use_the_documented_epsilon (1.3 ms)
+  PASS test_assetstudio_connection::test_cleartext_lan_needs_the_explicit_flag_and_shows_a_warning (1.4 ms)
+  PASS test_assetstudio_connection::test_https_connection_is_stored_with_the_token_in_the_credentials_file_only (0.9 ms)
+  PASS test_assetstudio_connection::test_resolvers_follow_the_connection_and_the_offline_flag (0.6 ms)
+  PASS test_bench_plan::test_bench_object_id_format_and_determinism (0.0 ms)
+  PASS test_bench_plan::test_comparison_variants_are_explicit_and_do_not_change_defaults (0.0 ms)
+  PASS test_bench_plan::test_default_steps_matrix (0.1 ms)
+  PASS test_bench_plan::test_default_steps_subset_and_no_hidden (0.0 ms)
+  PASS test_bench_plan::test_frame_stats_p99_in_snapshot (0.0 ms)
+  PASS test_bench_plan::test_measurement_admission_distinguishes_unready_static_and_expected_dynamic_work (0.0 ms)
+  PASS test_bench_plan::test_mesh_ablation_profiles (0.0 ms)
+  PASS test_bench_plan::test_parse_bench_args (0.1 ms)
+  PASS test_bench_plan::test_profile_settings_table (0.0 ms)
+  PASS test_bench_plan::test_summarize_known_array (0.1 ms)
+  PASS test_bench_plan::test_summarize_without_valid_gpu_samples_is_null_not_zero (0.0 ms)
+  PASS test_bench_plan::test_synth_objects_deterministic_and_valid (53.9 ms)
+  PASS test_bench_scenarios::test_50k_scenarios_are_defined_at_full_size_and_build_small_variants (78.2 ms)
+  PASS test_bench_scenarios::test_asset_diversity_is_reported_not_run (7.0 ms)
+  PASS test_bench_scenarios::test_camera_paths_are_deterministic_and_world_relative (126.7 ms)
+  PASS test_bench_scenarios::test_forest_scenarios_use_one_species_each_inside_patches (124.0 ms)
+  PASS test_bench_scenarios::test_full_size_10k_scenarios_have_exact_counts (463.2 ms)
+  PASS test_bench_scenarios::test_grass_is_decorative_only_and_stays_in_the_open (141.3 ms)
+  PASS test_bench_scenarios::test_mixed_world_is_deterministic_with_exact_counts_and_consistent_heights (202.4 ms)
+  PASS test_bench_scenarios::test_oscillation_straddles_projected_overview_boundary (7.2 ms)
+  PASS test_bench_scenarios::test_parse_bench_args_for_scenarios (7.0 ms)
+  PASS test_bench_scenarios::test_parse_bench_args_rejects_invalid_values (6.9 ms)
+  PASS test_bench_scenarios::test_plan_steps (7.2 ms)
+  PASS test_bench_scenarios::test_size_transition_paths_keep_world_and_plan_identity (300.3 ms)
+  PASS test_bench_scenarios::test_stream_stats_match_exact_percentiles_within_the_bin_and_stay_bounded (13.1 ms)
+  PASS test_bench_scenarios::test_terrain_only_and_primitive_scenarios (125.9 ms)
+  PASS test_bench_source_identity::test_digest_order_is_canonical_and_missing_input_is_unavailable (0.5 ms)
+  PASS test_bench_source_identity::test_exports_never_claim_local_source_or_git_identity (0.0 ms)
+  PASS test_bench_source_identity::test_live_identity_changes_with_source_and_config_but_not_stale_fingerprint (5.5 ms)
+  PASS test_brush_alpha::test_every_shape_is_bounded_and_zero_outside (0.9 ms)
+  PASS test_brush_alpha::test_noise_is_deterministic_and_bounded (0.1 ms)
+  PASS test_brush_alpha::test_pattern_tiles_in_world_space (0.0 ms)
+  PASS test_brush_alpha::test_preview_image_alpha (0.5 ms)
+  PASS test_brush_alpha::test_shape_profiles (0.0 ms)
+  PASS test_brush_alpha::test_soft_circle_matches_continuous_falloff (0.0 ms)
+  PASS test_brush_alpha::test_stamp_rotates_with_angle (0.0 ms)
+  PASS test_brush_kernels::test_budget_exceeded_reports_error (0.4 ms)
+  PASS test_brush_kernels::test_capsule_row_span_covers_exact_disc_set (105.5 ms)
+  PASS test_brush_kernels::test_height_clamped_to_document_range (0.5 ms)
+  PASS test_brush_kernels::test_non_finite_inputs_are_rejected_without_writing (15.5 ms)
+  PASS test_brush_kernels::test_result_rect_contains_every_changed_anchor (186.3 ms)
+  PASS test_brush_kernels::test_seam_centred_dab_is_four_fold_symmetric_and_captured_once (1.5 ms)
+  PASS test_brush_kernels::test_segment_across_seam_is_continuous (1.3 ms)
+  PASS test_brush_kernels::test_te08_negative_coordinates_use_floor_mapping (0.4 ms)
+  PASS test_brush_kernels::test_te09_missing_region_is_skipped_not_created (0.4 ms)
+  PASS test_brush_kernels::test_te09_world_edge_and_beyond_write_nothing_outside (1.0 ms)
+    TIMING r=16m sculpt_segment 1.38 ms/call, paint_segment 6.08 ms/call (desktop headless)
+  PASS test_brush_kernels::test_timing_16m_sculpt_step_and_paint_segment (37.6 ms)
+  PASS test_brush_math::test_falloff_profile (0.0 ms)
+  PASS test_brush_math::test_integrated_falloff_matches_numeric_integration (25.5 ms)
+  PASS test_brush_math::test_integrated_falloff_point_limit_and_outside (0.0 ms)
+  PASS test_brush_math::test_max_weighted_falloff_matches_dense_search (144.0 ms)
+  PASS test_brush_math::test_pressure_factor_gamma (0.0 ms)
+  PASS test_brush_math::test_pressure_factor_mapping (0.0 ms)
+  PASS test_brush_math::test_resample_spacing (0.0 ms)
+  PASS test_brush_math::test_timeline_clamps_non_monotonic_time (0.0 ms)
+  PASS test_brush_math::test_timeline_interpolates_and_holds_last_position (0.0 ms)
+  PASS test_brush_math::test_timeline_known_until_tracks_last_sample_or_pause (0.0 ms)
+  PASS test_brush_math::test_timeline_pause_creates_gap_and_resume_new_segment (0.0 ms)
+  PASS test_canonical_encoder::test_every_authored_layer_changes_the_hash (95.5 ms)
+  PASS test_canonical_encoder::test_legacy_stream_needs_bundled_bindings_of_one_catalog (0.8 ms)
+  PASS test_canonical_encoder::test_legacy_v2_known_answer (15.6 ms)
+  PASS test_canonical_encoder::test_unused_scatter_slots_unused_bindings_and_ids_do_not_change_the_hash (16.0 ms)
+  PASS test_canonical_encoder::test_v4_stream_follows_the_contract_layout (264.9 ms)
+  PASS test_catalog::test_bundled_catalog_loads (1.8 ms)
+  PASS test_catalog::test_catalog_bytes_change_changes_hash (5.6 ms)
+  PASS test_catalog::test_hash_is_stable_and_matches_documented_stream (3.5 ms)
+  PASS test_catalog::test_instantiate_preview (2.2 ms)
+  PASS test_catalog::test_plain_round_trip (2.3 ms)
+  PASS test_catalog::test_rejects_invalid_catalogs (16.5 ms)
+  PASS test_catalog::test_rejects_missing_and_malformed_files (0.5 ms)
+  PASS test_catalog::test_scene_must_be_self_contained (0.3 ms)
+  PASS test_control_codec::test_encode_preserves_unrelated_bits (0.0 ms)
+  PASS test_control_codec::test_erase_paint_rule_table (0.0 ms)
+  PASS test_control_codec::test_known_vector_decode (0.0 ms)
+  PASS test_control_codec::test_matches_terrain3d_util_when_available (0.0 ms)
+  PASS test_control_codec::test_nan_like_patterns_survive_image_round_trip (2.0 ms)
+  PASS test_control_codec::test_paint_and_erase_preserve_unowned_bits (0.1 ms)
+  PASS test_control_codec::test_paint_layer_rule_table (0.1 ms)
+  PASS test_control_codec::test_quantize_and_dirt_blend (0.0 ms)
+  PASS test_control_codec::test_supported_layout (0.0 ms)
+  PASS test_control_codec::test_third_material_appears_and_grows_monotonically (0.6 ms)
+  PASS test_control_codec_hole::test_encode_sets_and_clears_hole_bit (0.0 ms)
+  PASS test_coordinate_mapper::test_generation_bumps_only_on_change (0.0 ms)
+  PASS test_coordinate_mapper::test_invalid_content_scale_falls_back_to_one (0.0 ms)
+  PASS test_coordinate_mapper::test_ipad_air_11_points_map_one_to_one (0.0 ms)
+  PASS test_coordinate_mapper::test_ipad_pro_13_points_scale_into_base_viewport (0.0 ms)
+  PASS test_coordinate_mapper::test_map_matches_godot_event_transform_on_real_root_at_any_3d_scale (0.1 ms)
+  PASS test_coordinate_mapper::test_nine_point_round_trip_within_two_points (0.1 ms)
+  PASS test_coordinate_mapper::test_singular_root_transform_invalidates_mapping_without_engine_error (0.0 ms)
+  PASS test_coordinate_mapper::test_viewport_space_is_identity (0.0 ms)
+  PASS test_frame_stats::test_named_samples_and_snapshot (0.0 ms)
+  PASS test_frame_stats::test_percentiles_known_data (0.0 ms)
+  PASS test_frame_stats::test_ring_wraps_and_empty_is_zero (0.0 ms)
+  PASS test_history::test_byte_budget_eviction (1.9 ms)
+  PASS test_history::test_default_limits (0.0 ms)
+  PASS test_history::test_delete_and_undo_restores_same_id_and_transform (1.6 ms)
+  PASS test_history::test_eviction_drops_oldest_first (1.6 ms)
+  PASS test_history::test_finish_captures_before_after_and_undo_redo_exact (31.3 ms)
+  PASS test_history::test_noop_creates_no_change (1.6 ms)
+  PASS test_history::test_oversized_entry_is_kept_and_evicts_older (1.6 ms)
+  PASS test_history::test_redo_branch_truncation_and_eviction (16.4 ms)
+  PASS test_history::test_rollback_restores_all_regions_and_objects (16.9 ms)
+  PASS test_history::test_snapshots_are_not_aliased_to_live_buffers (1.6 ms)
+  PASS test_history::test_transaction_budget_rejects_capture (1.5 ms)
+  PASS test_history_layers::test_budget_covers_new_captures (1.8 ms)
+  PASS test_history_layers::test_colors_undo_redo (32.2 ms)
+  PASS test_history_layers::test_noop_captures_produce_no_change (1.8 ms)
+  PASS test_history_layers::test_paths_create_edit_delete (31.7 ms)
+  PASS test_history_layers::test_rollback_restores_every_layer (16.9 ms)
+  PASS test_history_layers::test_rules_undo_redo (31.6 ms)
+  PASS test_history_layers::test_scatter_undo_redo_restores_order (32.0 ms)
+  PASS test_input_router::test_cancel_all_and_modal_close_finger_ui (0.0 ms)
+  PASS test_input_router::test_cancel_all_ends_ui_and_camera (0.0 ms)
+  PASS test_input_router::test_cancel_all_every_reason_cancels_stroke_and_suppresses (0.3 ms)
+  PASS test_input_router::test_cancel_all_when_idle_is_noop (0.0 ms)
+  PASS test_input_router::test_contacts_snapshot_for_diagnostics (0.0 ms)
+  PASS test_input_router::test_duplicate_begin_is_diagnosed_and_ignored (0.0 ms)
+  PASS test_input_router::test_finger_drag_from_ui_moves_ui_and_never_camera (0.0 ms)
+  PASS test_input_router::test_finger_joining_pencil_stroke_is_suppressed (0.0 ms)
+  PASS test_input_router::test_finger_tap_on_ui_presses_and_releases_as_ui (0.0 ms)
+  PASS test_input_router::test_finger_taps_and_long_presses_in_world_never_produce_tool_or_ui_actions (0.1 ms)
+  PASS test_input_router::test_finger_ui_blocked_while_pencil_down_and_inside_guard_after_it (0.0 ms)
+  PASS test_input_router::test_finger_ui_inert_when_camera_owns_input_and_world_finger_still_orbits (0.0 ms)
+  PASS test_input_router::test_modal_cancels_tool_and_only_allows_pencil_on_ui (0.0 ms)
+  PASS test_input_router::test_modal_ends_camera_and_keeps_pencil_ui_press (0.0 ms)
+  PASS test_input_router::test_native_cancel_mid_stroke_cancels_and_leaves_no_contact (0.0 ms)
+  PASS test_input_router::test_no_pressure_samples_route_normally (0.0 ms)
+  PASS test_input_router::test_non_finite_begin_is_never_hit_tested_or_routed (0.0 ms)
+  PASS test_input_router::test_non_finite_end_cancels_instead_of_ending (0.0 ms)
+  PASS test_input_router::test_non_finite_finger_never_reaches_camera (0.0 ms)
+  PASS test_input_router::test_non_finite_move_is_dropped_and_stroke_continues (0.0 ms)
+  PASS test_input_router::test_orbit_threshold_and_no_jump (0.0 ms)
+  PASS test_input_router::test_orphan_samples_are_diagnosed_without_state_change (0.0 ms)
+  PASS test_input_router::test_palm_radius_finger_is_not_ui (0.0 ms)
+  PASS test_input_router::test_palm_resting_before_and_after_stroke (0.1 ms)
+  PASS test_input_router::test_paused_stroke_lifting_over_world_resumes_before_end (0.0 ms)
+  PASS test_input_router::test_pencil_and_mouse_dev_begin_edit_finger_does_not (0.0 ms)
+  PASS test_input_router::test_pencil_begin_during_finger_ui_cancels_it_then_edits (0.0 ms)
+  PASS test_input_router::test_pencil_begin_during_orbit_freezes_camera_and_suppresses_finger (0.0 ms)
+  PASS test_input_router::test_pencil_begin_during_pan_zoom (0.0 ms)
+  PASS test_input_router::test_pencil_cancel_also_starts_guard_window (0.0 ms)
+  PASS test_input_router::test_pencil_during_orbit_candidate_emits_no_camera_actions (0.0 ms)
+  PASS test_input_router::test_pencil_may_begin_in_wait_release (0.0 ms)
+  PASS test_input_router::test_pencil_on_ui_cancel_emits_ui_cancel (0.0 ms)
+  PASS test_input_router::test_pencil_on_ui_owns_contact_until_release (0.0 ms)
+  PASS test_input_router::test_pencil_ui_press_reports_pencil_source (0.0 ms)
+  PASS test_input_router::test_predicted_samples_never_reach_tools_ui_or_camera (0.0 ms)
+  PASS test_input_router::test_random_sequences_keep_ownership_invariants (13.7 ms)
+  PASS test_input_router::test_second_finger_during_finger_ui_never_produces_camera (0.0 ms)
+  PASS test_input_router::test_second_finger_enters_pan_zoom_without_transition_motion (0.0 ms)
+  PASS test_input_router::test_second_finger_from_candidate_has_no_camera_end (0.0 ms)
+  PASS test_input_router::test_second_pencil_contact_is_ignored (0.0 ms)
+  PASS test_input_router::test_stroke_crossing_ui_pauses_and_resumes_new_segment (0.0 ms)
+  PASS test_input_router::test_stroke_ending_over_ui_flags_over_ui (0.0 ms)
+  PASS test_input_router::test_third_finger_freezes_until_all_released (0.0 ms)
+  PASS test_input_router::test_two_to_one_finger_never_orbits (0.0 ms)
+  PASS test_input_router::test_unknown_source_never_edits_operates_ui_or_navigates (0.0 ms)
+  PASS test_input_trace::test_fixture_set_is_complete (0.3 ms)
+  PASS test_input_trace::test_fixture_traces_replay_to_expected_actions (2.2 ms)
+  PASS test_input_trace::test_load_rejects_non_traces (0.1 ms)
+  PASS test_input_trace::test_malformed_entries_are_rejected_not_defaulted (2.7 ms)
+  PASS test_input_trace::test_match_actions_reports_mismatch (0.0 ms)
+  PASS test_input_trace::test_records_only_while_started (0.0 ms)
+  PASS test_input_trace::test_replay_skips_malformed_entries_with_diagnostic (0.0 ms)
+  PASS test_input_trace::test_ring_is_bounded_and_keeps_newest (0.0 ms)
+  PASS test_input_trace::test_sample_dict_round_trip (0.0 ms)
+  PASS test_input_trace::test_save_load_replay_is_deterministic (1.0 ms)
+  PASS test_input_trace::test_save_rejects_paths (0.0 ms)
+  PASS test_inspector_placement::test_clear_preferred_side (0.0 ms)
+  PASS test_inspector_placement::test_fewest_covered_when_all_blocked (0.0 ms)
+  PASS test_inspector_placement::test_free_smaller_than_panel (0.0 ms)
+  PASS test_inspector_placement::test_hysteresis_on_ties (0.0 ms)
+  PASS test_inspector_placement::test_never_overlaps_anchor_when_alternative_exists (0.0 ms)
+  PASS test_inspector_placement::test_pushes_to_below_when_sides_blocked (0.0 ms)
+  PASS test_inspector_placement::test_side_pushed_past_clustered_neighbours (0.0 ms)
+  PASS test_instance_batch::test_cell_local_storage_reproduces_world_transforms_everywhere (0.6 ms)
+  PASS test_instance_batch::test_custom_aabb_grows_immediately_and_shrinks_lazily (0.0 ms)
+  PASS test_instance_batch::test_growth_keeps_every_transform_and_never_draws_inactive_capacity (1.6 ms)
+  PASS test_instance_batch::test_random_add_update_remove_keep_maps_consistent (8.9 ms)
+  PASS test_instance_batch::test_uploads_are_partial_when_few_slots_change_and_full_otherwise (0.2 ms)
+  PASS test_km1_editing::test_duplicate_is_refused_at_the_limit_without_touching_the_document (107.5 ms)
+  PASS test_km1_editing::test_object_limit_is_per_schema (2766.7 ms)
+  PASS test_km1_editing::test_paint_at_the_far_corner_changes_only_valid_control_samples (8.6 ms)
+  PASS test_km1_editing::test_picker_hits_every_corner_and_seam_and_rejects_just_outside (7.6 ms)
+  PASS test_km1_editing::test_picker_ray_from_far_outside_reaches_the_far_corner_area (6.0 ms)
+  PASS test_km1_editing::test_scatter_limit_follows_the_schema (366.0 ms)
+  PASS test_km1_editing::test_sculpt_dab_on_the_x0_z0_seams_touches_all_four_regions_symmetrically (10.1 ms)
+  PASS test_km1_editing::test_sculpt_far_from_the_origin_is_not_clipped_to_the_legacy_extent (7.1 ms)
+  PASS test_km1_editing::test_sculpt_stroke_clips_exactly_at_the_four_world_corners (26.3 ms)
+  PASS test_lab_probe::test_calibration_records_nine_points_in_logical_units (0.1 ms)
+  PASS test_lab_probe::test_probe_cancel_restores_exact_hash_across_regions (24.0 ms)
+  PASS test_lab_probe::test_probe_pause_does_not_bridge_gap_and_history_is_exact (30.7 ms)
+  PASS test_lab_runtime_diagnostics::test_diagnostic_refresh_never_catches_up_with_a_burst (0.0 ms)
+  PASS test_lab_runtime_diagnostics::test_frame_history_stays_bounded (0.3 ms)
+  PASS test_lab_runtime_diagnostics::test_state_snapshot_only_runs_when_capture_is_due (0.3 ms)
+  PASS test_lab_runtime_diagnostics::test_wall_clock_stalls_are_measured_without_delta_clamping (0.0 ms)
+  PASS test_layout_consumers::test_no_source_uses_the_removed_legacy_layout_constants (66.8 ms)
+  PASS test_layout_consumers::test_world_constants_no_longer_declares_a_fixed_layout (0.0 ms)
+COST km1 snapshot capture (main thread freeze): 120.7 ms
+COST km1 1-region sculpt on_committed (hash + delta + spool): median 1.8 ms, max 2.1 ms
+COST km1 tick+pump after a commit: median 0.01 ms, max 0.02 ms
+  PASS test_live_cost::test_main_thread_cost_of_a_one_region_sculpt_commit_on_km1 (1310.4 ms)
+COST km1 preview sample (one dirty region, 2 tiles): median 0.15 ms, max 0.18 ms
+  PASS test_live_cost::test_preview_sample_cost_on_km1 (1065.9 ms)
+  PASS test_live_delta::test_cache_equals_the_canonical_hash_and_recomputes_only_what_changed (47.8 ms)
+  PASS test_live_delta::test_cache_tracks_scatter_paths_rules_and_other_documents (32.6 ms)
+  PASS test_live_delta::test_object_scatter_path_and_rules_changes_travel_as_whole_values (11.2 ms)
+  PASS test_live_delta::test_paint_tint_and_hole_deltas_use_their_map_kinds (3.0 ms)
+  PASS test_live_delta::test_preview_delta_round_trips_tiles_objects_scatter_and_bindings (3.5 ms)
+  PASS test_live_delta::test_sculpt_delta_has_exactly_the_changed_tiles_with_absolute_bytes (4.0 ms)
+  PASS test_live_delta::test_wpst_validation_rejects_instances_outside_the_tile (1.6 ms)
+  PASS test_live_faults::test_commit_before_any_snapshot_is_refused (2.9 ms)
+  PASS test_live_faults::test_duplicate_chunk_is_ignored_and_the_commit_still_applies (87.4 ms)
+  PASS test_live_faults::test_gap_triggers_resync_and_a_new_stream_never_a_partial_apply (181.5 ms)
+  PASS test_live_faults::test_hostile_commits_are_refused_and_leave_the_replica_untouched (109.4 ms)
+  PASS test_live_faults::test_hostile_delta_archives_fail_validation (73.0 ms)
+  PASS test_live_faults::test_invalid_snapshot_is_refused_without_replacing_anything (69.5 ms)
+  PASS test_live_faults::test_reconnect_resumes_with_the_exact_missing_chain (108.1 ms)
+  PASS test_live_faults::test_reconnect_with_an_unavailable_chain_falls_back_to_a_snapshot (149.5 ms)
+  PASS test_live_faults::test_reordered_messages_end_in_resync_and_never_a_partial_state (174.5 ms)
+  PASS test_live_faults::test_replay_of_an_installed_commit_is_idempotent (105.1 ms)
+  PASS test_live_faults::test_sender_stays_bounded_under_backpressure (688.5 ms)
+  PASS test_live_faults::test_snapshot_waits_for_a_stable_committed_point (82.8 ms)
+  PASS test_live_faults::test_spool_overflow_schedules_a_new_snapshot_on_a_new_stream (146.1 ms)
+  PASS test_live_faults::test_visual_readiness_is_reported_separately_from_data_integrity (105.7 ms)
+  PASS test_live_preview::test_cancelled_operation_leaves_no_change_and_clears_the_overlay (84.7 ms)
+  PASS test_live_preview::test_coalescing_keeps_each_tiles_latest_value_when_intermediate_previews_are_dropped (70.3 ms)
+  PASS test_live_preview::test_highest_preview_sequence_wins_per_key (0.0 ms)
+  PASS test_live_preview::test_later_previews_keep_earlier_touched_tiles (69.1 ms)
+  PASS test_live_preview::test_object_preview_is_absolute_and_cleared_by_the_commit (85.8 ms)
+  PASS test_live_preview::test_overlay_times_out_and_stream_change_clears_it (140.8 ms)
+  PASS test_live_preview::test_preview_reaches_the_overlay_without_touching_the_committed_replica (93.6 ms)
+  PASS test_live_preview::test_previews_stay_off_until_the_baseline_is_acknowledged (1.9 ms)
+  PASS test_live_preview::test_scatter_preview_tiles_are_valid_wpst_files (83.2 ms)
+  PASS test_live_preview::test_unsent_cancel_still_clears_when_the_cancel_message_is_lost (67.1 ms)
+  PASS test_live_sync::test_initial_snapshot_installs_the_exact_world (80.6 ms)
+  PASS test_live_sync::test_object_operations_reproduce_the_hash (167.6 ms)
+  PASS test_live_sync::test_random_sequence_of_operations_matches_after_every_operation (1287.5 ms)
+  PASS test_live_sync::test_scatter_path_and_rule_operations_reproduce_the_hash (167.1 ms)
+  PASS test_live_sync::test_terrain_operations_reproduce_the_hash (156.5 ms)
+  PASS test_live_sync::test_undo_and_redo_are_new_revisions_with_the_same_content_hash (221.1 ms)
+  PASS test_live_wire::test_blob_begin_checks_chunk_count_and_kind_keys (0.1 ms)
+  PASS test_live_wire::test_envelope_rejects_unknown_type_keys_and_wrong_session (0.2 ms)
+  PASS test_live_wire::test_envelope_round_trip_normalizes_integers (0.1 ms)
+  PASS test_live_wire::test_framer_round_trip_and_parse_errors (10.0 ms)
+  PASS test_live_wire::test_pre_auth_accepts_only_a_small_hello (0.2 ms)
+  PASS test_live_wire::test_receiver_aborts_on_range_order_size_and_hash_errors (37.2 ms)
+  PASS test_live_wire::test_receiver_enforces_caps_in_flight_and_unknown_transfers (0.8 ms)
+  PASS test_live_wire::test_receiver_ignores_identical_duplicate_and_aborts_on_conflict (29.1 ms)
+  PASS test_live_wire::test_receiver_stages_to_disk_and_verifies_hash (17.7 ms)
+  PASS test_lod_policy::test_big_jumps_skip_roles (0.0 ms)
+  PASS test_lod_policy::test_effective_distance_scales_with_fov_and_viewport (0.0 ms)
+  PASS test_lod_policy::test_ground_cover_bands_halve_density_with_distance (0.0 ms)
+  PASS test_lod_policy::test_ground_cover_bands_have_hysteresis (0.0 ms)
+  PASS test_lod_policy::test_group_level_hysteresis_prevents_toggling_near_each_threshold (0.1 ms)
+  PASS test_lod_policy::test_group_levels_double_from_the_group_threshold (0.0 ms)
+  PASS test_lod_policy::test_lod_01_hysteresis_prevents_toggling_near_a_threshold (0.0 ms)
+  PASS test_lod_policy::test_roles_follow_the_profile_thresholds (0.0 ms)
+  PASS test_mac_dev_provider::test_cancel_all_cancels_held_contacts_until_release (0.1 ms)
+  PASS test_mac_dev_provider::test_cancel_all_cancels_pending_pinch (0.0 ms)
+  PASS test_mac_dev_provider::test_escape_requests_explicit_cancel (0.0 ms)
+  PASS test_mac_dev_provider::test_identity_and_labels (0.0 ms)
+  PASS test_mac_dev_provider::test_left_button_is_mouse_dev_contact (0.0 ms)
+  PASS test_mac_dev_provider::test_magnify_and_pan_gestures (0.0 ms)
+  PASS test_mac_dev_provider::test_middle_and_shift_right_drag_are_two_finger_pan (0.0 ms)
+  PASS test_mac_dev_provider::test_pinch_through_router_is_a_real_transition (0.1 ms)
+  PASS test_mac_dev_provider::test_press_after_cancel_with_lost_release_starts_new_contact (0.0 ms)
+  PASS test_mac_dev_provider::test_right_drag_is_one_finger (0.0 ms)
+  PASS test_mac_dev_provider::test_wheel_accumulates_until_move_drain (0.0 ms)
+  PASS test_mac_dev_provider::test_wheel_is_pinch_across_two_drains (0.0 ms)
+  PASS test_native_record_decode::test_bridge_going_inactive_emits_provider_failed_once (0.0 ms)
+  PASS test_native_record_decode::test_cancel_all_forwards_explicit_code (0.0 ms)
+  PASS test_native_record_decode::test_cancel_reason_codes_map_to_names (0.0 ms)
+  PASS test_native_record_decode::test_diagnostics_merge_bridge_and_platform_info (0.0 ms)
+  PASS test_native_record_decode::test_failed_start_is_unavailable_and_never_drains (0.0 ms)
+  PASS test_native_record_decode::test_flags_coalesced_predicted_and_force_estimated (0.0 ms)
+  PASS test_native_record_decode::test_invalid_phase_is_treated_as_cancel (0.0 ms)
+  PASS test_native_record_decode::test_major_radius_decoded_only_from_stride_15 (0.0 ms)
+  PASS test_native_record_decode::test_malformed_bridge_output_fails_provider_with_diagnostic (0.0 ms)
+  PASS test_native_record_decode::test_malformed_buffer_closes_every_contact_the_provider_opened (0.0 ms)
+  PASS test_native_record_decode::test_malformed_layout_returns_empty_with_reason (0.0 ms)
+  PASS test_native_record_decode::test_overflow_increase_emits_provider_failed_once (0.0 ms)
+  PASS test_native_record_decode::test_phases_and_identity_fields (0.0 ms)
+  PASS test_native_record_decode::test_pressure_valid_invalid_and_clamped (0.0 ms)
+  PASS test_native_record_decode::test_provider_drains_and_decodes_through_bridge (0.0 ms)
+  PASS test_native_record_decode::test_sources_come_only_from_the_native_type_code (0.0 ms)
+  PASS test_native_record_decode::test_tilt_decoding (0.0 ms)
+  PASS test_native_record_decode::test_timestamp_position_and_sequence_are_not_truncated (0.0 ms)
+  PASS test_native_record_decode::test_wider_stride_ignores_trailing_fields (0.0 ms)
+  PASS test_new_world::test_flat_world_is_a_valid_km1_world (451.6 ms)
+  PASS test_new_world::test_hills_are_continuous_across_every_region_seam (55.4 ms)
+    TIMING new km1 hills world: 52.1 ms (desktop headless)
+  PASS test_new_world::test_hills_world_is_deterministic_gentle_and_in_range (956.9 ms)
+  PASS test_new_world::test_other_layouts_work_too (26.7 ms)
+  PASS test_new_world::test_unknown_kind_and_missing_catalog_are_errors (1.2 ms)
+    TIMING 50k-object km1 snapshot: first full encode 777.6 ms, warm 1.32 ms avg / 1.88 ms worst (desktop headless)
+  PASS test_object_chunk_cache::test_50k_snapshot_timing_after_warm_up (993.9 ms)
+  PASS test_object_chunk_cache::test_empty_and_single_object_documents (91.5 ms)
+  PASS test_object_chunk_cache::test_matches_full_encoding_on_every_fixture (284.2 ms)
+  PASS test_object_chunk_cache::test_random_edit_sequences_on_both_layouts (1801.0 ms)
+  PASS test_object_chunk_cache::test_replaced_document_and_direct_writes_fall_back_to_a_rebuild (152.7 ms)
+  PASS test_object_chunk_cache::test_rollback_restores_through_the_journal (92.2 ms)
+  PASS test_object_chunk_cache::test_stays_identical_through_edit_undo_and_redo (592.5 ms)
+  PASS test_object_chunk_cache::test_two_caches_on_one_document_stay_correct (243.1 ms)
+  PASS test_orbit_camera::test_ca01_orbit_keeps_pivot_no_roll (1.1 ms)
+  PASS test_orbit_camera::test_ca02_begin_update_identical_is_exact (0.0 ms)
+  PASS test_orbit_camera::test_ca03_pinch_keeps_anchor_under_centroid (0.0 ms)
+  PASS test_orbit_camera::test_clamps (0.0 ms)
+  PASS test_orbit_camera::test_clearance_raises_camera_and_handles_nan (0.0 ms)
+  PASS test_orbit_camera::test_defaults_match_json (0.1 ms)
+  PASS test_orbit_camera::test_focus_bounds_frames_lodge (0.0 ms)
+  PASS test_orbit_camera::test_hit_then_miss_keeps_last_pivot (0.1 ms)
+  PASS test_orbit_camera::test_horizon_pan_stays_in_world (0.1 ms)
+  PASS test_orbit_camera::test_miss_then_hit_does_not_jump (0.1 ms)
+  PASS test_orbit_camera::test_orbit_sensitivity (0.0 ms)
+  PASS test_orbit_camera::test_pan_moves_pivot_by_ground_displacement (0.0 ms)
+  PASS test_orbit_camera::test_pose_roundtrip_and_fixture (0.0 ms)
+  PASS test_orbit_camera::test_precision_factor_monotonic (0.0 ms)
+  PASS test_orbit_camera::test_upward_ray_keeps_pivot (0.0 ms)
+  PASS test_orbit_camera::test_zero_viewport_is_ignored (0.0 ms)
+  PASS test_orbit_camera_layout::test_km1_far_plane_reaches_the_farthest_corner_from_the_farthest_camera (0.2 ms)
+  PASS test_orbit_camera_layout::test_km1_reset_view_shows_all_four_corners_in_landscape_and_portrait (0.3 ms)
+  PASS test_orbit_camera_layout::test_km1_zoom_out_reaches_the_fitted_distance_and_the_pivot_roams_the_whole_world (0.1 ms)
+  PASS test_orbit_camera_layout::test_legacy_world_keeps_its_exact_camera_values (0.1 ms)
+  PASS test_orbit_camera_layout::test_returning_to_the_legacy_world_restores_its_limits (0.1 ms)
+  PASS test_overview_cluster_builder::test_64_m_groups_use_a_4_m_grid_within_the_lobe_budget (11.2 ms)
+  PASS test_overview_cluster_builder::test_a_clearing_inside_a_forest_stays_empty (7.0 ms)
+  PASS test_overview_cluster_builder::test_canopy_lobe_is_an_eight_sided_frustum_with_top_cap (0.0 ms)
+  PASS test_overview_cluster_builder::test_every_triangle_is_clockwise_seen_from_outside (6.9 ms)
+  PASS test_overview_cluster_builder::test_ground_cover_is_ignored_and_large_solids_keep_their_silhouette (0.1 ms)
+  PASS test_overview_cluster_builder::test_lobe_budget_aggregates_the_grid_deterministically (14.7 ms)
+  PASS test_overview_cluster_builder::test_run_reports_the_result_and_time_for_a_worker (1.9 ms)
+  PASS test_overview_cluster_builder::test_same_inputs_give_identical_arrays_and_input_order_does_not_matter (28.8 ms)
+  PASS test_overview_cluster_builder::test_top_down_every_occupied_cell_has_an_upward_triangle_over_it (11.3 ms)
+  PASS test_overview_cluster_builder::test_vertices_are_local_to_the_group_origin (0.0 ms)
+  PASS test_overview_cut::test_finer_upgrade_waits_for_settle_and_retains_coarse_coverage (0.0 ms)
+  PASS test_overview_cut::test_ready_downgrades_activate_while_moving_without_overlapping_children (0.0 ms)
+  PASS test_paint_kernels::test_dab_coverage_never_exceeds_the_continuous_kernel (5.5 ms)
+  PASS test_paint_kernels::test_erase_reveals_the_rule_layer (0.8 ms)
+  PASS test_paint_kernels::test_erase_spray_removes_035_of_the_paint (0.8 ms)
+  PASS test_paint_kernels::test_hard_alpha_has_a_full_strength_core (1.3 ms)
+  PASS test_paint_kernels::test_invalid_input_writes_nothing (0.8 ms)
+  PASS test_paint_kernels::test_painting_four_layers_follows_the_rules_in_sequence (1.6 ms)
+  PASS test_paint_kernels::test_pattern_is_anchored_in_world_space (5.2 ms)
+  PASS test_paint_kernels::test_ring_alpha_leaves_the_centre_unpainted (2.5 ms)
+  PASS test_paint_kernels::test_spray_is_deterministic_per_seed_and_sparser_than_paint (9.6 ms)
+  PASS test_paint_kernels::test_stamp_follows_stroke_direction_and_circle_ignores_it (34.6 ms)
+  PASS test_paint_kernels::test_start_maps_make_painting_a_pure_function_of_coverage (27.4 ms)
+  PASS test_paint_kernels::test_tint_across_region_seams_is_symmetric_and_undoable (2.3 ms)
+  PASS test_paint_kernels::test_tint_and_untint_write_the_colour_map_only (1.2 ms)
+  PASS test_paint_stroke::test_grass_repaint_restores_blend (0.9 ms)
+  PASS test_paint_stroke::test_lone_tap_paints_one_dab (0.8 ms)
+  PASS test_paint_stroke::test_non_finite_pressure_is_full_strength (1.5 ms)
+  PASS test_paint_stroke::test_paused_gap_is_not_painted (1.6 ms)
+  PASS test_paint_stroke::test_pressure_mapping_and_pressure_off (1.9 ms)
+  PASS test_paint_stroke::test_reserved_and_unrelated_bits_preserved (24.5 ms)
+  PASS test_paint_stroke::test_stationary_paint_holds (12.8 ms)
+    TE-03 straight max blend level difference 30/60/120 Hz: 1
+    TE-03 curved max blend level difference 30/60/120 Hz: 1
+  PASS test_paint_stroke::test_te03_callback_rate_independence (369.3 ms)
+  PASS test_paint_stroke::test_te03_curved_trace_batched_into_callback_rates (60.4 ms)
+  PASS test_paint_stroke::test_te03_shipped_presets_straight_fixture (2373.5 ms)
+  PASS test_paint_stroke::test_te05_paint_undo_redo_byte_exact (2.6 ms)
+  PASS test_paint_stroke::test_te12_cancel_after_touching_four_regions_restores_hash (17.1 ms)
+    TIMING r=16m paint piece via PaintStroke 5.30 ms
+  PASS test_paint_stroke::test_timing_paint_segment_via_stroke (61.7 ms)
+  PASS test_path_record::test_clone_and_bounds (0.0 ms)
+  PASS test_path_record::test_empty_file_is_12_bytes (0.0 ms)
+  PASS test_path_record::test_malformed_inputs (0.2 ms)
+  PASS test_path_record::test_round_trip_sorted_and_byte_exact (0.0 ms)
+  PASS test_path_record::test_width_is_held_f32_rounded (0.0 ms)
+  PASS test_path_spline::test_closest_on_curve_and_off_to_the_side (0.7 ms)
+  PASS test_path_spline::test_curve_passes_through_every_control_point (0.0 ms)
+  PASS test_path_spline::test_resample_keeps_first_and_last_and_spaces_points (0.0 ms)
+  PASS test_path_spline::test_resample_short_remainder_replaces_the_last_point_and_corners_are_walked (0.0 ms)
+  PASS test_path_spline::test_sampling_spacing_never_exceeds_the_step (0.1 ms)
+  PASS test_path_spline::test_two_points_are_a_straight_line (0.0 ms)
+  PASS test_projection_policy::test_near_plane_crossing_invalid_and_behind_are_explicit (0.0 ms)
+  PASS test_projection_policy::test_projected_size_uses_reference_height_and_internal_scale (0.0 ms)
+  PASS test_projection_policy::test_size_visibility_and_roles_keep_threshold_ties (0.0 ms)
+  PASS test_projection_policy::test_snapshot_generation_detects_projection_changes_without_motion (0.1 ms)
+  PASS test_projection_policy::test_unclipped_offscreen_and_orthographic_projection (0.0 ms)
+  PASS test_projection_policy::test_view_state_hysteresis_operation_deferral_and_focus (0.0 ms)
+  PASS test_region_buffers::test_default_color_is_white_weight_zero (0.1 ms)
+  PASS test_region_buffers::test_document_color_sample_packs_rgba (0.4 ms)
+  PASS test_region_buffers::test_duplicate_deep_copies_color (0.0 ms)
+  PASS test_region_buffers::test_set_from_bytes_validates_all_three_lengths (0.0 ms)
+  PASS test_render_asset_descriptor::test_alias_rules (0.8 ms)
+  PASS test_render_asset_descriptor::test_derivative_hash_changes_with_every_hashed_field (1.3 ms)
+  PASS test_render_asset_descriptor::test_hash_vectors_match_python (0.1 ms)
+  PASS test_render_asset_descriptor::test_parse_fields_and_alias_resolution (0.1 ms)
+  PASS test_render_asset_descriptor::test_parse_is_pure_and_error_free (0.2 ms)
+  PASS test_render_asset_descriptor::test_path_rules_reject_unsafe_dependencies (0.5 ms)
+  PASS test_render_asset_descriptor::test_schema_failures (1.4 ms)
+  PASS test_render_asset_descriptor::test_total_gpu_bytes_counts_shared_dependencies_once (0.1 ms)
+  PASS test_render_platform_telemetry::test_inject_levels_and_clear (0.0 ms)
+  PASS test_render_platform_telemetry::test_injected_thermal_and_warnings (0.0 ms)
+  PASS test_render_platform_telemetry::test_native_on_macos_host (0.2 ms)
+       sample() cost: 0.0013 ms (native=true)
+  PASS test_render_platform_telemetry::test_sample_cost (2.7 ms)
+  PASS test_render_platform_telemetry::test_unavailable_path (0.0 ms)
+  PASS test_render_prep_bake::test_mirrored_tangent_handedness_flips (1.5 ms)
+  PASS test_render_prep_bake::test_multipart_bake_matches_node_transforms (1.0 ms)
+  PASS test_render_prep_bake::test_non_geometry_nodes_and_scripts_are_stripped_and_reported (0.5 ms)
+  PASS test_render_prep_bake::test_normals_use_inverse_transpose_and_mirrored_winding_is_flipped (1.1 ms)
+  PASS test_render_prep_bake::test_outputs_contain_only_resources_and_two_runs_are_byte_identical (7.0 ms)
+  PASS test_render_prep_bake::test_singular_and_non_finite_transforms_are_rejected (0.9 ms)
+  PASS test_render_prep_registry::test_bench_sources_are_much_heavier_than_their_tiers (204.1 ms)
+  PASS test_render_prep_registry::test_bench_vegetation_triangle_budgets (0.9 ms)
+  PASS test_render_prep_registry::test_descriptors_are_complete_and_consistent_with_the_catalog (217.2 ms)
+  PASS test_render_prep_registry::test_editor_catalog_is_unchanged (1.4 ms)
+  PASS test_render_prep_registry::test_indexes_list_the_expected_assets (13.4 ms)
+  PASS test_render_prep_registry::test_material_set_is_whitelisted_and_cutouts_use_the_low_texture (0.4 ms)
+  PASS test_render_prep_registry::test_prepared_textures_have_mipmaps_and_cutout_coverage (63.0 ms)
+  PASS test_render_prep_registry::test_tiers_keep_the_catalog_anchor_and_bounds (220.7 ms)
+  PASS test_render_profiles::test_accessors_return_copies (0.2 ms)
+  PASS test_render_profiles::test_busy_request_waits_for_operation_end_and_applies_once (0.2 ms)
+  PASS test_render_profiles::test_idle_request_applies_immediately (0.1 ms)
+  PASS test_render_profiles::test_invalid_configs_fall_back_with_error (13.9 ms)
+  PASS test_render_profiles::test_missing_or_garbled_file_falls_back (0.5 ms)
+  PASS test_render_profiles::test_same_profile_is_unchanged_and_clears_pending (0.2 ms)
+  PASS test_render_profiles::test_shipped_config_validates_and_matches_safe_default (1.3 ms)
+  PASS test_render_profiles::test_size_and_overview_thresholds_validate (1.6 ms)
+  PASS test_render_profiles::test_startup_is_performance (0.1 ms)
+  PASS test_render_profiles::test_unknown_profile (0.1 ms)
+  PASS test_render_profiles::test_vegetation_rule_classifies_assets (1.6 ms)
+  PASS test_render_runtime_registration::test_put_runtime_is_resident_counted_and_not_evictable_while_pinned (0.1 ms)
+  PASS test_render_runtime_registration::test_put_runtime_respects_the_budget_and_rejects_bad_requests (0.0 ms)
+  PASS test_render_runtime_registration::test_registry_runtime_descriptors_stay_apart_from_bundled_ones (5.1 ms)
+  PASS test_render_spatial_index::test_negative_coordinates_and_cell_edges (0.0 ms)
+  PASS test_render_spatial_index::test_put_remove_has_replace (0.0 ms)
+  PASS test_render_spatial_index::test_query_aabb_deduplicates_across_overlap_cells (0.0 ms)
+  PASS test_render_spatial_index::test_query_near_order_ties_and_count (0.0 ms)
+  PASS test_render_spatial_index::test_ray_diagonal_across_many_cells (0.1 ms)
+  PASS test_render_spatial_index::test_ray_invalid_input (0.0 ms)
+  PASS test_render_spatial_index::test_ray_outside_occupied_rect_and_cutoff (0.0 ms)
+  PASS test_render_spatial_index::test_ray_rect_shrinks_after_removal (0.0 ms)
+  PASS test_render_spatial_index::test_ray_vertical_and_inside (0.0 ms)
+  PASS test_render_timing::test_invalid_cpu_and_gpu_are_filtered_independently (0.0 ms)
+  PASS test_render_timing::test_peak_samples_use_each_timing_validity (0.0 ms)
+  PASS test_render_timing::test_timing_status_preserves_unsupported_and_warmup (0.0 ms)
+  PASS test_render_timing::test_zero_gpu_does_not_discard_available_cpu_or_claim_gpu_measurement (0.0 ms)
+  PASS test_runtime_glb_validator::test_contract_fixtures_pass_with_measured_stats (0.2 ms)
+  PASS test_runtime_glb_validator::test_rejects_accessors_past_their_buffer (0.2 ms)
+  PASS test_runtime_glb_validator::test_rejects_container_problems (9.4 ms)
+  PASS test_runtime_glb_validator::test_rejects_external_uris (0.4 ms)
+  PASS test_runtime_glb_validator::test_rejects_non_triangle_primitives (0.1 ms)
+  PASS test_runtime_glb_validator::test_rejects_over_budget_counts (1.3 ms)
+  PASS test_runtime_glb_validator::test_rejects_over_budget_triangles (1.1 ms)
+  PASS test_runtime_glb_validator::test_rejects_oversized_textures (0.3 ms)
+  PASS test_runtime_glb_validator::test_rejects_unreadable_images (0.1 ms)
+  PASS test_runtime_glb_validator::test_rejects_unsupported_features (0.3 ms)
+  PASS test_runtime_glb_validator::test_texture_stats_and_scatter_budget (0.3 ms)
+  PASS test_scatter_layer::test_add_stops_at_the_limit (0.5 ms)
+  PASS test_scatter_layer::test_canonical_table_is_sorted_minimal_and_order_preserved (0.1 ms)
+  PASS test_scatter_layer::test_clone_is_deep_and_remove_preserves_order (0.0 ms)
+  PASS test_scatter_layer::test_empty_layer_is_16_bytes (0.0 ms)
+  PASS test_scatter_layer::test_legacy_v1_decode_and_reencode (0.0 ms)
+  PASS test_scatter_layer::test_malformed_inputs (0.2 ms)
+  PASS test_scatter_layer::test_negative_zero_and_denormals_survive (0.0 ms)
+  PASS test_scatter_layer::test_round_trip_is_byte_exact_with_f32_rounding (0.0 ms)
+  PASS test_scatter_layer::test_unused_slots_are_dropped_from_the_encoding (0.0 ms)
+  PASS test_scatter_meshes::test_every_scatter_asset_has_a_budgeted_mesh (5.7 ms)
+  PASS test_scatter_placer::test_add_respects_asset_ranges_and_align_flag (3.4 ms)
+  PASS test_scatter_placer::test_avoid_objects_clearance_and_toggle (2.8 ms)
+  PASS test_scatter_placer::test_dab_try_and_erase_formulas (1.2 ms)
+  PASS test_scatter_placer::test_empty_source_never_adds (1.6 ms)
+  PASS test_scatter_placer::test_index_queries_match_brute_force_and_survive_removal (3.0 ms)
+  PASS test_scatter_placer::test_limit_stops_adding_and_flags_once (16.4 ms)
+  PASS test_scatter_placer::test_min_distance_uses_spacing_and_footprint (2.1 ms)
+  PASS test_scatter_placer::test_same_seed_same_layer_different_seed_differs (7.8 ms)
+  PASS test_scatter_placer::test_slope_window_and_missing_samples_reject (10.6 ms)
+  PASS test_scatter_placer::test_weighted_pick_follows_weights (16.1 ms)
+  PASS test_scatter_set_store::test_corrupt_or_wrong_shaped_files_fall_back_to_defaults (1.2 ms)
+  PASS test_scatter_set_store::test_missing_file_gives_the_default_table (0.1 ms)
+  PASS test_scatter_set_store::test_new_set_id_is_unique_and_set_copies_are_detached (0.0 ms)
+  PASS test_scatter_set_store::test_put_save_load_round_trip_and_remove (0.7 ms)
+  PASS test_scatter_set_store::test_valid_file_keeps_good_sets_and_drops_bad_ones (0.3 ms)
+  PASS test_scatter_set_store::test_validation_clamps_fields (0.0 ms)
+  PASS test_scatter_set_store::test_validation_rejects_bad_sets (0.1 ms)
+  PASS test_sculpt_kernels::test_dab_raise_mass_matches_the_continuous_kernel (36.4 ms)
+  PASS test_sculpt_kernels::test_flatten_approaches_the_target_monotonically_without_overshoot (414.3 ms)
+  PASS test_sculpt_kernels::test_flatten_leaves_a_level_surface_unchanged_and_never_leaves_height_limits (121.6 ms)
+  PASS test_sculpt_kernels::test_hard_raise_is_flat_topped_and_ring_leaves_the_centre (35.9 ms)
+  PASS test_sculpt_kernels::test_noise_is_deterministic_bounded_and_roughens_further_per_pass (64.8 ms)
+  PASS test_sculpt_kernels::test_smooth_across_region_seams_has_no_seam_discontinuity (165.6 ms)
+  PASS test_sculpt_kernels::test_smooth_at_the_world_edge_skips_missing_neighbours (159.9 ms)
+  PASS test_sculpt_kernels::test_smooth_never_changes_a_flat_surface (21.4 ms)
+    backlog merge max |dh| vs exact 0.011857 m
+  PASS test_sculpt_stroke::test_backlog_of_a_moving_dense_stroke_stays_close_to_exact (77.7 ms)
+  PASS test_sculpt_stroke::test_invalid_times_and_step_fail_without_hanging (1.8 ms)
+  PASS test_sculpt_stroke::test_late_pause_writes_nothing_in_invalid_interval (38.7 ms)
+  PASS test_sculpt_stroke::test_long_gap_applies_backlog_without_error (17.8 ms)
+  PASS test_sculpt_stroke::test_lower_direction_and_partial_final_interval (2.4 ms)
+  PASS test_sculpt_stroke::test_non_finite_position_fails_the_stroke_without_writing (8.8 ms)
+  PASS test_sculpt_stroke::test_non_finite_pressure_is_full_strength_and_never_nan (7.7 ms)
+  PASS test_sculpt_stroke::test_paused_gap_is_not_sculpted (5.4 ms)
+  PASS test_sculpt_stroke::test_pressure_factor_scales_rate_and_off_means_full (12.1 ms)
+  PASS test_sculpt_stroke::test_smooth_backlog_is_stable (27.8 ms)
+  PASS test_sculpt_stroke::test_stationary_raise_grows_at_speed_times_dt (12.2 ms)
+    TE-04 lag 0.017 s max |dh| vs 30/144/zero-lag 0.000000 m
+    TE-04 lag 0.025 s max |dh| vs 30/144/zero-lag 0.000000 m
+    TE-04 lag 0.040 s max |dh| vs 30/144/zero-lag 0.000000 m
+  PASS test_sculpt_stroke::test_te04_lagged_delivery_independent_of_frame_rate (594.2 ms)
+  PASS test_sculpt_stroke::test_te04_prerecorded_timeline_is_bit_identical_across_cadences (213.4 ms)
+    TE-04 raise max |dh| 30v60 0.000000 m, 60v144 0.000000 m, 30v144 0.000000 m
+    TE-04 lower max |dh| 30v144 0.000000 m
+  PASS test_sculpt_stroke::test_te04_timed_raise_replay_independent_of_frame_rate (410.3 ms)
+  PASS test_sculpt_stroke::test_te05_raise_then_undo_redo_is_byte_exact (8.8 ms)
+  PASS test_sculpt_stroke::test_te12_cancel_after_touching_four_regions_restores_hash (30.3 ms)
+  PASS test_snapshot_identity::test_current_pins_and_profile_are_well_formed_and_stable (26.5 ms)
+  PASS test_snapshot_identity::test_extra_files_and_unsafe_payloads_do_not_change_or_pass (6.5 ms)
+  PASS test_snapshot_identity::test_fixture_package_snapshots_match_files_on_disk (21.1 ms)
+  PASS test_snapshot_identity::test_generation_vectors (0.2 ms)
+  PASS test_snapshot_identity::test_profile_vectors (0.2 ms)
+  PASS test_snapshot_identity::test_snapshot_vectors (0.2 ms)
+  PASS test_stroke_probe::test_change_deltas (0.0 ms)
+  PASS test_stroke_probe::test_no_valid_pressure_is_nan (0.0 ms)
+  PASS test_stroke_probe::test_null_change_is_zero (0.0 ms)
+  PASS test_stroke_probe::test_stats_min_max_avg_duration (0.0 ms)
+  PASS test_terrain_material_mode::test_material_experiment_is_opt_in_and_invalid_mode_preserves_state (0.0 ms)
+  PASS test_terrain_material_mode::test_unsupported_terrain_view_refuses_experiment (0.0 ms)
+  PASS test_terrain_picker::test_far_origin_and_infinite_range_terminate (1.8 ms)
+  PASS test_terrain_picker::test_flat_terrain_exact (3.5 ms)
+    gaussian hill: worst |picker - analytic| = 0.0003162362554576248 m over 24 rays
+  PASS test_terrain_picker::test_gaussian_hill_matches_analytic_solution (64.7 ms)
+  PASS test_terrain_picker::test_grazing_rays_are_rejected_with_diagnostics (1.0 ms)
+  PASS test_terrain_picker::test_height_edit_then_pick_sees_new_height (1.1 ms)
+  PASS test_terrain_picker::test_heights_at_authored_limits_are_picked (0.5 ms)
+  PASS test_terrain_picker::test_invalid_rays (0.3 ms)
+  PASS test_terrain_picker::test_origin_on_surface_hits_at_zero_distance (0.3 ms)
+  PASS test_terrain_picker::test_outside_world_never_substitutes_zero (15.1 ms)
+    pick right after edit (camera 70 m up, 45 deg): 1 region invalidated 0.702 ms, 4 regions invalidated 0.703 ms avg; one region range rescan (avoided) 1.664 ms
+  PASS test_terrain_picker::test_pick_after_height_invalidation_does_not_rescan (69.3 ms)
+  PASS test_terrain_picker::test_quadrants_and_negative_coordinates (19.2 ms)
+  PASS test_terrain_picker::test_ray_from_outside_world_hits_inside (3.6 ms)
+  PASS test_terrain_picker::test_rays_crossing_internal_seams (21.2 ms)
+  PASS test_terrain_picker::test_sky_rays_are_no_hit (3.6 ms)
+  PASS test_terrain_picker::test_straight_down_over_world_edges (17.3 ms)
+  PASS test_terrain_picker::test_tilted_plane_matches_analytic (31.6 ms)
+    picker timing: 45-degree ray 0.362 ms avg (200 rays); long near-grazing (2 degree) ray 1.251 ms avg (20 rays, last=hit)
+  PASS test_terrain_picker::test_timing_typical_and_grazing_rays (122.5 ms)
+  PASS test_terrain_preview_assets::test_all_preview_textures_share_size_format_and_mipmaps_per_array (2.6 ms)
+    preview PNG sources: 8.51 MiB
+  PASS test_terrain_preview_assets::test_committed_png_size_is_reasonable (0.3 ms)
+  PASS test_terrain_preview_assets::test_export_presets_ship_the_shader_and_the_preview_textures (0.3 ms)
+  PASS test_terrain_preview_assets::test_import_settings_keep_all_four_channels_and_use_vram_compression (0.4 ms)
+  PASS test_terrain_preview_assets::test_preview_keeps_the_low_tier_mean_colour_and_roughness (12.8 ms)
+  PASS test_terrain_preview_scan::test_auto_bit_samples_use_the_rule_evaluation (52.1 ms)
+  PASS test_terrain_preview_scan::test_flat_auto_world_uses_only_grass (9.3 ms)
+  PASS test_terrain_preview_scan::test_holes_and_outside_the_world_are_not_counted (32.6 ms)
+  PASS test_terrain_preview_scan::test_manual_base_and_overlay_ids_count_with_their_blend (37.9 ms)
+    preview slot scan r=20 m: 8.8 ms
+  PASS test_terrain_preview_scan::test_scan_cost_is_bounded (9.1 ms)
+  PASS test_terrain_preview_scan::test_selection_orders_by_coverage_and_respects_the_maximum (0.0 ms)
+  PASS test_terrain_rules::test_bounds_are_inclusive (0.0 ms)
+  PASS test_terrain_rules::test_clone_is_independent (0.0 ms)
+  PASS test_terrain_rules::test_defaults_and_round_trip (0.0 ms)
+  PASS test_terrain_rules::test_material_at_follows_rules (2.9 ms)
+  PASS test_terrain_rules::test_rejections (0.1 ms)
+  PASS test_tint_codec::test_pack_round_trip (0.0 ms)
+  PASS test_tint_codec::test_presets (0.0 ms)
+  PASS test_tint_codec::test_tint_rule_table (0.0 ms)
+  PASS test_tint_codec::test_untint_keeps_colour_and_fades_weight (0.0 ms)
+  PASS test_world_asset_lock::test_add_is_idempotent_and_bundled_binding_for_is_cached (1.5 ms)
+  PASS test_world_asset_lock::test_authored_hash_is_stable_across_undo_and_redo (39.2 ms)
+  PASS test_world_asset_lock::test_availability_reports_without_rejecting (2.4 ms)
+  PASS test_world_asset_lock::test_decode_round_trip_and_rejections (3.7 ms)
+  PASS test_world_asset_lock::test_definitions_are_effective_and_keyed_by_render_key (2.1 ms)
+  PASS test_world_asset_lock::test_remote_bindings_carry_their_dependency_closure (8.1 ms)
+  PASS test_world_asset_lock::test_serialized_lock_holds_only_referenced_bindings_sorted (2.4 ms)
+  PASS test_world_asset_lock::test_unknown_referenced_binding_has_no_lock_bytes (1.5 ms)
+  PASS test_world_codec::test_created_with_is_never_empty_in_a_project_without_an_application_version (1.9 ms)
+  PASS test_world_codec::test_manifest_shape (31.0 ms)
+  PASS test_world_codec::test_payload_bytes_round_trip_exactly (39.0 ms)
+  PASS test_world_codec::test_read_generation_round_trip (69.6 ms)
+  PASS test_world_codec::test_read_rejects_invalid_content (101.6 ms)
+  PASS test_world_codec::test_rejects_manifest_tampering (432.4 ms)
+  PASS test_world_codec::test_rejects_non_string_enum_fields_without_partial_load (206.3 ms)
+  PASS test_world_codec::test_rejects_object_order_and_duplicates (49.5 ms)
+  PASS test_world_codec::test_rejects_payload_tampering (51.4 ms)
+  PASS test_world_codec::test_rejects_scatter_and_path_payload_damage (81.9 ms)
+  PASS test_world_codec::test_semantic_scatter_and_path_errors_reach_the_reader (155.1 ms)
+  PASS test_world_codec::test_unknown_scatter_asset_is_rejected_on_read (51.7 ms)
+  PASS test_world_codec::test_write_reports_unwritable_directory (10.5 ms)
+  PASS test_world_codec_v3::test_legacy_layout_writes_schema_4_and_schema_2_still_reads (126.1 ms)
+  PASS test_world_codec_v3::test_object_count_limit_follows_the_manifest_schema (73.7 ms)
+  PASS test_world_codec_v3::test_object_scatter_and_path_extent_comes_from_the_layout (108.7 ms)
+  PASS test_world_codec_v3::test_objects_schema_must_match_the_manifest_schema (18.0 ms)
+  PASS test_world_codec_v3::test_oversized_manifest_is_rejected_per_schema (61.4 ms)
+  PASS test_world_codec_v3::test_payload_paths_follow_the_layout (1.9 ms)
+  PASS test_world_codec_v3::test_rejects_layout_manifest_tampering (60.7 ms)
+  PASS test_world_codec_v3::test_rejects_missing_and_extra_region_files (33.1 ms)
+  PASS test_world_codec_v3::test_scatter_decode_limit_is_per_schema (1.7 ms)
+  PASS test_world_codec_v3::test_schema_2_manifest_rejects_a_layout_block (21.0 ms)
+  PASS test_world_codec_v3::test_schema_3_generation_reads_and_converts_in_memory (38.4 ms)
+  PASS test_world_codec_v3::test_schema_3_legacy_layout_is_rejected (13.1 ms)
+  PASS test_world_codec_v3::test_schema_4_round_trip_is_exact (59.8 ms)
+  PASS test_world_codec_v3::test_write_snapshot_rejects_an_invalid_layout (6.1 ms)
+  PASS test_world_document::test_authored_hash_ignores_world_id_and_revision (30.2 ms)
+  PASS test_world_document::test_authored_hash_negative_zero_is_canonical (16.7 ms)
+  PASS test_world_document::test_bilinear_matches_ramp_including_seams (22.3 ms)
+  PASS test_world_document::test_exact_bits_survive_where_decimal_parse_is_lossy (0.1 ms)
+  PASS test_world_document::test_fixture_authored_hash_matches_manifest_in_godot (119.0 ms)
+  PASS test_world_document::test_fixture_conversion_to_schema_4_preserves_content (177.8 ms)
+  PASS test_world_document::test_height_range_invalidation (8.8 ms)
+  PASS test_world_document::test_holes_have_no_surface_without_changing_raw_bytes (60.9 ms)
+  PASS test_world_document::test_legacy_fixtures_keep_recorded_hashes_and_bytes (149.5 ms)
+  PASS test_world_document::test_negative_coordinates_use_floor (0.0 ms)
+  PASS test_world_document::test_node_transform_applies_anchor_after_rotation_and_scale (0.0 ms)
+  PASS test_world_document::test_object_enums_reject_wrong_types_without_script_errors (0.2 ms)
+  PASS test_world_document::test_object_record_round_trip_and_rejections (0.2 ms)
+  PASS test_world_document::test_outside_extent_is_nan_not_zero (22.7 ms)
+  PASS test_world_document::test_stress_100_fixture_loads_valid_and_grounded (49.4 ms)
+  PASS test_world_layout::test_extent_edges_are_exact_and_just_outside_is_nan (5.6 ms)
+  PASS test_world_layout::test_holes_are_still_no_sample_on_km1 (5.5 ms)
+  PASS test_world_layout::test_km1_flat_authored_hash_vectors (482.2 ms)
+  PASS test_world_layout::test_km1_flat_document_has_all_regions (6.7 ms)
+  PASS test_world_layout::test_limits_table (1.2 ms)
+  PASS test_world_layout::test_manifest_round_trip_and_rejections (1.2 ms)
+  PASS test_world_layout::test_non_origin_layout_samples_its_own_extent (1.3 ms)
+  PASS test_world_layout::test_presets_and_derived_values (1.2 ms)
+  PASS test_world_layout::test_sample_accessors_cover_exactly_the_layout (5.3 ms)
+  PASS test_world_layout::test_sampling_is_continuous_and_bilinear_at_every_region_seam (5.8 ms)
+  PASS test_world_layout::test_validate_rejects_out_of_range_layouts (1.2 ms)
+  PASS test_world_layout::test_validator_applies_the_schema_object_limit (120.5 ms)
+  PASS test_world_layout::test_validator_rejects_schema_mismatch_and_uses_layout_extent (9.0 ms)
+  PASS test_world_package::test_export_import_round_trip (144.8 ms)
+  PASS test_world_package::test_export_refuses_invalid_generation (22.0 ms)
+  PASS test_world_package::test_export_without_catalog_verifies_hashes (48.9 ms)
+  PASS test_world_package::test_import_rejects_directory_hidden_in_comment (50.3 ms)
+  PASS test_world_package::test_import_rejects_entry_whose_extracted_size_differs (6.4 ms)
+  PASS test_world_package::test_import_rejects_malicious_package_before_extraction (5.2 ms)
+  PASS test_world_package::test_import_rejects_non_zip (1.7 ms)
+  PASS test_world_package::test_legacy_import_rejects_wrong_catalog (64.1 ms)
+  PASS test_world_package::test_v4_import_of_another_catalog_is_valid_but_unavailable (102.9 ms)
+  PASS test_world_v4_contract::test_bundled_binding_vectors (6.4 ms)
+  PASS test_world_v4_contract::test_canonical_vectors (3.4 ms)
+  PASS test_world_v4_contract::test_dec_and_asset_key_vectors (1.9 ms)
+  PASS test_world_v4_contract::test_every_invalid_fixture_is_rejected (77.1 ms)
+  PASS test_world_v4_contract::test_every_valid_fixture_imports_with_the_recorded_hash (318.0 ms)
+  PASS test_world_v4_contract::test_migration_pairs_preserve_content (114.5 ms)
+  PASS test_world_v4_contract::test_procedural_and_app_fixture_vectors (203.0 ms)
+  PASS test_world_validator::test_fast_mask_agrees_with_control_codec (2.5 ms)
+  PASS test_world_validator::test_foreign_catalog_is_availability_not_structure (30.4 ms)
+  PASS test_world_validator::test_grounding_report_only_reports (24.6 ms)
+  PASS test_world_validator::test_policy_beyond_the_catalog_entry_is_structural (15.3 ms)
+  PASS test_world_validator::test_policy_ranges_are_the_effective_limits (57.5 ms)
+  PASS test_world_validator::test_rejects_bad_heights (89.1 ms)
+  PASS test_world_validator::test_rejects_bad_objects (158.4 ms)
+  PASS test_world_validator::test_rejects_region_set_and_schema (51.8 ms)
+  PASS test_world_validator::test_rejects_unsupported_control_ids (66.5 ms)
+  PASS test_world_validator::test_valid_document_passes (15.8 ms)
+  PASS test_zip_inspector::test_accepts_km1_layout_and_names_region_grammar (25.1 ms)
+  PASS test_zip_inspector::test_asset_lock_adds_the_198th_entry (40.8 ms)
+  PASS test_zip_inspector::test_local_header_must_match_central_record (8.4 ms)
+  PASS test_zip_inspector::test_region_size_is_exact_for_any_region (0.4 ms)
+  PASS test_zip_inspector::test_rejects_bad_method_and_structure (5.3 ms)
+  PASS test_zip_inspector::test_rejects_bad_region_names (17.1 ms)
+  PASS test_zip_inspector::test_rejects_duplicates_unknown_and_missing (7.0 ms)
+  PASS test_zip_inspector::test_rejects_huge_file_before_reading (0.7 ms)
+  PASS test_zip_inspector::test_rejects_layouts_where_readers_disagree (7.0 ms)
+  PASS test_zip_inspector::test_rejects_oversize_declared (10.3 ms)
+  PASS test_zip_inspector::test_rejects_symlink (0.0 ms)
+  PASS test_zip_inspector::test_rejects_unsafe_names (8.0 ms)
+  PASS test_zip_inspector::test_rejects_zip64_multidisk_and_encryption (8.7 ms)
+  PASS test_zip_inspector::test_valid_layout_passes (1.2 ms)
+  PASS test_active_edit_area::test_begin_pins_the_cells_of_the_circle (0.0 ms)
+  PASS test_active_edit_area::test_long_stroke_never_pins_more_than_two_circles (2.9 ms)
+  PASS test_active_edit_area::test_pins_release_after_the_settle_interval (0.0 ms)
+  PASS test_active_edit_area::test_radius_is_clamped (0.0 ms)
+  PASS test_active_edit_area::test_stale_operation_ids_are_ignored (0.0 ms)
+Terrain3DRegion#5719:save:226: Writing region (-1, -1) to res://.world_painter/staging/0384585d042175f1/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#0669:save:226: Writing region (0, -1) to res://.world_painter/staging/0384585d042175f1/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#8391:save:226: Writing region (-1, 0) to res://.world_painter/staging/0384585d042175f1/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#6125:save:226: Writing region (0, 0) to res://.world_painter/staging/0384585d042175f1/generated/terrain/terrain3d_00_00.res
+Terrain3DRegion#9217:save:226: Writing region (-1, -1) to res://.world_painter/staging/0ff8e56237814689/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#6933:save:226: Writing region (0, -1) to res://.world_painter/staging/0ff8e56237814689/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#4673:save:226: Writing region (-1, 0) to res://.world_painter/staging/0ff8e56237814689/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#2389:save:226: Writing region (0, 0) to res://.world_painter/staging/0ff8e56237814689/generated/terrain/terrain3d_00_00.res
+  PASS test_apply_bake_locked::test_bake_locked_rebuilds_a_clean_generated_directory_with_the_same_scene (693.0 ms)
+Terrain3DRegion#6429:save:226: Writing region (-1, -1) to res://.world_painter/staging/8b29d2bbac4784d5/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#4163:save:226: Writing region (0, -1) to res://.world_painter/staging/8b29d2bbac4784d5/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#1885:save:226: Writing region (-1, 0) to res://.world_painter/staging/8b29d2bbac4784d5/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#9619:save:226: Writing region (0, 0) to res://.world_painter/staging/8b29d2bbac4784d5/generated/terrain/terrain3d_00_00.res
+  PASS test_apply_bake_locked::test_bake_locked_refuses_missing_dependencies_and_unknown_worlds (376.6 ms)
+Terrain3DRegion#8983:save:226: Writing region (-1, -1) to res://.world_painter/staging/89b0d8723d2d94e7/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#6726:save:226: Writing region (0, -1) to res://.world_painter/staging/89b0d8723d2d94e7/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#4439:save:226: Writing region (-1, 0) to res://.world_painter/staging/89b0d8723d2d94e7/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#2182:save:226: Writing region (0, 0) to res://.world_painter/staging/89b0d8723d2d94e7/generated/terrain/terrain3d_00_00.res
+  PASS test_apply_bake_locked::test_bake_locked_refuses_modified_generated_content_and_changed_inputs (444.6 ms)
+Terrain3DRegion#4741:save:226: Writing region (-1, -1) to res://.world_painter/staging/656f25fb3faf2ca2/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#0452:save:226: Writing region (0, -1) to res://.world_painter/staging/656f25fb3faf2ca2/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#0197:save:226: Writing region (-1, 0) to res://.world_painter/staging/656f25fb3faf2ca2/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#5908:save:226: Writing region (0, 0) to res://.world_painter/staging/656f25fb3faf2ca2/generated/terrain/terrain3d_00_00.res
+{"command":"verify","ok":true,"problems":[],"worlds":[{"generation":"a527f50c49a401e5ddd0f553a9336671","ok":true,"problems":[],"world_id":"20657a69-f674-4bc1-9e0e-e807dacb9016"}]}
+{"command":"verify","ok":false,"problems":["20657a69-f674-4bc1-9e0e-e807dacb9016: generated content is absent (run bake --locked)"],"worlds":[{"generation":"a527f50c49a401e5ddd0f553a9336671","ok":false,"problems":["generated content is absent (run bake --locked)"],"world_id":"20657a69-f674-4bc1-9e0e-e807dacb9016"}]}
+Terrain3DRegion#7432:save:226: Writing region (-1, -1) to res://.world_painter/staging/623230dd8b75d50f/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#5173:save:226: Writing region (0, -1) to res://.world_painter/staging/623230dd8b75d50f/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#2888:save:226: Writing region (-1, 0) to res://.world_painter/staging/623230dd8b75d50f/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#0629:save:226: Writing region (0, 0) to res://.world_painter/staging/623230dd8b75d50f/generated/terrain/terrain3d_00_00.res
+{"command":"bake","dir_name":"a527f50c49a401e5ddd0f553a9336671","error":"","ok":true,"stats":{"objects":3,"paths":2,"paths_skipped":0,"regions":4,"scatter_instances":{"b1e8a3f2b9a523fd94cf6718a3b26814e":200,"b8a20ee3f3d953293625723c773bf5043":100},"scatter_nodes":118,"scatter_skipped":0,"seconds":{"objects":0.0,"paths":0.004,"scatter":0.004,"scene":0.004,"terrain":0.099,"validate":0.044}},"unchanged":false,"world_id":"20657a69-f674-4bc1-9e0e-e807dacb9016"}
+{"command":"verify","ok":true,"problems":[],"worlds":[{"generation":"a527f50c49a401e5ddd0f553a9336671","ok":true,"problems":[],"world_id":"20657a69-f674-4bc1-9e0e-e807dacb9016"}]}
+{"command":"bake","dir_name":"a527f50c49a401e5ddd0f553a9336671","error":"","ok":true,"unchanged":true,"world_id":"20657a69-f674-4bc1-9e0e-e807dacb9016"}
+  PASS test_apply_bake_locked::test_command_scripts_bake_and_verify_an_applied_world (802.5 ms)
+{"command":"bake","error":"usage: bake --locked --world <world_id> [--generation <id>]","ok":false}
+{"command":"bake","error":"usage: bake --locked --world <world_id> [--generation <id>]","ok":false}
+{"command":"bake","error":"usage: bake --locked --world <world_id> [--generation <id>]","ok":false}
+{"command":"bake","error":"world 45a83900-3201-4435-b94e-dbc9ca481235 has no accepted generation","ok":false,"world_id":"45a83900-3201-4435-b94e-dbc9ca481235"}
+{"command":"verify","error":"usage: verify --offline","ok":false}
+{"command":"verify","ok":true,"problems":[],"worlds":[]}
+  PASS test_apply_bake_locked::test_command_scripts_return_exit_codes_and_validate_usage (7.3 ms)
+Terrain3DRegion#9185:save:226: Writing region (-1, -1) to res://.world_painter/staging/db9184e68c4f5f58/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#6695:save:226: Writing region (0, -1) to res://.world_painter/staging/db9184e68c4f5f58/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#4641:save:226: Writing region (-1, 0) to res://.world_painter/staging/db9184e68c4f5f58/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#2151:save:226: Writing region (0, 0) to res://.world_painter/staging/db9184e68c4f5f58/generated/terrain/terrain3d_00_00.res
+  PASS test_apply_bake_locked::test_verify_checks_the_lock_root_of_remote_worlds (463.3 ms)
+Terrain3DRegion#0734:save:226: Writing region (-1, -1) to res://.world_painter/staging/f85f46fcde24b0e8/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#8532:save:226: Writing region (0, -1) to res://.world_painter/staging/f85f46fcde24b0e8/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#6190:save:226: Writing region (-1, 0) to res://.world_painter/staging/f85f46fcde24b0e8/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#3988:save:226: Writing region (0, 0) to res://.world_painter/staging/f85f46fcde24b0e8/generated/terrain/terrain3d_00_00.res
+Terrain3DRegion#6137:save:226: Writing region (-1, -1) to res://.world_painter/staging/430fec9473fae537/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#3845:save:226: Writing region (0, -1) to res://.world_painter/staging/430fec9473fae537/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#1593:save:226: Writing region (-1, 0) to res://.world_painter/staging/430fec9473fae537/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#9301:save:226: Writing region (0, 0) to res://.world_painter/staging/430fec9473fae537/generated/terrain/terrain3d_00_00.res
+  PASS test_apply_bake_locked::test_verify_reports_what_changed_and_passes_when_nothing_did (728.3 ms)
+  PASS test_apply_freeze::test_a_preview_without_a_world_reports_an_error_instead_of_a_snapshot (25.8 ms)
+  PASS test_apply_freeze::test_a_snapshot_outside_the_session_directory_is_refused (26.8 ms)
+  PASS test_apply_freeze::test_apply_is_enabled_only_when_the_replica_is_live_and_visually_ready (12.8 ms)
+Terrain3DRegion#9145:save:226: Writing region (-1, -1) to res://.world_painter/staging/4538e0dc53d8ec2d/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#7205:save:226: Writing region (0, -1) to res://.world_painter/staging/4538e0dc53d8ec2d/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#4601:save:226: Writing region (-1, 0) to res://.world_painter/staging/4538e0dc53d8ec2d/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#2661:save:226: Writing region (0, 0) to res://.world_painter/staging/4538e0dc53d8ec2d/generated/terrain/terrain3d_00_00.res
+  PASS test_apply_freeze::test_freeze_review_and_apply_ignore_later_edits_and_the_overlay (370.7 ms)
+  PASS test_apply_freeze::test_frozen_snapshot_keeps_only_the_newest_directories (223.5 ms)
+Terrain3DRegion#8177:save:226: Writing region (-1, -1) to res://.world_painter/staging/58b93625670ba57e/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#5701:save:226: Writing region (0, -1) to res://.world_painter/staging/58b93625670ba57e/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#3633:save:226: Writing region (-1, 0) to res://.world_painter/staging/58b93625670ba57e/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#1157:save:226: Writing region (0, 0) to res://.world_painter/staging/58b93625670ba57e/generated/terrain/terrain3d_00_00.res
+  PASS test_apply_transaction::test_an_unchanged_snapshot_applies_as_a_no_op (421.9 ms)
+Terrain3DRegion#8590:save:226: Writing region (-1, -1) to res://.world_painter/staging/c2a1535b3f872501/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#6376:save:226: Writing region (0, -1) to res://.world_painter/staging/c2a1535b3f872501/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#4046:save:226: Writing region (-1, 0) to res://.world_painter/staging/c2a1535b3f872501/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#1832:save:226: Writing region (0, 0) to res://.world_painter/staging/c2a1535b3f872501/generated/terrain/terrain3d_00_00.res
+  PASS test_apply_transaction::test_apply_installs_a_complete_generation_and_points_the_binding_at_it (377.6 ms)
+Terrain3DRegion#2345:save:226: Writing region (-1, -1) to res://.world_painter/staging/e67864ef1276cf45/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#0091:save:226: Writing region (0, -1) to res://.world_painter/staging/e67864ef1276cf45/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#7801:save:226: Writing region (-1, 0) to res://.world_painter/staging/e67864ef1276cf45/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#5547:save:226: Writing region (0, 0) to res://.world_painter/staging/e67864ef1276cf45/generated/terrain/terrain3d_00_00.res
+Terrain3DRegion#6474:save:226: Writing region (-1, -1) to res://.world_painter/staging/725d703c7af4fb5f/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#4295:save:226: Writing region (0, -1) to res://.world_painter/staging/725d703c7af4fb5f/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#1930:save:226: Writing region (-1, 0) to res://.world_painter/staging/725d703c7af4fb5f/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#9751:save:226: Writing region (0, 0) to res://.world_painter/staging/725d703c7af4fb5f/generated/terrain/terrain3d_00_00.res
+Terrain3DRegion#1237:save:226: Writing region (-1, -1) to res://.world_painter/staging/ae3657fde6a85c68/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#8992:save:226: Writing region (0, -1) to res://.world_painter/staging/ae3657fde6a85c68/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#6693:save:226: Writing region (-1, 0) to res://.world_painter/staging/ae3657fde6a85c68/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#4448:save:226: Writing region (0, 0) to res://.world_painter/staging/ae3657fde6a85c68/generated/terrain/terrain3d_00_00.res
+Terrain3DRegion#2724:save:226: Writing region (-1, -1) to res://.world_painter/staging/bcb50fb33da7bc17/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#0602:save:226: Writing region (0, -1) to res://.world_painter/staging/bcb50fb33da7bc17/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#8180:save:226: Writing region (-1, 0) to res://.world_painter/staging/bcb50fb33da7bc17/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#6058:save:226: Writing region (0, 0) to res://.world_painter/staging/bcb50fb33da7bc17/generated/terrain/terrain3d_00_00.res
+Terrain3DRegion#0352:save:226: Writing region (-1, -1) to res://.world_painter/staging/49c4edf72afcb802/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#7872:save:226: Writing region (0, -1) to res://.world_painter/staging/49c4edf72afcb802/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#5808:save:226: Writing region (-1, 0) to res://.world_painter/staging/49c4edf72afcb802/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#3328:save:226: Writing region (0, 0) to res://.world_painter/staging/49c4edf72afcb802/generated/terrain/terrain3d_00_00.res
+Terrain3DRegion#3926:save:226: Writing region (-1, -1) to res://.world_painter/staging/777416c11e28a8f7/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#1797:save:226: Writing region (0, -1) to res://.world_painter/staging/777416c11e28a8f7/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#9382:save:226: Writing region (-1, 0) to res://.world_painter/staging/777416c11e28a8f7/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#7253:save:226: Writing region (0, 0) to res://.world_painter/staging/777416c11e28a8f7/generated/terrain/terrain3d_00_00.res
+Terrain3DRegion#6421:save:226: Writing region (-1, -1) to res://.world_painter/staging/16b5fa074f13f5d2/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#3944:save:226: Writing region (0, -1) to res://.world_painter/staging/16b5fa074f13f5d2/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#1877:save:226: Writing region (-1, 0) to res://.world_painter/staging/16b5fa074f13f5d2/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#9400:save:226: Writing region (0, 0) to res://.world_painter/staging/16b5fa074f13f5d2/generated/terrain/terrain3d_00_00.res
+Terrain3DRegion#0065:save:226: Writing region (-1, -1) to res://.world_painter/staging/0b142681fb228ce2/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#7489:save:226: Writing region (0, -1) to res://.world_painter/staging/0b142681fb228ce2/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#5521:save:226: Writing region (-1, 0) to res://.world_painter/staging/0b142681fb228ce2/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#2945:save:226: Writing region (0, 0) to res://.world_painter/staging/0b142681fb228ce2/generated/terrain/terrain3d_00_00.res
+Terrain3DRegion#1921:save:226: Writing region (-1, -1) to res://.world_painter/staging/4d29d8f3aaa9ece5/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#9602:save:226: Writing region (0, -1) to res://.world_painter/staging/4d29d8f3aaa9ece5/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#7377:save:226: Writing region (-1, 0) to res://.world_painter/staging/4d29d8f3aaa9ece5/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#5058:save:226: Writing region (0, 0) to res://.world_painter/staging/4d29d8f3aaa9ece5/generated/terrain/terrain3d_00_00.res
+Terrain3DRegion#9025:save:226: Writing region (-1, -1) to res://.world_painter/staging/12bbdebbe7118dfb/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#6518:save:226: Writing region (0, -1) to res://.world_painter/staging/12bbdebbe7118dfb/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#4481:save:226: Writing region (-1, 0) to res://.world_painter/staging/12bbdebbe7118dfb/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#1974:save:226: Writing region (0, 0) to res://.world_painter/staging/12bbdebbe7118dfb/generated/terrain/terrain3d_00_00.res
+Terrain3DRegion#0167:save:226: Writing region (-1, -1) to res://.world_painter/staging/ed29fe0bc15f7abe/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#7903:save:226: Writing region (0, -1) to res://.world_painter/staging/ed29fe0bc15f7abe/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#5623:save:226: Writing region (-1, 0) to res://.world_painter/staging/ed29fe0bc15f7abe/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#3359:save:226: Writing region (0, 0) to res://.world_painter/staging/ed29fe0bc15f7abe/generated/terrain/terrain3d_00_00.res
+Terrain3DRegion#5746:save:226: Writing region (-1, -1) to res://.world_painter/staging/ce7e8cd0e53f65b8/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#3445:save:226: Writing region (0, -1) to res://.world_painter/staging/ce7e8cd0e53f65b8/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#1202:save:226: Writing region (-1, 0) to res://.world_painter/staging/ce7e8cd0e53f65b8/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#8901:save:226: Writing region (0, 0) to res://.world_painter/staging/ce7e8cd0e53f65b8/generated/terrain/terrain3d_00_00.res
+  PASS test_apply_transaction::test_crash_at_every_coordinator_step_leaves_the_old_or_the_new_complete_state (4074.4 ms)
+Terrain3DRegion#4213:save:226: Writing region (-1, -1) to res://.world_painter/staging/2cd93a4b727fd66d/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#1899:save:226: Writing region (0, -1) to res://.world_painter/staging/2cd93a4b727fd66d/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#9669:save:226: Writing region (-1, 0) to res://.world_painter/staging/2cd93a4b727fd66d/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#7355:save:226: Writing region (0, 0) to res://.world_painter/staging/2cd93a4b727fd66d/generated/terrain/terrain3d_00_00.res
+  PASS test_apply_transaction::test_dependencies_are_reviewed_and_root_added_without_touching_other_roots (383.7 ms)
+Terrain3DRegion#3360:save:226: Writing region (-1, -1) to res://.world_painter/staging/b6b24b57520e62d9/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#1273:save:226: Writing region (0, -1) to res://.world_painter/staging/b6b24b57520e62d9/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#8816:save:226: Writing region (-1, 0) to res://.world_painter/staging/b6b24b57520e62d9/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#6729:save:226: Writing region (0, 0) to res://.world_painter/staging/b6b24b57520e62d9/generated/terrain/terrain3d_00_00.res
+Terrain3DRegion#8293:save:226: Writing region (-1, -1) to res://.world_painter/staging/f46d44ccaed9e8b8/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#6505:save:226: Writing region (0, -1) to res://.world_painter/staging/f46d44ccaed9e8b8/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#3749:save:226: Writing region (-1, 0) to res://.world_painter/staging/f46d44ccaed9e8b8/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#1961:save:226: Writing region (0, 0) to res://.world_painter/staging/f46d44ccaed9e8b8/generated/terrain/terrain3d_00_00.res
+Terrain3DRegion#3750:save:226: Writing region (-1, -1) to res://.world_painter/staging/41de10208a6d4d2a/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#1703:save:226: Writing region (0, -1) to res://.world_painter/staging/41de10208a6d4d2a/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#9206:save:226: Writing region (-1, 0) to res://.world_painter/staging/41de10208a6d4d2a/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#7159:save:226: Writing region (0, 0) to res://.world_painter/staging/41de10208a6d4d2a/generated/terrain/terrain3d_00_00.res
+  PASS test_apply_transaction::test_game_siblings_survive_and_modified_generated_content_blocks_replacement (1056.5 ms)
+  PASS test_apply_transaction::test_missing_and_mismatching_deliveries_block_apply (303.0 ms)
+  PASS test_apply_transaction::test_preview_isolation_before_apply_nothing_is_written (106.1 ms)
+  PASS test_apply_transaction::test_recover_keeps_the_staging_of_an_open_review (101.1 ms)
+  PASS test_apply_transaction::test_recover_removes_abandoned_staging (5.3 ms)
+Terrain3DRegion#8714:save:226: Writing region (-1, -1) to res://.world_painter/staging/6c494d86e715d1f1/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#6930:save:226: Writing region (0, -1) to res://.world_painter/staging/6c494d86e715d1f1/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#4170:save:226: Writing region (-1, 0) to res://.world_painter/staging/6c494d86e715d1f1/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#2386:save:226: Writing region (0, 0) to res://.world_painter/staging/6c494d86e715d1f1/generated/terrain/terrain3d_00_00.res
+Terrain3DRegion#2572:save:226: Writing region (-1, -1) to res://.world_painter/staging/59e1f5ef315aae18/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#1327:save:226: Writing region (0, -1) to res://.world_painter/staging/59e1f5ef315aae18/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#8028:save:226: Writing region (-1, 0) to res://.world_painter/staging/59e1f5ef315aae18/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#6783:save:226: Writing region (0, 0) to res://.world_painter/staging/59e1f5ef315aae18/generated/terrain/terrain3d_00_00.res
+  PASS test_apply_transaction::test_rollback_restores_the_previous_generation_and_its_lock_root (897.9 ms)
+Terrain3DRegion#7167:save:226: Writing region (-1, -1) to res://.world_painter/staging/4bfdcab81c091ebf/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#4932:save:226: Writing region (0, -1) to res://.world_painter/staging/4bfdcab81c091ebf/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#2623:save:226: Writing region (-1, 0) to res://.world_painter/staging/4bfdcab81c091ebf/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#0388:save:226: Writing region (0, 0) to res://.world_painter/staging/4bfdcab81c091ebf/generated/terrain/terrain3d_00_00.res
+  PASS test_apply_transaction::test_the_binding_resource_mounts_the_baked_world (373.6 ms)
+  PASS test_apply_transaction::test_unsaved_scenes_and_pending_imports_block_apply (252.2 ms)
+  PASS test_asset_providers::test_a_manifest_that_differs_from_the_lock_is_refused (10.6 ms)
+MEASURE AssetStudioProvider prepare primitive_prop (offline exact cache) 1.77 ms
+  PASS test_asset_providers::test_assetstudio_provider_prepares_from_the_exact_cache_offline (10.3 ms)
+  PASS test_asset_providers::test_cancel_mid_prepare_leaves_nothing_registered (228.2 ms)
+  PASS test_asset_providers::test_cancel_while_waiting_for_the_heavy_gate_registers_nothing (75.5 ms)
+  PASS test_asset_providers::test_corrupt_bytes_fail_without_registering (13.5 ms)
+MEASURE FakeAssetProvider prepare primitive_prop 0.80 ms (fetch+validate+bake+register)
+  PASS test_asset_providers::test_fake_provider_prepares_a_key_that_renders_and_picks (257.0 ms)
+  PASS test_asset_providers::test_offline_missing_bytes_stay_unavailable_and_never_substitute (8.9 ms)
+  PASS test_asset_providers::test_remote_scatter_over_budget_stays_placeholder_and_refuses_new_placement (20.5 ms)
+  PASS test_asset_providers::test_remote_scatter_renders_prepared_tiers_when_eligible (18.9 ms)
+  PASS test_asset_providers::test_router_dispatches_by_binding_provider (5.9 ms)
+  PASS test_asset_providers::test_two_versions_of_one_asset_coexist (15.2 ms)
+Editor ready: SYNTHETIC SELF-TEST INPUT
+RENDER_BENCH aborted /Users/andrejvysny/Library/Application Support/WorldPainterTests/tests-voezcj8a/test_scratch/test_bench_runner_test_abort_restores_the_editor_attachment/out/render-bench-1791021066.json
+  PASS test_bench_runner::test_abort_restores_the_editor_attachment (729.7 ms)
+Editor ready: SYNTHETIC SELF-TEST INPUT
+RENDER_BENCH completed /Users/andrejvysny/Library/Application Support/WorldPainterTests/tests-voezcj8a/test_scratch/test_bench_runner_test_comparison_passes_preserve_population_and_restore_flags_view_material/out/render-bench-1791021070.json
+  PASS test_bench_runner::test_comparison_passes_preserve_population_and_restore_flags_view_material (3827.6 ms)
+Editor ready: SYNTHETIC SELF-TEST INPUT
+RENDER_BENCH completed /Users/andrejvysny/Library/Application Support/WorldPainterTests/tests-voezcj8a/test_scratch/test_bench_runner_test_edit_workloads_and_preview_cycles_leave_the_user_document_alone/out/render-bench-1791021074.json
+  PASS test_bench_runner::test_edit_workloads_and_preview_cycles_leave_the_user_document_alone (4272.7 ms)
+Editor ready: SYNTHETIC SELF-TEST INPUT
+RENDER_BENCH completed /Users/andrejvysny/Library/Application Support/WorldPainterTests/tests-voezcj8a/test_scratch/test_bench_runner_test_scenario_run_reports_populations_and_restores_everything/out/render-bench-1791021086.json
+  PASS test_bench_runner::test_scenario_run_reports_populations_and_restores_everything (12375.9 ms)
+Editor ready: SYNTHETIC SELF-TEST INPUT
+RENDER_BENCH completed /Users/andrejvysny/Library/Application Support/WorldPainterTests/tests-voezcj8a/test_scratch/test_bench_runner_test_sustained_mode_is_bounded_and_restores/out/render-bench-1791021090.json
+  PASS test_bench_runner::test_sustained_mode_is_bounded_and_restores (3697.9 ms)
+Editor ready: SYNTHETIC SELF-TEST INPUT
+RENDER_BENCH completed /Users/andrejvysny/Library/Application Support/WorldPainterTests/tests-voezcj8a/test_scratch/test_bench_runner_test_terrain_mesh_ablations_apply_per_step_and_restore/out/render-bench-1791021092.json
+  PASS test_bench_runner::test_terrain_mesh_ablations_apply_per_step_and_restore (2487.6 ms)
+Editor ready: SYNTHETIC SELF-TEST INPUT
+RENDER_BENCH completed /Users/andrejvysny/Library/Application Support/WorldPainterTests/tests-voezcj8a/test_scratch/test_bench_runner_test_unknown_scenarios_are_skipped_and_reported/out/render-bench-1791021093.json
+  PASS test_bench_runner::test_unknown_scenarios_are_skipped_and_reported (1019.1 ms)
+Editor ready: SYNTHETIC SELF-TEST INPUT
+RENDER_BENCH aborted /Users/andrejvysny/Library/Application Support/WorldPainterTests/tests-voezcj8a/test_scratch/test_bench_runner_test_world_replacement_during_a_scenario_run_restores_the_attachment/out/render-bench-1791021094.json
+  PASS test_bench_runner::test_world_replacement_during_a_scenario_run_restores_the_attachment (675.3 ms)
+  PASS test_brush_strength::test_cancelled_stroke_reports_cancelled (39.3 ms)
+  PASS test_brush_strength::test_moving_stroke_deposits_less_than_hold (203.9 ms)
+  PASS test_brush_strength::test_stationary_hold_rises_by_speed_strength_pressure (102.3 ms)
+  PASS test_camera_projection::test_rig_actions_and_freeze (0.3 ms)
+  PASS test_camera_projection::test_rig_clearance_and_begin_frame (14.8 ms)
+  PASS test_camera_projection::test_screen_ray_matches_camera3d (13.7 ms)
+  PASS test_committed_render_registries::test_bench_registry_gates_the_unprepared_asset (17.3 ms)
+  PASS test_committed_render_registries::test_editor_registry_covers_every_catalog_asset (10.8 ms)
+Editor ready: SYNTHETIC SELF-TEST INPUT
+  [PASS] S01 Gentle Hills opened as a new working copy
+  [PASS] S01 revision 0, no objects, empty history
+  [PASS] S02 CA-01 one-finger orbit: camera transform changed
+  [PASS] S02 CA-02 two-finger pan: camera transform changed
+  [PASS] S02 CA-03 two-finger pinch: camera transform changed
+  [PASS] S02 camera gestures left the authored hash unchanged
+  [PASS] S02 router back to IDLE with no open contacts
+  [PASS] S03 built.lodge.cabin_a placed near (20, 20) and selected
+  [PASS] S03 nature.rock.boulder_a placed near (12, 26) and selected
+  [PASS] S03 nature.tree.spruce_a placed near (26, 12) and selected
+  [PASS] S03 3 objects in the document
+  [PASS] S03 OB-01 boulder anchor maps to record position
+  [PASS] S04 boulder selected by tapping it
+  [PASS] S04 OB-02 first drag frame moves by the hit delta, no jump
+  [PASS] S04 drag is one history action
+  [PASS] S04 yaw +30 (two nudges), scale and height edits: 4 history entries
+  [PASS] S05 raise stroke across x=0 and lower stroke changed heights in >= 2 regions
+  [PASS] S06 TE-11 spruce rises with the terrain, lodge y unchanged
+  [PASS] S06 one undo restores terrain and both objects exactly
+  [PASS] S06 redo reapplies the stroke exactly
+  [PASS] S07 dirt paint stroke changed control maps
+  [PASS] S07 path stroke added a path
+  [PASS] S07 path stroke left the control maps alone
+  [PASS] S08 undo of path and paint changes the hash
+  [PASS] S08 redo of paint and path restores the exact hash
+  [PASS] S08 undoing every action removes all placements
+  [PASS] S08 redo restores the same object ids and the exact hash
+  [PASS] S09 IN-09 native cancel rolled the stroke back: hash equal, no history entry
+  [PASS] S09 TE-12 router back to IDLE after cancel
+  [PASS] S10 checkpoint is durable and recovery reproduces the authored hash
+  [PASS] S11 export exists and reloads with the same authored hash and object ids
+  [PASS] S12 tint stroke changed colour maps only
+  [PASS] S12 flatten pulls the stroke toward the picked height
+  [PASS] S13 meadow scatter stroke added instances as one history action
+  [PASS] S13 fill lasso added instances as one history action
+  [PASS] S13 erase stroke removed some instances as one history action
+  [PASS] S13 undo restores the exact scatter.encode() bytes of each earlier state
+  [PASS] S13 redo reapplies the scatter edits exactly
+  [PASS] S14 rock rule toggle changes the authored hash as one history action
+  [PASS] S14 undo restores the rule and the authored hash
+EDITOR_SELFTEST PASS /Users/andrejvysny/Library/Application Support/WorldPainterTests/tests-voezcj8a/test_scratch/test_editor_selftest_test_scripted_scenario_passes/out/report.json
+  PASS test_editor_selftest::test_scripted_scenario_passes (17701.9 ms)
+Editor ready: fake
+  PASS test_editor_session::test_deactivation_rolls_back_active_stroke (263.6 ms)
+Editor ready: fake
+  PASS test_editor_session::test_export_is_verified (433.6 ms)
+Editor ready: fake
+  PASS test_editor_session::test_fresh_start_opens_new_working_copy (186.1 ms)
+Editor ready: fake
+  PASS test_editor_session::test_history_eviction_is_silent_and_keeps_world (345.9 ms)
+Editor ready: fake
+  PASS test_editor_session::test_injected_save_failure_is_reported_then_recovers (265.3 ms)
+Editor ready: fake
+  PASS test_editor_session::test_open_fixture_replaces_world_and_rejects_unknown (361.9 ms)
+Editor ready: fake
+  PASS test_editor_session::test_open_new_km1_world_replaces_frames_and_saves_the_world (1977.2 ms)
+Editor ready: fake
+  PASS test_editor_session::test_placement_undo_removes_object_and_selection (350.7 ms)
+Editor ready: fake
+Editor ready: fake
+Editor ready: fake
+  PASS test_editor_session::test_restart_recovers_and_falls_back_past_corrupt_generation (612.6 ms)
+Editor ready: fake
+  PASS test_editor_session::test_scatter_stroke_renders_and_follows_undo_redo (1412.0 ms)
+Editor ready: fake
+  PASS test_editor_session::test_second_commit_never_reported_saved_early (366.3 ms)
+Editor ready: fake
+  PASS test_editor_session::test_status_has_all_keys (152.3 ms)
+Editor ready: fake
+  PASS test_editor_session::test_stroke_commit_undo_redo (489.3 ms)
+Editor ready: fake
+  PASS test_editor_session::test_undo_refused_during_active_stroke (153.9 ms)
+Editor ready: fake
+  PASS test_editor_ui::test_alpha_tiles_and_mode_segmented_update_brush_settings (570.7 ms)
+Editor ready: fake
+  PASS test_editor_ui::test_chip_texts_per_tool (207.7 ms)
+Editor ready: fake
+  PASS test_editor_ui::test_delete_selected_path_action_needs_a_selected_path (321.2 ms)
+Editor ready: fake
+  PASS test_editor_ui::test_dismiss_closes_popover_and_menu (202.7 ms)
+Editor ready: fake
+  PASS test_editor_ui::test_finger_and_pencil_both_pick_a_tool (311.6 ms)
+Editor ready: fake
+  PASS test_editor_ui::test_flatten_pick_flow_reopens_the_popover (291.2 ms)
+Editor ready: fake
+  PASS test_editor_ui::test_invert_button_visibility_state_and_d_key (292.8 ms)
+Editor ready: fake
+  PASS test_editor_ui::test_operation_start_closes_popover_and_menu (363.4 ms)
+Editor ready: fake
+  PASS test_editor_ui::test_popover_sections_per_tool (386.0 ms)
+Editor ready: fake
+  PASS test_editor_ui::test_rail_switches_modes_and_toggles_popover (459.9 ms)
+Editor ready: fake
+  PASS test_editor_ui::test_required_controls_exist_with_design_sizes (202.0 ms)
+Editor ready: fake
+  PASS test_editor_ui::test_scatter_source_card_change_and_edit_hook (356.8 ms)
+Editor ready: fake
+  PASS test_editor_ui::test_scrub_press_does_not_jump_and_is_relative (257.9 ms)
+Editor ready: fake
+  PASS test_editor_ui::test_scrubs_write_the_mode_namespace_and_cancel_restores (1010.8 ms)
+Editor ready: fake
+  PASS test_editor_ui::test_swatches_set_paint_layer_and_tint (354.4 ms)
+Editor ready: fake
+  PASS test_editor_ui::test_switches_write_their_settings (384.3 ms)
+Editor ready: fake
+  PASS test_editor_ui_library::test_change_opens_the_library_on_the_matching_tab (304.7 ms)
+Editor ready: fake
+  PASS test_editor_ui_library::test_editor_edits_are_local_until_save_then_select_the_set (398.7 ms)
+Editor ready: fake
+  PASS test_editor_ui_library::test_editor_opens_for_existing_and_new_sets (345.8 ms)
+Editor ready: fake
+  PASS test_editor_ui_library::test_editor_registration_and_layout (505.7 ms)
+Editor ready: fake
+  PASS test_editor_ui_library::test_finger_tap_arms_and_finger_drag_never_places (350.5 ms)
+Editor ready: fake
+  PASS test_editor_ui_library::test_new_set_save_and_delete (396.1 ms)
+Editor ready: fake
+  PASS test_editor_ui_library::test_not_ready_assets_are_disabled_captioned_and_cannot_be_armed (194.8 ms)
+Editor ready: fake
+  PASS test_editor_ui_library::test_preview_is_seeded_counted_and_rerolls (304.2 ms)
+Editor ready: fake
+  PASS test_editor_ui_library::test_save_as_set_from_the_quick_mix_and_escape (304.3 ms)
+Editor ready: fake
+  PASS test_editor_ui_library::test_save_needs_an_asset_and_delete_of_a_default_keeps_the_rest (525.4 ms)
+Editor ready: fake
+  PASS test_editor_ui_library::test_set_cards_show_data_and_pick_the_source (300.3 ms)
+Editor ready: fake
+  PASS test_editor_ui_library::test_slope_scrubs_keep_min_below_max (251.9 ms)
+Editor ready: fake
+  PASS test_editor_ui_library::test_tabs_switch_between_objects_and_sets (274.4 ms)
+Editor ready: fake
+  PASS test_editor_ui_library::test_tap_arms_and_second_tap_disarms (278.8 ms)
+Editor ready: fake
+  PASS test_editor_ui_library::test_ticks_exist_only_for_scatter_assets_and_drive_the_quick_mix (360.8 ms)
+Editor ready: fake
+  PASS test_editor_ui_objects::test_ghost_label_warns_when_too_close_but_still_places (399.7 ms)
+Editor ready: fake
+  PASS test_editor_ui_objects::test_inspector_avoidance_is_bounded_and_cached (228.0 ms)
+Editor ready: fake
+  PASS test_editor_ui_objects::test_inspector_avoids_neighbouring_object (484.0 ms)
+Editor ready: fake
+  PASS test_editor_ui_objects::test_inspector_duplicate_selects_the_copy_and_delete_removes (453.8 ms)
+Editor ready: fake
+  PASS test_editor_ui_objects::test_inspector_header_and_stepper_buttons (574.9 ms)
+Editor ready: fake
+  PASS test_editor_ui_objects::test_inspector_hidden_during_operations_and_for_other_tools (375.0 ms)
+Editor ready: fake
+  PASS test_editor_ui_objects::test_layout_fits_both_reference_sizes_and_mirrors (675.6 ms)
+Editor ready: fake
+  PASS test_editor_ui_objects::test_left_handed_layout_mirrors_rail_popover_and_library (314.0 ms)
+Editor ready: fake
+  PASS test_editor_ui_objects::test_library_drag_places_one_object_and_selects_it (367.1 ms)
+Editor ready: fake
+  PASS test_editor_ui_objects::test_library_drag_released_over_ui_or_cancelled_creates_nothing (444.8 ms)
+Editor ready: fake
+  PASS test_editor_ui_objects::test_library_tap_arms_and_chip_names_the_asset (284.8 ms)
+Editor ready: fake
+  PASS test_editor_ui_objects::test_place_preview_and_ghost_label_texts (385.7 ms)
+Editor ready: fake
+  PASS test_editor_ui_objects::test_scale_stepper_clamps_to_the_asset_range (428.6 ms)
+Editor ready: fake
+  PASS test_editor_ui_panels::test_confirm_dialog_gates_open_fixture_and_blocks_world_input (586.9 ms)
+Editor ready: fake
+  PASS test_editor_ui_panels::test_diagnostics_toggle_shows_text (273.4 ms)
+Editor ready: fake
+  PASS test_editor_ui_panels::test_export_toast_reports_the_result (352.5 ms)
+Editor ready: fake
+  PASS test_editor_ui_panels::test_gesture_hints_variants (196.1 ms)
+Editor ready: fake
+  PASS test_editor_ui_panels::test_highlight_switch_calls_the_terrain (288.4 ms)
+Editor ready: fake
+  PASS test_editor_ui_panels::test_library_toggle_shows_and_hides_the_library (308.2 ms)
+Editor ready: fake
+  PASS test_editor_ui_panels::test_long_toast_wraps_within_the_free_span (199.6 ms)
+Editor ready: fake
+  PASS test_editor_ui_panels::test_new_km1_world_entries_use_the_same_confirmation_flow (1247.0 ms)
+Editor ready: fake
+  PASS test_editor_ui_panels::test_refresh_relays_out_only_when_a_layout_input_changed (194.1 ms)
+Editor ready: fake
+  PASS test_editor_ui_panels::test_registration_of_panels_and_non_blocking_overlays (224.7 ms)
+Editor ready: fake
+  PASS test_editor_ui_panels::test_rule_scrub_cancel_restores_and_unchanged_scrub_has_no_history (331.8 ms)
+Editor ready: fake
+  PASS test_editor_ui_panels::test_rule_toggle_and_scrub_are_one_history_action_each (639.5 ms)
+  PASS test_editor_ui_panels::test_save_caption_matches_the_spec_wording (0.1 ms)
+Editor ready: fake
+  PASS test_editor_ui_panels::test_screenshot_state_parser_selects_tool_and_opens_popover (198.8 ms)
+Editor ready: fake
+  PASS test_editor_ui_panels::test_toast_colours_and_duration (191.4 ms)
+Editor ready: fake
+  PASS test_editor_ui_panels::test_undo_redo_toasts_name_the_action (464.1 ms)
+Editor ready: fake
+  PASS test_editor_ui_panels::test_world_menu_save_and_reset_camera_close_the_menu (355.9 ms)
+  PASS test_frozen_placeholder::test_placeholder_box_uses_the_descriptor_bounds (257.3 ms)
+Input Lab ready: MAC DEVELOPMENT INPUT
+  PASS test_input_lab::test_lab_panel_routes_pencil_and_fingers_to_ui (150.6 ms)
+Input Lab ready: fake
+  PASS test_input_lab::test_lab_pencil_click_across_frames_operates_scale_button (185.6 ms)
+Input Lab ready: MAC DEVELOPMENT INPUT
+  PASS test_input_lab::test_lab_probe_checkpoint_reload_and_exact_cancel (317.0 ms)
+  PASS test_input_system::test_app_deactivation_cancels_and_leaves_no_stale_contact (0.2 ms)
+  PASS test_input_system::test_cancel_from_camera_handler_drops_pending_begin (0.1 ms)
+  PASS test_input_system::test_cancel_from_tool_handler_replaces_pending_tool_end (0.2 ms)
+  PASS test_input_system::test_desktop_does_not_swallow_or_inject (0.2 ms)
+  PASS test_input_system::test_desktop_escape_cancels_explicitly (0.1 ms)
+  PASS test_input_system::test_desktop_selects_labelled_mac_provider (0.1 ms)
+  PASS test_input_system::test_failure_reason_normalization (0.0 ms)
+  PASS test_input_system::test_fallback_ambiguous_release_becomes_cancel (0.0 ms)
+  PASS test_input_system::test_fatal_failure_cancels_then_switches_to_inert_fallback (0.1 ms)
+  PASS test_input_system::test_generic_provider_failure_uses_provider_failed_reason (0.1 ms)
+  PASS test_input_system::test_hit_tester_uses_root_coordinates_inside_plain_window (0.2 ms)
+  PASS test_input_system::test_ios_dialog_pencil_cancel_does_not_confirm (0.8 ms)
+  PASS test_input_system::test_ios_dialog_raw_touch_and_mouse_ignored_finger_and_pencil_confirm_once (34.9 ms)
+  PASS test_input_system::test_ios_finger_drag_off_button_does_not_fire_or_navigate (0.2 ms)
+  PASS test_input_system::test_ios_finger_tap_on_button_clicks_once_as_finger_ui (0.2 ms)
+  PASS test_input_system::test_ios_nodes_added_later_never_see_raw_input (6.0 ms)
+  PASS test_input_system::test_ios_option_popup_raw_touch_ignored_finger_and_pencil_select (47.4 ms)
+  PASS test_input_system::test_ios_paused_tree_still_swallows_and_routes (14.7 ms)
+  PASS test_input_system::test_ios_pencil_on_button_injects_one_synthetic_click (0.3 ms)
+  PASS test_input_system::test_ios_pencil_ui_press_is_pencil_source (0.2 ms)
+  PASS test_input_system::test_ios_swallows_godot_touch_and_mouse_single_logical_action (0.2 ms)
+  PASS test_input_system::test_ios_ui_cancel_does_not_fire_button (0.3 ms)
+  PASS test_input_system::test_ios_windows_created_before_the_system_are_guarded (12.5 ms)
+  PASS test_input_system::test_ios_without_native_bridge_uses_fallback_and_disables_editing (6.5 ms)
+  PASS test_input_system::test_mapping_change_cancels_active_stroke (0.2 ms)
+  PASS test_input_system::test_modal_cancels_stroke_through_system (0.2 ms)
+  PASS test_input_system::test_native_provider_overflow_reaches_tools_as_queue_overflow (0.3 ms)
+  PASS test_input_system::test_overflow_cancels_but_keeps_healthy_provider (0.2 ms)
+  PASS test_input_system::test_palm_guard_params_come_from_config (0.1 ms)
+  PASS test_input_system::test_queue_overflow_failure_cancels_with_reason (0.2 ms)
+  PASS test_input_system::test_reduced_3d_render_scale_does_not_change_mapping (0.1 ms)
+  PASS test_input_system::test_samples_are_mapped_once_and_stamped (0.1 ms)
+  PASS test_input_system::test_trace_records_samples_actions_and_events (0.2 ms)
+  PASS test_input_system::test_ui_cancel_notifies_application_before_release (0.3 ms)
+Editor ready: fake
+  PASS test_library_remote_ui::test_cleartext_lan_needs_the_switch_and_keeps_a_persistent_warning (235.3 ms)
+Editor ready: fake
+  PASS test_library_remote_ui::test_connection_panel_stores_endpoint_and_token_and_never_shows_the_token (224.9 ms)
+Editor ready: fake
+  PASS test_library_remote_ui::test_connectivity_and_per_library_errors_are_shown (237.4 ms)
+Editor ready: fake
+  PASS test_library_remote_ui::test_filter_and_category_chips_query_the_server (373.2 ms)
+Editor ready: fake
+  PASS test_library_remote_ui::test_source_chips_switch_between_bundled_and_a_library (293.8 ms)
+Editor ready: fake
+  PASS test_library_remote_ui::test_without_a_server_the_library_is_unchanged_and_remote_part_hidden (209.0 ms)
+  PASS test_live_listener::test_bad_token_is_rejected_and_token_survives (291.5 ms)
+  PASS test_live_listener::test_binary_before_auth_closes_the_peer (18.7 ms)
+  PASS test_live_listener::test_credential_resume_requires_the_paired_session_and_credential (587.1 ms)
+  PASS test_live_listener::test_expired_token_is_rejected (399.5 ms)
+  PASS test_live_listener::test_idle_writer_is_dropped (330.8 ms)
+  PASS test_live_listener::test_late_hello_closes_the_peer (317.0 ms)
+  PASS test_live_listener::test_many_bad_attempts_revoke_the_token (2151.9 ms)
+  PASS test_live_listener::test_non_hello_before_auth_closes_the_peer (12.7 ms)
+  PASS test_live_listener::test_non_loopback_bind_needs_the_insecure_flag (0.5 ms)
+  PASS test_live_listener::test_oversize_pre_auth_message_closes_the_peer (19.0 ms)
+  PASS test_live_listener::test_pairing_token_authenticates_and_issues_credential (12.9 ms)
+  PASS test_live_listener::test_pending_peers_are_capped (5.9 ms)
+  PASS test_live_listener::test_second_writer_is_rejected_until_the_first_closes (586.3 ms)
+  PASS test_live_listener::test_token_cannot_be_reused (296.0 ms)
+  PASS test_live_loopback::test_dropped_connection_resumes_without_a_new_snapshot (694.1 ms)
+LOOPBACK_COMMIT_ACK_MS n=120 p50=20.7 p95=21.7 max=22.1
+  PASS test_live_loopback::test_loopback_commit_ack_latency_and_no_project_writes (2768.7 ms)
+  PASS test_live_loopback::test_malformed_traffic_from_the_writer_cannot_change_the_replica (126.7 ms)
+  PASS test_live_loopback::test_new_pairing_after_the_preview_restarts_resnapshots (677.2 ms)
+  PASS test_live_loopback::test_pairing_snapshot_and_commit_ack_match_the_senders_hash (170.2 ms)
+  PASS test_live_loopback::test_preview_overlay_then_commit_and_cancel (169.3 ms)
+  PASS test_live_peer_socket::test_cleartext_to_a_lan_host_needs_the_flag_and_tokens_are_validated (0.1 ms)
+  PASS test_live_peer_socket::test_pings_measure_the_round_trip (148.3 ms)
+  PASS test_live_peer_socket::test_silent_receiver_makes_the_link_unresponsive_then_drops_and_resumes (937.0 ms)
+  PASS test_live_peer_socket::test_wrong_token_is_refused_and_not_retried (1219.8 ms)
+Editor ready: fake
+  PASS test_live_session::test_cancelled_stroke_sends_cancel_and_creates_no_revision (253.3 ms)
+Editor ready: fake
+  PASS test_live_session::test_scatter_stroke_previews_wpst_tiles_and_commits_the_whole_file (303.0 ms)
+Editor ready: fake
+  PASS test_live_session::test_stroke_preview_commit_undo_redo_and_world_replacement (594.1 ms)
+  PASS test_mac_consumer::test_altered_catalog_hash_is_rejected (74.5 ms)
+  PASS test_mac_consumer::test_generation_directory_loads (67.3 ms)
+  PASS test_mac_consumer::test_gentle_hills_path_is_rendered_and_reported (225.5 ms)
+  PASS test_mac_consumer::test_package_round_trip_matches_source_bytes_and_transforms (214.5 ms)
+WORLDPOC_REPORT {"authored_hash":"5b864eb39d709f51b2d5980f4b5de7ea9246720ce059e9b2c35d1adc6263bade","authored_hash_v4":"fff1b7b7ff01b160ea1b2d59d7e3b34a56aa415bc2728332f37453b05ba5374a","catalog":{"id":"poc_nature","sha256":"3ec750f696154df2ad4cd97d5afb9991a288a07ccd19bb29204c4ad25606cab3","version":2},"document_revision":0,"error":"","grounding_mismatches":0,"object_count":100,"object_ids":["57e55100-0000-4000-8000-000000000001","57e55100-0000-4000-8000-000000000002","57e55100-0000-4000-8000-000000000003","57e55100-0000-4000-8000-000000000004","57e55100-0000-4000-8000-000000000005","57e55100-0000-4000-8000-000000000006","57e55100-0000-4000-8000-000000000007","57e55100-0000-4000-8000-000000000008","57e55100-0000-4000-8000-000000000009","57e55100-0000-4000-8000-00000000000a","57e55100-0000-4000-8000-00000000000b","57e55100-0000-4000-8000-00000000000c","57e55100-0000-4000-8000-00000000000d","57e55100-0000-4000-8000-00000000000e","57e55100-0000-4000-8000-00000000000f","57e55100-0000-4000-8000-000000000010","57e55100-0000-4000-8000-000000000011","57e55100-0000-4000-8000-000000000012","57e55100-0000-4000-8000-000000000013","57e55100-0000-4000-8000-000000000014","57e55100-0000-4000-8000-000000000015","57e55100-0000-4000-8000-000000000016","57e55100-0000-4000-8000-000000000017","57e55100-0000-4000-8000-000000000018","57e55100-0000-4000-8000-000000000019","57e55100-0000-4000-8000-00000000001a","57e55100-0000-4000-8000-00000000001b","57e55100-0000-4000-8000-00000000001c","57e55100-0000-4000-8000-00000000001d","57e55100-0000-4000-8000-00000000001e","57e55100-0000-4000-8000-00000000001f","57e55100-0000-4000-8000-000000000020","57e55100-0000-4000-8000-000000000021","57e55100-0000-4000-8000-000000000022","57e55100-0000-4000-8000-000000000023","57e55100-0000-4000-8000-000000000024","57e55100-0000-4000-8000-000000000025","57e55100-0000-4000-8000-000000000026","57e55100-0000-4000-8000-000000000027","57e55100-0000-4000-8000-000000000028","57e55100-0000-4000-8000-000000000029","57e55100-0000-4000-8000-00000000002a","57e55100-0000-4000-8000-00000000002b","57e55100-0000-4000-8000-00000000002c","57e55100-0000-4000-8000-00000000002d","57e55100-0000-4000-8000-00000000002e","57e55100-0000-4000-8000-00000000002f","57e55100-0000-4000-8000-000000000030","57e55100-0000-4000-8000-000000000031","57e55100-0000-4000-8000-000000000032","57e55100-0000-4000-8000-000000000033","57e55100-0000-4000-8000-000000000034","57e55100-0000-4000-8000-000000000035","57e55100-0000-4000-8000-000000000036","57e55100-0000-4000-8000-000000000037","57e55100-0000-4000-8000-000000000038","57e55100-0000-4000-8000-000000000039","57e55100-0000-4000-8000-00000000003a","57e55100-0000-4000-8000-00000000003b","57e55100-0000-4000-8000-00000000003c","57e55100-0000-4000-8000-00000000003d","57e55100-0000-4000-8000-00000000003e","57e55100-0000-4000-8000-00000000003f","57e55100-0000-4000-8000-000000000040","57e55100-0000-4000-8000-000000000041","57e55100-0000-4000-8000-000000000042","57e55100-0000-4000-8000-000000000043","57e55100-0000-4000-8000-000000000044","57e55100-0000-4000-8000-000000000045","57e55100-0000-4000-8000-000000000046","57e55100-0000-4000-8000-000000000047","57e55100-0000-4000-8000-000000000048","57e55100-0000-4000-8000-000000000049","57e55100-0000-4000-8000-00000000004a","57e55100-0000-4000-8000-00000000004b","57e55100-0000-4000-8000-00000000004c","57e55100-0000-4000-8000-00000000004d","57e55100-0000-4000-8000-00000000004e","57e55100-0000-4000-8000-00000000004f","57e55100-0000-4000-8000-000000000050","57e55100-0000-4000-8000-000000000051","57e55100-0000-4000-8000-000000000052","57e55100-0000-4000-8000-000000000053","57e55100-0000-4000-8000-000000000054","57e55100-0000-4000-8000-000000000055","57e55100-0000-4000-8000-000000000056","57e55100-0000-4000-8000-000000000057","57e55100-0000-4000-8000-000000000058","57e55100-0000-4000-8000-000000000059","57e55100-0000-4000-8000-00000000005a","57e55100-0000-4000-8000-00000000005b","57e55100-0000-4000-8000-00000000005c","57e55100-0000-4000-8000-00000000005d","57e55100-0000-4000-8000-00000000005e","57e55100-0000-4000-8000-00000000005f","57e55100-0000-4000-8000-000000000060","57e55100-0000-4000-8000-000000000061","57e55100-0000-4000-8000-000000000062","57e55100-0000-4000-8000-000000000063","57e55100-0000-4000-8000-000000000064"],"ok":true,"path_count":0,"regions":{"-1,-1":{"control_sha256":"8c4045fe3994fef04a1027f14fbe51103c1191ebb523d23d908ee25ed416b1c0","height_sha256":"bdad4b2ca68a6f4f7b688c4b608bfd92e5f10571b9c8988decc70c9474cd2c78"},"-1,0":{"control_sha256":"8c4045fe3994fef04a1027f14fbe51103c1191ebb523d23d908ee25ed416b1c0","height_sha256":"91725e0b7d62f3446ad67a96b3d4debc8ac1def37afb5e9991d73efffb13e0cb"},"0,-1":{"control_sha256":"8c4045fe3994fef04a1027f14fbe51103c1191ebb523d23d908ee25ed416b1c0","height_sha256":"ddf929f269a8e99f0b7cc555387b2530a63802178343147e6648cb997aa587f8"},"0,0":{"control_sha256":"8c4045fe3994fef04a1027f14fbe51103c1191ebb523d23d908ee25ed416b1c0","height_sha256":"c7ba34e8609555353fe6a40e6c334fc4c0ef70da9e57c32fbca69f215712807d"}},"scatter_instance_count":0,"source_schema":2,"world_id":"57e55100-0000-4000-8000-000000000003"}
+WORLDPOC_REPORT {"error":"World path not found: /nonexistent/x.worldpoc","ok":false}
+WORLDPOC_REPORT {"error":"missing required --world=PATH","ok":false}
+  PASS test_mac_consumer::test_verify_only_reports_without_scene_nodes (151.1 ms)
+  PASS test_mac_consumer::test_visual_mode_builds_terrain_and_objects (449.2 ms)
+  PASS test_mac_consumer::test_visual_mode_renders_gentle_hills_scatter (269.5 ms)
+  PASS test_material_hooks::test_a_broken_mapper_setting_fails_the_bake (5.8 ms)
+  PASS test_material_hooks::test_asset_aware_hook_is_preferred_and_sees_the_asset_identity (5.4 ms)
+Terrain3DRegion#4114:save:226: Writing region (-1, -1) to user://test_scratch/test_material_hooks_test_bake_maps_object_and_scatter_materials_and_keeps_declined_ones/bake/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#1098:save:226: Writing region (0, -1) to user://test_scratch/test_material_hooks_test_bake_maps_object_and_scatter_materials_and_keeps_declined_ones/bake/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#9570:save:226: Writing region (-1, 0) to user://test_scratch/test_material_hooks_test_bake_maps_object_and_scatter_materials_and_keeps_declined_ones/bake/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#6554:save:226: Writing region (0, 0) to user://test_scratch/test_material_hooks_test_bake_maps_object_and_scatter_materials_and_keeps_declined_ones/bake/generated/terrain/terrain3d_00_00.res
+  PASS test_material_hooks::test_bake_maps_object_and_scatter_materials_and_keeps_declined_ones (140.6 ms)
+Terrain3DRegion#3972:save:226: Writing region (-1, -1) to user://test_scratch/test_material_hooks_test_bake_without_a_mapper_keeps_every_material/bake/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#1690:save:226: Writing region (0, -1) to user://test_scratch/test_material_hooks_test_bake_without_a_mapper_keeps_every_material/bake/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#9428:save:226: Writing region (-1, 0) to user://test_scratch/test_material_hooks_test_bake_without_a_mapper_keeps_every_material/bake/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#7146:save:226: Writing region (0, 0) to user://test_scratch/test_material_hooks_test_bake_without_a_mapper_keeps_every_material/bake/generated/terrain/terrain3d_00_00.res
+  PASS test_material_hooks::test_bake_without_a_mapper_keeps_every_material (116.3 ms)
+Terrain3DRegion#5692:save:226: Writing region (-1, -1) to user://test_scratch/test_material_hooks_test_consumer_terrain_material_replaces_the_default_in_adapter_and_bake/bake/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#1861:save:226: Writing region (0, -1) to user://test_scratch/test_material_hooks_test_consumer_terrain_material_replaces_the_default_in_adapter_and_bake/bake/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#1148:save:226: Writing region (-1, 0) to user://test_scratch/test_material_hooks_test_consumer_terrain_material_replaces_the_default_in_adapter_and_bake/bake/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#7317:save:226: Writing region (0, 0) to user://test_scratch/test_material_hooks_test_consumer_terrain_material_replaces_the_default_in_adapter_and_bake/bake/generated/terrain/terrain3d_00_00.res
+  PASS test_material_hooks::test_consumer_terrain_material_replaces_the_default_in_adapter_and_bake (114.6 ms)
+  PASS test_material_hooks::test_mapper_calls_once_per_binding_slot_and_preserves_declined_and_unnamed_surfaces (5.6 ms)
+  PASS test_material_hooks::test_mapper_contract_and_setting_loading (5.5 ms)
+  PASS test_material_hooks::test_preview_assets_wire_the_mapper_into_cache_and_provider (8.6 ms)
+  PASS test_material_hooks::test_profile_hash_covers_mapper_and_terrain_material_only_when_set (6.7 ms)
+  PASS test_material_hooks::test_render_cache_maps_loaded_meshes_once (14.7 ms)
+  PASS test_material_hooks::test_runtime_provider_maps_the_baked_mesh_before_registering_tiers (9.2 ms)
+  PASS test_native_bridge_host::test_extension_loads_and_registers_singleton (0.0 ms)
+  PASS test_native_bridge_host::test_macos_bridge_is_inert (0.0 ms)
+  PASS test_native_bridge_host::test_macos_bridge_reports_shapes (0.0 ms)
+  PASS test_native_bridge_host::test_malformed_buffer_leaves_input_system_idle (0.2 ms)
+  PASS test_native_bridge_host::test_provider_ready_is_harmless_on_macos (0.1 ms)
+  PASS test_object_lod::test_a_cell_never_toggles_when_the_camera_wobbles_around_a_threshold (516.5 ms)
+  PASS test_object_lod::test_camera_jump_reprioritises_queued_builds_and_the_queue_stays_bounded (308.1 ms)
+  PASS test_object_lod::test_each_cell_takes_its_own_tier_and_first_builds_use_it_at_once (191.7 ms)
+    LOD evaluation + service while the camera moves every frame (625 cells): 0.611 ms/frame, 41506 cells evaluated
+  PASS test_object_lod::test_evaluation_is_chunked_nearest_first_and_idle_when_the_camera_rests (356.0 ms)
+  PASS test_object_lod::test_hysteresis_keeps_roles_stable_around_every_threshold (6.0 ms)
+  PASS test_object_lod::test_pinned_cells_keep_their_role_during_an_edit_and_change_after_release (324.4 ms)
+    travel A<->B x20: cache entries 7, bytes 10511, batches 124, proxy nodes 43, groups built 80
+  PASS test_object_lod::test_repeated_travel_between_two_distant_areas_converges (3527.4 ms)
+  PASS test_object_lod::test_role_changes_of_built_cells_wait_for_settled_navigation (682.8 ms)
+  PASS test_object_lod::test_the_selected_object_stays_promoted_while_its_cell_changes_role (329.8 ms)
+  PASS test_object_presenter::test_debug_decor_is_bounded_and_keeps_selection (21.9 ms)
+  PASS test_object_presenter::test_debug_markers_follow_sync (258.2 ms)
+  PASS test_object_presenter::test_ghost_show_hide_colour_and_not_pickable (15.4 ms)
+  PASS test_object_presenter::test_objects_near_and_revision (7.4 ms)
+  PASS test_object_presenter::test_overhanging_bounds_are_picked_from_the_neighbour_cell (258.7 ms)
+  PASS test_object_presenter::test_pick_basic_hits_and_misses (264.3 ms)
+  PASS test_object_presenter::test_pick_honours_scale (266.6 ms)
+  PASS test_object_presenter::test_pick_ignores_removed_objects_and_bad_dirs (265.8 ms)
+  PASS test_object_presenter::test_pick_matches_reference_on_random_scene (461.0 ms)
+  PASS test_object_presenter::test_pick_nearest_of_stacked_and_origin_inside (257.0 ms)
+  PASS test_object_presenter::test_pick_rejects_bad_input (264.1 ms)
+  PASS test_object_presenter::test_pick_uses_oriented_bounds (267.3 ms)
+  PASS test_object_presenter::test_rebuild_applies_anchor_transform (266.4 ms)
+  PASS test_object_presenter::test_render_nodes_cast_no_shadow (267.4 ms)
+  PASS test_object_presenter::test_selection_overlay_is_built_once_and_followed (16.3 ms)
+  PASS test_object_presenter::test_selection_set_clear_and_removal (9.8 ms)
+  PASS test_object_presenter::test_sync_add_update_remove_and_asset_change (263.9 ms)
+  PASS test_object_presenter::test_vegetation_hidden_is_presentation_only (269.0 ms)
+  PASS test_object_presenter::test_world_bounds_of_scaled_object (12.9 ms)
+  PASS test_object_render_world::test_a_crown_overhanging_the_cell_is_inside_the_batch_bounds_and_pickable (257.7 ms)
+  PASS test_object_render_world::test_cache_cancellation_never_leaves_permanent_placeholders (273.0 ms)
+  PASS test_object_render_world::test_cancel_undo_redo_delete_keep_batches_consistent (267.4 ms)
+  PASS test_object_render_world::test_cell_local_storage_reproduces_applied_transforms_in_a_km1_extent (273.9 ms)
+  PASS test_object_render_world::test_dragging_the_selection_allocates_nothing (267.3 ms)
+  PASS test_object_render_world::test_missing_role_mesh_never_makes_the_object_disappear (267.7 ms)
+  PASS test_object_render_world::test_more_placements_in_one_batch_add_instances_not_nodes (279.6 ms)
+  PASS test_object_render_world::test_moving_across_cell_boundaries_keeps_one_owner_and_picking (264.9 ms)
+  PASS test_object_render_world::test_not_ready_assets_are_bounded_placeholders_with_one_notice (274.9 ms)
+  PASS test_object_render_world::test_pinned_cells_defer_role_changes_but_not_edits (269.5 ms)
+  PASS test_object_render_world::test_presenting_fixtures_never_loads_catalog_preview_scenes (311.6 ms)
+  PASS test_object_render_world::test_selection_promotion_has_one_owner_at_every_step (266.3 ms)
+  PASS test_object_render_world::test_settled_world_does_no_uploads_or_builds (262.7 ms)
+  PASS test_object_render_world::test_two_surface_spruce_is_one_slot_in_one_batch (263.0 ms)
+  PASS test_object_render_world::test_unready_assets_get_a_bounds_box_ghost (20.7 ms)
+  PASS test_object_render_world::test_world_replacement_bumps_the_epoch_and_discards_old_work (277.2 ms)
+  PASS test_object_size_visibility::test_behind_and_size_hidden_counters_are_distinct_and_reset_on_remove (16.4 ms)
+  PASS test_object_size_visibility::test_camera_change_rechecks_focus_before_world_pass_completes (19.1 ms)
+  PASS test_object_size_visibility::test_camera_change_with_same_focus_rechecks_old_generation_before_world_pass_completes (16.0 ms)
+  PASS test_object_size_visibility::test_comparison_policy_toggle_converges_without_losing_membership (9.4 ms)
+  PASS test_object_size_visibility::test_deferred_upgrade_retries_only_held_record_instead_of_whole_world (278.7 ms)
+  PASS test_object_size_visibility::test_focus_record_appended_last_precedes_world_pass_without_starving_distant_records (26.4 ms)
+  PASS test_object_size_visibility::test_hidden_record_transform_reappears_then_delete_clears_state (14.8 ms)
+  PASS test_object_size_visibility::test_no_camera_still_upgrades_ready_placeholder (10.4 ms)
+  PASS test_object_size_visibility::test_priority_cell_index_tracks_move_delete_and_reinsert (5.9 ms)
+  PASS test_object_size_visibility::test_priority_generation_changes_preserve_near_record_rotation (5.7 ms)
+  PASS test_object_size_visibility::test_promoting_hidden_record_preserves_size_reason_on_demote (8.9 ms)
+  PASS test_object_size_visibility::test_queued_record_is_not_pickable_until_it_has_a_submitted_owner (10.9 ms)
+  PASS test_object_size_visibility::test_ready_downgrade_is_prompt_upgrade_waits_for_settle_and_pin_keeps_tier (278.3 ms)
+  PASS test_object_size_visibility::test_same_cell_has_distinct_roles_and_tiny_record_has_no_slot (18.6 ms)
+  PASS test_object_size_visibility::test_selected_edit_cell_precedes_distant_world_pass (18.9 ms)
+  PASS test_object_size_visibility::test_single_record_turns_rotate_between_priority_global_and_held_pin (6.2 ms)
+  PASS test_object_size_visibility::test_view_suppression_masks_selected_and_restores_other_visibility_reasons (11.3 ms)
+  PASS test_object_size_visibility::test_zero_budget_defers_projection_and_delete_during_pass_is_safe (14.4 ms)
+  PASS test_object_texture_preview::test_assets_without_preview_tier_are_not_missing_and_rejected_textures_limit (1028.1 ms)
+  PASS test_object_texture_preview::test_disable_and_world_replacement_while_loading_publish_nothing (2099.5 ms)
+  PASS test_object_texture_preview::test_objects_inside_the_area_use_preview_textures_and_the_rest_is_unchanged (545.0 ms)
+  PASS test_object_texture_preview::test_pinned_cells_defer_binding_until_released (600.3 ms)
+object preview publish 128 objects: 4.96 ms (HOST)
+object preview 200 objects: disable+off 14.0 ms
+  PASS test_object_texture_preview::test_preview_membership_is_bounded (553.0 ms)
+  PASS test_object_texture_preview::test_single_owner_through_select_move_and_disable (610.0 ms)
+  PASS test_object_texture_preview::test_twenty_cycles_do_not_grow_resources (2937.3 ms)
+  PASS test_overview_renderer::test_a_blocked_child_splits_its_parent_and_siblings_take_over (69.5 ms)
+  PASS test_overview_renderer::test_a_build_in_flight_when_an_edit_arrives_is_discarded (56.4 ms)
+  PASS test_overview_renderer::test_an_edit_deactivates_its_group_and_every_ancestor_only (1739.3 ms)
+  PASS test_overview_renderer::test_blocked_groups_at_each_level_split_their_ancestors_and_siblings_take_over (182.1 ms)
+    --- overview levels [128.0, 256.0] ---
+    build 50,000 records in 50 patches with clearings: 310 ms
+    presenter rebuild (50,000 upserts): 529 ms
+    settle to the whole-world overview: 583 ms, 231 frames
+    overview: 80 groups built, active { 128: 0, 256: 16 }, proxy triangles 182332 (all built groups 716830), cells covered 1024
+    overview service per frame: mean 0.648 ms, worst 1.233 ms; worker build per group: last 0.0 ms, max 13.1 ms; main-thread mesh creation: last 0.01 ms, max 0.30 ms
+    individual instances visible at overview distance: 0 of 50000 (batches 1182)
+    settled overview service (no change): 0.075 ms/frame
+    --- overview levels [64.0, 128.0, 256.0] ---
+    build 50,000 records in 50 patches with clearings: 297 ms
+    presenter rebuild (50,000 upserts): 555 ms
+    settle to the whole-world overview: 1367 ms, 582 frames
+    overview: 336 groups built, active { 64: 0, 128: 0, 256: 16 }, proxy triangles 182332 (all built groups 1282090), cells covered 1024
+    overview service per frame: mean 0.826 ms, worst 1.302 ms; worker build per group: last 0.2 ms, max 12.6 ms; main-thread mesh creation: last 0.00 ms, max 0.32 ms
+    individual instances visible at overview distance: 0 of 50000 (batches 1182)
+    settled overview service (no change): 0.323 ms/frame
+  PASS test_overview_renderer::test_measurements_for_a_km1_world_with_50000_objects (3897.0 ms)
+  PASS test_overview_renderer::test_moving_or_deleting_one_object_invalidates_only_its_group_branch (177.6 ms)
+  PASS test_overview_renderer::test_overview_distance_represents_every_object_exactly_once (276.3 ms)
+  PASS test_overview_renderer::test_tap_on_an_active_group_returns_an_area_and_never_a_hidden_object (131.5 ms)
+  PASS test_overview_renderer::test_the_selected_object_keeps_its_group_individual_while_zooming_out (41.6 ms)
+  PASS test_overview_renderer::test_three_level_results_are_deterministic (334.8 ms)
+  PASS test_overview_renderer::test_three_levels_represent_every_object_exactly_once_across_the_cut (1037.0 ms)
+  PASS test_overview_renderer::test_top_down_64_m_proxies_use_a_4_m_grid_and_keep_clearings (57.3 ms)
+  PASS test_overview_renderer::test_top_down_proxy_meshes_cover_every_occupied_cell_and_keep_clearings (53.4 ms)
+  PASS test_overview_renderer::test_vegetation_hiding_hides_canopy_proxies_only (36.4 ms)
+  PASS test_overview_renderer::test_world_replacement_reveals_every_cell_and_discards_old_builds (76.7 ms)
+Editor ready: fake
+  PASS test_overview_session::test_active_edit_pins_reach_the_object_lod_and_survive_a_presenter_reset (190.7 ms)
+Editor ready: fake
+  PASS test_overview_session::test_area_focus_pivots_on_the_terrain_and_reaches_individual_detail (188.6 ms)
+Editor ready: fake
+  PASS test_overview_session::test_benchmark_readiness_rejects_an_enabled_missing_overview_grid (186.5 ms)
+Editor ready: fake
+  PASS test_overview_session::test_catalog_rebind_recreates_groups_for_the_same_world_extent (202.6 ms)
+Editor ready: fake
+  PASS test_overview_session::test_profile_switch_reaches_the_per_cell_lod_and_the_overview (733.1 ms)
+Editor ready: fake
+  PASS test_overview_session::test_session_owns_an_overview_and_hooks_the_select_tool (202.9 ms)
+  PASS test_overview_visibility::test_disabled_hlod_stays_disabled_during_moving_and_settled_service (18.4 ms)
+  PASS test_overview_visibility::test_disabling_hlod_abandons_partial_capture_and_blocks_direct_build_paths (4.7 ms)
+  PASS test_overview_visibility::test_moving_offscreen_groups_do_not_build_but_idle_prefetch_remains (4.2 ms)
+  PASS test_overview_visibility::test_suppressed_dirty_group_waits_to_capture_and_publish (7.5 ms)
+  PASS test_overview_visibility::test_suppression_preserves_cut_but_masks_pick_mesh_and_vegetation_changes (13.3 ms)
+  PASS test_overview_visibility::test_zero_budget_does_not_capture_or_publish (4.1 ms)
+    paint repro: NOT RUN: no rendering device (headless); run scripts/dev.py test --rendered
+  PASS test_paint_repro::test_gpu_paint_repro_a_third_material (0.0 ms)
+    paint repro: NOT RUN: no rendering device (headless); run scripts/dev.py test --rendered
+  PASS test_paint_repro::test_gpu_paint_repro_b_region_border_km1 (0.0 ms)
+    paint repro: NOT RUN: no rendering device (headless); run scripts/dev.py test --rendered
+  PASS test_paint_repro::test_gpu_paint_repro_c_world_edge (0.0 ms)
+    paint repro: NOT RUN: no rendering device (headless); run scripts/dev.py test --rendered
+  PASS test_paint_repro::test_gpu_paint_repro_d_texel_squares (0.0 ms)
+  PASS test_path_renderer::test_handle_scale_keeps_minimum_screen_size (32.7 ms)
+  PASS test_path_renderer::test_handles_only_when_selected_and_shown (42.7 ms)
+  PASS test_path_renderer::test_one_mesh_per_path_draped_on_the_terrain (46.1 ms)
+  PASS test_path_renderer::test_ribbon_vertex_colours_use_the_path_palette (38.4 ms)
+  PASS test_path_renderer::test_sculpt_height_change_redrapes_only_intersecting_paths (60.2 ms)
+  PASS test_path_renderer::test_world_layers_follow_tool_and_selection_and_history (131.7 ms)
+  PASS test_path_tool::test_delete_selected_path_is_one_undoable_action (36.5 ms)
+  PASS test_path_tool::test_draw_makes_a_spline_path_and_flattens_terrain_in_one_action (125.7 ms)
+  PASS test_path_tool::test_follow_terrain_objects_are_regrounded_and_undone_with_the_path (409.9 ms)
+  PASS test_path_tool::test_handle_contact_without_movement_leaves_no_history (37.4 ms)
+  PASS test_path_tool::test_handle_drag_cancel_restores_the_path_and_far_start_draws (125.2 ms)
+  PASS test_path_tool::test_handle_drag_edits_only_the_curve_in_one_action (38.9 ms)
+  PASS test_path_tool::test_lift_over_ui_still_commits_the_stroke (123.2 ms)
+  PASS test_path_tool::test_no_dirt_paint_preset_any_more (123.4 ms)
+  PASS test_path_tool::test_tap_selects_the_nearest_path_or_clears_without_history (42.7 ms)
+  PASS test_path_tool::test_too_short_stroke_is_a_no_op (37.7 ms)
+    NOT RUN: no rendering device (headless); run scripts/dev.py test --rendered
+  PASS test_pipeline_warmup::test_gpu_warmup_reports_pipeline_counter_deltas (0.0 ms)
+Editor ready: SYNTHETIC SELF-TEST INPUT
+  PASS test_pipeline_warmup::test_warmup_covers_every_ready_editor_asset_and_shared_materials (153.8 ms)
+  PASS test_pipeline_warmup::test_warmup_is_skipped_for_a_running_bench_request_and_aborts_when_one_starts (0.1 ms)
+Editor ready: SYNTHETIC SELF-TEST INPUT
+  PASS test_pipeline_warmup::test_warmup_nodes_live_two_frames_then_are_freed_without_touching_ownership (205.6 ms)
+  PASS test_preview_broker::test_asset_provider_prepares_a_binding_through_the_broker (32.2 ms)
+  PASS test_preview_broker::test_asset_round_trip_serves_only_blob_cache_paths (23.5 ms)
+  PASS test_preview_broker::test_child_refuses_paths_outside_the_cache_root_and_modified_files (25.0 ms)
+  PASS test_preview_broker::test_credential_is_one_time (22.9 ms)
+  PASS test_preview_broker::test_first_frame_must_be_hello (13.7 ms)
+  PASS test_preview_broker::test_non_allowlisted_request_is_rejected_and_ends_the_connection (20.6 ms)
+  PASS test_preview_broker::test_oversized_pre_auth_frame_is_closed (13.7 ms)
+  PASS test_preview_broker::test_silent_client_is_closed_at_the_auth_deadline (317.3 ms)
+  PASS test_preview_broker::test_status_is_sanitized_before_it_reaches_the_dock (12.9 ms)
+  PASS test_preview_broker::test_unknown_row_and_unpinned_delivery_are_refused_by_the_editor (33.0 ms)
+  PASS test_preview_broker::test_wrong_credential_is_refused_and_the_real_one_still_works (24.6 ms)
+  PASS test_preview_dock::test_apply_is_disabled_and_stopped_state_is_shown (4.0 ms)
+  PASS test_preview_dock::test_lan_addresses_exclude_loopback (3.3 ms)
+  PASS test_preview_dock::test_loopback_listener_has_no_cleartext_warning (2.5 ms)
+  PASS test_preview_dock::test_plugin_registers_the_apply_settings_and_recovery_is_safe_on_a_clean_project (11.2 ms)
+  PASS test_preview_dock::test_plugin_script_loads (2.0 ms)
+  PASS test_preview_dock::test_status_shows_pairing_revision_hash_and_missing_assets (2.4 ms)
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+preview: broker connection ended
+  PASS test_preview_launcher::test_child_exits_when_the_broker_goes_away (579.1 ms)
+  PASS test_preview_launcher::test_config_is_owner_only_and_read_once (1.2 ms)
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+  PASS test_preview_launcher::test_host_profile_with_a_mount_node_is_accepted (550.9 ms)
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+  PASS test_preview_launcher::test_host_profile_without_a_mount_node_is_reported_and_replaced_by_the_default (557.7 ms)
+  PASS test_preview_launcher::test_reader_refuses_paths_and_configs_it_does_not_own (1.4 ms)
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+  PASS test_preview_launcher::test_real_child_pairs_renders_and_cleans_up (1835.9 ms)
+  PASS test_preview_launcher::test_session_cleanup_is_confined_to_one_session_directory (1.7 ms)
+  PASS test_preview_root::test_display_follows_snapshot_and_commits (214.5 ms)
+  PASS test_preview_root::test_missing_asset_is_labelled_incomplete_and_still_presented (203.7 ms)
+  PASS test_preview_root::test_overlay_is_drawn_without_touching_the_replica_and_reverts (235.1 ms)
+  PASS test_preview_root::test_waiting_label_before_any_world (6.4 ms)
+Editor ready: fake
+  PASS test_preview_ui::test_insecure_switch_persists_and_shows_the_warning (209.7 ms)
+Editor ready: fake
+  PASS test_preview_ui::test_invalid_input_is_reported_and_no_secret_is_stored (201.7 ms)
+Editor ready: fake
+  PASS test_preview_ui::test_session_pairs_with_a_loopback_listener_and_follows_commits (309.8 ms)
+  PASS test_preview_ui::test_settings_round_trip_and_reject_foreign_keys (0.6 ms)
+Editor ready: fake
+  PASS test_preview_ui::test_world_menu_entry_opens_and_closes_the_panel (201.5 ms)
+  PASS test_read_only_recovery::test_drop_arm_height_pick_and_object_commands_are_refused (316.8 ms)
+  PASS test_read_only_recovery::test_editing_resumes_when_the_reason_clears (47.5 ms)
+  PASS test_read_only_recovery::test_pointer_operations_are_refused_and_the_reason_is_posted_once (51.1 ms)
+  PASS test_real_server_acceptance::test_offline_reopen_cached_and_uncached (0.2 ms)
+  PASS test_real_server_acceptance::test_online_browse_download_drop_update_save (0.1 ms)
+  PASS test_real_server_live::test_apply_composition_sender (0.0 ms)
+  PASS test_real_server_live::test_live_session_against_real_child_and_real_server (0.0 ms)
+  PASS test_remote_binding::test_builds_a_valid_exact_binding_with_descriptor_policy_and_dependency_entry (2.4 ms)
+  PASS test_remote_binding::test_refuses_unknown_versions_tampered_descriptors_and_missing_deliveries (1.0 ms)
+  PASS test_remote_binding::test_scatter_variant_needs_a_prepared_in_budget_binding (6.7 ms)
+  PASS test_remote_library::test_a_library_that_disappears_from_the_listing_is_dropped (0.6 ms)
+  PASS test_remote_library::test_change_feed_events_refresh_the_selected_library_only (16.2 ms)
+  PASS test_remote_library::test_cursor_reset_keeps_the_old_items_until_the_replacement_page_arrives (13.8 ms)
+  PASS test_remote_library::test_libraries_are_listed_and_browse_pages_60_then_more (1.3 ms)
+  PASS test_remote_library::test_one_library_failing_never_erases_another (0.6 ms)
+  PASS test_remote_library::test_page_size_is_clamped_to_200 (0.9 ms)
+  PASS test_remote_library::test_reset_required_rereads_libraries_and_the_selected_listing (10.7 ms)
+  PASS test_remote_library::test_server_failure_marks_offline_and_keeps_libraries (0.2 ms)
+  PASS test_remote_library::test_text_and_category_filters_reach_the_server (2.1 ms)
+  PASS test_remote_library::test_thumbnails_are_cached_in_memory_and_on_disk (3.3 ms)
+Editor ready: fake
+  PASS test_remote_placement::test_backgrounding_during_a_drag_leaves_no_late_object (251.6 ms)
+Editor ready: fake
+  PASS test_remote_placement::test_begin_drop_rejects_an_active_operation (254.6 ms)
+Editor ready: fake
+  PASS test_remote_placement::test_bundled_selection_forms_and_failures_stay_unchanged (212.6 ms)
+Editor ready: fake
+  PASS test_remote_placement::test_cancel_over_ui_and_unready_release_create_nothing (485.1 ms)
+Editor ready: fake
+  PASS test_remote_placement::test_download_completion_places_nothing_and_keeps_the_tool (263.8 ms)
+Editor ready: fake
+  PASS test_remote_placement::test_failed_and_over_budget_downloads_show_the_reason_and_retry (397.4 ms)
+Editor ready: fake
+  PASS test_remote_placement::test_loader_disclosures_reach_the_tile (250.9 ms)
+Editor ready: fake
+  PASS test_remote_placement::test_provider_loss_alone_cancels_the_drop_at_release (256.0 ms)
+Editor ready: fake
+  PASS test_remote_placement::test_ready_drag_places_exactly_one_record_and_one_history_action (540.4 ms)
+Editor ready: fake
+  PASS test_remote_placement::test_remote_tile_starts_remote_and_cannot_be_dragged (314.0 ms)
+Editor ready: fake
+  PASS test_remote_placement::test_staged_but_unprepared_binding_is_refused_by_arm_and_drop (744.6 ms)
+Editor ready: fake
+  PASS test_remote_placement::test_tap_arms_a_ready_tile_and_a_world_tap_places_once (443.8 ms)
+Editor ready: fake
+  PASS test_remote_placement::test_tapping_an_unready_tile_starts_the_download_without_arming (251.0 ms)
+Editor ready: fake
+  PASS test_remote_placement::test_world_switch_during_a_drag_leaves_no_late_object (354.1 ms)
+  PASS test_render_asset_cache::test_cancel_by_owner_and_shared_entries (0.3 ms)
+  PASS test_render_asset_cache::test_cancel_generation_discards_stale_result_and_releases_reservation_late (0.5 ms)
+  PASS test_render_asset_cache::test_class_mismatch_becomes_error_and_releases_reservation (28.3 ms)
+  PASS test_render_asset_cache::test_evicted_entry_can_be_requested_again (40.8 ms)
+  PASS test_render_asset_cache::test_eviction_skips_referenced_pinned_and_fallback_entries (34.3 ms)
+  PASS test_render_asset_cache::test_in_flight_cap_is_respected (25.6 ms)
+  PASS test_render_asset_cache::test_invalid_estimates_are_rejected_before_any_load (0.4 ms)
+  PASS test_render_asset_cache::test_keys_never_alias_across_versions_and_derivatives (0.5 ms)
+  PASS test_render_asset_cache::test_material_and_texture_kinds_load (16.5 ms)
+  PASS test_render_asset_cache::test_missing_file_becomes_error (5.6 ms)
+  PASS test_render_asset_cache::test_new_generation_after_cancel_loads_only_the_latest (13.4 ms)
+  PASS test_render_asset_cache::test_poll_always_makes_progress_with_zero_budget (12.5 ms)
+  PASS test_render_asset_cache::test_preview_budget_is_inside_the_ceiling (26.9 ms)
+  PASS test_render_asset_cache::test_priority_then_fifo_order (32.9 ms)
+  PASS test_render_asset_cache::test_reservation_blocks_admission_before_loads_finish (18.8 ms)
+  PASS test_render_asset_cache::test_reviving_a_stale_load_keeps_the_result (10.7 ms)
+  PASS test_render_asset_cache::test_shared_dependency_counts_once (11.7 ms)
+  PASS test_render_asset_cache::test_texture_expectations_are_validated (30.1 ms)
+  PASS test_render_asset_cache::test_trim_has_hysteresis_and_evicts_lru_first (50.6 ms)
+  PASS test_render_asset_cache::test_trim_keeps_referenced_entries (31.8 ms)
+  PASS test_render_asset_registry::test_asset_without_entry_is_no_derivative (2.5 ms)
+  PASS test_render_asset_registry::test_bad_json_index (2.0 ms)
+  PASS test_render_asset_registry::test_catalog_identity_failures (3.7 ms)
+  PASS test_render_asset_registry::test_dependency_failures (5.5 ms)
+  PASS test_render_asset_registry::test_descriptor_level_reasons (31.0 ms)
+  PASS test_render_asset_registry::test_empty_registry_marks_everything_not_ready (0.1 ms)
+  PASS test_render_asset_registry::test_hash_failures (3.2 ms)
+  PASS test_render_asset_registry::test_index_level_failures_make_every_asset_not_ready (5.7 ms)
+  PASS test_render_asset_registry::test_not_ready_asset_never_loads_a_resource (3.8 ms)
+  PASS test_render_asset_registry::test_small_anchor_difference_is_tolerated (2.5 ms)
+  PASS test_render_asset_registry::test_unreadable_source_is_source_changed (1.3 ms)
+  PASS test_render_asset_registry::test_valid_registry_is_ready (1.6 ms)
+Editor ready: SYNTHETIC SELF-TEST INPUT
+RENDER_BENCH aborted /Users/andrejvysny/Library/Application Support/WorldPainterTests/tests-voezcj8a/test_scratch/test_render_bench_test_abort_restores_and_writes_partial_report/out/render-bench-1791021208.json
+  PASS test_render_bench::test_abort_restores_and_writes_partial_report (340.1 ms)
+Editor ready: SYNTHETIC SELF-TEST INPUT
+RENDER_BENCH completed /Users/andrejvysny/Library/Application Support/WorldPainterTests/tests-voezcj8a/test_scratch/test_render_bench_test_bench_writes_report_and_restores_session/out/render-bench-1791021216.json
+  PASS test_render_bench::test_bench_writes_report_and_restores_session (7706.7 ms)
+Editor ready: SYNTHETIC SELF-TEST INPUT
+RENDER_BENCH aborted /Users/andrejvysny/Library/Application Support/WorldPainterTests/tests-voezcj8a/test_scratch/test_render_bench_test_focus_out_aborts_the_run/out/render-bench-1791021216.json
+  PASS test_render_bench::test_focus_out_aborts_the_run (347.5 ms)
+Editor ready: SYNTHETIC SELF-TEST INPUT
+RENDER_BENCH aborted /Users/andrejvysny/Library/Application Support/WorldPainterTests/tests-voezcj8a/test_scratch/test_render_bench_test_freeing_the_runner_restores_the_session/out/render-bench-1791021217.json
+  PASS test_render_bench::test_freeing_the_runner_restores_the_session (337.8 ms)
+Editor ready: SYNTHETIC SELF-TEST INPUT
+RENDER_BENCH aborted /Users/andrejvysny/Library/Application Support/WorldPainterTests/tests-voezcj8a/test_scratch/test_render_bench_test_input_contact_aborts_the_run/out/render-bench-1791021217.json
+  PASS test_render_bench::test_input_contact_aborts_the_run (740.8 ms)
+Editor ready: SYNTHETIC SELF-TEST INPUT
+RENDER_BENCH completed /Users/andrejvysny/Library/Application Support/WorldPainterTests/tests-voezcj8a/test_scratch/test_render_bench_test_population_ignores_user_world_and_input_is_isolated/out/render-bench-1791021225.json
+  PASS test_render_bench::test_population_ignores_user_world_and_input_is_isolated (7696.4 ms)
+Editor ready: SYNTHETIC SELF-TEST INPUT
+  PASS test_render_bench::test_report_write_failure_still_restores (7721.5 ms)
+Editor ready: SYNTHETIC SELF-TEST INPUT
+RENDER_BENCH aborted /Users/andrejvysny/Library/Application Support/WorldPainterTests/tests-voezcj8a/test_scratch/test_render_bench_test_world_replacement_aborts_the_run/out/render-bench-1791021233.json
+  PASS test_render_bench::test_world_replacement_aborts_the_run (337.0 ms)
+Editor ready: fake
+Editor ready: fake
+  PASS test_render_profile_session::test_boot_applies_performance_and_ignores_previous_session (453.6 ms)
+Editor ready: fake
+  PASS test_render_profile_session::test_hide_vegetation_is_presentation_only (219.3 ms)
+Editor ready: fake
+  PASS test_render_profile_session::test_indicator_and_menu_show_the_pending_profile (405.5 ms)
+Editor ready: fake
+  PASS test_render_profile_session::test_indicator_caption_and_warning (192.6 ms)
+Editor ready: fake
+  PASS test_render_profile_session::test_input_and_picking_stay_aligned_at_every_profile_scale (679.1 ms)
+Editor ready: fake
+  PASS test_render_profile_session::test_menu_hide_vegetation_switch (321.4 ms)
+Editor ready: fake
+  PASS test_render_profile_session::test_menu_switches_profiles_and_closes (320.8 ms)
+Editor ready: fake
+  PASS test_render_profile_session::test_no_production_path_casts_shadows_in_any_profile (311.6 ms)
+Editor ready: fake
+  PASS test_render_profile_session::test_perf_panels_layout_between_history_and_actions (193.4 ms)
+Editor ready: fake
+  PASS test_render_profile_session::test_profile_request_applies_after_a_cancelled_operation (234.0 ms)
+Editor ready: fake
+  PASS test_render_profile_session::test_profile_request_during_a_stroke_is_deferred_and_applied_once (397.0 ms)
+Editor ready: fake
+  PASS test_render_profile_session::test_slow_frames_never_change_the_profile (260.9 ms)
+Editor ready: fake
+  PASS test_render_profile_session::test_status_has_profile_keys_and_caches_the_slow_part (192.8 ms)
+  PASS test_rule_edits::test_cancel_active_rolls_back_an_open_scrub (36.4 ms)
+  PASS test_rule_edits::test_place_preview_reports_state_slope_and_conflict (291.9 ms)
+  PASS test_rule_edits::test_rule_edits_refused_while_an_operation_is_open (56.4 ms)
+  PASS test_rule_edits::test_scrub_is_one_action_clamps_and_undoes (37.4 ms)
+  PASS test_rule_edits::test_toggle_is_one_action_and_reaches_the_terrain (35.2 ms)
+  PASS test_rule_edits::test_unchanged_scrub_has_no_history_and_cancel_restores (35.4 ms)
+  PASS test_runtime_glb_loader::test_blend_becomes_cutout_and_textures_survive (0.9 ms)
+MEASURE primitive_prop.portable.glb load+bake 0.19 ms
+  PASS test_runtime_glb_loader::test_contract_glb_bakes_to_one_surface_in_asset_space (0.2 ms)
+  PASS test_runtime_glb_loader::test_heavy_gate_defers_and_cancel_ends_with_nothing (22.4 ms)
+  PASS test_runtime_glb_loader::test_hostile_input_is_rejected_before_any_scene_exists (0.1 ms)
+MEASURE primitive_prop_v2.portable.glb load+bake 0.26 ms
+  PASS test_runtime_glb_loader::test_node_transforms_are_applied_into_one_mesh (0.3 ms)
+  PASS test_runtime_glb_loader::test_scatter_budget_follows_triangles (1.0 ms)
+  PASS test_scatter_density::test_active_area_density_is_frozen_for_the_operation_and_may_change_after_release (211.8 ms)
+  PASS test_scatter_density::test_densities_form_nested_subsets_stable_across_rebuilds_and_sessions (269.7 ms)
+  PASS test_scatter_density::test_ground_cover_density_bands_follow_the_distance_with_hysteresis (54.1 ms)
+  PASS test_scatter_density::test_key_is_fnv1a_over_asset_float32_xz_and_the_world_seed (33.0 ms)
+  PASS test_scatter_density::test_keys_do_not_depend_on_unrelated_instances (73.1 ms)
+  PASS test_scatter_density::test_meaningful_scatter_and_manual_objects_are_never_thinned (375.1 ms)
+  PASS test_scatter_density::test_profile_density_radius_hiding_and_camera_changes_never_touch_authored_data (135.3 ms)
+  PASS test_scatter_overview::test_covered_cells_are_hidden_but_stay_built_and_ground_cover_is_never_covered (45.4 ms)
+  PASS test_scatter_overview::test_meaningful_roles_follow_distance_only_after_the_camera_settles (40.5 ms)
+  PASS test_scatter_overview::test_overview_changed_for_edits_and_redrapes_but_not_for_density_or_visibility (46.6 ms)
+  PASS test_scatter_overview::test_overview_members_carry_terrain_y_tilt_and_scale_and_exclude_ground_cover (45.4 ms)
+  PASS test_scatter_overview::test_unchanged_scene_has_no_uploads_or_rebuilds_after_settling (86.0 ms)
+    PERF km1 98500 scatter: rebuild_all (bucketing) 145 ms, settle all cells 3167 ms, 1352 cells / 1629 multimeshes
+    PERF km1 100k scatter brush stroke: renderer frame mean 2.29 ms, p95 3.66 ms, max 3.70 ms (40 frames)
+    PERF km1 100k erase stroke: renderer frame mean 8.64 ms, p95 9.91 ms, max 9.91 ms (8 frames)
+    PERF km1 100k sculpt stroke under scatter: renderer frame mean 1.19 ms, p95 1.34 ms, max 2.96 ms (40 frames)
+  PASS test_scatter_perf::test_perf_edit_path_frame_cost_on_km1_100k (4474.9 ms)
+    PERF scatter rebuild_all+settle 20000: 1470.7 ms (896 multimeshes); dirty re-drape of a 20 m rect: 5.49 ms
+  PASS test_scatter_perf::test_perf_rebuild_all_20000_instances (1530.9 ms)
+    PERF scatter dab (meadow, r 7, 16 tries): 0.181 ms/dab, 602 instances
+  PASS test_scatter_perf::test_perf_scatter_dab_cost (43.2 ms)
+  PASS test_scatter_projected::test_conservative_projection_restores_hidden_during_motion (48.9 ms)
+  PASS test_scatter_projected::test_dense_cell_build_resumes_in_bounded_chunks (50.5 ms)
+  PASS test_scatter_projected::test_partial_tier_replacement_never_duplicates_source_instances (77.7 ms)
+  PASS test_scatter_projected::test_projection_change_during_initial_dense_build_gets_followup_pass (96.2 ms)
+  PASS test_scatter_projected::test_shared_cell_large_scale_does_not_keep_tiny_instances (45.9 ms)
+  PASS test_scatter_projected::test_stationary_projection_change_reclassifies_then_stays_idle (48.9 ms)
+  PASS test_scatter_projected::test_suppression_composes_with_vegetation_and_keeps_dirty_edits (41.6 ms)
+  PASS test_scatter_renderer::test_add_erase_and_undo_keep_counts_in_sync_with_dirty_only_rebuilds (88.0 ms)
+  PASS test_scatter_renderer::test_align_flag_tilts_to_terrain_and_nothing_casts_shadows (44.8 ms)
+  PASS test_scatter_renderer::test_gentle_hills_renders_550_instances_per_cell_and_asset (80.6 ms)
+    rendered scatter check: NOT RUN: no rendering device (headless)
+  PASS test_scatter_renderer::test_gpu_rendered_gentle_hills_scatter_screenshot (35.2 ms)
+  PASS test_scatter_renderer::test_height_change_redrapes_y_and_nan_is_skipped (39.8 ms)
+  PASS test_scatter_renderer::test_hidden_vegetation_follows_the_descriptor_including_later_cells (47.8 ms)
+  PASS test_scatter_renderer::test_meshes_come_from_registry_tiers_never_the_catalog_scatter_mesh (77.9 ms)
+  PASS test_scatter_renderer::test_not_ready_asset_renders_as_bounds_scaled_placeholder_and_stays_meaningful (43.1 ms)
+  PASS test_scatter_renderer::test_scatter_tools_refuse_not_ready_assets (76.7 ms)
+  PASS test_scatter_renderer::test_world_layers_present_change_marks_scatter_and_height_cells (89.1 ms)
+  PASS test_scatter_tools::test_clear_removes_instances_inside_the_loop_only (67.7 ms)
+  PASS test_scatter_tools::test_empty_source_reports_and_creates_no_operation (38.5 ms)
+  PASS test_scatter_tools::test_erase_brush_removes_scatter_only_and_undoes_exactly (338.5 ms)
+  PASS test_scatter_tools::test_fill_fills_inside_the_loop_only (73.6 ms)
+  PASS test_scatter_tools::test_fill_needs_three_points (38.0 ms)
+  PASS test_scatter_tools::test_invalid_hit_pauses_without_bridging (41.6 ms)
+  PASS test_scatter_tools::test_inverted_scatter_erases_and_reports_erasing (65.1 ms)
+  PASS test_scatter_tools::test_limit_reports_once_for_fill_and_brush (108.0 ms)
+  PASS test_scatter_tools::test_over_ui_end_keeps_work_so_far_and_cancel_rolls_back (48.1 ms)
+  PASS test_scatter_tools::test_scatter_stroke_is_one_undoable_change (44.8 ms)
+  PASS test_scatter_tools::test_sculpt_marks_heights_only_rects (41.0 ms)
+  PASS test_scatter_tools::test_stroke_that_changes_nothing_pushes_no_history (50.0 ms)
+Editor ready: fake
+  PASS test_session_assets::test_app_deactivation_cancels_and_unpins_then_resume_prepares_again (153.9 ms)
+Editor ready: fake
+  PASS test_session_assets::test_contract_world_opens_read_only_then_becomes_editable_after_prepare (397.1 ms)
+Editor ready: fake
+  PASS test_session_assets::test_prepared_assets_survive_a_switch_to_a_world_that_shares_them_and_drop_otherwise (244.6 ms)
+Editor ready: fake
+  PASS test_session_assets::test_remote_scatter_world_opens_and_renders_after_prepare (148.7 ms)
+Editor ready: fake
+  PASS test_session_assets::test_world_switch_cancels_in_flight_prepare_and_unpins (450.9 ms)
+Editor ready: fake
+  PASS test_session_read_only::test_a_fully_available_world_is_not_read_only (171.2 ms)
+Editor ready: fake
+  PASS test_session_read_only::test_unknown_catalog_hash_opens_read_only_and_refuses_editing (321.7 ms)
+  PASS test_session_safety::test_cache_cancel_queued_by_priority (0.1 ms)
+Editor ready: fake
+  PASS test_session_safety::test_critical_cache_over_budget_restricts (151.8 ms)
+Editor ready: fake
+  PASS test_session_safety::test_deactivation_cancels_queued_loads_and_resume_keeps_the_preview_off (196.9 ms)
+Editor ready: fake
+  PASS test_session_safety::test_memory_warning_restricts_without_changing_profile_or_document (183.0 ms)
+Editor ready: fake
+  PASS test_session_safety::test_status_reports_unavailable_telemetry_as_null_not_zero (151.9 ms)
+Editor ready: fake
+  PASS test_session_safety::test_thermal_critical_restricts_until_it_clears (151.6 ms)
+Editor ready: fake
+  PASS test_session_safety::test_thermal_serious_is_a_warning_only (176.8 ms)
+  PASS test_simulator_preview::test_preview_preserves_authored_bytes_and_rebuilds_dirty_mesh (357.3 ms)
+  PASS test_terrain_adapter::test_color_map_is_document_tint_and_configuration_pinned (108.0 ms)
+  PASS test_terrain_adapter::test_control_bits_survive_upload_bit_exactly (124.9 ms)
+  PASS test_terrain_adapter::test_debug_view_and_region_grid_map_to_shader_uniforms (107.8 ms)
+  PASS test_terrain_adapter::test_deferred_upload_runs_while_tree_is_paused (107.8 ms)
+  PASS test_terrain_adapter::test_flush_is_batched_once_per_kind_per_frame (109.5 ms)
+    10000 clean flush() calls: 1.768 ms
+  PASS test_terrain_adapter::test_flush_is_cheap_when_clean (109.6 ms)
+    GPU texture layers: NOT RUN: no rendering device (headless) (run rendered: scripts/dev.py test --rendered)
+  PASS test_terrain_adapter::test_gpu_texture_layers_match_document_after_partial_flush (143.1 ms)
+  PASS test_terrain_adapter::test_height_range_updates_after_raise_and_lower (109.0 ms)
+  PASS test_terrain_adapter::test_initialize_errors_are_returned (0.7 ms)
+    compared 3600 vertices incl. seams
+  PASS test_terrain_adapter::test_initialize_heights_match_document_including_seams (145.5 ms)
+    TIMING TerrainAdapter.initialize km1 (64 regions): 159.8 ms (desktop headless)
+  PASS test_terrain_adapter::test_km1_world_loads_all_64_regions_and_replaces_cleanly (279.1 ms)
+  PASS test_terrain_adapter::test_mark_dirty_rejects_unknown_kind_and_region (107.6 ms)
+    Terrain3D.get_intersection(cpu) vs picker, 45deg: mean 0.5674 m, worst 0.9622 m (25 rays)
+    Terrain3D.get_intersection(cpu) vs picker, 30deg: mean 0.3734 m, worst 0.9633 m (25 rays)
+    Terrain3D.get_intersection(cpu) vs picker, 70deg: mean 0.3988 m, worst 0.9881 m (25 rays)
+    straight down inside: Terrain3D (12.25, 1.657155, -7.5) vs picker (12.25, 1.657155, -7.5) (|d| 0 m)
+    straight down outside world: Terrain3D (200.0, 0.0, 0.0) (substitutes y=0) vs picker 'outside' (nan, nan, nan)
+    sky ray: Terrain3D (340282346638528859811704183484516925440.0, 340282346638528859811704183484516925440.0, 340282346638528859811704183484516925440.0) vs picker 'no_hit'
+  PASS test_terrain_adapter::test_measure_terrain3d_get_intersection_against_picker (159.3 ms)
+  PASS test_terrain_adapter::test_partial_flush_updates_only_dirty_region (107.7 ms)
+  PASS test_terrain_adapter::test_procedural_materials_share_size_format_and_mipmaps (85.9 ms)
+  PASS test_terrain_adapter::test_replace_document_twice_releases_old_regions (152.4 ms)
+    flush of 4 height + 4 control regions: 1.639 ms
+  PASS test_terrain_adapter::test_verify_reports_unflushed_edits_and_clears_after_flush (151.7 ms)
+Editor ready: fake
+  PASS test_terrain_only_view::test_overview_mask_preserves_identity_and_authored_state (383.2 ms)
+Editor ready: fake
+  PASS test_terrain_only_view::test_placement_first_contact_only_focuses (204.3 ms)
+    terrain overview: NOT RUN: no rendering device
+  PASS test_terrain_overview_gpu::test_gpu_km1_max_zoom_preserves_finite_extent_holes_and_height_in_both_modes (0.0 ms)
+    terrain overview: NOT RUN: no rendering device
+  PASS test_terrain_overview_gpu::test_gpu_overview_material_keeps_paint_hues_and_terrain_slope_normals (0.0 ms)
+  PASS test_terrain_shader::test_color_dirty_batching_uploads_each_region_once_per_flush (108.2 ms)
+  PASS test_terrain_shader::test_color_map_uploads_document_tint_bytes (107.9 ms)
+    rendered shader checks: NOT RUN: no rendering device (headless); run scripts/dev.py test --rendered
+  PASS test_terrain_shader::test_gpu_rendered_debug_views_change_pixels (0.0 ms)
+    rendered shader checks: NOT RUN: no rendering device (headless); run scripts/dev.py test --rendered
+  PASS test_terrain_shader::test_gpu_rendered_gentle_hills_evidence (0.0 ms)
+    rendered shader checks: NOT RUN: no rendering device (headless); run scripts/dev.py test --rendered
+  PASS test_terrain_shader::test_gpu_rendered_holes_seams_and_overview_extent (0.0 ms)
+    rendered shader checks: NOT RUN: no rendering device (headless); run scripts/dev.py test --rendered
+  PASS test_terrain_shader::test_gpu_rendered_preview_changes_detail_only_inside_the_area (0.0 ms)
+    rendered shader checks: NOT RUN: no rendering device (headless); run scripts/dev.py test --rendered
+  PASS test_terrain_shader::test_gpu_rendered_rules_overlay_tint_and_highlight (0.0 ms)
+  PASS test_terrain_shader::test_highlight_toggle_and_replace_document_reapplies_rules (110.1 ms)
+  PASS test_terrain_shader::test_material_experiment_changes_uniform_without_rebuilding_terrain (110.0 ms)
+  PASS test_terrain_shader::test_project_shader_is_active_and_rules_map_to_uniforms (107.3 ms)
+  PASS test_terrain_shader::test_trimmed_shader_drops_unused_features_and_keeps_the_app_ones (2.0 ms)
+  PASS test_terrain_shader::test_verify_detects_color_mismatch_with_sample_index (108.6 ms)
+  PASS test_terrain_upload::test_a_mark_uploads_only_its_own_kind_and_unmarked_edits_stay_pending (139.2 ms)
+    NOT RUN: no rendering device (headless); run scripts/dev.py test --rendered
+  PASS test_terrain_upload::test_gpu_color_edit_reaches_the_gpu_layer (0.0 ms)
+  PASS test_terrain_upload::test_interleaved_marks_across_frames_never_lose_an_edit_or_cross_kinds (208.1 ms)
+  PASS test_terrain_upload::test_no_background_and_mesh_config_is_validated (116.6 ms)
+    terrain upload: copy 0.039 ms, range 0.001 ms, update_maps 0.001 ms, age p95 19.3 ms
+  PASS test_terrain_upload::test_pending_age_copy_timings_and_latency_are_reported (134.1 ms)
+  PASS test_terrain_upload::test_replace_document_resets_pending_and_counters (111.1 ms)
+Editor ready: fake
+    stroke edit-to-upload age: p50 21.4 ms p95 26.7 ms max 26.7 ms over 16 uploads
+  PASS test_terrain_upload::test_stroke_finish_cancel_undo_redo_present_the_canonical_bytes (479.4 ms)
+  PASS test_terrain_upload::test_texture_preview_uniforms_validate_their_inputs (108.4 ms)
+  PASS test_texture_preview::test_disable_during_loading_discards_late_results (150.2 ms)
+  PASS test_texture_preview::test_enable_captures_fixed_area_and_changes_only_preview_uniforms (224.4 ms)
+  PASS test_texture_preview::test_enable_refuses_without_a_valid_centre_and_clamps_to_the_world (131.3 ms)
+  PASS test_texture_preview::test_every_texture_missing_is_an_error_and_binds_nothing (124.0 ms)
+  PASS test_texture_preview::test_missing_texture_is_limited_and_keeps_low_tier_for_that_slot (199.1 ms)
+  PASS test_texture_preview::test_over_budget_request_is_limited_not_fatal (164.3 ms)
+    preview publish: arrays 0.01 ms + images 0.02 ms for 4 slots, 33554424 bytes estimated
+  PASS test_texture_preview::test_preview_binds_area_and_layer_map_and_leaves_low_arrays_untouched (194.2 ms)
+  PASS test_texture_preview::test_preview_keeps_heights_control_holes_and_tint_untouched (222.0 ms)
+Editor ready: fake
+  PASS test_texture_preview::test_session_refuses_during_bench_and_disables_on_deactivation_and_world_replacement (296.4 ms)
+Editor ready: fake
+  PASS test_texture_preview::test_session_toggle_captures_selected_anchor_and_never_retargets (247.3 ms)
+Editor ready: fake
+  PASS test_texture_preview::test_session_uses_camera_pivot_without_selection_and_asks_when_neither_is_valid (163.3 ms)
+  PASS test_texture_preview::test_shader_derives_blend_weights_from_the_low_tier_samples_only (1.6 ms)
+  PASS test_texture_preview::test_status_is_an_immutable_copy (205.6 ms)
+  PASS test_texture_preview::test_status_text_and_indicator_caption (0.1 ms)
+  PASS test_texture_preview::test_suspend_releases_like_disable_with_the_reason (211.6 ms)
+  PASS test_texture_preview::test_twenty_enable_disable_cycles_return_the_cache_to_its_baseline (1867.5 ms)
+  PASS test_texture_preview::test_world_replacement_during_loading_discards_late_results (207.7 ms)
+  PASS test_texture_preview_overview::test_overview_reentry_before_resume_preserves_request (256.4 ms)
+  PASS test_texture_preview_overview::test_overview_suspension_retains_anchor_and_resumes_request (335.5 ms)
+Editor ready: fake
+  PASS test_texture_preview_ui::test_menu_switch_status_line_and_indicator_follow_the_preview (239.1 ms)
+Editor ready: fake
+  PASS test_texture_preview_ui::test_toggle_without_an_area_leaves_the_switch_off_and_says_why (188.0 ms)
+  PASS test_tool_brushes::test_begin_on_sky_waits_for_first_valid_hit (38.0 ms)
+  PASS test_tool_brushes::test_cancel_after_touching_all_regions_restores_authored_hash (73.3 ms)
+  PASS test_tool_brushes::test_frame_stall_never_cancels_the_stroke (45.6 ms)
+  PASS test_tool_brushes::test_invalid_hit_writes_nothing_and_creates_no_regions (41.0 ms)
+  PASS test_tool_brushes::test_paint_dirt_stroke_is_one_change_limited_to_radius_and_undoable (52.6 ms)
+  PASS test_tool_brushes::test_paint_grass_target_reduces_blend (66.8 ms)
+  PASS test_tool_brushes::test_pause_resume_never_bridges_the_gap (42.9 ms)
+  PASS test_tool_brushes::test_sculpt_lower_label_and_direction (43.0 ms)
+  PASS test_tool_brushes::test_sculpt_raise_regrounds_follow_terrain_objects_in_one_change (319.2 ms)
+  PASS test_tool_brushes::test_setting_change_does_not_affect_stroke_in_progress (52.2 ms)
+  PASS test_tool_brushes::test_settings_clamp_and_validate (36.2 ms)
+  PASS test_tool_model::test_arm_refusals (39.1 ms)
+  PASS test_tool_model::test_armed_asset_places_in_any_mode_then_selects_and_disarms (39.2 ms)
+  PASS test_tool_model::test_delete_selected_path_is_one_undoable_action (36.0 ms)
+  PASS test_tool_model::test_dev_keys (37.6 ms)
+  PASS test_tool_model::test_duplicate_grounding_modes_and_world_edge_clamp (291.6 ms)
+  PASS test_tool_model::test_duplicate_is_one_undoable_transaction_and_selects_the_copy (292.7 ms)
+  PASS test_tool_model::test_duplicate_refusals (323.3 ms)
+  PASS test_tool_model::test_every_tool_is_implemented (53.6 ms)
+  PASS test_tool_model::test_failed_placement_stays_armed_and_disarm_works (42.4 ms)
+  PASS test_tool_model::test_height_pick_is_cancelled_by_tool_or_mode_change_or_tool_cancel (35.9 ms)
+  PASS test_tool_model::test_height_pick_miss_or_ui_release_keeps_picking (39.1 ms)
+  PASS test_tool_model::test_height_pick_samples_the_tapped_terrain_into_flatten_target (40.9 ms)
+  PASS test_tool_model::test_invert_resets_on_mode_or_tool_change_and_ignores_tools_without_it (35.9 ms)
+  PASS test_tool_model::test_inverted_raise_lowers_terrain (43.5 ms)
+  PASS test_tool_model::test_library_drop_also_selects_resets_mode_and_disarms (37.7 ms)
+  PASS test_tool_model::test_not_ready_assets_cannot_be_armed_dropped_duplicated_or_placed (292.7 ms)
+  PASS test_tool_model::test_paint_layers_and_erase (76.4 ms)
+  PASS test_tool_model::test_path_selection_signal_and_validation (36.4 ms)
+  PASS test_tool_model::test_path_width_limits_come_from_config_clamped_to_the_format (70.8 ms)
+  PASS test_tool_model::test_quick_mix_accepts_only_scatter_allowed_assets (35.4 ms)
+  PASS test_tool_model::test_rotate_ghost_turns_the_placement_yaw (38.9 ms)
+  PASS test_tool_model::test_rotate_ghost_works_on_a_library_drop_and_snaps_when_enabled (37.8 ms)
+  PASS test_tool_model::test_scatter_config_resolves_sets_and_drops_unusable_items (36.4 ms)
+  PASS test_tool_model::test_set_tool_switches_mode_and_each_mode_remembers_its_tool (35.5 ms)
+  PASS test_tool_model::test_setting_the_same_tool_or_mode_emits_nothing (35.7 ms)
+  PASS test_tool_model::test_settings_changed_carries_the_namespace (35.7 ms)
+  PASS test_tool_model::test_settings_clamp_and_validate (35.9 ms)
+  PASS test_tool_model::test_settings_defaults (35.5 ms)
+  PASS test_tool_model::test_startup_state_and_remembered_tools (36.0 ms)
+  PASS test_tool_model::test_tool_status_keys (35.6 ms)
+  PASS test_tool_model::test_unknown_ids_and_busy_are_refused (39.2 ms)
+  PASS test_tool_objects::test_cancel_active_rolls_back_pointer_operation (59.8 ms)
+  PASS test_tool_objects::test_cancel_mid_drag_restores_exact_record (292.8 ms)
+  PASS test_tool_objects::test_delete_and_undo_restore_same_id_and_transform (308.3 ms)
+  PASS test_tool_objects::test_drag_from_off_centre_moves_by_exact_hit_delta (321.0 ms)
+  PASS test_tool_objects::test_drag_of_unselected_object_does_not_move_it (314.4 ms)
+  PASS test_tool_objects::test_drop_over_ui_or_sky_reverts_move (298.7 ms)
+  PASS test_tool_objects::test_editing_disabled_ignores_begin_but_not_cancel (38.8 ms)
+  PASS test_tool_objects::test_height_edit_moves_object_with_offset (293.4 ms)
+  PASS test_tool_objects::test_library_drop_over_ui_sky_or_cancel_creates_nothing (63.3 ms)
+  PASS test_tool_objects::test_library_drop_places_selects_and_ignores_router_actions (41.7 ms)
+  PASS test_tool_objects::test_library_drop_refused_when_busy_disabled_or_unknown (41.0 ms)
+  PASS test_tool_objects::test_nudge_is_one_action_and_clamped_nudge_is_a_no_op (292.3 ms)
+  PASS test_tool_objects::test_object_edit_refused_without_selection_or_during_edit (297.1 ms)
+  PASS test_tool_objects::test_place_after_sculpt_uses_the_new_height (60.3 ms)
+  PASS test_tool_objects::test_place_and_duplicate_are_refused_at_the_object_limit (301.0 ms)
+  PASS test_tool_objects::test_place_ignores_existing_objects (295.0 ms)
+  PASS test_tool_objects::test_place_released_over_ui_or_sky_creates_nothing (58.7 ms)
+  PASS test_tool_objects::test_place_snaps_selects_and_returns_to_select_tool (39.4 ms)
+  PASS test_tool_objects::test_place_without_asset_is_refused (36.3 ms)
+  PASS test_tool_objects::test_place_without_snap_keeps_hit_position (37.2 ms)
+  PASS test_tool_objects::test_scale_is_clamped_and_non_finite_rejected (289.7 ms)
+  PASS test_tool_objects::test_set_grounding_regrounds_and_undoes (312.1 ms)
+  PASS test_tool_objects::test_slider_drag_is_one_change_and_cancel_restores_exactly (313.6 ms)
+  PASS test_tool_objects::test_tap_selects_and_tap_on_terrain_clears (315.5 ms)
+  PASS test_tool_objects::test_tool_switch_refused_while_operation_active (47.6 ms)
+  PASS test_tool_objects::test_validate_selection_clears_vanished_object (290.0 ms)
+  PASS test_tool_objects::test_yaw_normalization_and_snap_off (310.8 ms)
+  PASS test_tool_v2::test_brush_alpha_shape_applies_to_every_family (130.5 ms)
+  PASS test_tool_v2::test_every_tool_is_one_labelled_undoable_action (209.9 ms)
+  PASS test_tool_v2::test_flatten_with_an_explicit_target_and_followers_in_one_action (344.0 ms)
+  PASS test_tool_v2::test_flatten_without_a_target_uses_the_height_at_the_stroke_start (139.5 ms)
+  PASS test_tool_v2::test_noise_and_smooth_reground_followers (432.8 ms)
+  PASS test_tool_v2::test_pick_miss_reports_and_stays_on_pick (37.8 ms)
+  PASS test_tool_v2::test_pick_overlay_base_and_rule_layers (40.7 ms)
+  PASS test_tool_v2::test_pick_takes_the_visible_layer_without_history (40.4 ms)
+  PASS test_tool_v2::test_stroke_state_for_every_tool (51.8 ms)
+  PASS test_tool_v2::test_tint_marks_colour_maps_only_and_cancel_rolls_back (62.7 ms)
+Editor ready: fake
+  PASS test_update_review::test_declining_hides_the_badge_and_only_a_new_version_offers_again (445.5 ms)
+Editor ready: fake
+  PASS test_update_review::test_explicit_limit_choice_sets_the_shown_value_in_the_same_action (451.8 ms)
+Editor ready: fake
+  PASS test_update_review::test_offer_appears_from_the_change_feed_as_a_badge_never_a_modal (344.3 ms)
+Editor ready: fake
+  PASS test_update_review::test_out_of_range_scale_blocks_automatic_preservation_until_the_user_chooses (566.6 ms)
+Editor ready: fake
+  PASS test_update_review::test_review_updates_selected_object_only_and_undo_needs_no_fetch (447.4 ms)
+Editor ready: fake
+  PASS test_update_review::test_review_with_no_server_data_reports_instead_of_opening (209.7 ms)
+Editor ready: fake
+  PASS test_update_review::test_scope_all_updates_every_object_of_the_binding (448.9 ms)
+Editor ready: fake
+  PASS test_update_review::test_update_is_blocked_during_an_active_operation (443.2 ms)
+    build km1 hills world + 50000 objects: 280 ms
+    checkpoint_now (snapshot + write + verify): 3740 ms
+    recover_latest_valid (read + validate 50k objects): 2666 ms
+  PASS test_world_04_km1_50k::test_50k_objects_round_trip_through_storage_export_import_and_the_consumer_loader (24808.0 ms)
+    TIMING request_checkpoint main thread, 50k objects km1: first 761.9 ms, then 1.82 ms avg / 2.81 ms worst (desktop headless)
+  PASS test_world_04_km1_50k::test_checkpoint_request_stays_cheap_on_the_main_thread_with_50k_objects (12752.2 ms)
+Terrain3DRegion#6816:save:226: Writing region (-1, -1) to user://test_scratch/test_world_baker_test_bake_reproduces_the_document/bake/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#4550:save:226: Writing region (0, -1) to user://test_scratch/test_world_baker_test_bake_reproduces_the_document/bake/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#2272:save:226: Writing region (-1, 0) to user://test_scratch/test_world_baker_test_bake_reproduces_the_document/bake/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#0006:save:226: Writing region (0, 0) to user://test_scratch/test_world_baker_test_bake_reproduces_the_document/bake/generated/terrain/terrain3d_00_00.res
+  PASS test_world_baker::test_bake_reproduces_the_document (159.0 ms)
+Terrain3DRegion#5648:save:226: Writing region (-1, -1) to user://test_scratch/test_world_baker_test_generated_scene_has_no_editor_or_preview_script/bake/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#3370:save:226: Writing region (0, -1) to user://test_scratch/test_world_baker_test_generated_scene_has_no_editor_or_preview_script/bake/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#1104:save:226: Writing region (-1, 0) to user://test_scratch/test_world_baker_test_generated_scene_has_no_editor_or_preview_script/bake/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#8826:save:226: Writing region (0, 0) to user://test_scratch/test_world_baker_test_generated_scene_has_no_editor_or_preview_script/bake/generated/terrain/terrain3d_00_00.res
+  PASS test_world_baker::test_generated_scene_has_no_editor_or_preview_script (117.0 ms)
+Terrain3DRegion#3845:save:226: Writing region (-1, -1) to user://test_scratch/test_world_baker_test_objects_keep_ids_and_exact_transforms/bake/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#1690:save:226: Writing region (0, -1) to user://test_scratch/test_world_baker_test_objects_keep_ids_and_exact_transforms/bake/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#9301:save:226: Writing region (-1, 0) to user://test_scratch/test_world_baker_test_objects_keep_ids_and_exact_transforms/bake/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#7146:save:226: Writing region (0, 0) to user://test_scratch/test_world_baker_test_objects_keep_ids_and_exact_transforms/bake/generated/terrain/terrain3d_00_00.res
+  PASS test_world_baker::test_objects_keep_ids_and_exact_transforms (150.1 ms)
+Terrain3DRegion#8583:save:226: Writing region (-1, -1) to user://test_scratch/test_world_baker_test_scatter_collision_is_opt_in_per_binding/bake/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#6300:save:226: Writing region (0, -1) to user://test_scratch/test_world_baker_test_scatter_collision_is_opt_in_per_binding/bake/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#4039:save:226: Writing region (-1, 0) to user://test_scratch/test_world_baker_test_scatter_collision_is_opt_in_per_binding/bake/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#1756:save:226: Writing region (0, 0) to user://test_scratch/test_world_baker_test_scatter_collision_is_opt_in_per_binding/bake/generated/terrain/terrain3d_00_00.res
+  PASS test_world_baker::test_scatter_collision_is_opt_in_per_binding (156.4 ms)
+Terrain3DRegion#8043:save:226: Writing region (-1, -1) to user://test_scratch/test_world_baker_test_scatter_over_holes_is_skipped_and_counted/bake/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#5762:save:226: Writing region (0, -1) to user://test_scratch/test_world_baker_test_scatter_over_holes_is_skipped_and_counted/bake/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#3499:save:226: Writing region (-1, 0) to user://test_scratch/test_world_baker_test_scatter_over_holes_is_skipped_and_counted/bake/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#1218:save:226: Writing region (0, 0) to user://test_scratch/test_world_baker_test_scatter_over_holes_is_skipped_and_counted/bake/generated/terrain/terrain3d_00_00.res
+  PASS test_world_baker::test_scatter_over_holes_is_skipped_and_counted (157.1 ms)
+Terrain3DRegion#9412:save:226: Writing region (-1, -1) to user://test_scratch/test_world_baker_test_terrain_data_is_exact_with_holes_and_tint/bake/generated/terrain/terrain3d-01-01.res
+Terrain3DRegion#7129:save:226: Writing region (0, -1) to user://test_scratch/test_world_baker_test_terrain_data_is_exact_with_holes_and_tint/bake/generated/terrain/terrain3d_00-01.res
+Terrain3DRegion#4868:save:226: Writing region (-1, 0) to user://test_scratch/test_world_baker_test_terrain_data_is_exact_with_holes_and_tint/bake/generated/terrain/terrain3d-01_00.res
+Terrain3DRegion#2585:save:226: Writing region (0, 0) to user://test_scratch/test_world_baker_test_terrain_data_is_exact_with_holes_and_tint/bake/generated/terrain/terrain3d_00_00.res
+  PASS test_world_baker::test_terrain_data_is_exact_with_holes_and_tint (158.6 ms)
+  PASS test_world_layout_storage::test_km1_checkpoint_recover_export_import_round_trip (4408.5 ms)
+  PASS test_world_storage::test_async_failure_state (18.6 ms)
+  PASS test_world_storage::test_async_worker_emits_on_main_thread (64.4 ms)
+  PASS test_world_storage::test_checkpoint_and_recover_equality (114.8 ms)
+  PASS test_world_storage::test_coalescing_keeps_other_worlds_pending_job (278.2 ms)
+  PASS test_world_storage::test_coalescing_persists_newest_without_stale_overwrite (353.3 ms)
+  PASS test_world_storage::test_configure_removes_interrupted_export_and_import_leftovers (59.6 ms)
+  PASS test_world_storage::test_edit_after_fallback_is_written_not_skipped (468.4 ms)
+  PASS test_world_storage::test_export_latest_round_trip (195.1 ms)
+  PASS test_world_storage::test_invalid_content_is_not_saved_or_counted_by_prune (616.2 ms)
+  PASS test_world_storage::test_io03_interrupted_checkpoint_keeps_previous_generation (226.6 ms)
+  PASS test_world_storage::test_io04_write_failure_reports_and_keeps_old_generations (322.9 ms)
+  PASS test_world_storage::test_io05_older_revision_finishing_is_not_saved_for_active_state (61.2 ms)
+  PASS test_world_storage::test_io06_corrupt_newest_falls_back_and_reports (303.1 ms)
+  PASS test_world_storage::test_lower_revision_of_new_lineage_is_written (191.1 ms)
+  PASS test_world_storage::test_older_failure_after_newer_save_is_ignored (67.1 ms)
+  PASS test_world_storage::test_pruning_keeps_three_valid_generations (725.9 ms)
+  PASS test_world_storage::test_recovery_with_no_valid_generation (57.9 ms)
+  PASS test_world_storage::test_shutdown_drains_pending_job (54.0 ms)
+  PASS test_world_upgrade::test_a_world_without_a_stored_source_writes_no_pin (95.3 ms)
+  PASS test_world_upgrade::test_failed_upgrade_keeps_the_document_legacy_and_removes_its_receipt (66.5 ms)
+  PASS test_world_upgrade::test_first_checkpoint_pins_the_source_and_writes_a_receipt (106.3 ms)
+  PASS test_world_upgrade::test_pruning_never_deletes_a_pinned_generation (310.3 ms)
+  PASS test_world_upgrade::test_recovery_skips_only_structurally_invalid_generations (177.1 ms)
+
+1376 tests, 0 failures (303.9 s)
+ERROR: 68 RID allocations of type 'N13RendererDummy15MaterialStorage13DummyMaterialE' were leaked at exit.
+ERROR: 7 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.
+ERROR: 77 RID allocations of type 'N13RendererDummy9DummyMeshE' were leaked at exit.
+ERROR: 21 RID allocations of type 'PN13RendererDummy14TextureStorage12DummyTextureE' were leaked at exit.
+ERROR: 38 RID allocations of type 'PN18TextServerAdvanced22ShapedTextDataAdvancedE' were leaked at exit.
+ERROR: 2 RID allocations of type 'PN18TextServerAdvanced12FontAdvancedE' were leaked at exit.
+WARNING: AssetStudio: cleartext http to 192.168.1.20; bearer tokens can be intercepted on the network
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] set_connection (res://addons/assetstudio/core/as_connection_registry.gd:65)
+         [1] configure (res://src/library/assetstudio_connection.gd:41)
+         [2] test_cleartext_lan_needs_the_explicit_flag_and_shows_a_warning (res://tests/unit/test_assetstudio_connection.gd:34)
+         [3] _run (res://tests/run_tests.gd:53)
+ERROR: CRC error reading file from zip archive.
+   at: read_file (modules/zip/zip_reader.cpp:125)
+   GDScript backtrace (most recent call first):
+       [0] _extract (res://addons/world_painter/core/storage/world_package.gd:101)
+       [1] import_package (res://addons/world_painter/core/storage/world_package.gd:70)
+       [2] test_import_rejects_entry_whose_extracted_size_differs (res://tests/unit/test_world_package.gd:206)
+       [3] _run (res://tests/run_tests.gd:53)
+WARNING: instance_reset_physics_interpolation() is deprecated.
+     at: _instance_reset_physics_interpolation_bind_compat_104269 (servers/rendering/rendering_server.compat.inc:62)
+     GDScript backtrace (most recent call first):
+         [0] mount (res://addons/world_painter/runtime/accepted_world_mount.gd:20)
+         [1] _ready (res://addons/world_painter/runtime/accepted_world_mount.gd:12)
+         [2] test_the_binding_resource_mounts_the_baked_world (res://tests/integration/test_apply_transaction.gd:88)
+         [3] _run (res://tests/run_tests.gd:53)
+         [4] test_freeze_review_and_apply_ignore_later_edits_and_the_overlay (res://tests/integration/test_apply_freeze.gd:131)
+         [5] confirm (res://addons/world_painter/editor/apply_controller.gd:95)
+         [6] apply (res://addons/world_painter/apply/apply_transaction.gd:52)
+         [7] _phase (res://addons/world_painter/apply/apply_transaction.gd:186)
+WARNING: AssetStudio: cleartext http to 192.168.1.20; bearer tokens can be intercepted on the network
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] set_connection (res://addons/assetstudio/core/as_connection_registry.gd:65)
+         [1] configure (res://src/library/assetstudio_connection.gd:41)
+         [2] test_cleartext_lan_needs_the_switch_and_keeps_a_persistent_warning (res://tests/integration/test_library_remote_ui.gd:121)
+         [3] _pencil_click (res://tests/support/ui_test_case.gd:74)
+         [4] _feed (res://tests/support/ui_test_case.gd:68)
+         [5] _frames (res://tests/support/ui_test_case.gd:54)
+WARNING: instance_reset_physics_interpolation() is deprecated.
+     at: _instance_reset_physics_interpolation_bind_compat_104269 (servers/rendering/rendering_server.compat.inc:62)
+     GDScript backtrace (most recent call first):
+         [0] _create_terrain (res://addons/world_painter/terrain/terrain_adapter.gd:311)
+         [1] initialize (res://addons/world_painter/terrain/terrain_adapter.gd:58)
+         [2] replace_document (res://addons/world_painter/terrain/terrain_adapter.gd:66)
+         [3] _present_snapshot (res://addons/world_painter/preview/world_preview_root.gd:99)
+         [4] _process (res://addons/world_painter/preview/world_preview_root.gd:74)
+WARNING: 150 RIDs of type "CanvasItem" were leaked.
+   at: _free_rids (servers/rendering/renderer_canvas_cull.cpp:2735)
+WARNING: 13369 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
+ERROR: 108 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:822)
+ERROR: Pages in use exist at exit in PagedAllocator: N12VariantPools11BucketLargeE
+   at: ~PagedAllocator (./core/templates/paged_allocator.h:170)
+ERROR: Pages in use exist at exit in PagedAllocator: N12VariantPools12BucketMediumE
+   at: ~PagedAllocator (./core/templates/paged_allocator.h:170)
+ERROR: Pages in use exist at exit in PagedAllocator: N12VariantPools11BucketSmallE
+   at: ~PagedAllocator (./core/templates/paged_allocator.h:170)
+assetstudio-addon-0.2.1.zip: ok
+world-painter-addon-0.1.0.zip: ok
+world-painter-catalog-poc_nature-2.zip: ok
+nature.tree.pine NOT_READY dependency_hash_mismatch (dependency 'mat_a' (mat.tres) does not match its descriptor entry)
+nature.tree.pine READY
+installed world_painter 0.1.0 (7c0d2f8e7cb7)
+installed world_painter_catalog 2 (6cfbb3bc6c9c)
+installed world_painter 0.1.0 (7c0d2f8e7cb7)
+installed world_painter_catalog 2 (6cfbb3bc6c9c)
+world-painter-addon-0.1.0.zip: ok
+world-painter-catalog-poc_nature-2.zip: ok
+...........................................................................................................................................................................................................................................error: world-painter-addon-9.zip: unsafe entry name 'addons/world_painter/../../evil.gd'
+error: world-painter-addon-9.zip: unsafe entry name '/abs/evil.gd'
+error: world-painter-addon-9.zip: unsafe entry name 'addons\\world_painter\\evil.gd'
+error: world-painter-addon-9.zip: entry 'addons/other/evil.gd' is outside this package's paths
+error: world-painter-addon-9.zip: entry 'project.godot' is outside this package's paths
+error: world-painter-addon-9.zip: unsafe entry name 'addons/world_painter/x/../../../evil.gd'
+.error: world-painter-addon-0.1.0.zip: sha256 differs from the sidecar or manifest
+....................................................
+----------------------------------------------------------------------
+Ran 288 tests in 42.114s
+
+OK
+
+== test summary ==
+Godot:  rc=0, 1376 tests, 0 failures
+Python: rc=0, 288 tests, OK
+exit 0

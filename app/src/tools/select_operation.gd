@@ -122,8 +122,8 @@ func _start_drag() -> void:
 	if rec == null:
 		_grab_id = ""
 		return
-	var asset := _ctx.catalog.get_asset(rec.asset_id)
-	var label_name := asset.display_name if asset != null else rec.asset_id
+	var asset := _ctx.document.assets.definition(rec.binding_id)
+	var label_name: String = asset.display_name if asset != null else rec.binding_id
 	_tx.begin(_ctx.document, "move", "Move %s" % label_name)
 	if not _tx.capture_object(_grab_id):
 		_tx.rollback()

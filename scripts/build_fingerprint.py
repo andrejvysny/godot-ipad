@@ -22,7 +22,7 @@ def digest_files(paths: list[Path]) -> tuple[str, dict[str, str]]:
 
 def record() -> dict[str, object]:
     sources: list[Path] = []
-    for folder in ("app/src", "app/scenes", "app/assets", "native/ios_input/src", "scripts", "config"):
+    for folder in ("app/src", "app/addons/world_painter", "app/scenes", "app/assets", "native/ios_input/src", "scripts", "config"):
         sources.extend(path for path in (REPO / folder).rglob("*") if path.is_file()
                        and "__pycache__" not in path.parts and path.name != "local.signing.json"
                        and path.suffix not in (".uid", ".pyc"))

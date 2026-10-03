@@ -59,6 +59,9 @@ func select_path(id: String) -> void:
 func delete_selected_path() -> String:
 	if _selected_path == "":
 		return NO_PATH_SELECTION
+	var refused := _ctx.read_only_refusal()
+	if refused != "":
+		return refused
 	if has_active_operation():
 		return BUSY
 	var res := ToolCommands.delete_path(_ctx, _selected_path)
@@ -93,7 +96,7 @@ func update_object_edit(value: float) -> String:
 	var rec := _ctx.document.get_object(_edit_id)
 	if rec == null:
 		return NO_SELECTION
-	var asset := _ctx.catalog.get_asset(rec.asset_id)
+	var asset := _ctx.document.assets.definition(rec.binding_id)
 	if asset == null or not is_finite(value):
 		return "Value must be a finite number."
 	var edited := rec.clone()
@@ -161,6 +164,9 @@ func set_grounding(mode: String) -> String:
 func duplicate_selected() -> String:
 	if _selected == "":
 		return NO_SELECTION
+	var refused := _ctx.read_only_refusal()
+	if refused != "":
+		return refused
 	if has_active_operation():
 		return BUSY
 	var res := ToolCommands.duplicate_object(_ctx, selected_record())
@@ -168,6 +174,21 @@ func duplicate_selected() -> String:
 		return res.error
 	_commit(res.change)
 	select(res.id)
+	return ""
+
+
+## Update review (shared spec §7): one history action moves the records `ids` to the prepared binding. Blocked while
+## an operation or object edit is open; the other objects of the old binding stay as they are.
+func rebind_objects(ids: Array, binding_id: String, overrides: Dictionary = {}) -> String:
+	var refused := _ctx.read_only_refusal()
+	if refused != "":
+		return refused
+	if has_active_operation():
+		return BUSY
+	var res := ToolCommands.rebind_objects(_ctx, ids, binding_id, overrides)
+	if res.error != "":
+		return res.error
+	_commit(res.change)
 	return ""
 
 
@@ -186,12 +207,15 @@ func delete_selected() -> String:
 func _begin_tx(tool_id: String, label_format: String) -> String:
 	if _selected == "":
 		return NO_SELECTION
+	var refused := _ctx.read_only_refusal()
+	if refused != "":
+		return refused
 	if has_active_operation():
 		return BUSY
 	var rec := selected_record()
-	var asset := _ctx.catalog.get_asset(rec.asset_id)
+	var asset := _ctx.document.assets.definition(rec.binding_id)
 	var tx := EditTransaction.new()
-	tx.begin(_ctx.document, tool_id, label_format % (asset.display_name if asset != null else rec.asset_id))
+	tx.begin(_ctx.document, tool_id, label_format % (asset.display_name if asset != null else rec.binding_id))
 	if not tx.capture_object(_selected):
 		tx.rollback()
 		return "Action memory budget exceeded."

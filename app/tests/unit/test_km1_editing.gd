@@ -13,7 +13,14 @@ func before_each() -> void:
 
 
 func _km() -> WorldDocument:
-	return WorldDocument.create_flat(0.0, ControlCodec.grass_value(), WorldLayout.km1())
+	return WorldDocument.create_flat(0.0, ControlCodec.grass_value(), WorldLayout.km1(), _catalog)
+
+
+## Schema 2 limits are selected through the in-memory schema number (documents are schema 4 in memory).
+func _legacy() -> WorldDocument:
+	var doc := WorldDocument.create_flat(0.0, ControlCodec.grass_value(), null, _catalog)
+	doc.schema_version = 2
+	return doc
 
 
 func _tx(doc: WorldDocument) -> EditTransaction:
@@ -127,17 +134,20 @@ func test_picker_ray_from_far_outside_reaches_the_far_corner_area() -> void:
 
 # --- Limits ------------------------------------------------------------------------------
 
+func _boulder_binding() -> String:
+	return WorldAssetLock.new(_catalog).bundled_binding_for("nature.rock.boulder_a")
+
+
 func _object(n: int) -> ObjectRecord:
 	var r := ObjectRecord.new()
 	r.object_id = "%08x-0000-4000-8000-%012d" % [n, n]
-	r.asset_id = "nature.rock.boulder_a"
-	r.asset_version = 1
+	r.binding_id = _boulder_binding()
 	r.grounding = WorldConstants.GROUNDING_FIXED
 	return r
 
 
 func test_object_limit_is_per_schema() -> void:
-	var legacy := WorldDocument.create_flat(0.0, ControlCodec.grass_value())
+	var legacy := _legacy()
 	var km := _km()
 	assert_eq(legacy.max_objects(), 2000)
 	assert_eq(km.max_objects(), 50000)
@@ -154,7 +164,7 @@ func test_object_limit_is_per_schema() -> void:
 
 
 func test_duplicate_is_refused_at_the_limit_without_touching_the_document() -> void:
-	var doc := WorldDocument.create_flat(0.0, ControlCodec.grass_value())
+	var doc := _legacy()
 	for i in 2000:
 		doc.put_object(_object(i))
 	var ctx := ToolContext.new()
@@ -169,7 +179,7 @@ func test_duplicate_is_refused_at_the_limit_without_touching_the_document() -> v
 func test_scatter_limit_follows_the_schema() -> void:
 	var cfg := {"name": "T", "items": [{"asset_id": PEBBLES, "weight": 1.0}], "density": 1.0, "spacing": 0.2,
 			"slope_min": 0.0, "slope_max": 90.0, "align": false}
-	var legacy := ScatterPlacer.new(WorldDocument.create_flat(0.0, ControlCodec.grass_value()), _catalog, cfg, false, 1)
+	var legacy := ScatterPlacer.new(_legacy(), _catalog, cfg, false, 1)
 	assert_eq(legacy.max_instances, 20000)
 	assert_eq(legacy.limit_message(), "Scatter limit reached (20000).")
 	var km: WorldDocument = SessionWorldOps.new_layout_world(WorldLayout.km1(), "flat", _catalog)[0]
@@ -177,10 +187,10 @@ func test_scatter_limit_follows_the_schema() -> void:
 	assert_eq(placer.max_instances, 100000)
 	assert_eq(placer.limit_message(), "Scatter limit reached (100000).")
 	_catalog.get_asset(PEBBLES).scatter_mesh = "res://assets/test_scatter_mesh.tres"
-	var version := _catalog.get_asset(PEBBLES).version
+	var binding := km.assets.bundled_binding_for(PEBBLES)
 	for i in 100000:
-		assert_true(km.scatter.add(PEBBLES, version, -500.0 + float(i % 1000) * 0.9, -500.0 + float(i / 1000) * 9.0, 0.0, 1.0, 0, 100000))
-	assert_false(km.scatter.add(PEBBLES, version, 0.0, 0.0, 0.0, 1.0, 0, 100000), "layer refuses past its schema limit")
+		assert_true(km.scatter.add(binding, -500.0 + float(i % 1000) * 0.9, -500.0 + float(i / 1000) * 9.0, 0.0, 1.0, 0, 100000))
+	assert_false(km.scatter.add(binding, 0.0, 0.0, 0.0, 1.0, 0, 100000), "layer refuses past its schema limit")
 	assert_eq(placer.try_add(10.5, 10.5), ScatterPlacer.Result.LIMIT)
 	assert_true(placer.limit_reached)
 	assert_eq(km.scatter.count(), 100000)

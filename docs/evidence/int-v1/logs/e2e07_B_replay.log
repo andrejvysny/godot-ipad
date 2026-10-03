@@ -1,0 +1,15 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+{
+  "already_published": true,
+  "note": "this exact publication was already committed (journal); use --fresh to publish again",
+  "outcome": {
+    "asset_id": "ast_cqw5phmvjamgaa2y",
+    "descriptor_sha256": "ab87d8dc1373d93c6fdfd30ad1e0978decd42007c38de7b306adadef6aca2ee2",
+    "display_version": 3.0,
+    "library_id": "prj_cfp3pxzs9c8ym9v2",
+    "version_id": "ver_gb7c280cfv720e6j",
+    "via": "commit"
+  },
+  "phase": "committed"
+}

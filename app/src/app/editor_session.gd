@@ -8,6 +8,10 @@ extends Node3D
 signal status_changed()
 signal message_posted(text: String, is_error: bool)
 signal world_replaced()
+## Every committed change (commit, undo, redo) after the revision bump; `forward` is false for an undo.
+## The live protocol sender listens to this (ADR 0015); scatter_touched carries the world rect of scatter edits.
+signal world_committed(change: WorldChange, revision: int, forward: bool)
+signal scatter_touched(rect: Rect2)
 
 const BUSY_MESSAGE := "Finish or cancel the current operation first."
 const BENCH_MESSAGE := "Render bench is running. Abort it first."
@@ -46,6 +50,7 @@ var ready_for_input := false
 var boot_error := ""
 var last_message := ""
 var last_message_is_error := false
+var read_only_reason := ""  # non-empty in read-only recovery: unavailable asset bindings (ADR 0014 D8)
 
 var _selftest := false
 var _bench: Node = null  # the claimed RenderBench runner
@@ -57,6 +62,8 @@ var _tool_ctx: ToolContext
 var _op_max_gap_ms := 0.0
 var _last_cancel_reason := ""
 var _render: SessionRender
+var _assets: SessionAssets  # AssetStudio bindings: providers, preparation, availability (IP-03)
+var _preview: SessionPreview  # desktop preview link and panel, created from the world menu (IP-06)
 
 
 func _ready() -> void:
@@ -75,6 +82,7 @@ func _ready() -> void:
 		_boot_failed(error)
 		return
 	_build_tools_and_input()
+	_assets.start()
 	storage.save_state_changed.connect(func(_state: Dictionary) -> void: status_changed.emit())
 	ui = _attach_module(EDITOR_UI, "") if build_ui else null
 	if ui != null:
@@ -88,6 +96,15 @@ func _ready() -> void:
 		post_message(str(_bench_args.error), true)
 	elif _bench_args.has("enabled"):
 		start_render_bench(_bench_args.counts, _bench_args.frames, _bench_args)
+
+
+## World-menu entry: shows or hides the desktop preview panel (the link is created on first use).
+func toggle_preview_panel() -> void:
+	if _preview == null:
+		_preview = SessionPreview.new()
+		add_child(_preview)
+		_preview.setup(self)
+	_preview.toggle_panel()
 
 
 ## Optional modules load by path so the session also boots in tests and tools without them.
@@ -166,6 +183,7 @@ func _load_config() -> String:
 	add_child(storage)
 	var error := storage.configure(storage_root, int(defaults.storage.keep_generations), catalog)
 	history = CommandHistory.new(int(defaults.history.max_actions), int(defaults.history.max_bytes))
+	_assets = SessionAssets.new(self)
 	return error
 
 
@@ -174,11 +192,15 @@ func _open_world() -> String:
 	if opened.error != "":
 		return opened.error
 	document = opened.doc
+	_assets.switch_world(document)
+	read_only_reason = SessionWorldOps.read_only_text(document)
 	if opened.checkpoint:
 		_request_checkpoint()
 	else:
 		storage.warm_snapshot_cache(document)
 	post_message(opened.message, opened.is_error)
+	if read_only_reason != "":
+		post_message(read_only_reason, true)
 	return ""
 
 
@@ -225,8 +247,9 @@ func _build_tools_and_input() -> void:
 	tools.operation_cancelled.connect(func(reason: String) -> void: _last_cancel_reason = reason)
 	add_child(tools)
 	tools.setup(_tool_ctx)
+	tools.set_read_only(read_only_reason)
 	_render.bind_tools(tools, _tool_ctx)
-	layers.bind_tools(tools)
+	SessionRender.bind_path_selection(layers, tools)
 	input.provider_override = provider_override
 	input.platform_override = platform_override
 	add_child(input)
@@ -284,11 +307,14 @@ func _notification(what: int) -> void:
 		return
 	if what in [NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_WM_CLOSE_REQUEST]:
 		_render.on_app_deactivated()
+		_assets.release()
 		input.cancel_all("app_deactivated")
 		tools.cancel_active("app_deactivated")
-		var error := SessionWorldOps.ensure_saved(storage, document)
+		var error := "" if read_only_reason != "" else SessionWorldOps.ensure_saved(storage, document)
 		if error != "":
 			post_message("Saving on deactivation failed: " + error, true)
+	elif what in [NOTIFICATION_APPLICATION_FOCUS_IN, NOTIFICATION_APPLICATION_RESUMED]:
+		_assets.resume()
 
 
 # --- Editing -----------------------------------------------------------------------------
@@ -297,6 +323,7 @@ func commit(change: WorldChange) -> void:
 	document.bump_revision()
 	history.push_already_applied(change)
 	_request_checkpoint()
+	world_committed.emit(change, document.document_revision, true)
 	status_changed.emit()
 
 
@@ -322,8 +349,14 @@ func _step(forward: bool) -> String:
 		return nothing
 	SessionWorldOps.present_change(self, change)
 	_request_checkpoint()
+	world_committed.emit(change, document.document_revision, forward)
 	post_message(("Redid " if forward else "Undid ") + label)
 	return ""
+
+
+## The EditTransaction of the operation in progress (read-only use: live preview sampling); null when idle.
+func open_transaction() -> EditTransaction:
+	return tools.open_transaction()
 
 
 func cancel_active() -> void:
@@ -332,6 +365,8 @@ func cancel_active() -> void:
 
 
 func _request_checkpoint() -> String:
+	if read_only_reason != "":
+		return read_only_reason  # a read-only world has nothing new to save
 	var error := storage.request_checkpoint(document)
 	if _fault_armed:
 		_fault_armed = false
@@ -381,7 +416,10 @@ func open_new_world(kind: String) -> String:
 
 func _replace_document(doc: WorldDocument) -> void:
 	document = doc
+	_assets.switch_world(doc)
+	read_only_reason = SessionWorldOps.read_only_text(doc)
 	tools.set_document(doc)
+	tools.set_read_only(read_only_reason)
 	var error := terrain.replace_document(doc)
 	if error != "":
 		post_message(error, true)
@@ -391,6 +429,7 @@ func _replace_document(doc: WorldDocument) -> void:
 	reset_camera()
 	history.clear()
 	_request_checkpoint()
+	_assets.start()
 	world_replaced.emit()
 	status_changed.emit()
 
@@ -423,6 +462,10 @@ func render_cache() -> RenderAssetCache: return _render.cache
 
 ## The render-side state object (profiles, safety, Texture Preview) for diagnostics and the render bench.
 func render_state() -> SessionRender: return _render
+
+
+## AssetStudio bindings of the open world and the remote Library model.
+func assets() -> SessionAssets: return _assets
 
 
 ## Presenter and overview counters (RenderBench per-step `render` stats).
@@ -487,4 +530,4 @@ func status() -> Dictionary:
 		"last_hit": SessionWorldOps.hit_text(tools.last_hit()), "last_stroke": SessionWorldOps.with_gap(_tool_ctx.last_stroke, _op_max_gap_ms),
 		"last_cancel": _last_cancel_reason}.merged(slow).merged(_render.profile_status(float(slow.frame_p50_ms))).merged(
 			SessionWorldOps.tool_status(tools)).merged(SessionWorldOps.history_status(history)).merged(
-			SessionWorldOps.input_status(input))
+			SessionWorldOps.input_status(input, read_only_reason))

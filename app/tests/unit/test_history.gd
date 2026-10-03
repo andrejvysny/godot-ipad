@@ -3,7 +3,7 @@ extends TestCase
 
 
 func _doc() -> WorldDocument:
-	return WorldDocument.create_flat(0.0, ControlCodec.grass_value())
+	return WorldDocument.create_flat(0.0, ControlCodec.grass_value(), null, AssetCatalog.load_from()[0])
 
 
 func _raise(doc: WorldDocument, tx: EditTransaction, loc: Vector2i, index: int, dh: float) -> void:
@@ -59,8 +59,7 @@ func test_rollback_restores_all_regions_and_objects() -> void:
 	var doc := _doc()
 	var rec := ObjectRecord.new()
 	rec.object_id = ObjectRecord.new_uuid_v4()
-	rec.asset_id = "nature.tree.spruce_a"
-	rec.asset_version = 1
+	rec.binding_id = doc.assets.bundled_binding_for("nature.tree.spruce_a")
 	doc.put_object(rec)
 	var before_hash := CanonicalEncoder.authored_hash(doc)
 	var tx := EditTransaction.new()
@@ -88,8 +87,7 @@ func test_delete_and_undo_restores_same_id_and_transform() -> void:
 	var hist := CommandHistory.new()
 	var rec := ObjectRecord.new()
 	rec.object_id = ObjectRecord.new_uuid_v4()
-	rec.asset_id = "nature.rock.boulder_a"
-	rec.asset_version = 1
+	rec.binding_id = doc.assets.bundled_binding_for("nature.rock.boulder_a")
 	rec.set_position(3.25, 1.5, -9.125)
 	rec.set_yaw(1.0)
 	doc.put_object(rec)

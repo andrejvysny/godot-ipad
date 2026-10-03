@@ -1,17 +1,20 @@
 class_name AssetLibrary
 extends PanelContainer
-## Library v2 (docs/editor-v2.md §9): segmented tabs Objects / Scatter sets. Objects: two-column tiles
-## (drag = drop, tap = arm, tick = quick-mix member) and the "Scatter N as quick mix" bar. Sets: cards of
-## the ScatterSetStore. Shown or hidden only by the Library toggle of the top bar.
+## Library v2 (docs/editor-v2.md §9): segmented tabs Objects / Scatter sets / Server. Objects: two-column tiles
+## (drag = drop, tap = arm, tick = quick-mix member) and the "Scatter N as quick mix" bar; with an AssetStudio
+## server set up, source chips switch to a remote library (LibraryRemote). Sets: cards of the ScatterSetStore.
+## Server: the connection panel. Shown or hidden only by the Library toggle of the top bar.
 
 signal open_changed(open: bool)
 signal edit_set_requested(set_id: String)  # "" = a new set
 signal quick_mix_used()
+signal update_requested(binding_id: String)  # "Review update" of a remote tile
 
 const WIDTH := 240.0
-const TABS := {"objects": "Objects", "sets": "Scatter sets"}
+const TABS := {"objects": "Objects", "sets": "Scatter sets", "server": "Server"}
 const OBJECTS_HINT := "Drag one item onto the terrain to place it. Tick several to scatter them as a quick mix."
 const SETS_HINT := "Tap a set to scatter with it."
+const REMOTE_HINT := "Download an asset, then drag it onto the terrain. Only the Pencil places."
 
 var _session: EditorSession
 var _tiles: Dictionary = {}  # asset id -> LibraryTile
@@ -19,6 +22,10 @@ var _tabs: Dictionary = {}  # tab -> Button
 var _pages: Dictionary = {}  # tab -> Control
 var _cards: Dictionary = {}  # set id -> SetCard
 var _grid := GridContainer.new()
+var _remote := LibraryRemote.new()
+var _connection := ConnectionPanel.new()
+var _bundled_scroll: ScrollContainer
+var _hint_label: Label
 var _cards_box := VBoxContainer.new()
 var _mix_bar := HBoxContainer.new()
 var _mix := UiKit.variant_button("", "AccentButton", Callable())
@@ -39,12 +46,14 @@ func setup(session: EditorSession) -> void:
 	column.add_child(_build_tabs())
 	_pages["objects"] = _build_objects()
 	_pages["sets"] = _build_sets()
+	_connection.setup(session, WIDTH)
+	_pages["server"] = _scroll(_connection)
 	for tab: String in _pages:
 		(_pages[tab] as Control).size_flags_vertical = Control.SIZE_EXPAND_FILL
 		column.add_child(_pages[tab])
 	rebuild_sets()
 	for signal_ref: Signal in [session.tools.tool_changed, session.tools.settings_changed,
-			session.status_changed, session.world_replaced]:
+			session.status_changed, session.world_replaced, session.assets().remote.changed]:
 		signal_ref.connect(_on_any_signal)
 	show_tab("objects")
 	refresh()
@@ -102,7 +111,12 @@ func _build_objects() -> Control:
 		tile.setup(_session, _session.catalog.get_asset(id))
 		tile.tick_toggled.connect(_on_tick)
 		_tiles[id] = tile
-	page.add_child(_scroll(_grid))
+	_remote.setup(_session, WIDTH)
+	_remote.source_changed.connect(func(_on: bool) -> void: refresh())
+	_remote.update_requested.connect(update_requested.emit)
+	page.add_child(_remote)
+	_bundled_scroll = _scroll(_grid)
+	page.add_child(_bundled_scroll)
 	_mix.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_mix.custom_minimum_size.y = 36
 	_mix.add_theme_font_size_override("font_size", 11)
@@ -116,7 +130,8 @@ func _build_objects() -> Control:
 	_mix_bar.add_child(_mix)
 	_mix_bar.add_child(_clear)
 	page.add_child(_mix_bar)
-	page.add_child(_hint(OBJECTS_HINT))
+	_hint_label = _hint(OBJECTS_HINT)
+	page.add_child(_hint_label)
 	return page
 
 
@@ -220,6 +235,14 @@ func clear_ticks() -> void:
 	refresh()
 
 
+func remote_view() -> LibraryRemote:
+	return _remote
+
+
+func connection_panel() -> ConnectionPanel:
+	return _connection
+
+
 func quick_mix_button() -> Button:
 	return _mix
 
@@ -255,18 +278,23 @@ func set_open(on: bool) -> void:
 func on_ui_cancelled(_reason: String) -> void:
 	for id: String in _tiles:
 		(_tiles[id] as LibraryTile).cancel_contact()
+	_remote.cancel_contacts()
 
 
 func refresh() -> void:
 	if _session == null:
 		return
+	_remote.refresh()
 	var armed := _session.tools.armed_asset()
 	var enabled := _session.input.editing_enabled()
 	for id: String in _tiles:
 		var t: LibraryTile = _tiles[id]
 		t.set_selected(id == armed)
 		t.set_enabled(enabled)
-	_mix_bar.visible = not _ticked.is_empty()
+	var remote_on := _remote.is_remote()
+	_bundled_scroll.visible = not remote_on
+	_hint_label.text = REMOTE_HINT if remote_on else OBJECTS_HINT
+	_mix_bar.visible = not _ticked.is_empty() and not remote_on
 	_mix.text = "Scatter %d as quick mix" % _ticked.size()
 	var source := str(_session.tools.settings("scatter").source)
 	for id: String in _cards:

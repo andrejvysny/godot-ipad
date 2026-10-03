@@ -1,0 +1,214 @@
+{
+ "Neutral PBR Crate": {
+  "name": "Neutral PBR Crate",
+  "asset_id": "ast_3vhxm0xd3ps0c5rd",
+  "version_id": "ver_dmsh83v96cga1q7t",
+  "reps": {
+   "godot_static_source_v1": {
+    "sha256": "c69e5f64fa84a39ca9d81a5b1da9dbaf691c2a826e182a64b65d65e51fb7a6ac",
+    "size": 1320,
+    "hash_ok": true,
+    "members": [
+     "materials/neutral.tres",
+     "scenes/prop.tscn",
+     "source_manifest.json"
+    ],
+    "capabilities": [
+     "godot_text_scene_v1"
+    ],
+    "conversion": {
+     "approximations": [],
+     "omissions": [],
+     "portable_status": "exact"
+    }
+   },
+   "portable_glb_v1": {
+    "sha256": "36bdce844dce4b4f3f654f87c59030fc551cb6ea8494de681a17c195ce54cf3f",
+    "size": 2884,
+    "hash_ok": true,
+    "meshes": 1,
+    "has_uv": true,
+    "has_color": false,
+    "images": 0,
+    "materials": [
+     {
+      "name": "neutral",
+      "alphaMode": "OPAQUE",
+      "doubleSided": false,
+      "baseColorTexture": false,
+      "metallic": 0.0,
+      "roughness": 0.800000011920929
+     }
+    ],
+    "extensions": [
+     "GODOT_single_root"
+    ],
+    "skins": false,
+    "animations": false
+   }
+  },
+  "anchor": [
+   "0",
+   "0",
+   "0"
+  ],
+  "slots": [
+   "neutral"
+  ],
+  "preview_warnings": [],
+  "provenance": {
+   "origin": "integration",
+   "preview_id": "ipv_c2e89tfhxc36wj2h",
+   "publisher": "integration:desktop",
+   "source_godot_version": "4.7.2-stable"
+  },
+  "collision": null
+ },
+ "Textured Tree": {
+  "name": "Textured Tree",
+  "asset_id": "ast_cqw5phmvjamgaa2y",
+  "version_id": "ver_4kxdjjn5z5qwn46c",
+  "reps": {
+   "godot_static_source_v1": {
+    "sha256": "aeb29b8a7beddd8a889dde1b38ee3d60fdcb49fdad35ed3e878b6e644b708b30",
+    "size": 2602,
+    "hash_ok": true,
+    "members": [
+     "materials/bark.tres",
+     "materials/leaf.tres",
+     "scenes/tree.tscn",
+     "source_manifest.json",
+     "textures/bark.png",
+     "textures/leaf.png"
+    ],
+    "capabilities": [
+     "godot_text_scene_v1",
+     "alpha_mask",
+     "pbr_textures"
+    ],
+    "conversion": {
+     "approximations": [],
+     "omissions": [],
+     "portable_status": "exact"
+    }
+   },
+   "portable_glb_v1": {
+    "sha256": "134ce89a3814bce92e31d1a749e6eedb5223b50cadf221937520b63e14bed45d",
+    "size": 165237,
+    "hash_ok": true,
+    "meshes": 2,
+    "has_uv": true,
+    "has_color": false,
+    "images": 2,
+    "materials": [
+     {
+      "name": "bark",
+      "alphaMode": "OPAQUE",
+      "doubleSided": false,
+      "baseColorTexture": true,
+      "metallic": 0.0,
+      "roughness": 0.8999999761581421
+     },
+     {
+      "name": "leaf",
+      "alphaMode": "MASK",
+      "doubleSided": true,
+      "baseColorTexture": true,
+      "metallic": 0.0,
+      "roughness": 1.0
+     }
+    ],
+    "extensions": [
+     "GODOT_single_root"
+    ],
+    "skins": false,
+    "animations": false
+   }
+  },
+  "anchor": [
+   "0",
+   "0",
+   "0"
+  ],
+  "slots": [
+   "bark",
+   "leaf"
+  ],
+  "preview_warnings": [],
+  "provenance": {
+   "origin": "integration",
+   "preview_id": "ipv_eck5d026dg6wm2m7",
+   "publisher": "integration:desktop",
+   "source_godot_version": "4.7.2-stable"
+  },
+  "collision": null
+ },
+ "Vertex Color Foliage": {
+  "name": "Vertex Color Foliage",
+  "asset_id": "ast_38fhqc22bza1tjcd",
+  "version_id": "ver_99ewvmvg162ynn2c",
+  "reps": {
+   "godot_static_source_v1": {
+    "sha256": "5f393959e60b4c9d55fa78ae8b40718ea62f6e02c6613d12aafc16a2de2bdad0",
+    "size": 2538,
+    "hash_ok": true,
+    "members": [
+     "models/foliage.glb",
+     "scenes/foliage_glb.tscn",
+     "source_manifest.json"
+    ],
+    "capabilities": [
+     "godot_text_scene_v1",
+     "vertex_colors",
+     "alpha_mask",
+     "pbr_textures"
+    ],
+    "conversion": {
+     "approximations": [],
+     "omissions": [],
+     "portable_status": "exact"
+    }
+   },
+   "portable_glb_v1": {
+    "sha256": "5a1e35ff25cf492a61989df6f13ae904918c790f8d4fdee3967ee9da1cb4b9d3",
+    "size": 3268,
+    "hash_ok": true,
+    "meshes": 1,
+    "has_uv": true,
+    "has_color": true,
+    "images": 1,
+    "materials": [
+     {
+      "name": "foliage_vc",
+      "alphaMode": "MASK",
+      "doubleSided": true,
+      "baseColorTexture": true,
+      "metallic": 0.0,
+      "roughness": 1.0
+     }
+    ],
+    "extensions": [
+     "GODOT_single_root"
+    ],
+    "skins": false,
+    "animations": false
+   }
+  },
+  "anchor": [
+   "0",
+   "0",
+   "0"
+  ],
+  "slots": [
+   "foliage_vc"
+  ],
+  "preview_warnings": [],
+  "provenance": {
+   "origin": "integration",
+   "preview_id": "ipv_c22k390ajgya8avs",
+   "publisher": "integration:desktop",
+   "source_godot_version": "4.7.2-stable"
+  },
+  "collision": null
+ }
+}

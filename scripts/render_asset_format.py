@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Render-asset descriptor format (docs/render-assets.md), Python stdlib only.
 
-Mirrors app/src/rendering/render_asset_descriptor.gd and render_asset_json.gd: the same strict
+Mirrors app/addons/world_painter/presentation/rendering/render_asset_descriptor.gd and render_asset_json.gd: the same strict
 schema, path rules and the §3 hashes. parse_descriptor never raises for invalid content; errors
 are "<reason>: detail" strings with a stable snake_case reason.
 """

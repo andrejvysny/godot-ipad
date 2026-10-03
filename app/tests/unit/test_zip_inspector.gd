@@ -70,17 +70,19 @@ func test_rejects_oversize_declared() -> void:
 	_expect(_layout_with("objects.json", {"declared_uncompressed": 128 * 1024 * 1024 + 1, "method": 8}), "objects.json declares")
 	_expect(_layout_with("scatter.bin", {"declared_uncompressed": 4 * 1024 * 1024 + 1, "method": 8}), "scatter.bin declares")
 	_expect(_layout_with("paths.bin", {"declared_uncompressed": 640 * 1024 + 1, "method": 8}), "paths.bin declares")
+	_expect(_layout_with("asset_locks.json", {"declared_uncompressed": 8 * 1024 * 1024 + 1, "method": 8}), "asset_locks.json declares")
 	var limits := ZipInspector.default_limits()
 	assert_eq(limits.max_total_uncompressed, 256 * 1024 * 1024, "total limit (schema 3 envelope)")
 	assert_eq(limits.max_file_bytes, 264 * 1024 * 1024, "archive limit (schema 3 envelope)")
-	assert_eq(limits.max_entries, 197, "entry limit (schema 3 envelope)")
+	assert_eq(limits.max_entries, 198, "entry limit (schema 4 envelope: schema 3 plus asset_locks.json)")
+	assert_eq(limits.max_lock_bytes, 8 * 1024 * 1024)
 	limits.max_total_uncompressed = 1024
 	var r := ZipInspector.inspect_bytes(ZipTestBuilder.valid_layout().build(), limits)
 	assert_error_contains(r.error, "expands to", "total limit")
 	var many := ZipTestBuilder.valid_layout()
-	for i in 198 - 17:
+	for i in 199 - 17:
 		many.add("extra_%d" % i)
-	_expect(many, "entries, allowed 1..197")
+	_expect(many, "entries, allowed 1..198")
 
 
 func test_rejects_zip64_multidisk_and_encryption() -> void:
@@ -166,6 +168,15 @@ func test_accepts_km1_layout_and_names_region_grammar() -> void:
 	var edge := ZipInspector.inspect_bytes(ZipTestBuilder.layout_package(WorldLayout.new(Vector2i(-8, -8), Vector2i(1, 1))).build(),
 		ZipInspector.default_limits())
 	assert_true(edge.ok, "region (-8, -8) is in range: " + str(edge.error))
+
+
+func test_asset_lock_adds_the_198th_entry() -> void:
+	var with_lock := ZipInspector.inspect_bytes(ZipTestBuilder.layout_package(WorldLayout.km1(), true).build(), ZipInspector.default_limits())
+	assert_true(with_lock.ok, str(with_lock.error))
+	assert_eq(with_lock.entries.size(), 198, "197 + asset_locks.json")
+	var too_many := ZipTestBuilder.layout_package(WorldLayout.km1(), true)
+	too_many.add("regions/r_5_5.height.f32le", _region())
+	_expect(too_many, "entries, allowed 1..198")
 
 
 func test_rejects_bad_region_names() -> void:

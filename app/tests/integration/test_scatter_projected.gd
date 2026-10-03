@@ -5,7 +5,7 @@ extends ScatterTestCase
 func test_dense_cell_build_resumes_in_bounded_chunks() -> void:
 	doc.scatter = ScatterLayer.new()
 	for i in 400:
-		doc.scatter.add(SPRUCE, catalog.get_asset(SPRUCE).version, 10.0 + float(i % 10) * 0.01,
+		doc.scatter.add(doc.assets.bundled_binding_for(SPRUCE), 10.0 + float(i % 10) * 0.01,
 				10.0 + float(i / 10) * 0.01, 0.0, 1.0, 0)
 	var bytes := doc.scatter.encode()
 	renderer.rebuild_all(doc)
@@ -27,7 +27,7 @@ func test_suppression_composes_with_vegetation_and_keeps_dirty_edits() -> void:
 	renderer.set_view_suppressed(true)
 	var builds: int = renderer.stats().cell_builds
 	var uploads: int = renderer.stats().uploads
-	doc.scatter.add(BOULDER, catalog.get_asset(BOULDER).version, 12.0, 10.0, 0.0, 1.0, 0)
+	doc.scatter.add(doc.assets.bundled_binding_for(BOULDER), 12.0, 10.0, 0.0, 1.0, 0)
 	renderer.mark_all()
 	renderer.service_frame(100.0)
 	assert_eq(renderer.stats().cell_builds, builds)
@@ -44,8 +44,8 @@ func test_suppression_composes_with_vegetation_and_keeps_dirty_edits() -> void:
 
 func test_shared_cell_large_scale_does_not_keep_tiny_instances() -> void:
 	doc.scatter = ScatterLayer.new()
-	doc.scatter.add(SPRUCE, catalog.get_asset(SPRUCE).version, 10.0, 10.0, 0.0, 0.001, 0)
-	doc.scatter.add(SPRUCE, catalog.get_asset(SPRUCE).version, 11.0, 10.0, 0.0, 10.0, 0)
+	doc.scatter.add(doc.assets.bundled_binding_for(SPRUCE), 10.0, 10.0, 0.0, 0.001, 0)
+	doc.scatter.add(doc.assets.bundled_binding_for(SPRUCE), 11.0, 10.0, 0.0, 10.0, 0)
 	var bytes := doc.scatter.encode()
 	_camera_at(Vector3(10.0, 300.0, 400.0), Vector3(10.0, 0.0, 10.0))
 	camera.projection = Camera3D.PROJECTION_ORTHOGONAL
@@ -103,7 +103,7 @@ func test_conservative_projection_restores_hidden_during_motion() -> void:
 func test_partial_tier_replacement_never_duplicates_source_instances() -> void:
 	doc.scatter = ScatterLayer.new()
 	for i in 400:
-		doc.scatter.add(SPRUCE, catalog.get_asset(SPRUCE).version, 10.0 + float(i % 10) * 0.01,
+		doc.scatter.add(doc.assets.bundled_binding_for(SPRUCE), 10.0 + float(i % 10) * 0.01,
 				10.0 + float(i / 10) * 0.01, 0.0, 40.0 if i % 2 == 0 else 1.0, 0)
 	_camera_at(Vector3(10.0, 1000.0, 1010.0), Vector3(10.0, 0.0, 10.0))
 	camera.projection = Camera3D.PROJECTION_ORTHOGONAL
@@ -125,7 +125,7 @@ func test_partial_tier_replacement_never_duplicates_source_instances() -> void:
 func test_projection_change_during_initial_dense_build_gets_followup_pass() -> void:
 	doc.scatter = ScatterLayer.new()
 	for i in 1000:
-		doc.scatter.add(SPRUCE, catalog.get_asset(SPRUCE).version, 10.0 + float(i % 10) * 0.01,
+		doc.scatter.add(doc.assets.bundled_binding_for(SPRUCE), 10.0 + float(i % 10) * 0.01,
 				10.0 + float(i / 10) * 0.01, 0.0, 0.001, 0)
 	_camera_at(Vector3(10.0, 100.0, 110.0), Vector3(10.0, 0.0, 10.0))
 	camera.projection = Camera3D.PROJECTION_ORTHOGONAL

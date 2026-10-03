@@ -1,0 +1,3 @@
+#!/bin/bash
+p=$1; shift
+exec godot --headless --path $p --script res://addons/assetstudio/cli.gd -- "$@" < /dev/null

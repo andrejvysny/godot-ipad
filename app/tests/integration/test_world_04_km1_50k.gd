@@ -47,8 +47,7 @@ func _world() -> WorldDocument:
 			x = float(rng.randi_range(-3, 3)) * 128.0 + (-0.5 if i % 2 == 0 else 0.0)
 		var r := ObjectRecord.new()
 		r.object_id = "%08x-%04x-4%03x-8%03x-%012x" % [(i * 2654435761) & 0xFFFFFFFF, i & 0xFFFF, (i >> 4) & 0xFFF, i & 0xFFF, i]
-		r.asset_id = asset.asset_id
-		r.asset_version = asset.version
+		r.binding_id = doc.assets.bundled_binding_for(asset.asset_id)
 		r.grounding = WorldConstants.GROUNDING_FOLLOW
 		r.uniform_scale = rng.randf_range(asset.scale_min, asset.scale_max)
 		var q := Quaternion(Vector3.UP, rng.randf_range(0.0, TAU))

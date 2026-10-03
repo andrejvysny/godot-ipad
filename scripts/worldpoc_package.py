@@ -2,7 +2,7 @@
 """Shared World Painter PoC format library (docs/world-format.md), Python stdlib only.
 
 Mirrors WorldConstants, ControlCodec, ObjectRecord, WorldDocument.sample_height and
-CanonicalEncoder from app/src/document. Validators return lists of error strings; they never
+CanonicalEncoder from app/addons/world_painter/core/document. Validators return lists of error strings; they never
 raise for invalid content.
 """
 from __future__ import annotations
@@ -28,6 +28,8 @@ from worldpoc_constants import (
 	SCATTER_PATH,
 	PATHS_PATH,
 	ZIP_ENVELOPE,
+	ZIP_ENVELOPE_V4,
+	LOCK_PATH,
 	LEGACY_LAYOUT,
 	Layout,
 	payload_paths,
@@ -42,11 +44,13 @@ from worldpoc_values import (
 )
 
 # --- .worldpoc package (world-format §9, §11.3) ----------------------------------------
-# Inspection runs before the manifest is read, so every limit here is the schema 3 envelope.
+# Inspection runs before the manifest is read, so every limit here is the schema 3 envelope, except the
+# asset_locks.json entry (schema 4: 8 MiB, one more archive entry, accepted only when the lock is present).
 PACKAGE_ALLOWED_DIRS = {"regions/"}
 PACKAGE_MAX_TOTAL_BYTES = ZIP_ENVELOPE["max_total_bytes"]
 PACKAGE_MAX_FILE_BYTES = ZIP_ENVELOPE["max_archive_bytes"]
 PACKAGE_MAX_ENTRIES = ZIP_ENVELOPE["max_entries"]
+PACKAGE_MAX_ENTRIES_V4 = ZIP_ENVELOPE_V4["max_entries"]
 FIXED_ENTRIES = ("objects.json", PATHS_PATH, SCATTER_PATH, "manifest.json")
 REGION_KINDS = ("height.f32le", "control.u32le", "color.rgba8")
 # Canonical decimal coordinates: no '+', no leading zeros, no "-0".
@@ -69,6 +73,8 @@ def parse_region_name(name: str) -> tuple[tuple[int, int], str] | None | bool:
 def _entry_limit(name: str) -> int:
 	if name == "manifest.json":
 		return ZIP_ENVELOPE["max_manifest_bytes"]
+	if name == LOCK_PATH:
+		return ZIP_ENVELOPE_V4["max_lock_bytes"]
 	if name == "objects.json":
 		return ZIP_ENVELOPE["max_objects_bytes"]
 	if name == SCATTER_PATH:
@@ -120,8 +126,8 @@ def _archive_layout_error(path: Path) -> str:
 		return "ZIP64 packages are not supported"
 	if disk != 0 or cd_disk != 0 or here != total:
 		return "multi-disk archives are not supported"
-	if total == 0 or total > PACKAGE_MAX_ENTRIES:
-		return "archive has %d entries, allowed 1..%d" % (total, PACKAGE_MAX_ENTRIES)
+	if total == 0 or total > PACKAGE_MAX_ENTRIES_V4:
+		return "archive has %d entries, allowed 1..%d" % (total, PACKAGE_MAX_ENTRIES_V4)
 	if cd_offset + cd_size != size - EOCD_SIZE:
 		return "central directory is not immediately followed by the end record (prepended or inserted data)"
 	return ""
@@ -151,7 +157,7 @@ def _check_entry_name(info: zipfile.ZipInfo) -> str:
 		return "backslash in entry name %s" % show(name)
 	if ".." in name.split("/"):
 		return "path traversal in entry name %s" % show(name)
-	if name in FIXED_ENTRIES or name in PACKAGE_ALLOWED_DIRS:
+	if name in FIXED_ENTRIES or name in PACKAGE_ALLOWED_DIRS or name == LOCK_PATH:
 		return ""
 	parsed = parse_region_name(name)
 	if parsed is None:
@@ -206,6 +212,8 @@ def inspect_zip(path: Path) -> tuple[list[zipfile.ZipInfo], list[str]]:
 		elif info.file_size > limit:
 			errors.append("entry '%s' is %d bytes (limit %d)" % (name, info.file_size, limit))
 		total += info.file_size
+	if len(infos) > PACKAGE_MAX_ENTRIES and LOCK_PATH not in seen:
+		errors.append("archive has %d entries, allowed 1..%d" % (len(infos), PACKAGE_MAX_ENTRIES))
 	if total > PACKAGE_MAX_TOTAL_BYTES:
 		errors.append("package expands to %d bytes (limit %d)" % (total, PACKAGE_MAX_TOTAL_BYTES))
 	for name in FIXED_ENTRIES:
@@ -269,13 +277,17 @@ def schema_error(path: Path) -> str:
 def write_package(gen_dir: Path, out_path: Path, layout: Layout | None = None) -> None:
 	"""Deterministic .worldpoc (deflate, fixed timestamps) from a generation directory. `layout`
 	defaults to the one named by the directory's manifest (legacy when unreadable)."""
-	if layout is None:
-		try:
-			layout = manifest_layout(parse_json_bytes((Path(gen_dir) / "manifest.json").read_bytes()))[0] or LEGACY_LAYOUT
-		except (OSError, FormatError):
-			layout = LEGACY_LAYOUT
+	schema = 0
+	try:
+		m = parse_json_bytes((Path(gen_dir) / "manifest.json").read_bytes())
+		schema = int(m["schema_version"]) if isinstance(m, dict) and is_supported_schema(m.get("schema_version")) else 0
+		if layout is None:
+			layout = manifest_layout(m)[0] or LEGACY_LAYOUT
+	except (OSError, FormatError):
+		layout = layout or LEGACY_LAYOUT
+	layout = layout or LEGACY_LAYOUT
 	with zipfile.ZipFile(out_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
-		for name in ["manifest.json"] + payload_paths(layout):
+		for name in ["manifest.json"] + payload_paths(layout, schema):
 			info = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
 			info.compress_type = zipfile.ZIP_DEFLATED
 			info.external_attr = 0o100644 << 16

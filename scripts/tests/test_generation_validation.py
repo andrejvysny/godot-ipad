@@ -252,9 +252,9 @@ class ManifestRejectionTests(GenerationTestCase):
 
 	def test_unknown_schema(self) -> None:
 		m = self.manifest()
-		m["schema_version"] = 4
+		m["schema_version"] = 5
 		self.write_manifest(m)
-		self.assertRejected("unknown schema_version 4")
+		self.assertRejected("unknown schema_version 5")
 
 	def test_schema_1_world_gets_explicit_diagnostic(self) -> None:
 		m = self.manifest()

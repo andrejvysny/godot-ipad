@@ -1,0 +1,675 @@
+INFO:     Started server process [62045]
+INFO:     Waiting for application startup.
+INFO:     Started server process [62045]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:18190 (Press CTRL+C to quit)
+INFO:     Uvicorn running on http://127.0.0.1:18192 (Press CTRL+C to quit)
+INFO:     127.0.0.1:64818 - "GET /api/integration/v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53961 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53964 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53965 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53966 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Acommit HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53968 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53970 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53971 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53972 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Acommit HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53973 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53974 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53975 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53976 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Acommit HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53979 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53980 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd/versions/ver_dmsh83v96cga1q7t HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53981 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_q1vq9axskc063yv5/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53982 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_yygb10n1bxre8101/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53983 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_5qamrs4m3bpfcf8w/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53984 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_31kvdeek73ptfk12/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53985 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y/versions/ver_4kxdjjn5z5qwn46c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53986 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_hgd05ykvv3wd0jza/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53987 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_w5swb3m09jk01vew/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53988 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_vr6bdd8a9m0bk2nz/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53989 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_nq278ssvn5f5gydr/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53990 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_38fhqc22bza1tjcd/versions/ver_99ewvmvg162ynn2c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53991 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_15s5mgqd79xyw3py/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53992 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_943rtan8pat15yxk/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53993 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_5t75fbvdcpd5152h/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53994 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_f5mc3s0vjvbhseab/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54030 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54031 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54032 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54033 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54034 - "GET /api/integration/v1/changes?timeout_s=20.0 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54035 - "GET /api/integration/v1/libraries HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54036 - "GET /api/integration/v1/libraries/prj_51djjh5barey2c1w/assets?limit=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54040 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54041 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54042 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_5qamrs4m3bpfcf8w/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54043 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_31kvdeek73ptfk12/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54044 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54045 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54046 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54047 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_vr6bdd8a9m0bk2nz/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54048 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_nq278ssvn5f5gydr/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54049 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54050 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54051 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54052 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_5t75fbvdcpd5152h/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54053 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_f5mc3s0vjvbhseab/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54054 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_38fhqc22bza1tjcd HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54067 - "GET /api/integration/v1/changes?timeout_s=0 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54070 - "GET /api/integration/v1/changes?timeout_s=0 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54071 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54072 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54073 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Acommit HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54074 - "GET /api/integration/v1/changes?cursor=eyJlIjoiMThkYWNkN2IxNDMyYmYxOC0zYjRiOTE3NiIsInMiOjZ9&timeout_s=0 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54078 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54079 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54080 - "GET /api/integration/v1/changes?timeout_s=20.0 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54081 - "GET /api/integration/v1/libraries HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54082 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets?limit=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54083 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd/versions/ver_pf5wjayvpf8d3k91/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54085 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y/versions/ver_4kxdjjn5z5qwn46c/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54086 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_38fhqc22bza1tjcd/versions/ver_99ewvmvg162ynn2c/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54090 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54091 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_38fhqc22bza1tjcd HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54092 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54093 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54094 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54095 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54096 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54097 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_hxb8gjncfcxr9f40/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54098 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_b6xt9f0k5x9s81zz/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54108 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54113 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54114 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54115 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Acommit HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54116 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54117 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54118 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Acommit HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:54119 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54125 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54127 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54128 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Acommit HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54133 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54140 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y/versions/ver_mmmazdryk51txyss HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54141 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_7xyap8949sgz6ftc/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54142 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_ejad0s71ndshsmra/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54143 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y/versions/ver_gb7c280cfv720e6j HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54144 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_rat5da8ze82q2kt2/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54145 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_434xj444jpvpg6c2/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54306 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54307 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54308 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54309 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_hxb8gjncfcxr9f40/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54310 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_b6xt9f0k5x9s81zz/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54311 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54312 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_5t75fbvdcpd5152h/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54313 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_f5mc3s0vjvbhseab/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54314 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54315 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_vr6bdd8a9m0bk2nz/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54316 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_nq278ssvn5f5gydr/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54317 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54318 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_5qamrs4m3bpfcf8w/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54319 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_31kvdeek73ptfk12/content HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [62045]
+INFO:     Started server process [85456]
+INFO:     Waiting for application startup.
+INFO:     Started server process [85456]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:18190 (Press CTRL+C to quit)
+INFO:     Uvicorn running on http://127.0.0.1:18192 (Press CTRL+C to quit)
+INFO:     127.0.0.1:54332 - "GET /api/integration/v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54333 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54335 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54335 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54335 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54335 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54335 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54335 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54335 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54335 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54335 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54335 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54335 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54335 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54335 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54335 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54335 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54335 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54335 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54335 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54335 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54335 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54337 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54338 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:54339 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Acommit HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:54340 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54341 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54342 - "GET /api/integration/v1/libraries/prj_nonexistent/assets HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:54344 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54345 - "GET /api/integration/v1/changes?timeout_s=0 HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54346 - "GET /api/integration/v1/capabilities HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54348 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54349 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54350 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Acommit HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54352 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54353 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54354 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Acommit HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54355 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets?tags=uid HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54356 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_nfykyd4ybvzsjh6h/versions/ver_ja5f7w0gj3y7thxh HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54357 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_m31ac7xh7hg2mb5k/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54358 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_yr372xfp0j14twdq/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54359 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_39tqk1fyhpg2qwjp/versions/ver_y6e1mn4qjny48wd4 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54360 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_j2csndn2hvhvv07k/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54361 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_ynbcp7h8tsgwrayd/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54362 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54363 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54364 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54365 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_m31ac7xh7hg2mb5k/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54366 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_yr372xfp0j14twdq/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54367 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_nfykyd4ybvzsjh6h HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54368 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54369 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54370 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_j2csndn2hvhvv07k/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54371 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_ynbcp7h8tsgwrayd/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54372 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_39tqk1fyhpg2qwjp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54373 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54374 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54375 - "GET /api/integration/v1/changes?timeout_s=20.0 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54376 - "GET /api/integration/v1/libraries HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54444 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54445 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54446 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54447 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_j2csndn2hvhvv07k/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54448 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_ynbcp7h8tsgwrayd/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54449 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54450 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_m31ac7xh7hg2mb5k/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54451 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_yr372xfp0j14twdq/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54453 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54454 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54455 - "GET /api/integration/v1/changes?timeout_s=20.0 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54456 - "GET /api/integration/v1/libraries HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54480 - "GET /api/integration/v1/health HTTP/1.1" 200 OK
+INFO:     Started server process [86780]
+INFO:     Waiting for application startup.
+INFO:     Started server process [86780]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Application startup complete.
+ERROR:    [Errno 48] error while attempting to bind on address ('127.0.0.1', 18190): [errno 48] address already in use
+INFO:     Waiting for application shutdown.
+ERROR:    [Errno 48] error while attempting to bind on address ('127.0.0.1', 18192): [errno 48] address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+ERROR:assetstudio:main listener failed (SystemExit: 1); stopping Studio
+INFO:     Application shutdown complete.
+INFO:     127.0.0.1:54484 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54485 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54486 - "GET /api/integration/v1/changes?timeout_s=20.0 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54487 - "GET /api/integration/v1/libraries HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54488 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets?limit=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54489 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets?limit=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54492 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_39tqk1fyhpg2qwjp/versions/ver_y6e1mn4qjny48wd4/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54491 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_nfykyd4ybvzsjh6h/versions/ver_ja5f7w0gj3y7thxh/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54490 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd/versions/ver_pf5wjayvpf8d3k91/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54493 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y/versions/ver_gb7c280cfv720e6j/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54495 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_38fhqc22bza1tjcd/versions/ver_99ewvmvg162ynn2c/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54496 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd/versions/ver_pf5wjayvpf8d3k91 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54497 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54498 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54499 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_hxb8gjncfcxr9f40/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54500 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_b6xt9f0k5x9s81zz/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54501 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y/versions/ver_gb7c280cfv720e6j HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54502 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54503 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54504 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_59hp6566w9v5ksrm/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54505 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_k9xxqbwvaeakey7q/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54506 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_38fhqc22bza1tjcd/versions/ver_99ewvmvg162ynn2c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54507 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54508 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54509 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_5t75fbvdcpd5152h/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54510 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_f5mc3s0vjvbhseab/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54511 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd/versions/ver_dmsh83v96cga1q7t HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54512 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54513 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54514 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_5qamrs4m3bpfcf8w/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54515 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_31kvdeek73ptfk12/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54516 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54517 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54518 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_38fhqc22bza1tjcd HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54519 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd/versions/ver_pf5wjayvpf8d3k91 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54520 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54529 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54530 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54531 - "GET /api/integration/v1/changes?timeout_s=20.0 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54532 - "GET /api/integration/v1/libraries HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54533 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets?limit=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54534 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets?limit=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54535 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd/versions/ver_pf5wjayvpf8d3k91/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54536 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_nfykyd4ybvzsjh6h/versions/ver_ja5f7w0gj3y7thxh/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54538 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y/versions/ver_gb7c280cfv720e6j/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54537 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_39tqk1fyhpg2qwjp/versions/ver_y6e1mn4qjny48wd4/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54540 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_38fhqc22bza1tjcd/versions/ver_99ewvmvg162ynn2c/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54541 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd/versions/ver_pf5wjayvpf8d3k91 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54542 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54543 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54544 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_hxb8gjncfcxr9f40/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54545 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_b6xt9f0k5x9s81zz/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54546 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y/versions/ver_gb7c280cfv720e6j HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54547 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54548 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54549 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_59hp6566w9v5ksrm/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54550 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_k9xxqbwvaeakey7q/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54551 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_38fhqc22bza1tjcd/versions/ver_99ewvmvg162ynn2c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54552 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54553 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54554 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_5t75fbvdcpd5152h/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54555 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_f5mc3s0vjvbhseab/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54556 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd/versions/ver_dmsh83v96cga1q7t HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54557 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54558 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54559 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_5qamrs4m3bpfcf8w/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54560 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_31kvdeek73ptfk12/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54561 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54562 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54563 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_38fhqc22bza1tjcd HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54564 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd/versions/ver_pf5wjayvpf8d3k91 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54565 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54568 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54569 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y/versions/ver_gb7c280cfv720e6j HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54570 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_59hp6566w9v5ksrm/manifest HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [85456]
+INFO:     Started server process [88292]
+INFO:     Waiting for application startup.
+INFO:     Started server process [88292]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:18190 (Press CTRL+C to quit)
+INFO:     Uvicorn running on http://127.0.0.1:18192 (Press CTRL+C to quit)
+INFO:     127.0.0.1:54612 - "GET /api/integration/v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54633 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54634 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54635 - "GET /api/integration/v1/changes?timeout_s=20.0 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54636 - "GET /api/integration/v1/libraries HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54637 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets?limit=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54638 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets?limit=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54640 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_nfykyd4ybvzsjh6h/versions/ver_ja5f7w0gj3y7thxh/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54639 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd/versions/ver_pf5wjayvpf8d3k91/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54641 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_39tqk1fyhpg2qwjp/versions/ver_y6e1mn4qjny48wd4/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54642 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y/versions/ver_gb7c280cfv720e6j/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54644 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_38fhqc22bza1tjcd/versions/ver_99ewvmvg162ynn2c/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54645 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd/versions/ver_pf5wjayvpf8d3k91 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54646 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54647 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54648 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_hxb8gjncfcxr9f40/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54649 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_b6xt9f0k5x9s81zz/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54650 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y/versions/ver_gb7c280cfv720e6j HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54651 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54652 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54653 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_59hp6566w9v5ksrm/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54654 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_k9xxqbwvaeakey7q/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54655 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_38fhqc22bza1tjcd/versions/ver_99ewvmvg162ynn2c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54656 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54657 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54658 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_5t75fbvdcpd5152h/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54659 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_f5mc3s0vjvbhseab/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54664 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54666 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54665 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54667 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54668 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54669 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54671 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_59hp6566w9v5ksrm/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54670 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_hxb8gjncfcxr9f40/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54672 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_5t75fbvdcpd5152h/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54673 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_b6xt9f0k5x9s81zz/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54674 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_k9xxqbwvaeakey7q/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54675 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_f5mc3s0vjvbhseab/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54681 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54682 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54683 - "GET /api/integration/v1/changes?timeout_s=20.0 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54684 - "GET /api/integration/v1/libraries HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54686 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets?limit=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54685 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets?limit=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54688 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd/versions/ver_pf5wjayvpf8d3k91/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54691 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y/versions/ver_gb7c280cfv720e6j/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54689 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_nfykyd4ybvzsjh6h/versions/ver_ja5f7w0gj3y7thxh/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54690 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_39tqk1fyhpg2qwjp/versions/ver_y6e1mn4qjny48wd4/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54693 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_38fhqc22bza1tjcd/versions/ver_99ewvmvg162ynn2c/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54694 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd/versions/ver_pf5wjayvpf8d3k91 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54695 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54696 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54697 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_hxb8gjncfcxr9f40/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54698 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_b6xt9f0k5x9s81zz/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54699 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y/versions/ver_gb7c280cfv720e6j HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54700 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54701 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54702 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_59hp6566w9v5ksrm/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54703 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_k9xxqbwvaeakey7q/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54704 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_38fhqc22bza1tjcd/versions/ver_99ewvmvg162ynn2c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54705 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54706 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54707 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_5t75fbvdcpd5152h/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54708 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_f5mc3s0vjvbhseab/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54713 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54715 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54714 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54717 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54718 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54716 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54720 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_59hp6566w9v5ksrm/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54719 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_hxb8gjncfcxr9f40/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54721 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_5t75fbvdcpd5152h/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54722 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_b6xt9f0k5x9s81zz/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54723 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_k9xxqbwvaeakey7q/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54724 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_f5mc3s0vjvbhseab/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54760 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54761 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54762 - "GET /api/integration/v1/changes?timeout_s=20.0 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54763 - "GET /api/integration/v1/libraries HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54764 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets?limit=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54765 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets?limit=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54767 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_nfykyd4ybvzsjh6h/versions/ver_ja5f7w0gj3y7thxh/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54766 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd/versions/ver_pf5wjayvpf8d3k91/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54768 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_39tqk1fyhpg2qwjp/versions/ver_y6e1mn4qjny48wd4/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54769 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y/versions/ver_gb7c280cfv720e6j/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54771 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_38fhqc22bza1tjcd/versions/ver_99ewvmvg162ynn2c/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54772 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd/versions/ver_pf5wjayvpf8d3k91 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54773 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54774 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54775 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_hxb8gjncfcxr9f40/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54776 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_b6xt9f0k5x9s81zz/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54777 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y/versions/ver_gb7c280cfv720e6j HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54778 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54779 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54780 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_59hp6566w9v5ksrm/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54781 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_k9xxqbwvaeakey7q/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54782 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_38fhqc22bza1tjcd/versions/ver_99ewvmvg162ynn2c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54783 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54784 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54785 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_5t75fbvdcpd5152h/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54786 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_f5mc3s0vjvbhseab/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54791 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54792 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54793 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54796 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54794 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54795 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54797 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_hxb8gjncfcxr9f40/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54798 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_59hp6566w9v5ksrm/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54799 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_5t75fbvdcpd5152h/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54800 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_b6xt9f0k5x9s81zz/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54801 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_k9xxqbwvaeakey7q/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54802 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_f5mc3s0vjvbhseab/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54823 - "GET /api/integration/v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54825 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     Started server process [89984]
+INFO:     Waiting for application startup.
+INFO:     Started server process [89984]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Application startup complete.
+ERROR:    [Errno 48] error while attempting to bind on address ('127.0.0.1', 18190): [errno 48] address already in use
+INFO:     Waiting for application shutdown.
+ERROR:    [Errno 48] error while attempting to bind on address ('127.0.0.1', 18192): [errno 48] address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+ERROR:assetstudio:main listener failed (SystemExit: 1); stopping Studio
+INFO:     Application shutdown complete.
+INFO:     127.0.0.1:54827 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54828 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54829 - "GET /api/integration/v1/changes?timeout_s=20.0 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54830 - "GET /api/integration/v1/libraries HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54831 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets?limit=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54832 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets?limit=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54834 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_nfykyd4ybvzsjh6h/versions/ver_ja5f7w0gj3y7thxh/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54833 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd/versions/ver_pf5wjayvpf8d3k91/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54836 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y/versions/ver_gb7c280cfv720e6j/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54835 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_39tqk1fyhpg2qwjp/versions/ver_y6e1mn4qjny48wd4/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54838 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_38fhqc22bza1tjcd/versions/ver_99ewvmvg162ynn2c/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54839 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd/versions/ver_pf5wjayvpf8d3k91 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54840 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54841 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54842 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_hxb8gjncfcxr9f40/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54843 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_b6xt9f0k5x9s81zz/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54844 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y/versions/ver_gb7c280cfv720e6j HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54845 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54846 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54847 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_59hp6566w9v5ksrm/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54848 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_k9xxqbwvaeakey7q/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54849 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_38fhqc22bza1tjcd/versions/ver_99ewvmvg162ynn2c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54850 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54851 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54852 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_5t75fbvdcpd5152h/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54853 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_f5mc3s0vjvbhseab/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54837 - "GET /api/integration/v1/changes?timeout_s=20.0&cursor=eyJlIjoiMThkYWZhNjkzNzMwYTM3MC00YTUxZTYyYSIsInMiOjB9 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54860 - "GET /api/integration/v1/changes?timeout_s=20.0&cursor=eyJlIjoiMThkYWZhNjkzNzMwYTM3MC00YTUxZTYyYSIsInMiOjB9 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54862 - "GET /api/integration/v1/changes?timeout_s=20.0&cursor=eyJlIjoiMThkYWZhNjkzNzMwYTM3MC00YTUxZTYyYSIsInMiOjB9 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54863 - "GET /api/integration/v1/changes?timeout_s=20.0&cursor=eyJlIjoiMThkYWZhNjkzNzMwYTM3MC00YTUxZTYyYSIsInMiOjB9 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54870 - "GET /api/integration/v1/changes?timeout_s=20.0&cursor=eyJlIjoiMThkYWZhNjkzNzMwYTM3MC00YTUxZTYyYSIsInMiOjB9 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54872 - "GET /api/integration/v1/changes?timeout_s=20.0&cursor=eyJlIjoiMThkYWZhNjkzNzMwYTM3MC00YTUxZTYyYSIsInMiOjB9 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54889 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54890 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54891 - "GET /api/integration/v1/changes?timeout_s=20.0 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54892 - "GET /api/integration/v1/libraries HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54893 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets?limit=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54894 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets?limit=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54898 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y/versions/ver_gb7c280cfv720e6j/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54897 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_39tqk1fyhpg2qwjp/versions/ver_y6e1mn4qjny48wd4/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54895 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd/versions/ver_pf5wjayvpf8d3k91/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54896 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_nfykyd4ybvzsjh6h/versions/ver_ja5f7w0gj3y7thxh/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54900 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_38fhqc22bza1tjcd/versions/ver_99ewvmvg162ynn2c/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54901 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd/versions/ver_pf5wjayvpf8d3k91 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54902 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54903 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54904 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_hxb8gjncfcxr9f40/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54905 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_b6xt9f0k5x9s81zz/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54906 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y/versions/ver_gb7c280cfv720e6j HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54907 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54908 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54909 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_59hp6566w9v5ksrm/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54910 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_k9xxqbwvaeakey7q/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54911 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_38fhqc22bza1tjcd/versions/ver_99ewvmvg162ynn2c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54912 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54913 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54914 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_5t75fbvdcpd5152h/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54915 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_f5mc3s0vjvbhseab/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54917 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54918 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54919 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54920 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54922 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54921 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54923 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_hxb8gjncfcxr9f40/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54925 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_5t75fbvdcpd5152h/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54924 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_59hp6566w9v5ksrm/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54926 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_b6xt9f0k5x9s81zz/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54927 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_k9xxqbwvaeakey7q/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54928 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_f5mc3s0vjvbhseab/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54899 - "GET /api/integration/v1/changes?timeout_s=20.0&cursor=eyJlIjoiMThkYWZhNjkzNzMwYTM3MC00YTUxZTYyYSIsInMiOjB9 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54931 - "GET /api/integration/v1/changes?timeout_s=20.0&cursor=eyJlIjoiMThkYWZhNjkzNzMwYTM3MC00YTUxZTYyYSIsInMiOjB9 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54932 - "GET /api/integration/v1/changes?timeout_s=20.0&cursor=eyJlIjoiMThkYWZhNjkzNzMwYTM3MC00YTUxZTYyYSIsInMiOjB9 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54934 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54938 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54939 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54940 - "GET /api/integration/v1/changes?timeout_s=20.0 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54941 - "GET /api/integration/v1/libraries HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54943 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets?limit=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54942 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets?limit=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54947 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y/versions/ver_gb7c280cfv720e6j/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54946 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_39tqk1fyhpg2qwjp/versions/ver_y6e1mn4qjny48wd4/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54944 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd/versions/ver_pf5wjayvpf8d3k91/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54945 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_nfykyd4ybvzsjh6h/versions/ver_ja5f7w0gj3y7thxh/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54949 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_38fhqc22bza1tjcd/versions/ver_99ewvmvg162ynn2c/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54950 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd/versions/ver_pf5wjayvpf8d3k91 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54951 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54952 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54953 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_hxb8gjncfcxr9f40/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54954 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_b6xt9f0k5x9s81zz/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54955 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y/versions/ver_gb7c280cfv720e6j HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54956 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54957 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54958 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_59hp6566w9v5ksrm/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54959 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_k9xxqbwvaeakey7q/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54960 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_38fhqc22bza1tjcd/versions/ver_99ewvmvg162ynn2c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54961 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54962 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54963 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_5t75fbvdcpd5152h/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54964 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_f5mc3s0vjvbhseab/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54948 - "GET /api/integration/v1/changes?timeout_s=20.0&cursor=eyJlIjoiMThkYWZhNjkzNzMwYTM3MC00YTUxZTYyYSIsInMiOjB9 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54967 - "GET /api/integration/v1/changes?timeout_s=20.0&cursor=eyJlIjoiMThkYWZhNjkzNzMwYTM3MC00YTUxZTYyYSIsInMiOjB9 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54969 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54970 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54971 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54972 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_hxb8gjncfcxr9f40/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54973 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54974 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54975 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54976 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_59hp6566w9v5ksrm/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54977 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54978 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54979 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54980 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_5t75fbvdcpd5152h/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54981 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_38fhqc22bza1tjcd HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54985 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54986 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54987 - "GET /api/integration/v1/changes?timeout_s=20.0 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54988 - "GET /api/integration/v1/libraries HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54989 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets?limit=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54990 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets?limit=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54991 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd/versions/ver_pf5wjayvpf8d3k91/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54992 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_nfykyd4ybvzsjh6h/versions/ver_ja5f7w0gj3y7thxh/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54994 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y/versions/ver_gb7c280cfv720e6j/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54993 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_39tqk1fyhpg2qwjp/versions/ver_y6e1mn4qjny48wd4/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54996 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_38fhqc22bza1tjcd/versions/ver_99ewvmvg162ynn2c/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54997 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd/versions/ver_pf5wjayvpf8d3k91 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54998 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54999 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55000 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_hxb8gjncfcxr9f40/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55001 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_b6xt9f0k5x9s81zz/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55002 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y/versions/ver_gb7c280cfv720e6j HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55003 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55004 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55005 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_59hp6566w9v5ksrm/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55006 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_k9xxqbwvaeakey7q/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55007 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_38fhqc22bza1tjcd/versions/ver_99ewvmvg162ynn2c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55008 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55009 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55010 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_5t75fbvdcpd5152h/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55011 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_f5mc3s0vjvbhseab/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55667 - "GET /api/integration/v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55669 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55670 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55671 - "GET /api/integration/v1/changes?timeout_s=20.0 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55672 - "GET /api/integration/v1/libraries HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55674 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets?limit=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55673 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets?limit=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55675 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd/versions/ver_pf5wjayvpf8d3k91/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55676 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_nfykyd4ybvzsjh6h/versions/ver_ja5f7w0gj3y7thxh/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55678 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y/versions/ver_gb7c280cfv720e6j/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55677 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_39tqk1fyhpg2qwjp/versions/ver_y6e1mn4qjny48wd4/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55680 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_38fhqc22bza1tjcd/versions/ver_99ewvmvg162ynn2c/thumbnail HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55681 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd/versions/ver_pf5wjayvpf8d3k91 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55682 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55683 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55684 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_hxb8gjncfcxr9f40/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55685 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_b6xt9f0k5x9s81zz/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55686 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y/versions/ver_gb7c280cfv720e6j HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55687 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55688 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55689 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_59hp6566w9v5ksrm/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55690 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_k9xxqbwvaeakey7q/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55691 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_38fhqc22bza1tjcd/versions/ver_99ewvmvg162ynn2c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55692 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55693 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55694 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_5t75fbvdcpd5152h/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55695 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_f5mc3s0vjvbhseab/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55700 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55702 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55701 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55704 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55703 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55705 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/resolve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55706 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_hxb8gjncfcxr9f40/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55707 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_59hp6566w9v5ksrm/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55708 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_5t75fbvdcpd5152h/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55710 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_k9xxqbwvaeakey7q/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55709 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_b6xt9f0k5x9s81zz/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55711 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/artifacts/art_f5mc3s0vjvbhseab/content HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55775 - "GET /api/integration/v1/capabilities HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55776 - "POST /api/integration/v1/libraries/prj_51djjh5barey2c1w/publications%3Apreview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55777 - "POST /api/integration/v1/libraries/prj_51djjh5barey2c1w/publications%3Acommit HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55778 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55779 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55780 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_nfykyd4ybvzsjh6h HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55781 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_39tqk1fyhpg2qwjp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55782 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55783 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_38fhqc22bza1tjcd HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55784 - "GET /api/integration/v1/libraries/prj_51djjh5barey2c1w/assets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55785 - "GET /api/integration/v1/libraries/prj_51djjh5barey2c1w/assets/ast_3j8ynfsv39vmx389 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55786 - "GET /api/integration/v1/libraries/prj_51djjh5barey2c1w/assets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55793 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55794 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55795 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd/versions/ver_dmsh83v96cga1q7t HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55796 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_q1vq9axskc063yv5/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55797 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_5qamrs4m3bpfcf8w/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55798 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_3vhxm0xd3ps0c5rd/versions/ver_pf5wjayvpf8d3k91 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55799 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_gxmt028ydwm60tnp/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55800 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_hxb8gjncfcxr9f40/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55801 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_nfykyd4ybvzsjh6h HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55802 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_nfykyd4ybvzsjh6h/versions/ver_ja5f7w0gj3y7thxh HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55803 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_m31ac7xh7hg2mb5k/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55804 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_8sgnh4f3wtffqrjj/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55805 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_39tqk1fyhpg2qwjp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55806 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_39tqk1fyhpg2qwjp/versions/ver_y6e1mn4qjny48wd4 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55807 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_j2csndn2hvhvv07k/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55808 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_n4xscdppygmb50cj/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55809 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55810 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y/versions/ver_4kxdjjn5z5qwn46c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55811 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_hgd05ykvv3wd0jza/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55812 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_vr6bdd8a9m0bk2nz/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55813 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y/versions/ver_mmmazdryk51txyss HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55814 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_7xyap8949sgz6ftc/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55815 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_9y81517ezjtrvpxh/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55816 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_cqw5phmvjamgaa2y/versions/ver_gb7c280cfv720e6j HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55817 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_rat5da8ze82q2kt2/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55818 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_59hp6566w9v5ksrm/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55819 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_38fhqc22bza1tjcd HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55820 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets/ast_38fhqc22bza1tjcd/versions/ver_99ewvmvg162ynn2c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55821 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_15s5mgqd79xyw3py/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55822 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/deliveries/dlv_5t75fbvdcpd5152h/manifest HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55855 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55855 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:55855 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:55855 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:55855 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:55855 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:55855 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:55855 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:55855 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:55855 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:55855 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:55855 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:55855 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:55855 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:55855 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:55855 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:55855 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:55855 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:55855 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:55855 - "POST /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/publications%3Apreview HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:55855 - "GET /api/integration/v1/libraries/prj_cfp3pxzs9c8ym9v2/assets HTTP/1.1" 200 OK

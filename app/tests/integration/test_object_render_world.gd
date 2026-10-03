@@ -14,7 +14,7 @@ var _extra: Array[ObjectPresenter] = []
 
 func before_each() -> void:
 	catalog = AssetCatalog.load_from()[0]
-	doc = WorldDocument.new()
+	doc = _new_doc()
 	presenter = _make(null)
 	world = presenter.render_world()
 
@@ -28,6 +28,12 @@ func after_each() -> void:
 	_extra.clear()
 
 
+func _new_doc() -> WorldDocument:
+	var d := WorldDocument.new()
+	d.assets.catalog = catalog
+	return d
+
+
 func _make(registry: RenderAssetRegistry) -> ObjectPresenter:
 	var p := ObjectPresenter.new()
 	p.setup(catalog, registry)
@@ -39,8 +45,7 @@ func _make(registry: RenderAssetRegistry) -> ObjectPresenter:
 func _add(asset_id: String, pos: Vector3, yaw: float = 0.0, scale: float = 1.0) -> ObjectRecord:
 	var r := ObjectRecord.new()
 	r.object_id = ObjectRecord.new_uuid_v4()
-	r.asset_id = asset_id
-	r.asset_version = 1
+	r.binding_id = doc.assets.bundled_binding_for(asset_id)
 	r.set_position(pos.x, pos.y, pos.z)
 	r.set_yaw(yaw)
 	r.uniform_scale = scale
@@ -223,7 +228,7 @@ func test_settled_world_does_no_uploads_or_builds() -> void:
 func test_more_placements_in_one_batch_add_instances_not_nodes() -> void:
 	var nodes := -1
 	for count in [1, 10, 100]:
-		doc = WorldDocument.new()
+		doc = _new_doc()
 		for i in count:
 			_add(SPRUCE, Vector3(1.0 + (i % 10) * 2.8, 0, 1.0 + (i / 10) * 2.8))
 		presenter.rebuild(doc)
@@ -333,7 +338,7 @@ func test_cancel_undo_redo_delete_keep_batches_consistent() -> void:
 	_settle()
 	_assert_consistent("undo/redo")
 	var swapped := c.clone()
-	swapped.asset_id = BOULDER
+	swapped.binding_id = doc.assets.bundled_binding_for(BOULDER)
 	doc.put_object(swapped)
 	presenter.sync_object(doc, c.object_id)
 	_settle()
@@ -379,7 +384,7 @@ func test_presenting_fixtures_never_loads_catalog_preview_scenes() -> void:
 		if not before[id]:
 			assert_false(ResourceLoader.has_cached(catalog.get_asset(id).preview_scene), "preview scene of %s stayed unloaded" % id)
 	var r := ObjectRecord.new()
-	r.asset_id = BOULDER
+	r.binding_id = loaded[0].assets.bundled_binding_for(BOULDER)
 	presenter.show_ghost(r, true)
 	for id in catalog.sorted_ids():
 		if not before[id]:
@@ -421,7 +426,8 @@ func test_not_ready_assets_are_bounded_placeholders_with_one_notice() -> void:
 func test_unready_assets_get_a_bounds_box_ghost() -> void:
 	presenter = _make(StubRenderRegistry.hiding(catalog, [SPRUCE]))
 	var r := ObjectRecord.new()
-	r.asset_id = SPRUCE
+	r.binding_id = doc.assets.bundled_binding_for(SPRUCE)
+	presenter.bind_assets(doc.assets)
 	presenter.show_ghost(r, true)
 	presenter.service_frame()
 	presenter.show_ghost(r, true)

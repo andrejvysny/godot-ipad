@@ -8,7 +8,7 @@ func test_inspector_header_and_stepper_buttons() -> void:
 	var original := (await _select_first(s)).clone()
 	var inspector := _ui(s).inspector()
 	assert_true(inspector.visible and inspector.stepper("yaw", 1).is_visible_in_tree())
-	var asset := s.catalog.get_asset(original.asset_id)
+	var asset := s.catalog.get_asset(s.document.assets.definition(original.binding_id).asset_id)
 	assert_eq(inspector.title_text(), asset.display_name)
 	assert_eq(inspector.id_text(), original.object_id.substr(0, 8))
 	assert_eq(inspector.stepper("yaw", 1).size, Vector2(40, 40))
@@ -31,7 +31,7 @@ func test_inspector_header_and_stepper_buttons() -> void:
 func test_scale_stepper_clamps_to_the_asset_range() -> void:
 	var s := await _start("stress_100")
 	var original := await _select_first(s)
-	var asset := s.catalog.get_asset(original.asset_id)
+	var asset := s.catalog.get_asset(s.document.assets.definition(original.binding_id).asset_id)
 	var inspector := _ui(s).inspector()
 	for i in 40:
 		s.tools.nudge("scale", 0.1)

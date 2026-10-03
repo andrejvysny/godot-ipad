@@ -7,6 +7,7 @@ var error: String = ""
 
 var _ctx: ToolContext
 var _asset: AssetDefinition
+var _name := ""
 var _snap: bool
 var _record := ObjectRecord.new()
 var _id := ObjectRecord.new_uuid_v4()
@@ -18,13 +19,16 @@ var _focus_only := false
 var _max_other_m := -1.0  # largest footprint x scale_max in the catalog (conflict query radius)
 
 
-func _init(ctx: ToolContext, asset: AssetDefinition, snap: bool) -> void:
+## `binding_id` "" places the bundled catalog asset `asset`; otherwise the prepared AssetStudio binding whose
+## effective definition is `asset`.
+func _init(ctx: ToolContext, asset: AssetDefinition, snap: bool, binding_id: String = "") -> void:
 	_ctx = ctx
 	_asset = asset
 	_snap = snap
 	_record.object_id = ObjectRecord.new_uuid_v4()
-	_record.asset_id = asset.asset_id
-	_record.asset_version = asset.version
+	_record.binding_id = binding_id if binding_id != "" else ctx.document.assets.bundled_binding_for(asset.asset_id)
+	_name = ctx.name_of(binding_id, asset.display_name) if binding_id != "" else asset.display_name
+	ctx.presenter.bind_assets(ctx.document.assets)
 	_record.grounding = asset.default_grounding
 	_record.uniform_scale = clampf(1.0, asset.scale_min, asset.scale_max)
 	_record.height_offset_m = 0.0
@@ -74,13 +78,18 @@ func end(sample: PointerSample, hit: TerrainHit, over_ui: bool) -> WorldChange:
 		_ctx.report("Placement cancelled: lift the Pencil over terrain to place.")
 		return null
 	var doc := _ctx.document
+	var gone := _binding_error()
+	if gone != "":
+		cancel()
+		_ctx.report(gone)
+		return null
 	var limit := ToolCommands.object_limit_error(doc)
 	if limit != "":
 		cancel()
 		_ctx.report(limit)
 		return null
 	var tx := EditTransaction.new()
-	tx.begin(doc, "place", "Place %s" % _asset.display_name)
+	tx.begin(doc, "place", "Place %s" % _name)
 	if not tx.capture_object(_record.object_id):
 		tx.rollback()
 		error = BrushKernels.ERROR_BUDGET
@@ -94,6 +103,17 @@ func end(sample: PointerSample, hit: TerrainHit, over_ui: bool) -> WorldChange:
 
 func cancel() -> void:
 	_ctx.presenter.hide_ghost()
+
+
+## A remote binding must still be in the lock and prepared when the object is created (provider loss, world change).
+func _binding_error() -> String:
+	var lock := _ctx.document.assets
+	var b := lock.get_binding(_record.binding_id)
+	if b == null:
+		return "Placement cancelled: the asset is no longer part of this world."
+	if b.is_bundled() or (lock.unavailable_reason(b.binding_id) == "" and _ctx.not_ready_error(_asset) == ""):
+		return ""
+	return "Placement cancelled: %s is no longer available." % _name
 
 
 ## Turns the candidate yaw; snaps to the placement yaw snap when snapping is on.
@@ -151,7 +171,7 @@ static func empty_preview() -> Dictionary:
 func preview() -> Dictionary:
 	var pos := _record.get_position_v3()
 	var normal := _ctx.document.sample_normal(pos.x, pos.z)
-	return {"active": _ever_valid, "asset_name": _asset.display_name, "world_pos": pos, "valid": _valid_now,
+	return {"active": _ever_valid, "asset_name": _name, "world_pos": pos, "valid": _valid_now,
 			"over_ui": _over_ui, "slope_deg": rad_to_deg(acos(clampf(normal.y, -1.0, 1.0))) if normal.is_finite() else 0.0,
 			"yaw_deg": yaw_deg(), "conflict": _conflict(pos)}
 
@@ -162,7 +182,7 @@ func _conflict(pos: Vector3) -> String:
 	var reach_max := 0.8 * (mine + _max_other_footprint())
 	for id in _ctx.presenter.objects_in_rect(Rect2(pos.x - reach_max, pos.z - reach_max, reach_max * 2.0, reach_max * 2.0)):
 		var other := _ctx.document.get_object(id)
-		var asset := _ctx.catalog.get_asset(other.asset_id) if other != null else null
+		var asset := _ctx.document.assets.definition(other.binding_id) if other != null else null
 		if other == null or other.origin != WorldConstants.ORIGIN_MANUAL or asset == null:
 			continue
 		var reach := 0.8 * (mine + asset.footprint_radius_m * other.uniform_scale)

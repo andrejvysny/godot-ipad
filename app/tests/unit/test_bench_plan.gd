@@ -8,10 +8,14 @@ func _world() -> Array:
 	return [opened[0], catalog]
 
 
-func _signature(records: Array[ObjectRecord]) -> Array:
+func _asset_id(doc: WorldDocument, r: ObjectRecord) -> String:
+	return doc.assets.definition(r.binding_id).asset_id
+
+
+func _signature(doc: WorldDocument, records: Array[ObjectRecord]) -> Array:
 	var out := []
 	for r in records:
-		out.append([r.asset_id, r.position, r.rotation_xyzw, r.uniform_scale])
+		out.append([_asset_id(doc, r), r.position, r.rotation_xyzw, r.uniform_scale])
 	return out
 
 
@@ -90,13 +94,13 @@ func test_synth_objects_deterministic_and_valid() -> void:
 	var b := BenchPlan.synth_objects(doc, catalog, 200, 7)
 	var c := BenchPlan.synth_objects(doc, catalog, 200, 8)
 	assert_eq(a.size(), 200)
-	assert_eq(_signature(a), _signature(b), "same seed, same objects")
-	assert_ne(_signature(a), _signature(c), "other seed differs")
+	assert_eq(_signature(doc, a), _signature(doc, b), "same seed, same objects")
+	assert_ne(_signature(doc, a), _signature(doc, c), "other seed differs")
 	var ids := {}
 	for r in a:
 		ids[r.object_id] = true
-		var asset := catalog.get_asset(r.asset_id)
-		if not assert_true(asset != null, "known asset " + r.asset_id):
+		var asset := catalog.get_asset(_asset_id(doc, r))
+		if not assert_true(asset != null, "known asset " + _asset_id(doc, r)):
 			continue
 		assert_true(asset.scale_in_range(r.uniform_scale), "scale in range")
 		assert_true(doc.layout.is_inside_world(r.position[0], r.position[2]), "inside the document layout")

@@ -36,7 +36,7 @@ func setup(session: EditorSession, asset: AssetDefinition) -> void:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 2)
 	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	column.add_child(_build_thumb(asset))
+	column.add_child(build_thumb(load(asset.thumbnail) as Texture2D))
 	var name_label := UiKit.bold_label(asset.display_name, 11)
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(name_label)
@@ -52,7 +52,8 @@ func setup(session: EditorSession, asset: AssetDefinition) -> void:
 	_apply_style()
 
 
-static func _build_thumb(asset: AssetDefinition) -> Control:
+## The framed thumbnail cell; its TextureRect is `cell.get_child(1).get_child(0)`.
+static func build_thumb(texture: Texture2D) -> Control:
 	var cell := PanelContainer.new()
 	cell.add_theme_stylebox_override("panel", UiKit.pill_box(Color(1, 1, 1, 0.03), 7, 0, false))
 	cell.custom_minimum_size = Vector2(0, 88)
@@ -72,7 +73,7 @@ static func _build_thumb(asset: AssetDefinition) -> Control:
 		margin.add_theme_constant_override("margin_" + side, 10)
 	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var thumb := TextureRect.new()
-	thumb.texture = load(asset.thumbnail) as Texture2D
+	thumb.texture = texture
 	thumb.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	thumb.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	thumb.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -179,8 +180,21 @@ func _gui_input(event: InputEvent) -> void:
 		accept_event()
 
 
+## Hooks of RemoteTile: whether a press starts a contact, and what a drag or tap acts on.
+func _can_press() -> bool:
+	return _prepared
+
+
+func _can_drag() -> bool:
+	return _prepared
+
+
+func _selection() -> Variant:
+	return LibrarySelection.bundled(asset_id)
+
+
 func _on_press(pos: Vector2) -> void:
-	if not _enabled or not _prepared or not _session.input.editing_enabled():
+	if not _enabled or not _can_press() or not _session.input.editing_enabled():
 		return
 	_pressed = true
 	_dragging = false
@@ -197,7 +211,10 @@ func _on_motion(pos: Vector2) -> void:
 		if not _session.input.ui_press_is_pencil():
 			_dead = true  # a finger may arm by tap but never drags an asset into the world
 			return
-		var error := _session.tools.begin_drop(asset_id)
+		if not _can_drag():
+			_dead = true  # an asset that is not downloaded yet can be tapped (or downloaded), never dragged
+			return
+		var error := _session.tools.begin_drop(_selection())
 		if error != "":
 			_session.post_message(error, true)
 			_dead = true

@@ -13,6 +13,7 @@ func before_each() -> void:
 	var loaded := AssetCatalog.load_from()
 	catalog = loaded[0]
 	doc = WorldDocument.new()
+	doc.assets.catalog = catalog
 	presenter = ObjectPresenter.new()
 	presenter.setup(catalog)
 	tree.root.add_child(presenter)
@@ -27,8 +28,7 @@ func after_each() -> void:
 func _add(asset_id: String, pos: Vector3, yaw: float = 0.0, scale: float = 1.0) -> ObjectRecord:
 	var r := ObjectRecord.new()
 	r.object_id = ObjectRecord.new_uuid_v4()
-	r.asset_id = asset_id
-	r.asset_version = 1
+	r.binding_id = doc.assets.bundled_binding_for(asset_id)
 	r.set_position(pos.x, pos.y, pos.z)
 	r.set_yaw(yaw)
 	r.uniform_scale = scale
@@ -85,14 +85,14 @@ func test_sync_add_update_remove_and_asset_change() -> void:
 	assert_eq(int(presenter.render_stats().batch_builds), builds, "no batch built for a move")
 	assert_true(_slot_world(r.object_id).is_equal_approx(moved.node_transform(catalog.get_asset(BOULDER).anchor_local)))
 	var swapped := moved.clone()
-	swapped.asset_id = SPRUCE
+	swapped.binding_id = doc.assets.bundled_binding_for(SPRUCE)
 	doc.put_object(swapped)
 	presenter.sync_object(doc, r.object_id)
 	assert_true(presenter.settle_now())
 	assert_eq(presenter.authored_object_count(), 1)
 	assert_true(world.owner_of(r.object_id).begins_with(SPRUCE), "re-owned by the new asset's batch")
 	var unknown := swapped.clone()
-	unknown.asset_id = "no.such.asset"
+	unknown.binding_id = "b" + "0".repeat(32)  # not in the document lock
 	doc.put_object(unknown)
 	presenter.sync_object(doc, r.object_id)
 	assert_eq(presenter.authored_object_count(), 0)
@@ -174,7 +174,8 @@ func test_pick_rejects_bad_input() -> void:
 
 func test_ghost_show_hide_colour_and_not_pickable() -> void:
 	var r := ObjectRecord.new()
-	r.asset_id = BOULDER
+	r.binding_id = doc.assets.bundled_binding_for(BOULDER)
+	presenter.bind_assets(doc.assets)
 	r.set_position(0, 0, 0)
 	assert_false(presenter.has_ghost_visible())
 	presenter.show_ghost(r, true)

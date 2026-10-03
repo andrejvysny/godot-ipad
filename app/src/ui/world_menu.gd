@@ -40,6 +40,7 @@ func setup(session: EditorSession, confirm: ConfirmDialog, diagnostics: Diagnost
 	for id: String in NEW_WORLD_ITEMS:
 		_items[id] = _row(column, "New 1 km world (%s)" % NEW_WORLD_ITEMS[id], _ask_new.bind(NEW_WORLD_ITEMS[id]))
 	_items["save"] = _row(column, "Save checkpoint now", _save)
+	_items["preview"] = _row(column, "Desktop preview…", _open_preview)
 	_items["reset_camera"] = _row(column, "Reset camera", _reset_camera)
 	_items["diagnostics"] = _switch_row(column, "Diagnostics", _toggle_diagnostics)
 	_items["left_handed"] = _switch_row(column, "Left-handed layout", _toggle_left_handed)
@@ -103,6 +104,11 @@ func _ask_new(kind: String) -> void:
 func _save() -> void:
 	close()
 	_session.save_now()
+
+
+func _open_preview() -> void:
+	close()
+	_session.toggle_preview_panel()
 
 
 func _reset_camera() -> void:

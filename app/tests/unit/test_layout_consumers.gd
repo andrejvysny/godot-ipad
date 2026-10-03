@@ -2,7 +2,7 @@ extends TestCase
 ## WP04b: nothing may use the legacy 2x2 layout constants any more; every consumer takes the
 ## document's WorldLayout. The constants are deleted, so this guards against them returning.
 
-const ROOTS := ["res://src", "res://tests", "res://devtools"]
+const ROOTS := ["res://src", "res://addons/world_painter", "res://tests", "res://devtools"]
 
 
 func _gd_files(dir: String, out: PackedStringArray) -> void:

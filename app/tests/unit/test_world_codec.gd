@@ -24,11 +24,8 @@ func after_each() -> void:
 
 
 func _doc() -> WorldDocument:
-	var doc := WorldDocument.create_flat(1.0, ControlCodec.grass_value())
+	var doc := WorldDocument.create_flat(1.0, ControlCodec.grass_value(), null, _catalog)
 	doc.document_revision = 7
-	doc.catalog_id = _catalog.catalog_id
-	doc.catalog_version = _catalog.catalog_version
-	doc.catalog_sha256 = _catalog.sha256
 	var r := doc.get_region(Vector2i(-1, -1))
 	r.heights[0] = -0.0
 	r.heights[1] = 1e-38
@@ -47,8 +44,9 @@ func _doc() -> WorldDocument:
 	doc.rules.rock_enabled = false
 	doc.rules.rock_slope_deg = 45
 	doc.rules.sand_height_dm = 12
-	doc.scatter.add(SPRUCE, 1, 1.5, -2.25, 1.0, 1.25, 1)
-	doc.scatter.add(SPRUCE, 1, -128.0, 127.5, -3.1416, 0.5, 0)
+	var spruce := doc.assets.bundled_binding_for(SPRUCE)
+	doc.scatter.add(spruce, 1.5, -2.25, 1.0, 1.25, 1)
+	doc.scatter.add(spruce, -128.0, 127.5, -3.1416, 0.5, 0)
 	var pa := PathRecord.new()
 	pa.path_id = PATH_B
 	pa.width_m = 2.5
@@ -61,8 +59,7 @@ func _doc() -> WorldDocument:
 	doc.put_path(pb)
 	var a := ObjectRecord.new()
 	a.object_id = OBJ_B
-	a.asset_id = "nature.tree.spruce_a"
-	a.asset_version = 1
+	a.binding_id = spruce
 	a.set_position(0.1, 1.0, 1.0 / 3.0)
 	a.set_yaw(deg_to_rad(33.0))
 	a.uniform_scale = 1.1
@@ -71,8 +68,7 @@ func _doc() -> WorldDocument:
 	doc.put_object(a)
 	var b := ObjectRecord.new()
 	b.object_id = OBJ_A
-	b.asset_id = "built.lodge.cabin_a"
-	b.asset_version = 1
+	b.binding_id = doc.assets.bundled_binding_for("built.lodge.cabin_a")
 	b.grounding = WorldConstants.GROUNDING_FIXED
 	b.set_position(-127.9, 5.123456789012345, 127.5)
 	b.height_offset_m = -0.7
@@ -109,6 +105,17 @@ func _replace_payload(dir: String, path: String, data: PackedByteArray) -> void:
 	_write_manifest(dir, m)
 
 
+func test_created_with_is_never_empty_in_a_project_without_an_application_version() -> void:
+	var saved: Variant = ProjectSettings.get_setting("application/config/version")
+	ProjectSettings.set_setting("application/config/version", "")
+	var cw := WorldCodec.default_created_with()
+	ProjectSettings.set_setting("application/config/version", saved)
+	for k: String in WorldCodec.CREATED_WITH_KEYS:
+		assert_true(str(cw[k]) != "", "created_with.%s is non-empty" % k)
+	assert_eq(cw.world_painter, "unknown", "the documented fallback")
+	assert_eq(ProjectSettings.get_setting("application/config/version"), saved, "setting restored")
+
+
 func test_payload_bytes_round_trip_exactly() -> void:
 	var doc := _doc()
 	var r := doc.get_region(Vector2i(0, -1))
@@ -137,7 +144,7 @@ func test_payload_bytes_round_trip_exactly() -> void:
 func test_manifest_shape() -> void:
 	var dir := _gen()
 	var m := _manifest(dir)
-	assert_eq(m.keys().size(), WorldCodec.MANIFEST_KEYS.size())
+	assert_eq(m.keys().size(), WorldCodec.MANIFEST_KEYS_V4.size())
 	assert_eq(m.format, "world-painter-poc")
 	assert_eq(m.document_revision, 7.0)
 	assert_eq(m.terrain.region_locations, [[-1.0, -1.0], [0.0, -1.0], [-1.0, 0.0], [0.0, 0.0]])
@@ -148,14 +155,19 @@ func test_manifest_shape() -> void:
 		assert_eq(int(e.bytes), bytes.size(), "size " + e.path)
 		assert_eq(e.sha256, CanonicalEncoder.sha256_hex(bytes), "hash " + e.path)
 	assert_eq(PackedStringArray(paths), WorldCodec.payload_paths(WorldLayout.legacy()), "sorted exact set")
-	assert_eq(paths.size(), 15)
-	assert_eq(paths[0], "objects.json")
-	assert_eq(paths[1], "paths.bin")
-	assert_eq(paths[14], "scatter.bin")
+	assert_eq(paths.size(), 16)
+	assert_eq(paths[0], "asset_locks.json")
+	assert_eq(paths[1], "objects.json")
+	assert_eq(paths[2], "paths.bin")
+	assert_eq(paths[15], "scatter.bin")
+	assert_eq(m.asset_lock, {"path": "asset_locks.json", "sha256": CanonicalEncoder.sha256_hex(
+		FileAccess.get_file_as_bytes(dir.path_join("asset_locks.json")))})
+	assert_false(m.has("catalog"), "schema 4 has no catalog block")
+	assert_eq(m.terrain.layout, {"min_region": [-1.0, -1.0], "region_count": [2.0, 2.0]}, "layout always present")
 	assert_eq(m.terrain.color_encoding, "rgba8-tint-v1")
 	assert_eq(m.terrain.control_schema, "terrain3d-1.0.2-control-v2")
 	assert_eq(m.terrain.rules, {"rock_enabled": false, "rock_slope_deg": 45.0, "sand_enabled": true, "sand_height_dm": 12.0})
-	assert_eq(m.schema_version, 2.0)
+	assert_eq(m.schema_version, 4.0)
 	assert_eq(m.created_with.godot, "4.7.2.stable.official.ed1daf0bf")
 	var objs: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(dir.path_join("objects.json")))
 	assert_eq(objs.objects[0].object_id, OBJ_A, "objects sorted by id")
@@ -206,7 +218,7 @@ func test_rejects_manifest_tampering() -> void:
 		"unknown format": func(m: Dictionary) -> void: m.format = "other",
 		"unknown format ": func(m: Dictionary) -> void: m.format = 5,
 		"unsupported schema_version 1": func(m: Dictionary) -> void: m.schema_version = 1,
-		"unsupported schema_version 4": func(m: Dictionary) -> void: m.schema_version = 4,
+		"unsupported schema_version 5": func(m: Dictionary) -> void: m.schema_version = 5,
 		"unsupported schema_version 1.5": func(m: Dictionary) -> void: m.schema_version = 1.5,
 		"missing field 'created_with'": func(m: Dictionary) -> void: m.erase("created_with"),
 		"unknown field 'extra'": func(m: Dictionary) -> void: m["extra"] = 1,
@@ -214,9 +226,13 @@ func test_rejects_manifest_tampering() -> void:
 		"document_revision": func(m: Dictionary) -> void: m.document_revision = 2.5,
 		"document_revision ": func(m: Dictionary) -> void: m.document_revision = -1,
 		"created_with.godot": func(m: Dictionary) -> void: m.created_with.godot = "",
-		"incompatible catalog": func(m: Dictionary) -> void: m.catalog.sha256 = "ab".repeat(32),
-		"incompatible catalog ": func(m: Dictionary) -> void: m.catalog.version = 3,
-		"catalog.sha256": func(m: Dictionary) -> void: m.catalog.sha256 = "<catalog content hash>",
+		"missing field 'asset_lock'": func(m: Dictionary) -> void: m.erase("asset_lock"),
+		"unknown field 'catalog'": func(m: Dictionary) -> void: m["catalog"] = {"id": "poc_nature", "version": 2, "sha256": "ab".repeat(32)},
+		"asset_lock.path": func(m: Dictionary) -> void: m.asset_lock.path = "locks.json",
+		"asset_lock sha256 differs": func(m: Dictionary) -> void: m.asset_lock.sha256 = "ab".repeat(32),
+		"asset_lock.sha256 is missing": func(m: Dictionary) -> void: m.asset_lock.sha256 = "<lock hash>",
+		"asset_lock has unknown field": func(m: Dictionary) -> void: m.asset_lock["extra"] = 1,
+		"missing field 'layout'": func(m: Dictionary) -> void: m.terrain.erase("layout"),
 		"sample_spacing_m": func(m: Dictionary) -> void: m.terrain.sample_spacing_m = 1.0,
 		"region_samples": func(m: Dictionary) -> void: m.terrain.region_samples = 257,
 		"region_locations": func(m: Dictionary) -> void: m.terrain.region_locations = [[0, 0], [0, -1], [-1, 0], [-1, -1]],
@@ -238,15 +254,15 @@ func test_rejects_manifest_tampering() -> void:
 		"sand_height_dm -31 outside": func(m: Dictionary) -> void: m.terrain.rules.sand_height_dm = -31,
 		"sand_height_dm 31 outside": func(m: Dictionary) -> void: m.terrain.rules.sand_height_dm = 31,
 		"rules must be an object": func(m: Dictionary) -> void: m.terrain.rules = [],
-		"exactly the 15 payload files": func(m: Dictionary) -> void: m.payload_files.pop_back(),
-		"exactly the 15 payload files ": func(m: Dictionary) -> void: m.payload_files.append(m.payload_files[0].duplicate()),
+		"exactly the 16 payload files": func(m: Dictionary) -> void: m.payload_files.pop_back(),
+		"exactly the 16 payload files ": func(m: Dictionary) -> void: m.payload_files.append(m.payload_files[0].duplicate()),
 		"sorted by path": func(m: Dictionary) -> void: m.payload_files.reverse(),
 		"placeholder": func(m: Dictionary) -> void: m.payload_files[1].sha256 = "<hex>",
 		"placeholder ": func(m: Dictionary) -> void: m.payload_files[1].sha256 = "0".repeat(64),
 		"missing field 'sha256'": func(m: Dictionary) -> void: m.payload_files[1].erase("sha256"),
-		"sha256 does not match": func(m: Dictionary) -> void: m.payload_files[0].sha256 = "ab".repeat(32),
-		"manifest says 1": func(m: Dictionary) -> void: m.payload_files[0].bytes = 1,
-		"must be 262144 bytes": func(m: Dictionary) -> void: m.payload_files[2].bytes = 4,
+		"sha256 does not match": func(m: Dictionary) -> void: m.payload_files[1].sha256 = "ab".repeat(32),
+		"manifest says 1": func(m: Dictionary) -> void: m.payload_files[1].bytes = 1,
+		"must be 262144 bytes": func(m: Dictionary) -> void: m.payload_files[3].bytes = 4,
 		"authored_content_hash does not match": func(m: Dictionary) -> void: m.authored_content_hash = "ab".repeat(32),
 		"authored_content_hash is missing": func(m: Dictionary) -> void: m.authored_content_hash = "TODO",
 	}
@@ -317,6 +333,7 @@ func test_unknown_scatter_asset_is_rejected_on_read() -> void:
 	plain.assets[SPRUCE].scatter_allowed = false
 	var no_scatter := AssetCatalog.from_plain(plain)
 	assert_error_contains(WorldCodec.read_generation(dir, no_scatter)[1], "scatter_allowed", "catalog forbids scatter")
+	assert_true(no_scatter.get_asset(SPRUCE) != null)
 
 
 func test_rejects_object_order_and_duplicates() -> void:

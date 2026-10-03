@@ -55,8 +55,13 @@ func _camera_at(pos: Vector3, target: Vector3) -> Camera3D:
 	return camera
 
 
+## Catalog asset id of scatter instance `i` (through the document's asset lock).
+func _asset_of(layer: ScatterLayer, i: int) -> String:
+	return doc.assets.definition(layer.binding_of(i)).asset_id
+
+
 func _layer_of(ids: Array, x: float = 10.0, z: float = 10.0) -> ScatterLayer:
 	var layer := ScatterLayer.new()
 	for id: String in ids:
-		layer.add(id, catalog.get_asset(id).version, x, z, 0.0, 1.0, 0)
+		layer.add(doc.assets.bundled_binding_for(id), x, z, 0.0, 1.0, 0)
 	return layer

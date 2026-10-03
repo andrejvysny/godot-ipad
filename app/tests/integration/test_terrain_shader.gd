@@ -1,5 +1,5 @@
 extends TestCase
-## Project terrain shader (res://src/terrain/world_terrain.gdshader): rule/highlight uniforms,
+## Project terrain shader (res://addons/world_painter/terrain/world_terrain.gdshader): rule/highlight uniforms,
 ## tint map upload and verification (headless), and rendered pixel checks (tests whose name
 ## contains "gpu" run only in a windowed run: scripts/dev.py test --rendered).
 ## Set WP_SHADER_EVIDENCE_DIR to also write gentle_hills screenshots there.
@@ -142,8 +142,8 @@ func test_material_experiment_changes_uniform_without_rebuilding_terrain() -> vo
 
 func test_trimmed_shader_drops_unused_features_and_keeps_the_app_ones() -> void:
 	var full := (load(TerrainAdapter.SHADER_PATH) as Shader).code
-	full += FileAccess.get_file_as_string("res://src/terrain/world_terrain_material.gdshaderinc")
-	full += FileAccess.get_file_as_string("res://src/terrain/world_terrain_region.gdshaderinc")
+	full += FileAccess.get_file_as_string("res://addons/world_painter/terrain/world_terrain_material.gdshaderinc")
+	full += FileAccess.get_file_as_string("res://addons/world_painter/terrain/world_terrain_region.gdshaderinc")
 	var code := full.substr(full.find("/* The terrain depends"))  # the header only names what was removed
 	for removed in ["enable_macro_variation", "macro_variation1",
 			"noise_texture", "noise1_scale", "_texture_detile_array", "depth_blur", "bias_distance"]:

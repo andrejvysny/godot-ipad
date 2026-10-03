@@ -8,10 +8,10 @@ func _tilted_doc_layer() -> void:
 	for i in region.heights.size():
 		region.heights[i] = 0.3 * float(i % 256) * WorldConstants.SAMPLE_SPACING
 	var layer := ScatterLayer.new()
-	layer.add(SPRUCE, catalog.get_asset(SPRUCE).version, 10.0, 10.0, 0.7, 1.5, ScatterLayer.FLAG_TILT)
-	layer.add(BOULDER, catalog.get_asset(BOULDER).version, 20.0, 12.0, 0.0, 0.8, 0)
-	layer.add(GRASS, catalog.get_asset(GRASS).version, 12.0, 12.0, 0.0, 1.0, 0)
-	layer.add(SPRUCE, catalog.get_asset(SPRUCE).version, 100.0, 100.0, 0.0, 1.0, 0)
+	layer.add(doc.assets.bundled_binding_for(SPRUCE), 10.0, 10.0, 0.7, 1.5, ScatterLayer.FLAG_TILT)
+	layer.add(doc.assets.bundled_binding_for(BOULDER), 20.0, 12.0, 0.0, 0.8, 0)
+	layer.add(doc.assets.bundled_binding_for(GRASS), 12.0, 12.0, 0.0, 1.0, 0)
+	layer.add(doc.assets.bundled_binding_for(SPRUCE), 100.0, 100.0, 0.0, 1.0, 0)
 	doc.scatter = layer
 
 
@@ -59,12 +59,12 @@ func test_overview_changed_for_edits_and_redrapes_but_not_for_density_or_visibil
 	assert_eq(emitted.size(), 1, "rebuild_all reports the whole layout")
 	assert_eq(emitted[0], doc.layout.extent_rect())
 	emitted.clear()
-	doc.scatter.add(SPRUCE, catalog.get_asset(SPRUCE).version, 100.0, 100.0, 0.0, 1.0, 0)
+	doc.scatter.add(doc.assets.bundled_binding_for(SPRUCE), 100.0, 100.0, 0.0, 1.0, 0)
 	renderer.mark_rect(Rect2(90.0, 90.0, 20.0, 20.0))
 	assert_eq(emitted.size(), 1, "a meaningful instance was added")
 	assert_true(emitted[0].has_point(Vector2(100.0, 100.0)))
 	emitted.clear()
-	doc.scatter.add(GRASS, catalog.get_asset(GRASS).version, 101.0, 101.0, 0.0, 1.0, 0)
+	doc.scatter.add(doc.assets.bundled_binding_for(GRASS), 101.0, 101.0, 0.0, 1.0, 0)
 	renderer.mark_rect(Rect2(90.0, 90.0, 20.0, 20.0))
 	assert_eq(emitted.size(), 0, "ground cover is not part of the overview")
 	renderer.mark_rect(Rect2(0.0, 0.0, 64.0, 64.0), true)

@@ -319,7 +319,7 @@ func test_world_replacement_reveals_every_cell_and_discards_old_builds() -> void
 	fx.sync_all()
 	assert_true(fx.settle())
 	assert_true(fx.active_groups().size() > 0)
-	fx.doc = WorldDocument.new()
+	fx.replace_doc()
 	fx.sync_all()
 	assert_eq(fx.active_groups().size(), 0, "every group is retired with the world")
 	assert_eq(fx.world.covered_cell_count(), 0, "no cell stays covered")

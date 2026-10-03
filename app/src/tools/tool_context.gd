@@ -30,6 +30,24 @@ var focus_area: Callable = Callable()
 var focus_before_object_action: Callable = Callable()
 ## StrokeProbe.finish() of the most recent paint/sculpt/path stroke; {} before the first.
 var last_stroke: Dictionary = {}
+## `display_name(binding_id) -> String`: the name the Library shows for a remote binding ("" when unknown).
+var display_name: Callable = Callable()
+## Non-empty while the world is in read-only recovery (unavailable asset bindings, ADR 0014 D8): every
+## authoring operation is refused with this text.
+var read_only_reason: String = ""
+
+var _read_only_posted := ""
+
+
+## The refusal text of an authoring attempt, "" when editing is allowed. Posts the reason once per reason.
+func read_only_refusal() -> String:
+	if read_only_reason == "":
+		_read_only_posted = ""
+		return ""
+	if _read_only_posted != read_only_reason:
+		_read_only_posted = read_only_reason
+		report(read_only_reason)
+	return read_only_reason
 
 
 func hit_for(sample: PointerSample) -> TerrainHit:
@@ -100,6 +118,12 @@ func not_ready_error(asset: AssetDefinition) -> String:
 	if render_ready.is_valid() and not bool(render_ready.call(asset.asset_id)):
 		return "%s is not ready: render derivatives missing." % asset.display_name
 	return ""
+
+
+## Name for messages and history labels: the Library's name of a remote binding, else `fallback`.
+func name_of(binding_id: String, fallback: String) -> String:
+	var known: Variant = display_name.call(binding_id) if display_name.is_valid() else ""
+	return str(known) if str(known) != "" else fallback
 
 
 func default(section: String, key: String, fallback: Variant) -> Variant:

@@ -1,0 +1,32 @@
+PASS connect
+PASS add v1
+PASS import
+PASS finalize
+PASS no export_presets.cfg is refused ({'export_presets_missing'})
+PASS a preset that does not exclude private files is refused
+PASS a preset that excludes the managed root is refused
+PASS clean project passes preflight ({'checked': {'deliveries': 1, 'files': 4, 'presets': 1}, 'command': 'export-preflight', 'offline': True, 'ok': True, 'preset': 'macOS', 'problems': [], 'schema_version': 1})
+PASS an unknown preset name is refused
+PASS a modified managed file blocks export
+PASS an imported-nowhere project blocks export ({'import_incomplete'})
+PASS re-import
+PASS an edited generated wrapper blocks export
+PASS a scene referencing an addon editor script blocks export
+PASS clean again after the fixes (set())
+PASS a missing lock is refused
+PASS wrapper --preflight-only passes ([restore] /opt/homebrew/bin/godot ...
+[import] /opt/homebrew/bin/godot ...
+[export-preflight] /opt/homebrew/bin/godot ...
+)
+PASS wrapper refuses a tampered delivery and exports nothing
+PASS wrapper --offline with the server stopped ([restore] /opt/homebrew/bin/godot ...
+[import] /opt/homebrew/bin/godot ...
+[export-preflight] /opt/homebrew/bin/godot ...
+[export] /opt/homebrew/bin/godot ...
+)
+PASS export wrote the archive
+PASS exported archive carries no private files
+PASS exported archive carries the managed delivery
+PASS bearer token never appears in Godot output
+
+ALL PASSED: 0 failure(s)

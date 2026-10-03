@@ -3,9 +3,10 @@ extends TestCase
 ## cross-language authored-hash vector (§11.5). Python computes the same vector in
 ## scripts/tests/test_layout_format.py.
 
-## km1 flat world, bundled catalog identity. Obtained from the Python implementation first and
-## then verified here.
+## km1 flat world: the schema 3 stream with the bundled catalog identity (verified on legacy reads) and the
+## schema 4 stream (contracts/world-painter/world-v4 km1_flat_empty). Both come from the Python implementation.
 const KM1_FLAT_VECTOR := "f1357e481f58e3076704020e211bea87471db121c067170e50b8de88d1816d92"
+const KM1_FLAT_VECTOR_V4 := "6295548902d79118d95fcac7c1c9940a326533456dc8edf0b50b5aa0f87b205e"
 
 var _catalog: AssetCatalog
 
@@ -41,7 +42,8 @@ func test_validate_rejects_out_of_range_layouts() -> void:
 func test_presets_and_derived_values() -> void:
 	var legacy := WorldLayout.legacy()
 	assert_true(legacy.is_legacy())
-	assert_eq(legacy.schema_version(), 2)
+	assert_eq(legacy.schema_version(), 4, "every layout is written as schema 4")
+	assert_eq(legacy.legacy_schema_version(), 2)
 	assert_eq(legacy.name(), "legacy")
 	var legacy_locations: Array[Vector2i] = [Vector2i(-1, -1), Vector2i(0, -1), Vector2i(-1, 0), Vector2i(0, 0)]
 	assert_eq(legacy.region_locations(), legacy_locations, "legacy order: Z then X")
@@ -52,7 +54,8 @@ func test_presets_and_derived_values() -> void:
 	assert_eq(legacy.extent_rect(), Rect2(-128.0, -128.0, 256.0, 256.0))
 	assert_eq(WorldLayout.km1().extent_rect(), Rect2(-512.0, -512.0, 1024.0, 1024.0))
 	var km := WorldLayout.km1()
-	assert_eq(km.schema_version(), 3)
+	assert_eq(km.schema_version(), 4)
+	assert_eq(km.legacy_schema_version(), 3)
 	assert_eq(km.name(), "km1")
 	assert_eq(km.region_total(), 64)
 	assert_eq(km.region_locations()[0], Vector2i(-4, -4))
@@ -69,7 +72,8 @@ func test_presets_and_derived_values() -> void:
 	assert_true(km.is_inside_world(-512.0, 511.5) and not km.is_inside_world(-512.01, 0.0) and not km.is_inside_world(0.0, 511.51))
 	var custom := WorldLayout.create(Vector2i(2, 3), Vector2i(3, 1))
 	assert_eq(custom.name(), "custom")
-	assert_eq(custom.schema_version(), 3)
+	assert_eq(custom.schema_version(), 4)
+	assert_eq(custom.legacy_schema_version(), 3)
 	assert_eq(custom.world_min(), Vector2(256.0, 384.0))
 	assert_eq(custom.world_max_sample(), Vector2(639.5, 511.5))
 	assert_true(custom.equals(WorldLayout.new(Vector2i(2, 3), Vector2i(3, 1))) and not custom.equals(km) and not custom.equals(null))
@@ -125,7 +129,7 @@ func _stamp_plane(doc: WorldDocument, x: float, z: float) -> void:
 func test_km1_flat_document_has_all_regions() -> void:
 	var doc := _km_doc()
 	assert_eq(doc.regions.size(), 64)
-	assert_eq(doc.schema_version, 3)
+	assert_eq(doc.schema_version, 4)
 	assert_eq(doc.layout.name(), "km1")
 	assert_eq(doc.duplicate_deep().layout, doc.layout, "duplicate keeps the layout")
 	assert_eq(doc.get_height_at_sample(-1024, -1024), 0.0)
@@ -216,54 +220,54 @@ func test_non_origin_layout_samples_its_own_extent() -> void:
 func test_limits_table() -> void:
 	var v2 := WorldLimits.for_schema(2)
 	var v3 := WorldLimits.for_schema(3)
+	var v4 := WorldLimits.for_schema(4)
 	assert_eq(v2.max_objects, 2000)
 	assert_eq(v3.max_objects, 50000)
+	assert_eq(v4.max_objects, 50000)
 	assert_eq(v2.max_scatter_instances, 20000)
 	assert_eq(v3.max_scatter_instances, 100000)
-	assert_eq(v3.max_entries, 4 + 1 + 3 * 64, "envelope fits 4 fixed files, regions/ and 64 regions")
+	assert_eq(v4.max_scatter_instances, 100000)
+	assert_eq(v3.max_entries, 4 + 1 + 3 * 64, "schema 3 fits 4 fixed files, regions/ and 64 regions")
+	assert_eq(v4.max_entries, v3.max_entries + 1, "schema 4 adds asset_locks.json")
+	assert_eq(v4.max_lock_bytes, 8 * 1024 * 1024)
+	assert_eq(v4.max_bindings, 4096)
 	assert_eq(v3.max_regions, 64)
-	assert_eq(WorldLimits.zip_envelope(), v3)
+	for key: String in v3:
+		if key != "max_entries":
+			assert_eq(v4[key], v3[key], "schema 4 keeps the schema 3 limit " + key)
+	assert_eq(WorldLimits.zip_envelope(), v4)
 	assert_eq(WorldLimits.for_schema(1), {})
-	assert_eq(WorldLimits.for_schema(4), {})
+	assert_eq(WorldLimits.for_schema(5), {})
 
 
 func test_validator_applies_the_schema_object_limit() -> void:
-	var doc := WorldDocument.create_flat(0.0, ControlCodec.grass_value(), WorldLayout.create(Vector2i(0, 0), Vector2i(1, 1)))
-	doc.catalog_id = _catalog.catalog_id
-	doc.catalog_version = _catalog.catalog_version
-	doc.catalog_sha256 = _catalog.sha256
+	var doc := WorldDocument.create_flat(0.0, ControlCodec.grass_value(), WorldLayout.create(Vector2i(0, 0), Vector2i(1, 1)), _catalog)
 	for i in 50001:
 		var r := ObjectRecord.new()
 		r.object_id = "00000000-0000-4000-8000-%012d" % i
 		doc.objects[r.object_id] = r
 	assert_error_contains("; ".join(WorldValidator.validate(doc, _catalog)), "50001 objects exceed the limit of 50000")
-	var legacy := WorldDocument.create_flat(0.0, ControlCodec.grass_value())
-	legacy.catalog_id = _catalog.catalog_id
-	legacy.catalog_version = _catalog.catalog_version
-	legacy.catalog_sha256 = _catalog.sha256
+	var legacy := WorldDocument.create_flat(0.0, ControlCodec.grass_value(), null, _catalog)
 	for i in 2001:
 		var r := ObjectRecord.new()
 		r.object_id = "00000000-0000-4000-8000-%012d" % i
 		legacy.objects[r.object_id] = r
-	assert_error_contains("; ".join(WorldValidator.validate(legacy, _catalog)), "2001 objects exceed the limit of 2000")
+	assert_false("; ".join(WorldValidator.validate(legacy, _catalog)).contains("exceed the limit"),
+			"the legacy layout is schema 4 now: the schema 3 object limit applies")
 
 
-func test_validator_rejects_schema_layout_mismatch_and_uses_layout_extent() -> void:
+func test_validator_rejects_schema_mismatch_and_uses_layout_extent() -> void:
 	var layout := WorldLayout.create(Vector2i(2, 3), Vector2i(1, 1))
-	var doc := WorldDocument.create_flat(0.0, ControlCodec.grass_value(), layout)
-	doc.catalog_id = _catalog.catalog_id
-	doc.catalog_version = _catalog.catalog_version
-	doc.catalog_sha256 = _catalog.sha256
+	var doc := WorldDocument.create_flat(0.0, ControlCodec.grass_value(), layout, _catalog)
 	assert_eq(WorldValidator.validate(doc, _catalog), PackedStringArray(), "valid custom layout")
 	var inside := ObjectRecord.new()
 	inside.object_id = "11111111-1111-4111-8111-111111111111"
-	inside.asset_id = "nature.rock.boulder_a"
-	inside.asset_version = 1
+	inside.binding_id = doc.assets.bundled_binding_for("nature.rock.boulder_a")
 	inside.set_position(300.0, 0.0, 400.0)
 	doc.put_object(inside)
 	assert_eq(WorldValidator.validate(doc, _catalog), PackedStringArray(), "object inside the layout extent")
-	assert_empty_string(WorldValidator.validate_object(inside, _catalog, layout))
-	assert_error_contains(WorldValidator.validate_object(inside, _catalog, WorldLayout.legacy()), "outside the world extent", "legacy extent")
+	assert_empty_string(WorldValidator.validate_object(inside, doc.assets, layout))
+	assert_error_contains(WorldValidator.validate_object(inside, doc.assets, WorldLayout.legacy()), "outside the world extent", "legacy extent")
 	doc.schema_version = 2
 	assert_error_contains("; ".join(WorldValidator.validate(doc, _catalog)), "schema_version 2")
 	var bad := WorldDocument.create_flat(0.0, ControlCodec.grass_value())
@@ -273,10 +277,9 @@ func test_validator_rejects_schema_layout_mismatch_and_uses_layout_extent() -> v
 
 # --- §11.5 vector ----------------------------------------------------------------------
 
-func test_km1_flat_authored_hash_vector() -> void:
-	var doc := WorldDocument.create_flat(0.0, WorldConstants.DEFAULT_CONTROL, WorldLayout.km1())
-	doc.catalog_id = _catalog.catalog_id
-	doc.catalog_version = _catalog.catalog_version
-	doc.catalog_sha256 = _catalog.sha256
-	assert_eq(CanonicalEncoder.authored_bytes(doc).slice(0, 17).get_string_from_ascii(), "WPOC-AUTHORED-V3\n")
-	assert_eq(CanonicalEncoder.authored_hash(doc), KM1_FLAT_VECTOR)
+func test_km1_flat_authored_hash_vectors() -> void:
+	var doc := WorldDocument.create_flat(0.0, WorldConstants.DEFAULT_CONTROL, WorldLayout.km1(), _catalog)
+	assert_eq(CanonicalEncoder.authored_bytes(doc).slice(0, 17).get_string_from_ascii(), "WPOC-AUTHORED-V4\n")
+	assert_eq(CanonicalEncoder.authored_hash(doc), KM1_FLAT_VECTOR_V4)
+	assert_eq(CanonicalEncoder.legacy_authored_bytes(doc)[0].slice(0, 17).get_string_from_ascii(), "WPOC-AUTHORED-V3\n")
+	assert_eq(CanonicalEncoder.legacy_authored_hash(doc)[0], KM1_FLAT_VECTOR, "the schema 3 stream of the same world")

@@ -1,0 +1,155 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+{
+  "capabilities": [
+    "godot_text_scene_v1"
+  ],
+  "conversion_report": {
+    "approximations": [],
+    "omissions": [],
+    "portable_status": "exact"
+  },
+  "descriptor_draft": {
+    "collision": null,
+    "default_grounding": "FOLLOW_TERRAIN",
+    "footprint_radius_m": "1.2",
+    "height_offset_range_m": [
+      "-0.1",
+      "0.5"
+    ],
+    "material_slots": [
+      {
+        "role": "neutral",
+        "slot_id": "neutral",
+        "surfaces": {
+          "godot_static_source_v1": [
+            {
+              "node_path": "Body",
+              "surface": 0
+            },
+            {
+              "node_path": "Lid",
+              "surface": 0
+            }
+          ],
+          "portable_glb_v1": [
+            {
+              "mesh": 0,
+              "primitive": 0
+            },
+            {
+              "mesh": 1,
+              "primitive": 0
+            }
+          ]
+        }
+      }
+    ],
+    "placement_anchor": [
+      "0",
+      "0",
+      "0"
+    ],
+    "preview_warnings": [],
+    "scale_range": [
+      "0.5",
+      "2"
+    ],
+    "schema_version": 1
+  },
+  "expires_at": "2026-10-04T09:50:27.991Z",
+  "files": 2,
+  "hashes": {
+    "descriptor_draft_sha256": "94aa90da428c311f94777ef87b910b3f91fb56feb86ee03b76f5d4ffb73a20c3",
+    "package_sha256": "d6e99f48e3cd7a7898402e7b9fab2f15734645c7f6196b4d7477159b0a1f7ab7",
+    "portable_sha256": "3a0e3980e73aa60099132f0f1a7dcd663f366e19a58bb266cc27fcc3b2d73827"
+  },
+  "idempotency_key": "asp_31555c427da546b304295253a8048a15",
+  "local_warnings": [],
+  "phase": "previewed",
+  "portable": {
+    "bytes": 3656,
+    "materials": 1,
+    "max_texture_px": 0,
+    "nodes": 3,
+    "triangles": 24
+  },
+  "preview_id": "ipv_15m1w9j5pkbcw7rn",
+  "server": {
+    "bounds": {
+      "max": [
+        "0.550001",
+        "0.600001",
+        "1.05"
+      ],
+      "min": [
+        "-0.550001",
+        "0",
+        "-1.05"
+      ]
+    },
+    "budget": {
+      "exceeded": [],
+      "glb_bytes": 3656.0,
+      "materials": 1.0,
+      "max_texture_px": null,
+      "nodes": 3.0,
+      "triangles": 24.0,
+      "warnings": [],
+      "within_ipad_budget": true
+    },
+    "source": {
+      "asset_dependencies": [],
+      "dependency_closure": [
+        "materials/neutral.tres",
+        "scenes/prop.tscn"
+      ],
+      "detected_capabilities": [
+        "godot_text_scene_v1"
+      ],
+      "evidence": {
+        "collision": "absent",
+        "conversion_report": "publisher_declared",
+        "source_surfaces": {
+          "node_only": 0.0,
+          "unverified": 0.0,
+          "verified": 2.0
+        }
+      },
+      "manifest_sha256": "eaaca61562fc4b7677de6a8a48413c4ec5445f07a212a0f55b9bf9387dbf0deb",
+      "source_godot_version": "4.7.2-stable",
+      "source_surfaces": {
+        "neutral": [
+          {
+            "node_path": "Body",
+            "surface": 0.0
+          },
+          {
+            "node_path": "Lid",
+            "surface": 0.0
+          }
+        ]
+      },
+      "warnings": []
+    },
+    "warnings": []
+  },
+  "target": {
+    "expected_current_version": null,
+    "library": "prj_51djjh5barey2c1w",
+    "mode": "new_asset",
+    "name": "Game Library Prop",
+    "target_asset_id": null
+  }
+}
+{
+  "outcome": {
+    "asset_id": "ast_3j8ynfsv39vmx389",
+    "descriptor_sha256": "d9e1c883eb52222cf2193e16ada99a782dab879ea48a2ff8a359893678826b86",
+    "display_version": 1.0,
+    "library_id": "prj_51djjh5barey2c1w",
+    "version_id": "ver_t0dcymwbgv6gwkt5",
+    "via": "commit"
+  },
+  "phase": "committed"
+}

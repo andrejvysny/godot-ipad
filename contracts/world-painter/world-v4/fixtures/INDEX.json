@@ -1,0 +1,238 @@
+{
+  "schema": "world-painter/world-v4/fixture-index",
+  "fixtures": [
+    {
+      "name": "bad_lock_hash",
+      "path": "invalid/bad_lock_hash.worldpoc",
+      "kind": "world",
+      "expected": "invalid",
+      "error_substring": "asset_lock sha256",
+      "sha256": "283476b113149e96c586da2e259383e75eada0b07b2015fc337189f3089d5e50"
+    },
+    {
+      "name": "binding_id_mismatch",
+      "path": "invalid/binding_id_mismatch.worldpoc",
+      "kind": "world",
+      "expected": "invalid",
+      "error_substring": "binding_id mismatch",
+      "sha256": "8f819daa3be7a89628acf6fdb1bcc5586db009821b3c6a582ed781c54c4ae590"
+    },
+    {
+      "name": "dependency_closure_extra",
+      "path": "invalid/dependency_closure_extra.worldpoc",
+      "kind": "world",
+      "expected": "invalid",
+      "error_substring": "outside the closure",
+      "sha256": "088d0bd16906456bee23ecb39ba4aeea764aac46728e273291e782c8bc749494"
+    },
+    {
+      "name": "dependency_closure_missing",
+      "path": "invalid/dependency_closure_missing.worldpoc",
+      "kind": "world",
+      "expected": "invalid",
+      "error_substring": "dependencies are missing the entry",
+      "sha256": "881f21fd2f90d33ded6566080762f378a3d601a1e7cc2eb738611070b68d012a"
+    },
+    {
+      "name": "descriptor_sha_mismatch",
+      "path": "invalid/descriptor_sha_mismatch.worldpoc",
+      "kind": "world",
+      "expected": "invalid",
+      "error_substring": "descriptor_sha256 mismatch",
+      "sha256": "c5456834c000fcd2a580a9027a72ed82b2815a7f2be26e9c926280b0aeedd5d9"
+    },
+    {
+      "name": "generation_vectors",
+      "path": "generation-vectors.json",
+      "kind": "vectors",
+      "expected": "valid",
+      "sha256": "419952be1f27f9d4986ac44bfdddcb78ccbb97466bb46c2672547bd2a0df1f8f",
+      "note": "Apply identities: source_snapshot_hash, consumer-profile hash, generation_id (ADR 0017 A2)"
+    },
+    {
+      "name": "holes",
+      "path": "holes.worldpoc",
+      "kind": "world",
+      "expected": "valid",
+      "authored_hash": "95d7f81024316832854c71489e299f4c3a0f25f7a750e22d971edd03bf59c99b",
+      "sha256": "5ed5616fc36e1eb5b8c99f8f63c30b8aca70c2747ef0d94883bd00556387a3c1"
+    },
+    {
+      "name": "km1_flat_empty",
+      "path": null,
+      "kind": "procedural",
+      "expected": "valid",
+      "sha256": null,
+      "authored_hash": "6295548902d79118d95fcac7c1c9940a326533456dc8edf0b50b5aa0f87b205e",
+      "recipe": "layout km1 (min_region [-4,-4], region_count [8,8]); every height 0.0 (f32le); every control 0x00000001; every tint FF FF FF 00; default rules; asset_locks.json = canonical {bindings:[],dependencies:{},schema_version:1}; objects.json empty; scatter.bin v2 empty (16 bytes); paths.bin empty; hash per authored-hash-v4.md"
+    },
+    {
+      "name": "legacy_flat_empty",
+      "path": "legacy_flat_empty.worldpoc",
+      "kind": "world",
+      "expected": "valid",
+      "authored_hash": "df07bd80a51abe2268b8f6d23d925894cb46702dbbe001647d46638816c4beac",
+      "sha256": "4442043939a7c8f44f4f8b9b2673df94505b8ef1a5fc05a9dce2c80e67d1ac69"
+    },
+    {
+      "name": "lock_not_canonical",
+      "path": "invalid/lock_not_canonical.worldpoc",
+      "kind": "world",
+      "expected": "invalid",
+      "error_substring": "not canonical",
+      "sha256": "b174d900c0767ba5db88ecd4b8c03d72b2435d61c11bbcfda8bccb9821bf6888"
+    },
+    {
+      "name": "migrate_v2",
+      "path": "migrate_v2.worldpoc",
+      "expected": "valid",
+      "authored_hash": "1a0003edd2917b11d841e3619a54b874d283191abbcc134b12a9cda98ff1f5d7",
+      "kind": "migration",
+      "source": "migrate_v2_source.worldpoc",
+      "source_authored_hash": "86807b59614e64612591d25e2ccc4cd117271b8bb773ba27e3b474a808316419",
+      "sha256": "3585db72f830bc984521440e8df28fc24ce761bee06a612bea3d629bb823736c"
+    },
+    {
+      "name": "migrate_v2_app_flat",
+      "path": null,
+      "kind": "migration_procedural",
+      "expected": "valid",
+      "sha256": null,
+      "source": "app/fixtures/flat",
+      "authored_hash": "df07bd80a51abe2268b8f6d23d925894cb46702dbbe001647d46638816c4beac",
+      "recipe": "python3 scripts/validate_world.py migrate app/fixtures/flat DEST"
+    },
+    {
+      "name": "migrate_v2_app_gentle_hills",
+      "path": null,
+      "kind": "migration_procedural",
+      "expected": "valid",
+      "sha256": null,
+      "source": "app/fixtures/gentle_hills",
+      "authored_hash": "759efa7bd62d38c5b389ba7508341e53bda2a955116c3076de829772eeb1cf36",
+      "recipe": "python3 scripts/validate_world.py migrate app/fixtures/gentle_hills DEST"
+    },
+    {
+      "name": "migrate_v2_source",
+      "path": "migrate_v2_source.worldpoc",
+      "expected": "valid",
+      "authored_hash": "86807b59614e64612591d25e2ccc4cd117271b8bb773ba27e3b474a808316419",
+      "kind": "world",
+      "sha256": "c60d2eed520ec3988f8822904ff57aa802d7d0c77fc7960439bdbc0d81e1363b"
+    },
+    {
+      "name": "migrate_v3",
+      "path": "migrate_v3.worldpoc",
+      "expected": "valid",
+      "authored_hash": "7f14e7f5f330863a9a1e2358a15560300774213a5035a7cc15db6f46a34ccc56",
+      "kind": "migration",
+      "source": "migrate_v3_source.worldpoc",
+      "source_authored_hash": "eaa5c5f7ea3962889adb97f23dd7d6cb7bc88a2bca60893c60b9a6dbb1e10384",
+      "sha256": "a76d3850ba169d4e99555ab32e335d0bd412011e4a13aea717c4cdce61fa5b37"
+    },
+    {
+      "name": "migrate_v3_source",
+      "path": "migrate_v3_source.worldpoc",
+      "expected": "valid",
+      "authored_hash": "eaa5c5f7ea3962889adb97f23dd7d6cb7bc88a2bca60893c60b9a6dbb1e10384",
+      "kind": "world",
+      "sha256": "30ca16d08448406b4bdad0be496d58ac01e2b5e70f53553d24beb3fd7b90de04"
+    },
+    {
+      "name": "non_ascii_ids",
+      "path": "non_ascii_ids.worldpoc",
+      "kind": "world",
+      "expected": "valid",
+      "authored_hash": "9f3e068fee179f0610deba71a5f79a69a9aeb11d46b2e7a915ac1a56cdc0af00",
+      "sha256": "e181c578e69c81212e06014de0de10c998a6e10a0bc318dae0c01e200a050edd"
+    },
+    {
+      "name": "object_scale_outside_policy",
+      "path": "invalid/object_scale_outside_policy.worldpoc",
+      "kind": "world",
+      "expected": "invalid",
+      "error_substring": "uniform_scale",
+      "sha256": "634e2a1a30a4f87996dfd36916e1c4e302995bfa437ceca91e9887774fa71b8f"
+    },
+    {
+      "name": "one_bundled_object",
+      "path": "one_bundled_object.worldpoc",
+      "kind": "world",
+      "expected": "valid",
+      "authored_hash": "b52165cf290ef0c26d1921ad94afa4bcce92c6a6eebc61b616bd0e5b3a2aadc1",
+      "sha256": "6e751d96673f7ae7112687a130ddd67dbe97c20d52d7264f2352e33bf30b7141"
+    },
+    {
+      "name": "one_remote_object",
+      "path": "one_remote_object.worldpoc",
+      "kind": "world",
+      "expected": "valid",
+      "authored_hash": "304f909153fe8ea2ec1d8bd04fba123e988efb198efb843d120134435e36ae60",
+      "sha256": "54796de309d196ad03d43ce2d24379b4dc2f979453cdf66beced6dabbbff4217"
+    },
+    {
+      "name": "oversized_lock",
+      "path": "invalid/oversized_lock.worldpoc",
+      "kind": "world",
+      "expected": "invalid",
+      "error_substring": "limit 8388608",
+      "sha256": "3d93478bd46f4ddfd847a187888c306f1be0849f1fdf01a1fb53c39a91ba17ac"
+    },
+    {
+      "name": "policy_outside_catalog",
+      "path": "invalid/policy_outside_catalog.worldpoc",
+      "kind": "world",
+      "expected": "invalid",
+      "error_substring": "outside catalog limits",
+      "sha256": "1865506b1105e1b1d56138fc240bc1952137771c9cddbbcd3e18a1d1b214d8b8"
+    },
+    {
+      "name": "remote_scatter",
+      "path": "remote_scatter.worldpoc",
+      "kind": "world",
+      "expected": "valid",
+      "authored_hash": "aae0b4a0b0a1d17d20659035b126e5b201efdfeaa2f75f77bc2e17fc9e66398b",
+      "sha256": "b1d645d275b979c0e7901798b977311bc42834a598990343e9ede75bde6e2a7d"
+    },
+    {
+      "name": "scatter_binding_not_allowed",
+      "path": "invalid/scatter_binding_not_allowed.worldpoc",
+      "kind": "world",
+      "expected": "invalid",
+      "error_substring": "is not scatter_allowed",
+      "sha256": "1dc387d143cc59a6aff721e74ea68428ef724514b69a21aaf3721dcb24aa6ec5"
+    },
+    {
+      "name": "two_versions",
+      "path": "two_versions.worldpoc",
+      "kind": "world",
+      "expected": "valid",
+      "authored_hash": "ad6832668db10346fa35f53a6fb9c42d5d3db08bf6663e30bd045f061d6ecb1c",
+      "sha256": "2d02387456a87649cf90289283e092b969ea5ac4fce92aec11321c9148df6d78"
+    },
+    {
+      "name": "unknown_binding_in_objects",
+      "path": "invalid/unknown_binding_in_objects.worldpoc",
+      "kind": "world",
+      "expected": "invalid",
+      "error_substring": "unknown binding",
+      "sha256": "24dfa00eda23030e2b9d9833b50f91b28d34b3790897f0b60a207fdca363880d"
+    },
+    {
+      "name": "unreferenced_binding",
+      "path": "invalid/unreferenced_binding.worldpoc",
+      "kind": "world",
+      "expected": "invalid",
+      "error_substring": "is not referenced by any object record or scatter instance",
+      "sha256": "8e09aa66b2715092433569f72db304077e4bae104fad040c1a50fbe0520a566e"
+    },
+    {
+      "name": "zip_199_entries",
+      "path": "invalid/zip_199_entries.worldpoc",
+      "kind": "world",
+      "expected": "invalid",
+      "error_substring": "archive has 199 entries",
+      "sha256": "74c76cec4576b0aa5934e65e1bb3049cd2a9708c930e1e44394812537b3616fc"
+    }
+  ]
+}

@@ -151,8 +151,7 @@ func _place_boulder(s: EditorSession, x: float, z: float) -> String:
 	var asset := s.catalog.get_asset("nature.rock.boulder_a")
 	var r := ObjectRecord.new()
 	r.object_id = ObjectRecord.new_uuid_v4()
-	r.asset_id = asset.asset_id
-	r.asset_version = asset.version
+	r.binding_id = s.document.assets.bundled_binding_for(asset.asset_id)
 	r.grounding = asset.default_grounding
 	r.set_position(x, s.document.sample_height(x, z), z)
 	s.document.put_object(r)

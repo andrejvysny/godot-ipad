@@ -2,7 +2,7 @@
 """Shared World Painter PoC format library (docs/world-format.md), Python stdlib only.
 
 Mirrors WorldConstants, ControlCodec, ObjectRecord, WorldDocument.sample_height and
-CanonicalEncoder from app/src/document. Validators return lists of error strings; they never
+CanonicalEncoder from app/addons/world_painter/core/document. Validators return lists of error strings; they never
 raise for invalid content.
 """
 from __future__ import annotations
@@ -38,6 +38,7 @@ from worldpoc_constants import (
 	QUAT_TOLERANCE,
 	UUID_RE,
 	HEX16_RE,
+	BINDING_ID_RE,
 	AUTHORED_MAGIC,
 	AUTHORED_MAGIC_V3,
 	CATALOG_MAGIC,
@@ -339,20 +340,27 @@ _RECORD_FIELDS = ("object_id", "asset_id", "asset_version", "position", "rotatio
 	"uniform_scale", "grounding", "height_offset_m", "origin", "scatter_operation_id")
 
 
-def parse_object_record(d: Any) -> tuple[dict[str, Any] | None, str]:
-	"""Structural parse mirroring ObjectRecord.from_dict; returns exact float64 values."""
+_RECORD_FIELDS_V4 = ("binding_id",) + tuple(k for k in _RECORD_FIELDS if k not in ("asset_id", "asset_version"))
+
+
+def parse_object_record(d: Any, binding: bool = False) -> tuple[dict[str, Any] | None, str]:
+	"""Structural parse mirroring ObjectRecord.from_dict; returns exact float64 values. `binding` selects
+	the schema 4 record (binding_id instead of asset_id/asset_version)."""
 	if not isinstance(d, dict):
 		return None, "object record is not an object"
-	for key in _RECORD_FIELDS:
+	for key in (_RECORD_FIELDS_V4 if binding else _RECORD_FIELDS):
 		if key not in d:
 			return None, "object record missing field '%s'" % key
 	oid = d["object_id"]
 	if not isinstance(oid, str) or not UUID_RE.match(oid):
 		return None, "object_id is not a lowercase UUID"
 	tag = " (object %s)" % oid
-	if not isinstance(d["asset_id"], str) or d["asset_id"] == "":
+	if binding:
+		if not isinstance(d["binding_id"], str) or not BINDING_ID_RE.match(d["binding_id"]):
+			return None, "binding_id must match ^b[0-9a-f]{32}$" + tag
+	elif not isinstance(d["asset_id"], str) or d["asset_id"] == "":
 		return None, "asset_id must be a non-empty string" + tag
-	if not is_json_int(d["asset_version"]) or d["asset_version"] < 1:
+	elif not is_json_int(d["asset_version"]) or d["asset_version"] < 1:
 		return None, "asset_version must be a positive integer" + tag
 	pos = _finite_list(d["position"], 3)
 	if pos is None:
@@ -380,7 +388,7 @@ def parse_object_record(d: Any) -> tuple[dict[str, Any] | None, str]:
 			or not isinstance(bits.get("rotation_xyzw"), list) or len(bits["rotation_xyzw"]) != 4:
 		return None, "f64le arrays malformed" + tag
 	rec = {
-		"object_id": oid, "asset_id": d["asset_id"], "asset_version": int(d["asset_version"]),
+		"object_id": oid,
 		"position": [_exact(pos[i], bits["position"][i]) for i in range(3)],
 		"rotation_xyzw": [_exact(rot[i], bits["rotation_xyzw"][i]) for i in range(4)],
 		"uniform_scale": _exact(float(d["uniform_scale"]), bits.get("uniform_scale")),
@@ -388,6 +396,10 @@ def parse_object_record(d: Any) -> tuple[dict[str, Any] | None, str]:
 		"height_offset_m": _exact(float(d["height_offset_m"]), bits.get("height_offset_m")),
 		"origin": d["origin"], "scatter_operation_id": sop,
 	}
+	if binding:
+		rec["binding_id"] = d["binding_id"]
+	else:
+		rec["asset_id"], rec["asset_version"] = d["asset_id"], int(d["asset_version"])
 	values = rec["position"] + rec["rotation_xyzw"] + [rec["uniform_scale"], rec["height_offset_m"]]
 	if not all(math.isfinite(v) for v in values):
 		return None, "f64le exact bits missing or disagree with decimal fields" + tag

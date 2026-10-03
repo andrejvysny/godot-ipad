@@ -18,6 +18,8 @@ var _path_preview: PathPreview
 var _op: RefCounted
 var _op_tool := ""
 var _drop := false  # _op is a Library drop, not a router-owned contact
+var _drop_doc: WorldDocument  # the world a drop started in (finish_drop re-verifies it)
+var _drop_selection: Dictionary = {}
 var _ignore_contact := false
 var _last_hit := TerrainHit.new()
 
@@ -73,6 +75,10 @@ func handle_tool_action(action: Dictionary) -> void:
 		return
 	if not editing_enabled or _drop:
 		return
+	if _ctx.read_only_reason != "":
+		if kind == "tool_begin":
+			_ctx.read_only_refusal()
+		return
 	var sample: PointerSample = action.get("sample")
 	match kind:
 		"tool_begin":
@@ -95,6 +101,18 @@ func advance(now: float) -> void:
 
 func has_active_operation() -> bool:
 	return _op != null or _edit_tx != null
+
+
+## The EditTransaction of the open operation, or null. Read-only use (live preview sampling): never capture,
+## finish or roll back through it.
+func open_transaction() -> EditTransaction:
+	if _edit_tx != null:
+		return _edit_tx
+	if _op != null:
+		var tx: Variant = _op.get("_tx")
+		if tx is EditTransaction:
+			return tx
+	return null
 
 
 func active_operation_id() -> String:
@@ -151,17 +169,12 @@ func _on_begin(sample: PointerSample) -> void:
 ## Null (after reporting why) when the contact starts nothing.
 func _make_operation() -> RefCounted:
 	if _armed != "":
-		var asset := _ctx.catalog.get_asset(_armed)
-		if asset == null:
+		var res := LibrarySelection.resolve(_ctx, _armed_selection)
+		if res.error != "":
 			disarm()
-			_ctx.report("Choose an asset in the Library first.")
+			_ctx.report("Choose an asset in the Library first." if res.unknown else str(res.error))
 			return null
-		var not_ready := _ctx.not_ready_error(asset)
-		if not_ready != "":
-			disarm()
-			_ctx.report(not_ready)
-			return null
-		return PlaceOperation.new(_ctx, asset, _snap)
+		return PlaceOperation.new(_ctx, res.asset, _snap, str(res.binding_id))
 	var tool_id := active_tool()
 	if tool_id not in IMPLEMENTED:
 		_ctx.report("%s arrives in a later build." % TOOL_LABELS[tool_id])
@@ -293,21 +306,25 @@ func _cancel_op(reason: String) -> void:
 # --- Library drops: a Pencil drag from a Library tile stays owned by that control (input contract
 # §2), which forwards root-viewport positions here. Router tool actions except tool_cancel are ignored.
 
-func begin_drop(asset_id: String) -> String:
+## `selection`: a bundled asset id or a LibrarySelection; a remote binding must be prepared (never started
+## for an unprepared one). The drop is bound to the current world and binding until it ends.
+func begin_drop(selection: Variant) -> String:
 	if not editing_enabled:
 		return "Editing is disabled."
+	var refused := _ctx.read_only_refusal()
+	if refused != "":
+		return refused
 	if has_active_operation():
 		return BUSY
-	var asset := _ctx.catalog.get_asset(asset_id)
-	if asset == null:
-		return "Unknown asset '%s'." % asset_id
-	var not_ready := _ctx.not_ready_error(asset)
-	if not_ready != "":
-		return not_ready
+	var res := LibrarySelection.resolve(_ctx, selection)
+	if res.error != "":
+		return res.error
 	_cancel_height_pick()
-	_op = PlaceOperation.new(_ctx, asset, _snap)
+	_op = PlaceOperation.new(_ctx, res.asset, _snap, str(res.binding_id))
 	_op_tool = OP_PLACE
 	_drop = true
+	_drop_doc = _ctx.document
+	_drop_selection = res.selection
 	operation_started.emit(OP_PLACE)
 	return ""
 
@@ -319,6 +336,9 @@ func has_drop() -> bool:
 func update_drop(pos: Vector2, over_ui: bool) -> void:
 	if not _drop:
 		return
+	if not _drop_valid():
+		_abandon_drop()
+		return
 	if over_ui:
 		_op.pause(null)
 	else:
@@ -328,6 +348,22 @@ func update_drop(pos: Vector2, over_ui: bool) -> void:
 
 ## Commits at a valid terrain hit outside the interface, otherwise cancels; a no-op once closed.
 func finish_drop(pos: Vector2, over_ui: bool) -> void:
-	if _drop:
-		_last_hit = _ctx.hit_at(pos)
-		_finish(null, over_ui)
+	if not _drop:
+		return
+	if not _drop_valid():
+		_abandon_drop()
+		return
+	_last_hit = _ctx.hit_at(pos)
+	_finish(null, over_ui)
+
+
+## The drop still targets the world and (remote) binding it started with: same document, editable, selection
+## still resolvable (a provider loss or backgrounding unprepares the binding).
+func _drop_valid() -> bool:
+	return _ctx.document == _drop_doc and _ctx.read_only_reason == "" \
+			and LibrarySelection.resolve(_ctx, _drop_selection).error == ""
+
+
+func _abandon_drop() -> void:
+	_ctx.report("Placement cancelled: the asset or world changed.")
+	_cancel_op("drop_invalid")

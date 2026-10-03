@@ -209,7 +209,7 @@ func test_preview_keeps_heights_control_holes_and_tint_untouched() -> void:
 
 func test_shader_derives_blend_weights_from_the_low_tier_samples_only() -> void:
 	var code := (load(TerrainAdapter.SHADER_PATH) as Shader).code
-	code += FileAccess.get_file_as_string("res://src/terrain/world_terrain_material.gdshaderinc")
+	code += FileAccess.get_file_as_string("res://addons/world_painter/terrain/world_terrain_material.gdshaderinc")
 	var slot_start := code.find("void sample_slot(")
 	var slot_end := code.find("// 2-4 lookups per corner")
 	assert_true(slot_start > 0 and slot_end > slot_start, "sample_slot located")

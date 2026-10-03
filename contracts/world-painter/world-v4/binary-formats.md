@@ -1,4 +1,4 @@
-# World schema 4 binary formats and identifiers (DRAFT)
+# World schema 4 binary formats and identifiers
 
 Source of truth: INT-SPEC-1.1 §9.2 and §10.5. Little-endian throughout. `str` = u32 byte length + UTF-8.
 

@@ -1,0 +1,54 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Test user directory: /Users/andrejvysny/Library/Application Support/WorldPainterTests/acc-real-v66bm2aa
+  PASS test_real_server_acceptance::test_offline_reopen_cached_and_uncached (0.2 ms)
+Editor ready: fake
+ACC connection configured (loopback, read-only token) PASS
+ACC libraries listed online PASS
+ACC browse lists the published assets (["Neutral PBR Crate", "Shared UID Blue", "Shared UID Red", "Textured Tree", "Vertex Color Foliage"]) PASS
+ACC tile starts Remote and is not draggable PASS
+ACC remote tile drag places nothing PASS
+ACC download from the real server reaches Ready PASS
+ACC ready drag = one object, one history action PASS
+ACC undo removes it, redo restores it PASS
+ACC cancelled drag places nothing later PASS
+ACC download Textured Tree (textures/vertex colours) ready PASS
+ACC drop Textured Tree = one history action PASS
+ACC download Vertex Color Foliage (textures/vertex colours) ready PASS
+ACC drop Vertex Color Foliage = one history action PASS
+ACC exact v1 prepared (not latest) PASS
+ACC update offer for v1 object, scene stays on v1 PASS
+ACC review ready PASS
+ACC_INFO review text: 1 object(s) move from ver_dmsh83v96cga1q7t to ver_pf5wjayvpf8d3k91. | Placed position, rotation and scale are kept. | Differences: | - bounds_min: [-0.5, 0, -1] -> [-0.550001, 0, -1.05] | - bounds_max: [0.5, 0.5, 1] -> [0.550001, 0.600001, 1.05]
+ACC approved update is one history action to the exact v2 PASS
+ACC undo returns to v1 PASS
+ACC redo re-applies v2 PASS
+ACC world saved PASS
+ACC_INFO objects=4 bindings=4 crate_binding=b224f2e355014dd1d7bb252fedb3052fd
+ACC world references only exact versions PASS
+  PASS test_real_server_acceptance::test_online_browse_download_drop_update_save (1739.1 ms)
+
+2 tests, 0 failures (3.3 s)
+WARNING: instance_reset_physics_interpolation() is deprecated.
+     at: _instance_reset_physics_interpolation_bind_compat_104269 (servers/rendering/rendering_server.compat.inc:62)
+     GDScript backtrace (most recent call first):
+         [0] _create_terrain (res://addons/world_painter/terrain/terrain_adapter.gd:311)
+         [1] initialize (res://addons/world_painter/terrain/terrain_adapter.gd:58)
+         [2] _build_scene (res://src/app/editor_session.gd:224)
+         [3] _ready (res://src/app/editor_session.gd:80)
+         [4] _real_session (res://tests/integration/test_real_server_acceptance.gd:28)
+         [5] test_online_browse_download_drop_update_save (res://tests/integration/test_real_server_acceptance.gd:61)
+         [6] _run (res://tests/run_tests.gd:53)
+WARNING: 6 RIDs of type "CanvasItem" were leaked.
+   at: _free_rids (servers/rendering/renderer_canvas_cull.cpp:2735)
+WARNING: 53 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
+ERROR: 16 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:822)
+ERROR: Pages in use exist at exit in PagedAllocator: N12VariantPools11BucketLargeE
+   at: ~PagedAllocator (./core/templates/paged_allocator.h:170)
+ERROR: Pages in use exist at exit in PagedAllocator: N12VariantPools12BucketMediumE
+   at: ~PagedAllocator (./core/templates/paged_allocator.h:170)
+ERROR: Pages in use exist at exit in PagedAllocator: N12VariantPools11BucketSmallE
+   at: ~PagedAllocator (./core/templates/paged_allocator.h:170)
+
